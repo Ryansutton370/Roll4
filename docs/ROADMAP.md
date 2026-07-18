@@ -4,7 +4,7 @@ This is a rough phase plan, not a committed schedule. Update it as scope
 shifts — the point is to keep a shared picture of "what are we building
 right now vs. later," not to lock in dates.
 
-## Phase 1 — Local GM MVP (current phase)
+## Phase 1 — Local GM MVP
 
 No accounts, no backend. Single GM using the app in one browser.
 
@@ -54,16 +54,32 @@ considerations).
 - [x] Combatant bubble expansion drawer for Removed from Combat / Hold
       Action, with status icons on the collapsed bubble.
 
-## Phase 2 — GM Accounts + Real Persistence
+## Phase 2 — Combatant Data + Troops (current phase)
+
+Still local-storage only, no backend yet — a feature pass that deepens what
+a combatant *is* before Phase 3 moves persistence off the browser.
+
+- [ ] Combatant HP / AC / Notes: optional fields alongside Initiative
+      Modifier, settable when creating a PC/NPC and editable live during an
+      encounter, with column labels matching Initiative Modifier's. Answers
+      the "how much combat data" open question in
+      [PRODUCT.md](./PRODUCT.md).
+- [ ] Troops tab: a third top-nav tab alongside Parties and Encounters —
+      pre-made, reusable groupings of NPCs a GM can bring into an Encounter
+      the same way Party PCs are brought in today (a checkbox to include
+      the group). Answers the "NPC reuse" open question in
+      [PRODUCT.md](./PRODUCT.md).
+
+## Phase 3 — GM Accounts + Real Persistence
 
 - [ ] Choose a backend (see [ARCHITECTURE.md](./ARCHITECTURE.md) — deferred
       on purpose until this phase).
 - [ ] GM authentication/accounts.
-- [ ] Migrate Parties/PCs/Encounters from browser storage to the backend,
-      scoped per-GM.
+- [ ] Migrate Parties/PCs/Encounters/Troops from browser storage to the
+      backend, scoped per-GM.
 - [ ] Data accessible from more than one device/browser.
 
-## Phase 3 — Player Role
+## Phase 4 — Player Role
 
 - [ ] Player accounts, distinct role from GM.
 - [ ] A Player can be linked to a PC and upload/manage that character's
@@ -77,11 +93,6 @@ considerations).
 Captured so they aren't lost, not scheduled into a phase yet. Needs proper
 design (data model, UI) before it becomes phase work.
 
-- **Troops tab** — a third top-nav tab alongside Parties and Encounters:
-  pre-made, reusable groupings of NPCs a GM can bring into an Encounter the
-  same way Party PCs are brought in today (a checkbox to include the
-  group). Answers the "NPC reuse" open question in
-  [PRODUCT.md](./PRODUCT.md).
 - **Timers** — an Encounter feature: an "Add Timer" button creates a Timer
   Card with a GM-written label (e.g. "Water floods the room in 4 rounds")
   that counts down each turn or round. Timer Cards sit above the
@@ -89,10 +100,6 @@ design (data model, UI) before it becomes phase work.
   remaining. On expiry, a timer is highlighted rather than removed — the GM
   dismisses it manually via an X. The GM can also nudge the remaining count
   up/down with +/- controls.
-- **Combatant HP / AC / Notes** — optional fields alongside Initiative
-  Modifier: settable when creating a PC/NPC, editable live during an
-  encounter, with column labels matching Initiative Modifier's. Answers the
-  "how much combat data" open question in [PRODUCT.md](./PRODUCT.md).
 - **NPC name generator** — a tool to generate NPC names on demand.
 
 ## Explicitly not planned yet
