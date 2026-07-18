@@ -1,0 +1,33 @@
+ol {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.active {
+  background: #fff3b0;
+  font-weight: bold;
+}
+
+/* Lighter than .active — signals "on deck" without implying it's their turn. */
+.on-hold {
+  background: #fff9db;
+}
+
+.removed {
+  opacity: 0.5;
+}
+
+.pc {
+  color: #1a56db;
+  font-weight: 600;
+}
+
+.npc {
+  color: #b91c1c;
+  font-weight: 600;
+}

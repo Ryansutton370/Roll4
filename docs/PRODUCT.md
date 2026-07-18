@@ -33,8 +33,9 @@ this fight (e.g. "Goblin 1", "Goblin 2", "Bandit Captain").
 ### 3. Roll Initiative
 The GM presses **Roll**. Every combatant gets a random value from 1–20, plus
 their Initiative Modifier, producing their initiative total. Combatants are
-sorted descending by that total (highest acts first). Ties are broken by...
-*(open question — see Open Decisions below)*.
+sorted descending by that total (highest acts first). Ties are broken by
+whichever combatant has the higher Initiative Modifier; if that's also tied,
+by a random coin flip.
 
 ### 4. Run the Encounter
 The initiative order is displayed as a list. Each entry shows:
@@ -44,6 +45,10 @@ The initiative order is displayed as a list. Each entry shows:
 
 The GM uses **Forward** / **Back** buttons to move an "Active" highlight down
 the list, one combatant at a time — this is whose turn it currently is.
+**Back** stops at the first combatant of the current round rather than
+crossing back into the previous round — with "Re-roll every round" as the
+default rule, a previous round's order/rolls are no longer meaningful to
+return to.
 
 ### 5. Rounds
 When the GM advances past the last combatant in the order, a new round
@@ -59,11 +64,35 @@ for what happens to initiative order at the start of a new round:
 ### 6. Remove from Combat
 The GM can mark any combatant as **Removed from Combat** (e.g. defeated,
 fled, or otherwise out of the fight). A removed combatant:
-- Is greyed out in the initiative list.
+- Shows **N/A** for initiative (counts as `0` for sorting) and is greyed out
+  in the initiative list.
 - Is skipped when advancing Forward/Back — the Active highlight jumps over
   them.
-- **Keeps its place** in the initiative order (it isn't deleted or
-  re-sorted away), so it can be un-removed later without losing its spot.
+- **Sinks to the bottom** of the initiative order, since a real roll is
+  almost always above `0`.
+
+Unchecking Removed from Combat rolls a fresh initiative for that combatant —
+randomized, but always capped below the current Active combatant's total —
+and reinserts them into the order at that point, rejoining the fight
+mid-round rather than snapping back to wherever they started.
+
+### 7. Hold Action
+The GM can mark a combatant as **Holding their action** (waiting for a
+trigger before acting). A combatant on hold:
+- Is lightly highlighted — a subtler highlight than the Active combatant's,
+  signaling "on deck" rather than "acting now."
+- Has its initiative continuously pinned to **one less than the Active
+  combatant's total**, so it always shows as next-in-line and follows the
+  Active highlight down the list as turns pass.
+- Is skipped when advancing Forward/Back, the same way a Removed combatant
+  is — Hold Action never becomes the Active turn on its own.
+
+Unchecking Hold Action doesn't reposition the combatant — it stays right
+where it was pinned (just below whoever was Active at that moment), so the
+very next Forward lands on it: mechanically, "jumping into the action" right
+after the turn that was current when the GM called for it. If the currently
+Active combatant checks Hold Action on their own turn, their turn passes
+immediately, the same way marking the Active combatant Removed does.
 
 ## Persistence
 
@@ -89,9 +118,6 @@ some kind) — see [ARCHITECTURE.md](./ARCHITECTURE.md).
 These are known gaps we haven't resolved yet — call them out explicitly when
 they become relevant rather than silently picking an answer:
 
-- **Tie-breaking rule** for equal initiative totals (D&D 5e RAW uses highest
-  Dex modifier, then GM's choice — do we want that much detail, or a simpler
-  rule?).
 - **NPC reuse** — should NPCs ever be saved to a reusable "monster library"
   across encounters, or are they always encounter-scoped?
 - How much combat-relevant data (HP, conditions, notes) do we want on a

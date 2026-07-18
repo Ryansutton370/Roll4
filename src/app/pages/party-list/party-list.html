@@ -1,0 +1,32 @@
+<h1>Parties</h1>
+
+<!-- @if / @for: Angular's built-in control-flow syntax (replaces the older
+     *ngIf / *ngFor structural directives). No import needed — it's part of
+     the template compiler itself. -->
+@if (partyStore.parties().length === 0) {
+  <p>No parties yet. Create one below to get started.</p>
+} @else {
+  <ul>
+    @for (party of partyStore.parties(); track party.id) {
+      <li>
+        <a [routerLink]="['/parties', party.id]">{{ party.name }}</a>
+        ({{ partyStore.pcsForParty(party.id).length }} PCs)
+        <button type="button" (click)="deleteParty(party.id, party.name)">Delete</button>
+      </li>
+    }
+  </ul>
+}
+
+<form (ngSubmit)="createParty()">
+  <!-- [ngModel] + (ngModelChange) instead of [(ngModel)]: signals aren't
+       directly two-way-bindable, so we read the signal in and write it back
+       out explicitly on change. -->
+  <input
+    type="text"
+    [ngModel]="newPartyName()"
+    (ngModelChange)="newPartyName.set($event)"
+    name="partyName"
+    placeholder="Party name, e.g. The Thursday Night Group"
+  />
+  <button type="submit">Create Party</button>
+</form>

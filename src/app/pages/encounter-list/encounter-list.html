@@ -1,0 +1,49 @@
+<h1>Encounters</h1>
+
+@if (encounterStore.encounters().length === 0) {
+  <p>No encounters yet. Create one below.</p>
+} @else {
+  <ul>
+    @for (encounter of encounterStore.encounters(); track encounter.id) {
+      <li>
+        <a [routerLink]="['/encounters', encounter.id]">{{ encounter.name }}</a>
+        @if (encounter.round > 0) {
+          (Round {{ encounter.round }})
+        } @else {
+          (Not started)
+        }
+        <button type="button" (click)="deleteEncounter(encounter.id, encounter.name)">
+          Delete
+        </button>
+      </li>
+    }
+  </ul>
+}
+
+<form (ngSubmit)="createEncounter()">
+  <input
+    type="text"
+    [ngModel]="newEncounterName()"
+    (ngModelChange)="newEncounterName.set($event)"
+    name="encounterName"
+    placeholder="Encounter name, e.g. Goblin Ambush"
+  />
+
+  @if (partyStore.parties().length > 0) {
+    <fieldset>
+      <legend>Pull PCs from:</legend>
+      @for (party of partyStore.parties(); track party.id) {
+        <label>
+          <input
+            type="checkbox"
+            [checked]="selectedPartyIds().includes(party.id)"
+            (change)="togglePartySelected(party.id, $any($event.target).checked)"
+          />
+          {{ party.name }}
+        </label>
+      }
+    </fieldset>
+  }
+
+  <button type="submit">Create Encounter</button>
+</form>

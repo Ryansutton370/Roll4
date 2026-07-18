@@ -1,0 +1,95 @@
+@if (encounter(); as e) {
+  <p><a routerLink="/encounters">← Back to Encounters</a></p>
+  <h1>{{ e.name }}</h1>
+
+  @if (!hasStarted()) {
+    <!-- Setup phase: review pulled-in PCs, add ad-hoc NPCs, then Roll. -->
+    <section>
+      <h2>Combatants</h2>
+      @if (combatants().length === 0) {
+        <p>No combatants yet. Add an NPC below.</p>
+      } @else {
+        <ul>
+          @for (c of combatants(); track c.id) {
+            <li>
+              <span [class]="c.type">{{ c.name }}</span>
+              (mod {{ c.initiativeModifier }})
+              <button type="button" (click)="removeCombatant(c.id)">Remove</button>
+            </li>
+          }
+        </ul>
+      }
+
+      <form (ngSubmit)="addNpc()">
+        <input
+          type="text"
+          [ngModel]="newNpcName()"
+          (ngModelChange)="newNpcName.set($event)"
+          name="npcName"
+          placeholder="NPC name"
+        />
+        <input
+          type="number"
+          [ngModel]="newNpcModifier()"
+          (ngModelChange)="newNpcModifier.set($event)"
+          name="npcModifier"
+          placeholder="Initiative Modifier"
+        />
+        <button type="submit">Add NPC</button>
+      </form>
+
+      <label>
+        <input
+          type="checkbox"
+          [checked]="e.reRollEachRound"
+          (change)="setReRollEachRound($any($event.target).checked)"
+        />
+        Re-roll every round (uncheck to keep initiative order round-to-round)
+      </label>
+
+      <button type="button" (click)="rollInitiative()" [disabled]="combatants().length === 0">
+        Roll Initiative
+      </button>
+    </section>
+  } @else {
+    <!-- Run phase: initiative order, Active-turn highlight, round tracking. -->
+    <section>
+      <p>Round {{ e.round }}</p>
+
+      <ol>
+        @for (c of combatants(); track c.id; let i = $index) {
+          <li
+            [class.active]="i === e.activeCombatantIndex"
+            [class.removed]="c.removedFromCombat"
+            [class.on-hold]="c.onHold"
+          >
+            <span [class]="c.type">{{ c.name }}</span>
+            — {{ c.initiativeTotal ?? 'N/A' }}
+            <label>
+              <input
+                type="checkbox"
+                [checked]="c.removedFromCombat"
+                (change)="toggleRemoved(c.id)"
+              />
+              Removed from Combat
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                [checked]="c.onHold"
+                [disabled]="c.removedFromCombat"
+                (change)="toggleHoldAction(c.id)"
+              />
+              Hold Action
+            </label>
+          </li>
+        }
+      </ol>
+
+      <button type="button" (click)="advance('back')">◀ Back</button>
+      <button type="button" (click)="advance('forward')">Forward ▶</button>
+    </section>
+  }
+} @else {
+  <p>Encounter not found. <a routerLink="/encounters">Back to Encounters</a></p>
+}
