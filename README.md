@@ -1,5 +1,11 @@
 # Roll4
 
+Roll4 is a browser-based initiative tracker for tabletop RPGs. See
+[docs/PRODUCT.md](./docs/PRODUCT.md) for what it does,
+[docs/DATA_MODEL.md](./docs/DATA_MODEL.md) and
+[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for how it's built, and
+[docs/ROADMAP.md](./docs/ROADMAP.md) for what's next.
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.7.
 
 ## Development server
