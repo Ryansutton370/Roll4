@@ -7,6 +7,10 @@
   reactivity model rather than older patterns like `NgRx` or heavy RxJS
   state stores.
 - **Vitest** for unit tests (already wired up by the Angular CLI template).
+- **@angular/cdk** (`DragDropModule`) for the Hold Action placement drag
+  gesture — the one place in the app that needs real drag-and-drop; see
+  docs/ROADMAP.md's "Planned, not yet built" note on why this was deferred
+  elsewhere, and docs/PRODUCT.md's Hold Action section for the feature.
 - No backend yet — see "Persistence" below.
 
 ### Why Signals instead of NgRx for state management

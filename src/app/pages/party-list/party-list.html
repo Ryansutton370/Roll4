@@ -4,20 +4,31 @@
      *ngIf / *ngFor structural directives). No import needed — it's part of
      the template compiler itself. -->
 @if (partyStore.parties().length === 0) {
-  <p>No parties yet. Create one below to get started.</p>
+  <p class="empty-state">No parties yet. Create one below to get started.</p>
 } @else {
-  <ul>
+  <ul class="bubble-list">
     @for (party of partyStore.parties(); track party.id) {
-      <li>
-        <a [routerLink]="['/parties', party.id]">{{ party.name }}</a>
-        ({{ partyStore.pcsForParty(party.id).length }} PCs)
-        <button type="button" (click)="deleteParty(party.id, party.name)">Delete</button>
+      <li class="bubble entry">
+        <a class="entry-title" [routerLink]="['/parties', party.id]">{{ party.name }}</a>
+        <span class="badge">{{ partyStore.pcsForParty(party.id).length }} PCs</span>
+        <button
+          type="button"
+          class="icon-btn danger"
+          (click)="deleteParty(party.id, party.name)"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path
+              d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+            />
+          </svg>
+          <span class="sr-only">Delete {{ party.name }}</span>
+        </button>
       </li>
     }
   </ul>
 }
 
-<form (ngSubmit)="createParty()">
+<form class="entry-form" (ngSubmit)="createParty()">
   <!-- [ngModel] + (ngModelChange) instead of [(ngModel)]: signals aren't
        directly two-way-bindable, so we read the signal in and write it back
        out explicitly on change. -->

@@ -58,34 +58,62 @@ function insertBySortedPosition(order: Combatant[], moved: Combatant): Combatant
 }
 
 /**
- * Keeps every on-hold combatant pinned at "one less than the Active
- * combatant's total" — the homebrew rule that a held action is always next
- * in line without ever becoming the Active turn itself. Called after
- * anything that can change who's Active (or the Active combatant's total),
- * so on-hold combatants keep following the Active highlight down the list.
+ * Keeps every on-hold combatant's displayed initiative equal to the Active
+ * combatant's total — they live in the separate secondary Hold Action list
+ * (ordered by Encounter.holdOrder, not by this total), so this is purely
+ * cosmetic: "on deck, following the Active highlight." Called after
+ * anything that can change who's Active (or the Active combatant's total).
  */
 function syncHoldPositions(order: Combatant[], activeId: string | null): Combatant[] {
   const activeTotal = order.find((c) => c.id === activeId)?.initiativeTotal ?? 0;
   return order.reduce((acc, c) => {
     if (!c.onHold || c.id === activeId) return acc;
-    const holdTotal = activeTotal - 1;
-    if (c.initiativeTotal === holdTotal) return acc;
-    return insertBySortedPosition(acc, { ...c, initiativeTotal: holdTotal });
+    if (c.initiativeTotal === activeTotal) return acc;
+    return insertBySortedPosition(acc, { ...c, initiativeTotal: activeTotal });
   }, order);
 }
 
 /**
- * Rerolls every combatant except Removed (N/A, no roll to make) and on-hold
- * ones (their total is a derived "one less than Active" value fixed up by
- * syncHoldPositions, not a real roll), then sorts the whole order.
+ * Rerolls every combatant except Removed (N/A, no roll to make). On-hold
+ * combatants are also cleared here — a new round always empties the Hold
+ * Action list, and when reRollEachRound is true that means a fresh roll
+ * like everyone else, discarding the pre-hold snapshot.
  */
 export function reRollRound(order: Combatant[]): Combatant[] {
   const rerolled = order.map((c) => {
     if (c.removedFromCombat) return { ...c, lastRoll: null, initiativeTotal: null };
-    if (c.onHold) return c;
-    return rollInitiativeFor(c);
+    const base = c.onHold
+      ? { ...c, onHold: false, preHoldLastRoll: null, preHoldInitiativeTotal: null }
+      : c;
+    return rollInitiativeFor(base);
   });
   return [...rerolled].sort(compareByInitiative);
+}
+
+/**
+ * Called at a round boundary when reRollEachRound is false: returns every
+ * on-hold combatant to the main order with the initiative they had before
+ * Hold Action was toggled on (Combatant.preHold*), rather than the
+ * "pinned to Active" value syncHoldPositions had been displaying. A no-op
+ * (same array reference) when nobody is on hold, so it never disturbs the
+ * "existing order left alone" guarantee documented for this mode.
+ */
+export function clearHoldWithoutReroll(order: Combatant[]): Combatant[] {
+  const heldIds = order.filter((c) => c.onHold).map((c) => c.id);
+  if (heldIds.length === 0) return order;
+  const restored = order.map((c) =>
+    c.onHold
+      ? {
+          ...c,
+          onHold: false,
+          lastRoll: c.preHoldLastRoll,
+          initiativeTotal: c.preHoldInitiativeTotal,
+          preHoldLastRoll: null,
+          preHoldInitiativeTotal: null,
+        }
+      : c,
+  );
+  return heldIds.reduce((acc, id) => insertBySortedPosition(acc, acc.find((c) => c.id === id)!), restored);
 }
 
 /** The first combatant eligible to act — skips Removed and on-hold entries. */
@@ -191,6 +219,8 @@ export class EncounterStore {
           initiativeTotal: null,
           removedFromCombat: false,
           onHold: false,
+          preHoldLastRoll: null,
+          preHoldInitiativeTotal: null,
         }),
       ),
     );
@@ -201,6 +231,7 @@ export class EncounterStore {
       partyIds,
       combatantIds: newCombatants.map((c) => c.id),
       activeCombatantIndex: null,
+      holdOrder: [],
       round: 0,
       reRollEachRound: true,
     };
@@ -215,6 +246,77 @@ export class EncounterStore {
     this.combatantsSignal.update((combatants) => combatants.filter((c) => c.encounterId !== id));
   }
 
+  renameEncounter(id: string, name: string): void {
+    this.updateEncounter(id, { name });
+  }
+
+  /**
+   * Reconciles an Encounter's Party selection with its combatants: pulls in
+   * PCs from newly-selected Parties (skipping any already present, e.g. a
+   * PC added to two selected Parties) and drops PCs from de-selected ones.
+   * Dropping is restricted to before the first Roll — same "setup mistake
+   * correction" rule as removeCombatant — so de-selecting a Party mid-combat
+   * doesn't yank a PC out of an active fight.
+   */
+  setEncounterParties(encounterId: string, partyIds: string[]): void {
+    const encounter = this.getEncounter(encounterId);
+    if (!encounter) return;
+
+    const addedPartyIds = partyIds.filter((id) => !encounter.partyIds.includes(id));
+    const removedPartyIds = encounter.partyIds.filter((id) => !partyIds.includes(id));
+
+    const existingPcIds = new Set(
+      this.combatantsForEncounter(encounterId)
+        .filter((c) => c.type === 'pc')
+        .map((c) => c.pcId),
+    );
+
+    const newCombatants: Combatant[] = addedPartyIds.flatMap((partyId) =>
+      this.partyStore
+        .pcsForParty(partyId)
+        .filter((pc) => !existingPcIds.has(pc.id))
+        .map(
+          (pc): Combatant => ({
+            id: crypto.randomUUID(),
+            encounterId,
+            type: 'pc',
+            pcId: pc.id,
+            name: pc.name,
+            initiativeModifier: pc.initiativeModifier,
+            lastRoll: null,
+            initiativeTotal: null,
+            removedFromCombat: false,
+            onHold: false,
+            preHoldLastRoll: null,
+            preHoldInitiativeTotal: null,
+          }),
+        ),
+    );
+
+    const removedPcIds = new Set(
+      encounter.activeCombatantIndex === null
+        ? removedPartyIds.flatMap((partyId) => this.partyStore.pcsForParty(partyId).map((pc) => pc.id))
+        : [],
+    );
+
+    this.combatantsSignal.update((combatants) => [
+      ...combatants.filter(
+        (c) => !(c.encounterId === encounterId && c.pcId && removedPcIds.has(c.pcId)),
+      ),
+      ...newCombatants,
+    ]);
+
+    const remainingCombatantIds = encounter.combatantIds.filter((id) => {
+      const c = this.combatantsSignal().find((cc) => cc.id === id);
+      return !!c && !(c.pcId && removedPcIds.has(c.pcId));
+    });
+
+    this.updateEncounter(encounterId, {
+      partyIds,
+      combatantIds: [...remainingCombatantIds, ...newCombatants.map((c) => c.id)],
+    });
+  }
+
   addNpc(encounterId: string, name: string, initiativeModifier: number): void {
     const npc: Combatant = {
       id: crypto.randomUUID(),
@@ -227,11 +329,20 @@ export class EncounterStore {
       initiativeTotal: null,
       removedFromCombat: false,
       onHold: false,
+      preHoldLastRoll: null,
+      preHoldInitiativeTotal: null,
     };
     this.combatantsSignal.update((combatants) => [...combatants, npc]);
     this.updateEncounter(encounterId, {
       combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), npc.id],
     });
+  }
+
+  /** Only allowed before the first Roll — same "setup mistake correction" rule as removeCombatant. */
+  setInitiativeModifier(encounterId: string, combatantId: string, initiativeModifier: number): void {
+    const encounter = this.getEncounter(encounterId);
+    if (!encounter || encounter.activeCombatantIndex !== null) return;
+    this.updateCombatant(combatantId, { initiativeModifier });
   }
 
   /** Only allowed before the first Roll — corrects a setup mistake. */
@@ -300,7 +411,14 @@ export class EncounterStore {
         onHold: false,
         lastRoll: null,
         initiativeTotal: null,
+        preHoldLastRoll: null,
+        preHoldInitiativeTotal: null,
       });
+      if (combatant.onHold) {
+        this.updateEncounter(encounterId, {
+          holdOrder: encounter.holdOrder.filter((id) => id !== combatantId),
+        });
+      }
       if (wasActive) this.advanceTurn(encounterId, 'forward');
 
       const activeId = this.activeCombatantId(encounterId);
@@ -328,13 +446,16 @@ export class EncounterStore {
   }
 
   /**
-   * Holding an action pins the combatant at "Active total minus one" so
-   * they always show as next-in-line; Forward/Back skip them until this is
-   * unchecked. If it's the Active combatant choosing to hold, their turn
-   * passes immediately (same ordering-then-advancing caveat as
-   * toggleRemoved above). Un-holding leaves them wherever they already sat
-   * — effectively "jumping into the action" right after the turn that was
-   * current when they un-held.
+   * Holding an action moves the combatant into the secondary Hold Action
+   * list (Encounter.holdOrder, appended so first-to-hold sorts first) and
+   * pins their displayed initiative to the Active combatant's total; Forward/
+   * Back skip them until this is unchecked. Their pre-hold roll is snapshotted
+   * so a new round can restore it later if the encounter isn't re-rolling
+   * (see reRollRound/clearHoldWithoutReroll). If it's the Active combatant
+   * choosing to hold, their turn passes immediately (same ordering-then-
+   * advancing caveat as toggleRemoved above). Un-holding leaves them wherever
+   * they already sat — effectively "jumping into the action" right after the
+   * turn that was current when they un-held.
    */
   toggleHoldAction(encounterId: string, combatantId: string): void {
     const encounter = this.getEncounter(encounterId);
@@ -344,7 +465,25 @@ export class EncounterStore {
 
     const wasActive = this.activeCombatantId(encounterId) === combatantId;
     const nowOnHold = !combatant.onHold;
-    this.updateCombatant(combatantId, { onHold: nowOnHold });
+
+    if (nowOnHold) {
+      this.updateCombatant(combatantId, {
+        onHold: true,
+        preHoldLastRoll: combatant.lastRoll,
+        preHoldInitiativeTotal: combatant.initiativeTotal,
+      });
+      this.updateEncounter(encounterId, { holdOrder: [...encounter.holdOrder, combatantId] });
+    } else {
+      this.updateCombatant(combatantId, {
+        onHold: false,
+        preHoldLastRoll: null,
+        preHoldInitiativeTotal: null,
+      });
+      this.updateEncounter(encounterId, {
+        holdOrder: encounter.holdOrder.filter((id) => id !== combatantId),
+      });
+    }
+
     if (nowOnHold && wasActive) this.advanceTurn(encounterId, 'forward');
 
     if (!nowOnHold) return; // Un-holding: no repositioning, stay put.
@@ -352,6 +491,88 @@ export class EncounterStore {
     const activeId = this.activeCombatantId(encounterId);
     const order = this.combatantsForEncounter(encounterId);
     this.commitOrder(encounterId, syncHoldPositions(order, activeId), activeId);
+  }
+
+  /**
+   * Places a combatant returning from Hold Action at an explicit spot next
+   * to Active — one point above or below its total — rather than leaving it
+   * wherever it happened to be pinned while holding. Driven by the GM
+   * picking a placeholder or dropping the bubble there (see the
+   * placement-mode signals in encounter-detail.ts); toggleHoldAction above
+   * still handles turning Hold Action *on*.
+   *
+   * "Above" is treated as interrupting on the held trigger: the returning
+   * combatant becomes the new Active combatant immediately, rather than
+   * just visually sitting above the old one. The previous Active combatant
+   * doesn't need any special handling to resume afterward — they're simply
+   * the next-highest total left in the order, so Forward naturally lands
+   * back on them once the interrupter's turn ends. "Below" only queues the
+   * combatant up next, without disturbing whose turn it currently is.
+   */
+  returnFromHold(encounterId: string, combatantId: string, position: 'above' | 'below'): void {
+    const encounter = this.getEncounter(encounterId);
+    if (!encounter) return;
+    const order = this.combatantsForEncounter(encounterId);
+    const combatant = order.find((c) => c.id === combatantId);
+    if (!combatant || !combatant.onHold) return;
+
+    const previousActiveId = this.activeCombatantId(encounterId);
+    const activeTotal = order.find((c) => c.id === previousActiveId)?.initiativeTotal ?? 0;
+    const total = position === 'above' ? activeTotal + 1 : activeTotal - 1;
+
+    const updated: Combatant = {
+      ...combatant,
+      onHold: false,
+      initiativeTotal: total,
+      lastRoll: total - combatant.initiativeModifier,
+      preHoldLastRoll: null,
+      preHoldInitiativeTotal: null,
+    };
+    this.updateEncounter(encounterId, {
+      holdOrder: encounter.holdOrder.filter((id) => id !== combatantId),
+    });
+    const reordered = insertBySortedPosition(order, updated);
+    const nextActiveId = position === 'above' ? combatantId : previousActiveId;
+    this.commitOrder(encounterId, syncHoldPositions(reordered, nextActiveId), nextActiveId);
+  }
+
+  /**
+   * Manually repositions a combatant within the main initiative order — the
+   * GM dragging a bubble by its drag handle to a new spot. `newIndex`
+   * follows the same "remove, then insert" convention as Array.splice /
+   * Angular CDK's moveItemInArray: the target index within the order *with
+   * the dragged combatant already removed*. Like every other manual
+   * repositioning in this app (un-removing, Hold Action placement), it pins
+   * to a neighbor's total ± 1 rather than computing a midpoint — one point
+   * below whoever ends up above it, or one point above whoever ends up
+   * below it if dropped at the very top. Removed/on-hold combatants aren't
+   * draggable in the UI, so this is a no-op for either (they don't have a
+   * real position to move within the main order).
+   */
+  reorderCombatant(encounterId: string, combatantId: string, newIndex: number): void {
+    const encounter = this.getEncounter(encounterId);
+    if (!encounter) return;
+    const order = this.combatantsForEncounter(encounterId);
+    const combatant = order.find((c) => c.id === combatantId);
+    if (!combatant || combatant.removedFromCombat || combatant.onHold) return;
+
+    const rest = order.filter((c) => c.id !== combatantId);
+    const above = rest[newIndex - 1] ?? null;
+    const below = rest[newIndex] ?? null;
+    const total = above
+      ? (above.initiativeTotal ?? 0) - 1
+      : below
+        ? (below.initiativeTotal ?? 0) + 1
+        : (combatant.initiativeTotal ?? 0);
+
+    const updated: Combatant = {
+      ...combatant,
+      initiativeTotal: total,
+      lastRoll: total - combatant.initiativeModifier,
+    };
+    const reordered = insertBySortedPosition(order, updated);
+    const activeId = this.activeCombatantId(encounterId);
+    this.commitOrder(encounterId, syncHoldPositions(reordered, activeId), activeId);
   }
 
   advanceTurn(encounterId: string, direction: 'forward' | 'back'): void {
@@ -388,19 +609,24 @@ export class EncounterStore {
       return;
     }
 
-    // Advancing past the last active combatant starts a new round.
+    // Advancing past the last active combatant starts a new round: the Hold
+    // Action list always empties back into the main order here, either with
+    // a fresh reroll (default homebrew rule) or each combatant's pre-hold
+    // initiative (see clearHoldWithoutReroll/reRollRound for which).
     const nextRound = encounter.round + 1;
     if (!encounter.reRollEachRound) {
-      const activeId = order[activeIndices[0]].id;
-      this.commitOrder(encounterId, syncHoldPositions(order, activeId), activeId);
-      this.updateEncounter(encounterId, { round: nextRound });
+      const cleared = clearHoldWithoutReroll(order);
+      const nextActiveIndex = firstActiveIndex(cleared);
+      const activeId = nextActiveIndex !== null ? cleared[nextActiveIndex].id : null;
+      this.commitOrder(encounterId, cleared, activeId);
+      this.updateEncounter(encounterId, { round: nextRound, holdOrder: [] });
       return;
     }
 
     const rolled = reRollRound(order);
     const nextActiveIndex = firstActiveIndex(rolled);
     const activeId = nextActiveIndex !== null ? rolled[nextActiveIndex].id : null;
-    this.commitOrder(encounterId, syncHoldPositions(rolled, activeId), activeId);
-    this.updateEncounter(encounterId, { round: nextRound });
+    this.commitOrder(encounterId, rolled, activeId);
+    this.updateEncounter(encounterId, { round: nextRound, holdOrder: [] });
   }
 }

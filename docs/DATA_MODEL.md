@@ -70,6 +70,7 @@ carrying an always-empty field until then.
 | `partyIds`         | string[]  | Which Parties' PCs were pulled in                |
 | `combatantIds`     | string[]  | **Ordered** by initiative (descending); this order IS the initiative order |
 | `activeCombatantIndex` | number \| null | Index into `combatantIds`; null before first Roll |
+| `holdOrder`        | string[]  | Ids of Combatants currently on Hold Action, oldest-first. Drives the secondary Hold Action list; cleared every round boundary |
 | `round`            | number    | `0` before the first Roll, then starts at `1`    |
 | `reRollEachRound`  | boolean   | Default `true` (the homebrew rule)               |
 
@@ -89,6 +90,8 @@ an NPC — never both.
 | `initiativeTotal`    | number \| null         | `lastRoll + initiativeModifier`; this is what sorts the list. `null` renders as "N/A" and sorts/counts as `0` |
 | `removedFromCombat`  | boolean                | Default `false`. See below.                   |
 | `onHold`             | boolean                | Default `false`. See below.                   |
+| `preHoldLastRoll`    | number \| null         | Snapshot of `lastRoll` taken when Hold Action was turned on. Default `null`. See below. |
+| `preHoldInitiativeTotal` | number \| null     | Snapshot of `initiativeTotal` taken when Hold Action was turned on. Default `null`. See below. |
 
 **Why copy `name`/`initiativeModifier` onto the Combatant instead of always
 reading through to the PC?** An NPC has no separate source to read from, so
@@ -106,23 +109,65 @@ whatever the current Active combatant's total is, and reinserts it into
 `combatantIds` at the matching sorted position — "rejoining mid-round, right
 where that roll would place them," not restoring its original spot.
 
-**`onHold` and ordering:** a combatant on Hold Action has its
-`initiativeTotal` continuously pinned to "the Active combatant's total minus
-one," so it always sorts directly below whoever is Active — visually "next
-in line" without ever becoming the Active turn itself (Forward/Back skip it,
-same as `removedFromCombat`). This total is recalculated and the combatant
-is re-sorted every time the Active combatant (or its total) changes — a
-Forward/Back step, a new round's reroll, etc. Unchecking Hold Action leaves
-the combatant exactly where it is (no repositioning): since it was pinned
-just below whoever was Active at that moment, the next Forward naturally
-lands on it — "jumping into the action" right after the turn that was
-current when it un-held. If the Active combatant checks Hold Action on their
-own turn, the turn passes immediately (same auto-advance as marking the
-Active combatant Removed), and they end up pinned just below the new Active
-combatant.
+**`onHold` and ordering:** a combatant on Hold Action is pulled out of the
+main initiative list into a bordered Hold Action panel (beside the main list
+on wide screens, stacked below it on narrow ones). Order in that panel is
+insertion order (`Encounter.holdOrder`), not initiative — whoever holds
+first appears at the top. While on hold, `initiativeTotal` is continuously
+pinned to equal the Active combatant's total (a display-only value; not a
+real roll) and Forward/Back skip it, same as `removedFromCombat`.
+
+Un-holding — via the drawer's checkbox, or the panel bubble's dedicated
+"return to main list" button — doesn't immediately return the combatant to
+the main list. It opens placement mode (component-local UI state in
+`EncounterDetail`, not persisted on the Combatant): two placeholder spots
+appear around Active in the main list, one at `activeTotal + 1` and one at
+`activeTotal - 1`, and every other control disables until the GM resolves it
+by clicking a placeholder or dragging the bubble onto one (Angular CDK drag
+and drop). Resolving calls `EncounterStore.returnFromHold(encounterId,
+combatantId, position)`, which sets `onHold` to `false`, removes the id from
+`holdOrder`, sets `initiativeTotal` to the chosen `activeTotal ± 1`, and
+derives a matching `lastRoll` (`initiativeTotal - initiativeModifier`) purely
+to keep that invariant consistent — it isn't a real die roll.
+
+`position` also decides whose turn it is afterward: `'above'` sets
+`activeCombatantIndex` to the *returning* combatant — an interrupt, since a
+held trigger firing ahead of the current turn means acting immediately.
+`'below'` leaves `activeCombatantIndex` on whoever was already Active — just
+queuing the combatant up next. No special-case "resume" logic is needed for
+the interrupt case: the previously-Active combatant is simply the
+next-highest remaining total, so Forward naturally lands back on them once
+the interrupter's turn ends, the same as any other turn advance.
+
+If the Active combatant checks Hold Action on their own turn, the turn
+passes immediately (same auto-advance as marking the Active combatant
+Removed), and they go through the same placement flow once returned to.
+
+**Hold Action and new rounds:** starting a new round always empties
+`holdOrder` — every on-hold combatant returns to the main list. If
+`reRollEachRound` is `true` (the default), they get a fresh roll like
+everyone else. If `false`, each one's `initiativeTotal`/`lastRoll` is
+restored from its `preHoldLastRoll`/`preHoldInitiativeTotal` snapshot (taken
+the moment Hold Action was turned on), rather than keeping the "pinned to
+Active" display value.
 
 The skip/auto-advance logic for both flags lives in the Forward/Back
 turn-advancement logic, not in the data itself.
+
+**Manual reordering:** the GM can also drag any main-list combatant (one
+that's neither `removedFromCombat` nor `onHold`) to a new spot via a drag
+handle, using Angular CDK's default sortable-`cdkDropList` behavior — a
+dashed placeholder marks the drop gap and siblings shift live as it's
+dragged. `EncounterStore.reorderCombatant(encounterId, combatantId,
+newIndex)` handles the drop; `newIndex` follows the same "remove, then
+insert" convention as `Array.splice`/CDK's `moveItemInArray` — the target
+index in the order *with the dragged combatant already removed*. Like every
+other manual repositioning in this app, it pins to a neighbor's total ± 1
+(one point below whoever ends up above it, or one point above whoever ends
+up below it if dropped at the very top) rather than computing a midpoint.
+This `cdkDropList` is deliberately self-contained — no
+`cdkDropListConnectedTo` linking it to the Hold Action panel's drop lists —
+so the two drag interactions can never cross into each other.
 
 ## Notes on "re-roll every round"
 
