@@ -1,0 +1,47 @@
+@if (party(); as p) {
+  <p><a routerLink="/parties">← Back to Parties</a></p>
+  <h1>{{ p.name }}</h1>
+
+  <h2>Player Characters</h2>
+  @if (pcs().length === 0) {
+    <p>No PCs yet. Add one below.</p>
+  } @else {
+    <ul>
+      @for (pc of pcs(); track pc.id) {
+        <li>
+          <input
+            type="text"
+            [ngModel]="pc.name"
+            (ngModelChange)="renamePc(pc.id, $event)"
+          />
+          <input
+            type="number"
+            [ngModel]="pc.initiativeModifier"
+            (ngModelChange)="setPcModifier(pc.id, $event)"
+          />
+          <button type="button" (click)="removePc(pc.id, pc.name)">Remove</button>
+        </li>
+      }
+    </ul>
+  }
+
+  <form (ngSubmit)="addPc()">
+    <input
+      type="text"
+      [ngModel]="newPcName()"
+      (ngModelChange)="newPcName.set($event)"
+      name="pcName"
+      placeholder="PC name"
+    />
+    <input
+      type="number"
+      [ngModel]="newPcModifier()"
+      (ngModelChange)="newPcModifier.set($event)"
+      name="pcModifier"
+      placeholder="Initiative Modifier"
+    />
+    <button type="submit">Add PC</button>
+  </form>
+} @else {
+  <p>Party not found. <a routerLink="/parties">Back to Parties</a></p>
+}
