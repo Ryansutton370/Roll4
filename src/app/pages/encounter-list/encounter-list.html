@@ -1,26 +1,53 @@
 <h1>Encounters</h1>
 
 @if (encounterStore.encounters().length === 0) {
-  <p>No encounters yet. Create one below.</p>
+  <p class="empty-state">No encounters yet. Create one below.</p>
 } @else {
-  <ul>
+  <ul class="bubble-list">
     @for (encounter of encounterStore.encounters(); track encounter.id) {
-      <li>
-        <a [routerLink]="['/encounters', encounter.id]">{{ encounter.name }}</a>
+      <li class="bubble entry">
+        <a class="entry-title" [routerLink]="['/encounters', encounter.id]">{{
+          encounter.name
+        }}</a>
         @if (encounter.round > 0) {
-          (Round {{ encounter.round }})
+          <span class="badge">Round {{ encounter.round }}</span>
         } @else {
-          (Not started)
+          <span class="badge">Not started</span>
         }
-        <button type="button" (click)="deleteEncounter(encounter.id, encounter.name)">
-          Delete
+        <button
+          type="button"
+          class="icon-btn"
+          (click)="startEdit(encounter)"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path
+              d="M13.94 3.06a1.5 1.5 0 0 1 2.12 0l.88.88a1.5 1.5 0 0 1 0 2.12l-8.9 8.9-3.5.9.9-3.5 8.5-8.5Zm-9.7 9.7L3 17l4.24-1.24 8.9-8.9-2.12-2.12-8.78 8.78Z"
+            />
+          </svg>
+          <span class="sr-only">Edit {{ encounter.name }}</span>
+        </button>
+        <button
+          type="button"
+          class="icon-btn danger"
+          (click)="deleteEncounter(encounter.id, encounter.name)"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path
+              d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+            />
+          </svg>
+          <span class="sr-only">Delete {{ encounter.name }}</span>
         </button>
       </li>
     }
   </ul>
 }
 
-<form (ngSubmit)="createEncounter()">
+@if (editingEncounter(); as editing) {
+  <h2>Editing "{{ editing.name }}"</h2>
+}
+
+<form class="entry-form" (ngSubmit)="submitEncounterForm()">
   <input
     type="text"
     [ngModel]="newEncounterName()"
@@ -45,5 +72,114 @@
     </fieldset>
   }
 
-  <button type="submit">Create Encounter</button>
+  @if (editingEncounter()) {
+    <!-- Edit mode only: NPCs (and the party PCs added above) apply straight
+         to the store, the same as the setup screen on encounter-detail —
+         only the name/Party selection wait for the submit button below. -->
+    <fieldset>
+      <legend>Combatants</legend>
+      @if (editingCombatants().length === 0) {
+        <p class="empty-state">No combatants yet. Add an NPC below.</p>
+      } @else {
+        <!-- Spacers mirror the row below (type-dot, name, remove button) so
+             "Initiative Modifier" lines up directly over the input column. -->
+        <div class="setup-list-header">
+          <span class="type-dot-spacer"></span>
+          <span class="entry-title-spacer"></span>
+          <span class="modifier-heading">Initiative Modifier</span>
+          <span class="remove-spacer"></span>
+        </div>
+        <ul class="bubble-list">
+          @for (c of editingCombatants(); track c.id) {
+            <li
+              class="bubble entry"
+              [class.pc-entry]="c.type === 'pc'"
+              [class.entry-removed]="c.removedFromCombat"
+            >
+              <span class="type-dot" [class.pc]="c.type === 'pc'" [class.npc]="c.type === 'npc'"></span>
+              <span class="entry-title">{{ c.name }}</span>
+              <!-- standalone: true opts this control out of the enclosing
+                   <form>'s NgForm — without it, ngModel requires a unique
+                   name per control when nested in a form, which a dynamic
+                   @for can't give it. -->
+              <input
+                type="number"
+                class="modifier-input"
+                [ngModel]="c.initiativeModifier"
+                (ngModelChange)="setCombatantModifierInEditingEncounter(c.id, $event)"
+                [ngModelOptions]="{ standalone: true }"
+                [attr.aria-label]="'Initiative Modifier for ' + c.name"
+              />
+              @if (c.type === 'pc') {
+                <!-- Party members can't be deleted here (see
+                     toggleCombatantRemovedInEditingEncounter) — this marks
+                     them Removed from Combat instead, for an absent player.
+                     aria-pressed exposes it as a toggle (vs. a one-shot
+                     action) to screen readers, mirroring its actual behavior. -->
+                <button
+                  type="button"
+                  class="icon-btn"
+                  [class.marked-removed]="c.removedFromCombat"
+                  [attr.aria-pressed]="c.removedFromCombat"
+                  [title]="
+                    c.removedFromCombat
+                      ? 'Mark ' + c.name + ' as present'
+                      : 'Mark ' + c.name + ' as absent (Removed from Combat)'
+                  "
+                  (click)="toggleCombatantRemovedInEditingEncounter(c.id)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
+                    />
+                  </svg>
+                  <span class="sr-only">{{
+                    c.removedFromCombat
+                      ? 'Mark ' + c.name + ' as present'
+                      : 'Mark ' + c.name + ' as absent'
+                  }}</span>
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="icon-btn danger"
+                  (click)="removeCombatantFromEditingEncounter(c.id)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+                    />
+                  </svg>
+                  <span class="sr-only">Remove {{ c.name }}</span>
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      }
+
+      <div class="entry-form">
+        <input
+          type="text"
+          [ngModel]="newNpcName()"
+          (ngModelChange)="newNpcName.set($event)"
+          name="npcName"
+          placeholder="NPC name"
+        />
+        <input
+          type="number"
+          [ngModel]="newNpcModifier()"
+          (ngModelChange)="newNpcModifier.set($event)"
+          name="npcModifier"
+          placeholder="Initiative Modifier"
+        />
+        <button type="button" (click)="addNpcToEditingEncounter()">Add NPC</button>
+      </div>
+    </fieldset>
+  }
+
+  <button type="submit">{{ editingEncounter() ? 'Update Encounter' : 'Create Encounter' }}</button>
+  @if (editingEncounter()) {
+    <button type="button" (click)="cancelEdit()">Cancel</button>
+  }
 </form>

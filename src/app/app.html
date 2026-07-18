@@ -1,11 +1,19 @@
-<header>
-  <h1>Roll4</h1>
-  <nav>
-    <a routerLink="/parties">Parties</a>
-    <a routerLink="/encounters">Encounters</a>
-  </nav>
-</header>
+<!-- Wrapping header+main in a flex column (see app.css) means a future
+     sidebar can slot in as a sibling here without restructuring this
+     template — not building the sidebar itself yet. -->
+<div class="app-shell">
+  <header>
+    <h1>Roll4</h1>
+    <nav>
+      <!-- routerLinkActive: Angular directive that adds a class to the <a>
+           whenever its routerLink matches the current URL — no manual
+           "which page am I on" logic needed. -->
+      <a routerLink="/parties" routerLinkActive="active">Parties</a>
+      <a routerLink="/encounters" routerLinkActive="active">Encounters</a>
+    </nav>
+  </header>
 
-<main>
-  <router-outlet />
-</main>
+  <main>
+    <router-outlet />
+  </main>
+</div>

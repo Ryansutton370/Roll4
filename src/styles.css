@@ -1,1 +1,312 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* ---------------------------------------------------------------------
+   Design tokens. Every component's scoped CSS reads colors/shadows/motion
+   from these custom properties instead of hard-coding hex values, so the
+   palette stays consistent across pages without copy-pasting it four
+   times. Angular component styles are scoped to that component by
+   default, but :root custom properties still cascade into every
+   component's shadow-ish (emulated) view, so this is the one place that's
+   genuinely global.
+   --------------------------------------------------------------------- */
+:root {
+  /* App shell */
+  --color-header-bg: #12141a;
+  --color-header-fg: #f3f4f6;
+
+  /* Page */
+  --color-page-bg: #eef0f3;
+  --color-surface: #ffffff;
+  --color-text: #1f2328;
+  --color-text-muted: #5b6270;
+  --color-border: #dde1e7;
+
+  /* Grouped panels that need to read as a distinct region against the page
+     background (e.g. the Hold Action panel) — noticeably darker than
+     --color-page-bg, rather than another light tint. */
+  --color-panel-bg: #d2d6dc;
+
+  /* PC / NPC accents (bubble left border + badge dot) */
+  --color-pc: #1d4ed8;
+  --color-pc-tint: #e8eefc;
+  --color-npc: #b91c1c;
+  --color-npc-tint: #fbe9e9;
+
+  /* Combat state */
+  --color-hold: #78350f;
+  --color-hold-tint: #fdf6e3;
+  --color-removed: #374151;
+  --color-removed-tint: #f1f2f4;
+
+  /* Actions */
+  --color-danger: #991b1b;
+  --color-danger-tint: #fbe9e9;
+  --color-focus: #1d4ed8;
+
+  /* Icon-only buttons (trash, chevron, etc.) — deliberately darker/bolder
+     than --color-text-muted, which is used for lighter secondary text
+     elsewhere (badges, round indicator). */
+  --color-icon: #333844;
+
+  /* Shape / elevation */
+  --radius-bubble: 0.75rem;
+  --radius-control: 0.5rem;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06), 0 1px 1px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 10px rgb(0 0 0 / 0.08), 0 1px 3px rgb(0 0 0 / 0.06);
+  /* Active-turn glow — colored per combatant type (PC blue / NPC red,
+     matching --color-pc/--color-npc) rather than one shared color, so the
+     active highlight doesn't wash out a PC's own blue bubble tint. */
+  --shadow-active-pc: 0 6px 16px rgb(29 78 216 / 0.3), 0 2px 4px rgb(29 78 216 / 0.2);
+  --shadow-active-npc: 0 6px 16px rgb(185 28 28 / 0.3), 0 2px 4px rgb(185 28 28 / 0.2);
+
+  /* Motion */
+  --transition-fast: 120ms ease;
+  --transition-standard: 200ms ease;
+
+  /* Decorative display font for headings, loaded via <link> in index.html
+     (a <link> tag lets the browser start the font fetch immediately,
+     instead of blocking on discovering an @import buried in the CSS).
+     Falls back to the body's font stack if the Google Fonts request
+     fails or is blocked. */
+  --font-header:
+    'Pirata One', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-page-bg);
+  color: var(--color-text);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-header);
+  /* Pirata One is a decorative blackletter face — it reads more clearly
+     with slightly wider letter-spacing than a normal sans-serif heading. */
+  letter-spacing: 0.02em;
+}
+
+/* Visible only to keyboard/AT users navigating by focus — mouse users don't
+   see a ring on click, keyboard users always do. */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Screen-reader-only text: kept in the accessibility tree but removed from
+   visual layout. Used for icon-only buttons that need a real label. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------------
+   Shared "bubble" card — the base look for every party/PC/encounter/
+   combatant entry. Components add their own modifier classes (e.g.
+   .active, .removed) in their scoped CSS on top of this.
+   --------------------------------------------------------------------- */
+.bubble {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-bubble);
+  box-shadow: var(--shadow-sm);
+  padding: 0.75rem 1rem;
+  transition:
+    box-shadow var(--transition-standard),
+    transform var(--transition-standard),
+    background-color var(--transition-standard),
+    border-color var(--transition-standard);
+}
+
+.bubble:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Square icon-only button with a real 44px touch target. */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-icon);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.icon-btn:hover {
+  background: var(--color-removed-tint);
+  color: var(--color-text);
+}
+
+.icon-btn.danger:hover {
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+}
+
+.icon-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ---------------------------------------------------------------------
+   Shared list/entry layout — used by party-list, party-detail, and
+   encounter-list, which all render "a bubble per row with a title, an
+   optional badge, and a delete action" even though each is a separate
+   Angular component with its own scoped stylesheet.
+   --------------------------------------------------------------------- */
+.bubble-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.entry-title {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.entry-title:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--color-removed-tint);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.empty-state {
+  color: var(--color-text-muted);
+}
+
+/* ---------------------------------------------------------------------
+   Forms & controls
+   --------------------------------------------------------------------- */
+input[type='text'],
+input[type='number'] {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  transition: border-color var(--transition-fast);
+}
+
+input[type='text']:hover,
+input[type='number']:hover {
+  border-color: var(--color-text-muted);
+}
+
+button {
+  font: inherit;
+}
+
+button[type='submit'] {
+  padding: 0.6rem 1.1rem;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+button[type='submit']:hover {
+  opacity: 0.85;
+}
+
+button[type='submit']:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.entry-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.entry-form input[type='text'] {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.entry-form input[type='number'] {
+  width: 6rem;
+}
+
+/* Below ~340px of available width the 12rem minimum would force the
+   submit button off-screen — let the input shrink further instead. */
+@media (max-width: 480px) {
+  .entry-form input[type='text'] {
+    min-width: 0;
+  }
+}
+
+fieldset {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+}
+
+fieldset legend {
+  padding: 0 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+fieldset label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.2rem 0.9rem 0.2rem 0;
+}

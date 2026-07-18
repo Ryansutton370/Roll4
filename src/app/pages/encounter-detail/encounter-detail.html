@@ -7,20 +7,80 @@
     <section>
       <h2>Combatants</h2>
       @if (combatants().length === 0) {
-        <p>No combatants yet. Add an NPC below.</p>
+        <p class="empty-state">No combatants yet. Add an NPC below.</p>
       } @else {
-        <ul>
-          @for (c of combatants(); track c.id) {
-            <li>
-              <span [class]="c.type">{{ c.name }}</span>
-              (mod {{ c.initiativeModifier }})
-              <button type="button" (click)="removeCombatant(c.id)">Remove</button>
+        <!-- Spacers mirror the row below (type-dot, name, remove button) so
+             "Initiative Modifier" lines up directly over the input column. -->
+        <div class="setup-list-header">
+          <span class="type-dot-spacer"></span>
+          <span class="entry-title-spacer"></span>
+          <span class="modifier-heading">Initiative Modifier</span>
+          <span class="remove-spacer"></span>
+        </div>
+        <ul class="bubble-list">
+          @for (c of setupCombatants(); track c.id) {
+            <li
+              class="bubble entry"
+              [class.pc-entry]="c.type === 'pc'"
+              [class.entry-removed]="c.removedFromCombat"
+            >
+              <span
+                class="type-dot"
+                [class.pc]="c.type === 'pc'"
+                [class.npc]="c.type === 'npc'"
+              ></span>
+              <span class="entry-title">{{ c.name }}</span>
+              <input
+                type="number"
+                class="modifier-input"
+                [ngModel]="c.initiativeModifier"
+                (ngModelChange)="setCombatantModifier(c.id, $event)"
+                [attr.aria-label]="'Initiative Modifier for ' + c.name"
+              />
+              @if (c.type === 'pc') {
+                <!-- Party members can't be deleted here — this marks them
+                     Removed from Combat instead, for an absent player.
+                     aria-pressed exposes it as a toggle (vs. a one-shot
+                     action) to screen readers, mirroring its actual behavior. -->
+                <button
+                  type="button"
+                  class="icon-btn"
+                  [class.marked-removed]="c.removedFromCombat"
+                  [attr.aria-pressed]="c.removedFromCombat"
+                  [title]="
+                    c.removedFromCombat
+                      ? 'Mark ' + c.name + ' as present'
+                      : 'Mark ' + c.name + ' as absent (Removed from Combat)'
+                  "
+                  (click)="toggleRemoved(c.id)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
+                    />
+                  </svg>
+                  <span class="sr-only">{{
+                    c.removedFromCombat
+                      ? 'Mark ' + c.name + ' as present'
+                      : 'Mark ' + c.name + ' as absent'
+                  }}</span>
+                </button>
+              } @else {
+                <button type="button" class="icon-btn danger" (click)="removeCombatant(c.id)">
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+                    />
+                  </svg>
+                  <span class="sr-only">Remove {{ c.name }}</span>
+                </button>
+              }
             </li>
           }
         </ul>
       }
 
-      <form (ngSubmit)="addNpc()">
+      <form class="entry-form" (ngSubmit)="addNpc()">
         <input
           type="text"
           [ngModel]="newNpcName()"
@@ -38,56 +98,371 @@
         <button type="submit">Add NPC</button>
       </form>
 
-      <label>
-        <input
-          type="checkbox"
-          [checked]="e.reRollEachRound"
-          (change)="setReRollEachRound($any($event.target).checked)"
-        />
-        Re-roll every round (uncheck to keep initiative order round-to-round)
-      </label>
+      <!-- Plain [checked]/(change) bindings, not [(ngModel)]: these are
+           native radio inputs with no form validation/submission need, so
+           the extra FormsModule machinery would be overkill — Angular just
+           reads/writes the DOM property and event directly. -->
+      <fieldset class="reroll-mode">
+        <legend>Initiative Style</legend>
+        <label class="reroll-option">
+          <input
+            type="radio"
+            name="rerollMode"
+            [checked]="e.reRollEachRound"
+            (change)="setReRollEachRound(true)"
+          />
+          <span><strong>Chaotic</strong> — Re-roll initiative every round.</span>
+        </label>
+        <label class="reroll-option">
+          <input
+            type="radio"
+            name="rerollMode"
+            [checked]="!e.reRollEachRound"
+            (change)="setReRollEachRound(false)"
+          />
+          <span><strong>Classic</strong> — Roll initiative only at the start of combat.</span>
+        </label>
+      </fieldset>
 
-      <button type="button" (click)="rollInitiative()" [disabled]="combatants().length === 0">
+      <button
+        type="button"
+        class="roll-btn"
+        (click)="rollInitiative()"
+        [disabled]="combatants().length === 0"
+      >
+        <!-- Hexagonal gem outline + spokes to its center corners = a d20,
+             using the same viewBox/fill convention as the app's other icons
+             except stroke-based (a filled path can't show the facet lines). -->
+        <svg
+          class="roll-icon"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.3"
+          stroke-linejoin="round"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M10 1.5 17.5 6v8L10 18.5 2.5 14V6Z" />
+          <path
+            d="M10 1.5V10M17.5 6 10 10M2.5 6 10 10M10 10v8.5M2.5 14 10 10M17.5 14 10 10"
+            stroke-width="1"
+          />
+        </svg>
         Roll Initiative
       </button>
     </section>
   } @else {
     <!-- Run phase: initiative order, Active-turn highlight, round tracking. -->
     <section>
-      <p>Round {{ e.round }}</p>
+      <p class="round-indicator">Round {{ e.round }}</p>
 
-      <ol>
-        @for (c of combatants(); track c.id; let i = $index) {
-          <li
-            [class.active]="i === e.activeCombatantIndex"
-            [class.removed]="c.removedFromCombat"
-            [class.on-hold]="c.onHold"
+      <!--
+        combatant-columns lays the main list and the Hold Action panel side
+        by side (column below 560px — see encounter-detail.css). They're two
+        separate <ol>s, not one shared grid: the panel is its own bordered
+        box, so it doesn't need to line up row-for-row with the Active
+        bubble.
+
+        The main list's cdkDropList (below) is deliberately self-contained —
+        no cdkDropListConnectedTo/group — so manual reordering among
+        mainCombatants() can never cross into the Hold Action panel or vice
+        versa. The panel's own drop lists (hold-list + the two placeholders)
+        are wired to each other separately, by id, further down.
+      -->
+      <div class="combatant-columns">
+        <div class="combatant-list-column">
+          <div class="combatant-row combatant-header">
+            <span class="type-dot-spacer"></span>
+            <span class="combatant-name-spacer"></span>
+            <span class="initiative-heading">Initiative</span>
+            <span class="expand-spacer"></span>
+          </div>
+
+          <ol
+            cdkDropList
+            [cdkDropListData]="mainCombatants()"
+            [cdkDropListDisabled]="isPlacing()"
+            (cdkDropListDropped)="onReorderDropped($event)"
+            class="bubble-list combatant-list"
           >
-            <span [class]="c.type">{{ c.name }}</span>
-            — {{ c.initiativeTotal ?? 'N/A' }}
-            <label>
-              <input
-                type="checkbox"
-                [checked]="c.removedFromCombat"
-                (change)="toggleRemoved(c.id)"
-              />
-              Removed from Combat
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                [checked]="c.onHold"
-                [disabled]="c.removedFromCombat"
-                (change)="toggleHoldAction(c.id)"
-              />
-              Hold Action
-            </label>
-          </li>
-        }
-      </ol>
+            @for (c of mainCombatants(); track c.id) {
+              @if (c.id === activeCombatantId() && isPlacing()) {
+                <!-- Placeholder: shows where the returning combatant would
+                   land if placed just ahead of Active — just the number, so
+                   it reads as a target initiative slot rather than another
+                   combatant bubble. Connected (by id, below) to the Hold
+                   Action panel's list, so dragging the panel bubble here
+                   resolves it the same way clicking does (see
+                   choosePlacement) — separate from this <ol>'s own
+                   self-contained cdkDropList used for manual reordering. -->
+                <li
+                  cdkDropList
+                  id="hold-placeholder-above"
+                  [cdkDropListConnectedTo]="['hold-action-list']"
+                  class="bubble combatant placeholder-bubble"
+                  (cdkDropListDropped)="choosePlacement('above')"
+                >
+                  <button
+                    type="button"
+                    class="placeholder-inner"
+                    (click)="choosePlacement('above')"
+                  >
+                    <span class="initiative-total">{{ activeTotal() + 1 }}</span>
+                  </button>
+                </li>
+              }
 
-      <button type="button" (click)="advance('back')">◀ Back</button>
-      <button type="button" (click)="advance('forward')">Forward ▶</button>
+              <li
+                cdkDrag
+                [cdkDragData]="c"
+                [cdkDragDisabled]="c.removedFromCombat || isPlacing()"
+                class="bubble combatant main-combatant"
+                [class.pc-entry]="c.type === 'pc'"
+                [class.active]="c.id === activeCombatantId()"
+                [class.removed]="c.removedFromCombat"
+                [class.handle-revealed]="isHandleRevealed(c.id)"
+                (click)="toggleHandleRevealed(c.id)"
+              >
+                <div class="combatant-row">
+                  <!-- cdkDragHandle restricts the drag gesture to this icon
+                       alone, so grabbing anywhere else on the bubble (the
+                       expand chevron, the drawer's checkboxes) doesn't
+                       accidentally start a reorder drag. -->
+                  <button
+                    type="button"
+                    cdkDragHandle
+                    class="icon-btn drag-handle"
+                    [disabled]="c.removedFromCombat || isPlacing()"
+                    title="Drag to reorder"
+                  >
+                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path
+                        d="M7 5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM7 8.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM7 12a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"
+                      />
+                    </svg>
+                    <span class="sr-only">Drag to reorder {{ c.name }}</span>
+                  </button>
+
+                  <span
+                    class="type-dot"
+                    [class.pc]="c.type === 'pc'"
+                    [class.npc]="c.type === 'npc'"
+                  ></span>
+                  <span class="combatant-name">{{ c.name }}</span>
+
+                  <span class="status-icons">
+                    @if (c.removedFromCombat) {
+                      <!-- Clicking this is the same shortcut as unchecking
+                           "Removed from Combat" in the drawer below — lets
+                           the GM undo it without opening the drawer first. -->
+                      <button
+                        type="button"
+                        class="status-icon removed-icon"
+                        title="Removed from Combat — click to un-remove"
+                        [disabled]="isPlacing()"
+                        (click)="toggleRemoved(c.id)"
+                      >
+                        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path
+                            d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
+                          />
+                        </svg>
+                        <span class="sr-only">Un-remove {{ c.name }} from Combat</span>
+                      </button>
+                    }
+                  </span>
+
+                  <span class="initiative-total">{{ c.initiativeTotal ?? 'N/A' }}</span>
+
+                  <button
+                    type="button"
+                    class="icon-btn expand-btn"
+                    [class.rotated]="isExpanded(c.id)"
+                    [attr.aria-expanded]="isExpanded(c.id)"
+                    [disabled]="isPlacing()"
+                    (click)="toggleExpanded(c.id)"
+                  >
+                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path
+                        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.25a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+                      />
+                    </svg>
+                    <span class="sr-only">Toggle options for {{ c.name }}</span>
+                  </button>
+                </div>
+
+                <!-- The CSS grid-rows expand trick (see encounter-detail.css)
+                   animates open/closed without needing a hardcoded max-height. -->
+                <div class="drawer" [class.expanded]="isExpanded(c.id)">
+                  <div class="drawer-clip">
+                    <div class="drawer-content">
+                      <label>
+                        <input
+                          type="checkbox"
+                          [checked]="c.removedFromCombat"
+                          [disabled]="isPlacing()"
+                          (change)="toggleRemoved(c.id)"
+                        />
+                        Removed from Combat
+                      </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          [checked]="c.onHold"
+                          [disabled]="c.removedFromCombat || isPlacing()"
+                          (change)="toggleHoldAction(c.id)"
+                        />
+                        Hold Action
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              @if (c.id === activeCombatantId() && isPlacing()) {
+                <li
+                  cdkDropList
+                  id="hold-placeholder-below"
+                  [cdkDropListConnectedTo]="['hold-action-list']"
+                  class="bubble combatant placeholder-bubble"
+                  (cdkDropListDropped)="choosePlacement('below')"
+                >
+                  <button
+                    type="button"
+                    class="placeholder-inner"
+                    (click)="choosePlacement('below')"
+                  >
+                    <span class="initiative-total">{{ activeTotal() - 1 }}</span>
+                  </button>
+                </li>
+              }
+            }
+          </ol>
+        </div>
+
+        @if (heldCombatants().length > 0) {
+          <div class="hold-panel">
+            <h2 class="hold-heading">Hold Action</h2>
+            <!-- cdkDropList is required for the cdkDrag items inside it to
+                 work at all, even though nothing is ever dropped back here.
+                 Connected (by id) to the two placeholders above/below Active
+                 so the placing bubble can be dropped on either — kept
+                 separate from the main list's own reordering cdkDropList. -->
+            <ol
+              cdkDropList
+              id="hold-action-list"
+              [cdkDropListConnectedTo]="['hold-placeholder-above', 'hold-placeholder-below']"
+              class="bubble-list hold-list"
+            >
+              @for (c of heldCombatants(); track c.id) {
+                <!-- No hold-icon badge here (unlike the main list): being in
+                     this panel already says "on hold," and the column is
+                     narrow enough that the badge crowded out the name. -->
+                <li
+                  cdkDrag
+                  [cdkDragDisabled]="!isPlacing(c.id)"
+                  class="bubble combatant on-hold held-bubble"
+                  [class.placing]="isPlacing(c.id)"
+                  [class.popping-out]="isResolving(c.id)"
+                >
+                  <div class="combatant-row">
+                    <!-- Leftmost and pointing left (toward the main list): a
+                         shortcut into placement mode without opening the
+                         drawer — see beginPlacement. -->
+                    <button
+                      type="button"
+                      class="icon-btn return-btn"
+                      title="Return to the main list"
+                      [disabled]="isPlacing()"
+                      (click)="beginPlacement(c.id)"
+                    >
+                      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                          d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z"
+                        />
+                      </svg>
+                      <span class="sr-only">Return {{ c.name }} to the main list</span>
+                    </button>
+
+                    <span
+                      class="type-dot"
+                      [class.pc]="c.type === 'pc'"
+                      [class.npc]="c.type === 'npc'"
+                    ></span>
+                    <span class="combatant-name">{{ c.name }}</span>
+                    <span class="initiative-total">{{ c.initiativeTotal ?? 'N/A' }}</span>
+
+                    <button
+                      type="button"
+                      class="icon-btn expand-btn"
+                      [class.rotated]="isExpanded(c.id)"
+                      [attr.aria-expanded]="isExpanded(c.id)"
+                      [disabled]="isPlacing()"
+                      (click)="toggleExpanded(c.id)"
+                    >
+                      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                          d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.25a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+                        />
+                      </svg>
+                      <span class="sr-only">Toggle options for {{ c.name }}</span>
+                    </button>
+                  </div>
+
+                  <div class="drawer" [class.expanded]="isExpanded(c.id)">
+                    <div class="drawer-clip">
+                      <div class="drawer-content">
+                        <label>
+                          <input
+                            type="checkbox"
+                            [checked]="c.removedFromCombat"
+                            [disabled]="isPlacing()"
+                            (change)="toggleRemoved(c.id)"
+                          />
+                          Removed from Combat
+                        </label>
+                        <label>
+                          <input
+                            type="checkbox"
+                            [checked]="c.onHold"
+                            [disabled]="isPlacing()"
+                            (change)="beginPlacement(c.id)"
+                          />
+                          Hold Action
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Overrides CDK's default drag preview (an exact clone
+                       of the whole bubble) with just the name — the
+                       placeholders already show the target initiative, so
+                       the moving piece only needs to say who it is. -->
+                  <div class="drag-preview" *cdkDragPreview>{{ c.name }}</div>
+                </li>
+              }
+            </ol>
+          </div>
+        }
+      </div>
+
+      <div class="turn-controls">
+        <button
+          type="button"
+          (click)="advance('back')"
+          [disabled]="isFirstActiveCombatant() || isPlacing()"
+        >
+          ◀ Previous Turn
+        </button>
+        <button type="button" (click)="advance('forward')" [disabled]="isPlacing()">
+          @if (isFinalActiveCombatant()) {
+            <strong>Next Round ▶</strong>
+          } @else {
+            Next Turn ▶
+          }
+        </button>
+      </div>
     </section>
   }
 } @else {

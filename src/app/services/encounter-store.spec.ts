@@ -2,7 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 
 import { Combatant } from '../models/encounter.model';
-import { EncounterStore, compareByInitiative, firstActiveIndex, reRollRound } from './encounter-store';
+import {
+  EncounterStore,
+  clearHoldWithoutReroll,
+  compareByInitiative,
+  firstActiveIndex,
+  reRollRound,
+} from './encounter-store';
 import { PartyStore } from './party-store';
 
 function combatant(overrides: Partial<Combatant>): Combatant {
@@ -17,6 +23,8 @@ function combatant(overrides: Partial<Combatant>): Combatant {
     initiativeTotal: null,
     removedFromCombat: false,
     onHold: false,
+    preHoldLastRoll: null,
+    preHoldInitiativeTotal: null,
     ...overrides,
   };
 }
@@ -73,18 +81,58 @@ describe('reRollRound (pure logic)', () => {
     vi.restoreAllMocks();
   });
 
-  it('leaves an on-hold combatant unrolled — their total is fixed up separately, relative to Active', () => {
-    const onHold = combatant({ id: 'held', onHold: true, lastRoll: 3, initiativeTotal: 3 });
+  it('clears and rerolls an on-hold combatant too — a new round always empties the Hold Action list', () => {
+    const onHold = combatant({
+      id: 'held',
+      onHold: true,
+      lastRoll: 3,
+      initiativeTotal: 3,
+      preHoldLastRoll: 9,
+      preHoldInitiativeTotal: 9,
+    });
     const a = combatant({ id: 'a', initiativeModifier: 0 });
 
-    vi.spyOn(Math, 'random').mockReturnValueOnce(0); // -> a rolls 1
+    vi.spyOn(Math, 'random')
+      .mockReturnValueOnce(0.5) // held -> rolls 11
+      .mockReturnValueOnce(0); // a -> rolls 1
 
     const result = reRollRound([onHold, a]);
     const held = result.find((c) => c.id === 'held')!;
-    expect(held.lastRoll).toBe(3);
-    expect(held.initiativeTotal).toBe(3);
+    expect(held.onHold).toBe(false);
+    expect(held.lastRoll).toBe(11);
+    expect(held.initiativeTotal).toBe(11);
+    expect(held.preHoldLastRoll).toBeNull();
+    expect(held.preHoldInitiativeTotal).toBeNull();
 
     vi.restoreAllMocks();
+  });
+});
+
+describe('clearHoldWithoutReroll (pure logic)', () => {
+  it('returns the same array reference when nobody is on hold', () => {
+    const order = [combatant({ id: 'a' }), combatant({ id: 'b' })];
+    expect(clearHoldWithoutReroll(order)).toBe(order);
+  });
+
+  it('restores an on-hold combatant to their pre-hold roll and un-sets onHold', () => {
+    const active = combatant({ id: 'active', initiativeTotal: 20 });
+    const held = combatant({
+      id: 'held',
+      onHold: true,
+      lastRoll: 20,
+      initiativeTotal: 20, // pinned to Active while holding
+      preHoldLastRoll: 4,
+      preHoldInitiativeTotal: 4,
+    });
+
+    const result = clearHoldWithoutReroll([active, held]);
+    const restored = result.find((c) => c.id === 'held')!;
+    expect(restored.onHold).toBe(false);
+    expect(restored.lastRoll).toBe(4);
+    expect(restored.initiativeTotal).toBe(4);
+    expect(restored.preHoldLastRoll).toBeNull();
+    expect(restored.preHoldInitiativeTotal).toBeNull();
+    expect(result.map((c) => c.id)).toEqual(['active', 'held']); // 4 sorts below 20
   });
 });
 
@@ -316,7 +364,7 @@ describe('EncounterStore', () => {
     expect(combatants.map((c) => c.id)).toEqual([a.id, b.id]); // reinserted right below Active
   });
 
-  it('holding a combatant pins their initiative to one less than the Active total and repositions them just below Active', () => {
+  it('holding a combatant pins their displayed initiative to the Active total and adds them to holdOrder', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
     service.addNpc(encounter.id, 'High', 100);
     service.addNpc(encounter.id, 'Mid', 0);
@@ -328,10 +376,203 @@ describe('EncounterStore', () => {
 
     const updated = service.getEncounter(encounter.id)!;
     const combatants = service.combatantsForEncounter(encounter.id);
-    expect(combatants.map((c) => c.name)).toEqual(['High', 'Low', 'Mid']);
-    expect(combatants[1].onHold).toBe(true);
-    expect(combatants[1].initiativeTotal).toBe(high.initiativeTotal! - 1);
+    const held = combatants.find((c) => c.id === low.id)!;
+    expect(held.onHold).toBe(true);
+    expect(held.initiativeTotal).toBe(high.initiativeTotal);
+    expect(updated.holdOrder).toEqual([low.id]);
     expect(updated.activeCombatantIndex).toBe(0); // High is still Active
+  });
+
+  it('tracks Hold Action order by insertion, not initiative — first to hold sorts first', () => {
+    const encounter = service.createEncounter('Goblin Ambush', []);
+    service.addNpc(encounter.id, 'High', 100);
+    service.addNpc(encounter.id, 'Mid', 0);
+    service.addNpc(encounter.id, 'Low', -100);
+    service.rollInitiative(encounter.id);
+
+    const [, mid, low] = service.combatantsForEncounter(encounter.id);
+    service.toggleHoldAction(encounter.id, low.id); // Low holds first
+    service.toggleHoldAction(encounter.id, mid.id); // Mid holds second
+
+    expect(service.getEncounter(encounter.id)!.holdOrder).toEqual([low.id, mid.id]);
+  });
+
+  it('returnFromHold "above" places the combatant above Active and makes them the new Active — interrupting', () => {
+    const encounter = service.createEncounter('Goblin Ambush', []);
+    service.addNpc(encounter.id, 'High', 100);
+    service.addNpc(encounter.id, 'Mid', 0);
+    service.addNpc(encounter.id, 'Low', -100);
+    service.rollInitiative(encounter.id); // order: High (Active), Mid, Low
+
+    const [high, mid, low] = service.combatantsForEncounter(encounter.id);
+    service.toggleHoldAction(encounter.id, low.id);
+    service.returnFromHold(encounter.id, low.id, 'above');
+
+    const updated = service.getEncounter(encounter.id)!;
+    const combatants = service.combatantsForEncounter(encounter.id);
+    const returned = combatants.find((c) => c.id === low.id)!;
+    expect(returned.onHold).toBe(false);
+    expect(returned.initiativeTotal).toBe(high.initiativeTotal! + 1);
+    expect(updated.holdOrder).toEqual([]);
+    expect(combatants.map((c) => c.id)).toEqual([low.id, high.id, mid.id]); // above Active
+    expect(combatants[updated.activeCombatantIndex!].id).toBe(low.id); // interrupted: now Active
+
+    // High never got to act this round — Forward should land back on them,
+    // resuming right where the interrupt happened.
+    service.advanceTurn(encounter.id, 'forward');
+    const afterForward = service.getEncounter(encounter.id)!;
+    const combatantsAfter = service.combatantsForEncounter(encounter.id);
+    expect(combatantsAfter[afterForward.activeCombatantIndex!].id).toBe(high.id);
+  });
+
+  it('returnFromHold "below" places the combatant below Active, without disturbing whose turn it is', () => {
+    const encounter = service.createEncounter('Goblin Ambush', []);
+    service.addNpc(encounter.id, 'High', 100);
+    service.addNpc(encounter.id, 'Mid', 0);
+    service.addNpc(encounter.id, 'Low', -100);
+    service.rollInitiative(encounter.id);
+
+    const [high, , low] = service.combatantsForEncounter(encounter.id);
+    service.toggleHoldAction(encounter.id, low.id);
+    service.returnFromHold(encounter.id, low.id, 'below');
+
+    const updated = service.getEncounter(encounter.id)!;
+    const combatants = service.combatantsForEncounter(encounter.id);
+    const returned = combatants.find((c) => c.id === low.id)!;
+    expect(returned.initiativeTotal).toBe(high.initiativeTotal! - 1);
+    expect(combatants[0].id).toBe(high.id);
+    expect(combatants[1].id).toBe(low.id); // below Active, above whoever was already there
+    expect(combatants[updated.activeCombatantIndex!].id).toBe(high.id); // still High's turn
+  });
+
+  describe('reorderCombatant (manual drag reordering)', () => {
+    function rollThreeDeterministic(encounterId: string): void {
+      // A -> 1, B -> 11, C -> 20 (all modifier 0) -> sorted order C, B, A.
+      vi.spyOn(Math, 'random')
+        .mockReturnValueOnce(0)
+        .mockReturnValueOnce(0.5)
+        .mockReturnValueOnce(0.95);
+      service.rollInitiative(encounterId);
+      vi.restoreAllMocks();
+    }
+
+    it('moves a combatant to the top, one above its new upper neighbor', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, 'A', 0);
+      service.addNpc(encounter.id, 'B', 0);
+      service.addNpc(encounter.id, 'C', 0);
+      rollThreeDeterministic(encounter.id);
+      expect(service.combatantsForEncounter(encounter.id).map((c) => c.name)).toEqual(['C', 'B', 'A']);
+
+      const [c, , a] = service.combatantsForEncounter(encounter.id);
+      service.reorderCombatant(encounter.id, a.id, 0); // drag A to the very top
+
+      const combatants = service.combatantsForEncounter(encounter.id);
+      expect(combatants.map((cc) => cc.name)).toEqual(['A', 'C', 'B']);
+      expect(combatants.find((cc) => cc.id === a.id)!.initiativeTotal).toBe(c.initiativeTotal! + 1);
+    });
+
+    it('moves a combatant to the bottom, one below its new lower neighbor', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, 'A', 0);
+      service.addNpc(encounter.id, 'B', 0);
+      service.addNpc(encounter.id, 'C', 0);
+      rollThreeDeterministic(encounter.id);
+
+      const [c] = service.combatantsForEncounter(encounter.id);
+      service.reorderCombatant(encounter.id, c.id, 2); // drag C (top) to the very bottom
+
+      const combatants = service.combatantsForEncounter(encounter.id);
+      expect(combatants.map((cc) => cc.name)).toEqual(['B', 'A', 'C']);
+      const a = combatants.find((cc) => cc.name === 'A')!;
+      expect(combatants.find((cc) => cc.id === c.id)!.initiativeTotal).toBe(a.initiativeTotal! - 1);
+    });
+
+    it('moves a combatant to a middle position, one below its new upper neighbor', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, 'A', 0);
+      service.addNpc(encounter.id, 'B', 0);
+      service.addNpc(encounter.id, 'C', 0);
+      rollThreeDeterministic(encounter.id);
+
+      const [c, , a] = service.combatantsForEncounter(encounter.id);
+      service.reorderCombatant(encounter.id, a.id, 1); // drag A to between C and B
+
+      const combatants = service.combatantsForEncounter(encounter.id);
+      expect(combatants.map((cc) => cc.name)).toEqual(['C', 'A', 'B']);
+      expect(combatants.find((cc) => cc.id === a.id)!.initiativeTotal).toBe(c.initiativeTotal! - 1);
+    });
+
+    it('is a no-op for a Removed combatant', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, 'A', 0);
+      service.addNpc(encounter.id, 'B', 0);
+      service.rollInitiative(encounter.id);
+
+      const [a] = service.combatantsForEncounter(encounter.id);
+      service.toggleRemoved(encounter.id, a.id);
+      const before = service.combatantsForEncounter(encounter.id);
+
+      service.reorderCombatant(encounter.id, a.id, 0);
+
+      expect(service.combatantsForEncounter(encounter.id)).toEqual(before);
+    });
+
+    it('is a no-op for an on-hold combatant', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, 'A', 0);
+      service.addNpc(encounter.id, 'B', 0);
+      service.rollInitiative(encounter.id);
+
+      const [a] = service.combatantsForEncounter(encounter.id);
+      service.toggleHoldAction(encounter.id, a.id);
+      const before = service.combatantsForEncounter(encounter.id);
+
+      service.reorderCombatant(encounter.id, a.id, 0);
+
+      expect(service.combatantsForEncounter(encounter.id)).toEqual(before);
+    });
+  });
+
+  it('a new round clears holdOrder and returns held combatants to the main list, rerolled by default', () => {
+    const encounter = service.createEncounter('Goblin Ambush', []);
+    service.addNpc(encounter.id, 'High', 100);
+    service.addNpc(encounter.id, 'Mid', 0);
+    service.addNpc(encounter.id, 'Low', -100);
+    service.rollInitiative(encounter.id);
+
+    const [, mid] = service.combatantsForEncounter(encounter.id);
+    service.toggleHoldAction(encounter.id, mid.id);
+    service.advanceTurn(encounter.id, 'forward'); // High -> Low (Mid held, skipped)
+    service.advanceTurn(encounter.id, 'forward'); // wraps into round 2, clearing the hold
+
+    const updated = service.getEncounter(encounter.id)!;
+    expect(updated.round).toBe(2);
+    expect(updated.holdOrder).toEqual([]);
+    const combatants = service.combatantsForEncounter(encounter.id);
+    expect(combatants.find((c) => c.id === mid.id)?.onHold).toBe(false);
+  });
+
+  it('a new round restores the pre-hold initiative instead of rerolling when reRollEachRound is off', () => {
+    const encounter = service.createEncounter('Goblin Ambush', []);
+    service.addNpc(encounter.id, 'High', 100);
+    service.addNpc(encounter.id, 'Mid', 0);
+    service.addNpc(encounter.id, 'Low', -100);
+    service.setReRollEachRound(encounter.id, false);
+    service.rollInitiative(encounter.id);
+
+    const [, mid] = service.combatantsForEncounter(encounter.id);
+    const midRollBeforeHold = mid.initiativeTotal;
+    service.toggleHoldAction(encounter.id, mid.id);
+    service.advanceTurn(encounter.id, 'forward'); // High -> Low
+    service.advanceTurn(encounter.id, 'forward'); // wraps into round 2, clearing the hold
+
+    const updated = service.getEncounter(encounter.id)!;
+    expect(updated.round).toBe(2);
+    expect(updated.holdOrder).toEqual([]);
+    const restored = service.combatantsForEncounter(encounter.id).find((c) => c.id === mid.id)!;
+    expect(restored.onHold).toBe(false);
+    expect(restored.initiativeTotal).toBe(midRollBeforeHold);
   });
 
   it('Forward skips on-hold combatants', () => {
@@ -369,7 +610,65 @@ describe('EncounterStore', () => {
     expect(combatants[updated.activeCombatantIndex!].name).toBe('Mid');
   });
 
-  it('holding your own action while Active passes the turn, keeping you pinned as next-in-line', () => {
+  it('renameEncounter updates the name only', () => {
+    const encounter = service.createEncounter('Goblin Ambush', []);
+    service.renameEncounter(encounter.id, 'Goblin Ambush Redux');
+    expect(service.getEncounter(encounter.id)!.name).toBe('Goblin Ambush Redux');
+  });
+
+  describe('setEncounterParties', () => {
+    it('pulls in PCs from a newly-selected Party', () => {
+      const partyA = partyStore.createParty('Party A');
+      const pcA = partyStore.addPc(partyA.id, 'Aria', 3);
+      const encounter = service.createEncounter('Goblin Ambush', []);
+
+      service.setEncounterParties(encounter.id, [partyA.id]);
+
+      const combatants = service.combatantsForEncounter(encounter.id);
+      expect(combatants).toHaveLength(1);
+      expect(combatants[0]).toMatchObject({ type: 'pc', pcId: pcA.id, name: 'Aria' });
+      expect(service.getEncounter(encounter.id)!.partyIds).toEqual([partyA.id]);
+    });
+
+    it('drops PCs from a de-selected Party before the first Roll', () => {
+      const partyA = partyStore.createParty('Party A');
+      partyStore.addPc(partyA.id, 'Aria', 3);
+      const encounter = service.createEncounter('Goblin Ambush', [partyA.id]);
+      expect(service.combatantsForEncounter(encounter.id)).toHaveLength(1);
+
+      service.setEncounterParties(encounter.id, []);
+
+      expect(service.combatantsForEncounter(encounter.id)).toHaveLength(0);
+      expect(service.getEncounter(encounter.id)!.partyIds).toEqual([]);
+    });
+
+    it('leaves already-in-combat PCs alone when their Party is de-selected after the first Roll', () => {
+      const partyA = partyStore.createParty('Party A');
+      partyStore.addPc(partyA.id, 'Aria', 3);
+      const encounter = service.createEncounter('Goblin Ambush', [partyA.id]);
+      service.rollInitiative(encounter.id);
+
+      service.setEncounterParties(encounter.id, []);
+
+      expect(service.combatantsForEncounter(encounter.id)).toHaveLength(1);
+      // The Party selection itself still updates even though the combatant stays.
+      expect(service.getEncounter(encounter.id)!.partyIds).toEqual([]);
+    });
+
+    it('does not duplicate a PC already pulled in from another selected Party', () => {
+      const partyA = partyStore.createParty('Party A');
+      const pc = partyStore.addPc(partyA.id, 'Aria', 3);
+      const encounter = service.createEncounter('Goblin Ambush', [partyA.id]);
+
+      // Re-selecting the same Party (e.g. alongside a newly-added one) shouldn't add a duplicate.
+      service.setEncounterParties(encounter.id, [partyA.id]);
+
+      const combatants = service.combatantsForEncounter(encounter.id);
+      expect(combatants.filter((c) => c.pcId === pc.id)).toHaveLength(1);
+    });
+  });
+
+  it('holding your own action while Active passes the turn, moving you into the Hold Action list', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
     service.addNpc(encounter.id, 'High', 100);
     service.addNpc(encounter.id, 'Mid', 0);
@@ -381,9 +680,9 @@ describe('EncounterStore', () => {
 
     const updated = service.getEncounter(encounter.id)!;
     const combatants = service.combatantsForEncounter(encounter.id);
-    expect(combatants.map((c) => c.name)).toEqual(['Mid', 'High', 'Low']);
     expect(combatants[updated.activeCombatantIndex!].name).toBe('Mid');
-    expect(combatants[1].onHold).toBe(true); // High, now pinned just below Mid
+    expect(combatants.find((c) => c.id === high.id)?.onHold).toBe(true);
+    expect(updated.holdOrder).toEqual([high.id]);
     expect(updated.round).toBe(1);
   });
 });

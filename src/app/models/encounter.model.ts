@@ -17,10 +17,16 @@ export interface Combatant {
   initiativeTotal: number | null;
   /** true = dropped to the bottom of the order with a null (N/A) initiative. */
   removedFromCombat: boolean;
-  /** true = holding their action: pinned to one less than the Active combatant's
-   *  total (always "on deck"), lightly highlighted, and skipped by Forward/Back
-   *  until unchecked. */
+  /** true = holding their action: shown in the secondary Hold Action list
+   *  (pinned to the Active combatant's total for display), and skipped by
+   *  Forward/Back until unchecked. */
   onHold: boolean;
+  /** Snapshot of lastRoll/initiativeTotal taken the moment Hold Action was
+   *  turned on. Restored at the next round boundary when reRollEachRound is
+   *  false, instead of re-rolling — see EncounterStore.clearHold*. Always
+   *  null while onHold is false. */
+  preHoldLastRoll: number | null;
+  preHoldInitiativeTotal: number | null;
 }
 
 export interface Encounter {
@@ -31,6 +37,10 @@ export interface Encounter {
   combatantIds: string[];
   /** Index into combatantIds; null before the first Roll. */
   activeCombatantIndex: number | null;
+  /** Ids of combatants currently on Hold Action, oldest-first — this order
+   *  drives the secondary Hold Action list, independent of combatantIds.
+   *  Cleared at every round boundary. */
+  holdOrder: string[];
   /** Starts at 1 once rolled; 0 beforehand. */
   round: number;
   /** true = re-roll every round (default homebrew rule); false = keep initial order. */

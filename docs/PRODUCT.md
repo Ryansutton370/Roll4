@@ -28,7 +28,10 @@ Parties persist and can be reused across many Encounters.
 
 ### 2. Create an Encounter
 The GM picks a Party (or Parties) to pull PCs from, then adds NPCs specific to
-this fight (e.g. "Goblin 1", "Goblin 2", "Bandit Captain").
+this fight (e.g. "Goblin 1", "Goblin 2", "Bandit Captain"). A saved Encounter
+can be edited later from the Encounters list — rename it, change which
+Parties are pulled in, or add/remove combatants (e.g. reinforcements) —
+using that same form.
 
 ### 3. Roll Initiative
 The GM presses **Roll**. Every combatant gets a random value from 1–20, plus
@@ -79,20 +82,71 @@ mid-round rather than snapping back to wherever they started.
 ### 7. Hold Action
 The GM can mark a combatant as **Holding their action** (waiting for a
 trigger before acting). A combatant on hold:
-- Is lightly highlighted — a subtler highlight than the Active combatant's,
-  signaling "on deck" rather than "acting now."
-- Has its initiative continuously pinned to **one less than the Active
-  combatant's total**, so it always shows as next-in-line and follows the
-  Active highlight down the list as turns pass.
+- Moves out of the main initiative list into a **Hold Action panel**: a
+  bordered, darker-background box labeled "Hold Action," shown beside the
+  main list on wide screens (or stacked below it on narrow ones). The panel
+  only appears at all while at least one combatant is holding.
+- Is ordered by **insertion, not initiative** — whoever holds first appears
+  at the top of the panel.
+- Has its displayed initiative continuously pinned to **the Active
+  combatant's total**, so it visually reads as "on deck" alongside them.
 - Is skipped when advancing Forward/Back, the same way a Removed combatant
   is — Hold Action never becomes the Active turn on its own.
 
-Unchecking Hold Action doesn't reposition the combatant — it stays right
-where it was pinned (just below whoever was Active at that moment), so the
-very next Forward lands on it: mechanically, "jumping into the action" right
-after the turn that was current when the GM called for it. If the currently
-Active combatant checks Hold Action on their own turn, their turn passes
-immediately, the same way marking the Active combatant Removed does.
+A combatant in the Hold Action panel can start returning to the main list two
+ways: unchecking Hold Action in its drawer, or a dedicated ◀ button on the
+left edge of its bubble (a shortcut that skips opening the drawer). Either one
+opens **placement mode** rather than immediately rejoining the fight:
+- Two dashed placeholder slots appear in the main list directly around the
+  Active combatant, one point above its total and one point below — each
+  shows just the target initiative number, since the placeholder's job is to
+  mark a slot, not restate who's landing there.
+- Every other control on the page — Forward/Back, and every other
+  combatant's expand/Removed/Hold Action controls — locks until this
+  resolves, since it's a one-thing-at-a-time choice.
+- The GM resolves it by clicking whichever placeholder they want, or by
+  dragging the bubble (still shown, highlighted, in the Hold Action panel)
+  onto one of the two placeholders. While dragging, the piece that follows
+  the cursor shows just the combatant's name, for the same reason the
+  placeholders were trimmed down — the full bubble (icons, initiative, etc.)
+  is unnecessary in motion.
+- Whichever spot is chosen, the combatant plays a quick "pop" animation —
+  shrinking/fading out of the panel while the same combatant pops into the
+  main list at that exact spot.
+- **Placing above Active means interrupting**: the returning combatant
+  becomes the new Active combatant immediately, jumping in ahead on their
+  held trigger. The combatant who *was* Active isn't skipped — they simply
+  haven't acted yet this round, so the next Forward naturally lands back on
+  them once the interrupter's turn ends.
+- **Placing below Active** just queues the combatant up next, one point
+  below whatever Active's total is, without disturbing whose turn it
+  currently is.
+
+If the currently Active combatant checks Hold Action on their own turn,
+their turn passes immediately, the same way marking the Active combatant
+Removed does — they then go through the same placement flow as anyone else
+once returned to.
+
+Starting a new round always clears the Hold Action panel — every held
+combatant returns to the main list, either with a freshly rolled initiative
+(the default homebrew rule) or their initiative from just before they held,
+if not re-rolling each round.
+
+### 8. Manual Reordering
+The GM can drag any main-list combatant to a new spot via a grip icon on the
+left edge of its bubble — for correcting a bad roll, or just for a GM call
+that overrides the dice. The grip icon stays hidden until it's needed:
+hovering the bubble reveals it (mouse), and tapping/clicking the bubble
+toggles it on (touch, or as a mouse alternative), keeping the row
+uncluttered the rest of the time. Dragging shows a dashed placeholder
+marking the gap where it'll land, and the other combatants shift out of the
+way as it moves, the same fluid "drag to reorder" feel as reordering items
+in a task list.
+Dropping sets the combatant's initiative to one point above or below
+whichever neighbor it landed next to — not a recalculated roll, just enough
+to hold that position in the sorted order. Removed combatants and anyone
+currently on Hold Action aren't draggable this way (Hold Action has its own
+placement flow, above).
 
 ## Persistence
 
@@ -116,7 +170,9 @@ some kind) — see [ARCHITECTURE.md](./ARCHITECTURE.md).
 ## Open decisions
 
 These are known gaps we haven't resolved yet — call them out explicitly when
-they become relevant rather than silently picking an answer:
+they become relevant rather than silently picking an answer. Both have a
+rough direction sketched in the [ROADMAP.md](./ROADMAP.md) backlog (Troops
+tab; HP/AC/Notes), but neither is designed or phased yet:
 
 - **NPC reuse** — should NPCs ever be saved to a reusable "monster library"
   across encounters, or are they always encounter-scoped?

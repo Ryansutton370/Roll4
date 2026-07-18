@@ -1,0 +1,88 @@
+/* Force the party-picker fieldset onto its own line within .entry-form's
+   flex-wrap row, rather than squeezing beside the name input. */
+fieldset {
+  flex-basis: 100%;
+}
+
+/* PC/NPC indicator dot — same look as encounter-detail.css's (component
+   styles are scoped, so it has to be redefined here rather than shared). */
+.type-dot {
+  flex-shrink: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+}
+
+.type-dot.pc {
+  background: var(--color-pc);
+}
+
+.type-dot.npc {
+  background: var(--color-npc);
+}
+
+/* Column heading above the editing-encounter combatant list — spacer widths
+   match the row below (type-dot, name, remove button) so "Initiative
+   Modifier" lines up over the input column. */
+.setup-list-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.setup-list-header .type-dot-spacer {
+  width: 0.65rem;
+}
+
+.setup-list-header .entry-title-spacer {
+  flex: 1;
+  min-width: 0;
+}
+
+.setup-list-header .modifier-heading {
+  width: 5rem;
+  flex-shrink: 0;
+}
+
+.setup-list-header .remove-spacer {
+  width: 2.75rem;
+  flex-shrink: 0;
+}
+
+.modifier-input {
+  width: 5rem;
+  flex-shrink: 0;
+}
+
+/* Party members are tinted blue (same --color-pc used by the type-dot) so
+   the roster reads apart from ad-hoc NPCs at a glance, not just via the dot. */
+.pc-entry {
+  border-color: var(--color-pc);
+  background: var(--color-pc-tint);
+}
+
+/* Active state for the "mark absent" button on a party member — a solid
+   fill (not just a tint) so it reads as clearly "on" at a glance. :hover is
+   repeated here to beat the global .icon-btn:hover tint, which would
+   otherwise wash the solid fill back out on mouseover. */
+.marked-removed,
+.marked-removed:hover {
+  background: var(--color-removed);
+  color: var(--color-surface);
+}
+
+/* Grayed-out, same treatment as a Removed-from-Combat bubble in the run
+   phase (encounter-detail.css's .combatant.removed) — placed after
+   .pc-entry so it wins on background/border-color when a removed
+   combatant is also a PC. */
+.entry-removed {
+  border-color: var(--color-removed);
+  background: var(--color-removed-tint);
+  opacity: 0.65;
+}

@@ -1,0 +1,8 @@
+{
+  "name": "run-roll4-driver",
+  "private": true,
+  "description": "Agent tooling only — the browser driver for the run-roll4 skill. Not part of the Roll4 app.",
+  "dependencies": {
+    "playwright-core": "^1.61.1"
+  }
+}
