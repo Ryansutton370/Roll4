@@ -41,10 +41,12 @@ input[type='text'].field-name {
 /* Icon + input, styled to match the same stat pills on the combatant
    bubble (see combatant-bubble.css's .stat) — the icon is the field's only
    label, so it has to be the same icon used there for the pairing to read
-   clearly. Kept as narrow as a 2-3 digit number needs, so all 5 fields plus
-   the caller's submit button fit on one line within the page's 700px
-   content column (see main's max-width in app.css) at typical desktop
-   widths. */
+   clearly. Wide enough for 3 digits (Max HP can run into triple digits;
+   AC/Initiative Modifier only need 2 in practice, but get the same width
+   for visual consistency) with a little slack for a leading sign on the
+   modifier, while still leaving room for all 5 fields plus the caller's
+   submit button to fit on one line within the page's 700px content column
+   (see main's max-width in app.css) at typical desktop widths. */
 .field-icon {
   display: inline-flex;
   flex-shrink: 0;
@@ -60,7 +62,7 @@ input[type='text'].field-name {
 }
 
 .field-icon input {
-  width: 2.5rem;
+  width: 3.5rem;
 }
 
 /* Dropping the native up/down spinner reclaims most of that 2.5rem for the
