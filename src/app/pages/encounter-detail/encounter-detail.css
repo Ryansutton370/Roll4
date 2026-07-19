@@ -1,18 +1,3 @@
-.type-dot {
-  flex-shrink: 0;
-  width: 0.65rem;
-  height: 0.65rem;
-  border-radius: 50%;
-}
-
-.type-dot.pc {
-  background: var(--color-pc);
-}
-
-.type-dot.npc {
-  background: var(--color-npc);
-}
-
 .round-indicator {
   color: var(--color-text-muted);
   font-weight: 600;
@@ -87,6 +72,7 @@
 
 .setup-list-header .type-dot-spacer {
   width: 0.65rem;
+  flex-shrink: 0;
 }
 
 .setup-list-header .entry-title-spacer {
@@ -110,10 +96,17 @@
 }
 
 /* Party members are tinted blue (same --color-pc used by the type-dot) so
-   the roster reads apart from ad-hoc NPCs at a glance, not just via the dot. */
+   the roster reads apart from ad-hoc NPCs at a glance, not just via the dot.
+   NPCs get the equivalent red tint, so both types are readable without
+   relying on the dot alone. */
 .pc-entry {
   border-color: var(--color-pc);
   background: var(--color-pc-tint);
+}
+
+.npc-entry {
+  border-color: var(--color-npc);
+  background: var(--color-npc-tint);
 }
 
 /* Active state for the "mark absent" button on a party member — a solid
@@ -149,39 +142,6 @@
   min-width: 0;
 }
 
-/* Column heading row above the run-phase list — mirrors .combatant-row's
-   flex layout with blank spacers (type-dot, name, expand-btn) so
-   "Initiative" lines up directly over the initiative-total column below. */
-.combatant-header {
-  padding: 0 1rem 0.35rem;
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.type-dot-spacer {
-  width: 0.65rem;
-  flex-shrink: 0;
-}
-
-.combatant-name-spacer {
-  flex: 1;
-  min-width: 0;
-}
-
-.initiative-heading {
-  flex-shrink: 0;
-  min-width: 2ch;
-  text-align: right;
-}
-
-.expand-spacer {
-  width: 2.75rem;
-  flex-shrink: 0;
-}
-
 /* The Hold Action panel is a visually distinct, bordered region (darker
    background than the page) rather than just a second column of bubbles —
    that's what makes it read as its own "table" separate from the main list. */
@@ -199,17 +159,6 @@
    for the name between them otherwise. */
 .held-bubble {
   padding: 0.6rem 0.65rem;
-}
-
-.held-bubble .expand-btn {
-  width: 1.75rem;
-  height: 1.75rem;
-  flex-shrink: 0;
-}
-
-.held-bubble .expand-btn svg {
-  width: 1rem;
-  height: 1rem;
 }
 
 .hold-heading {
@@ -230,92 +179,31 @@
 @media (max-width: 560px) {
   .combatant-columns {
     flex-direction: column;
+    /* align-items: flex-start (set above for the row layout) becomes a
+       cross-axis rule once flex-direction flips to column — its axis
+       rotates from vertical to horizontal, so it starts shrinking each
+       column to its content width instead of leaving its height alone.
+       stretch restores full-width columns; .hold-panel's own width: 100%
+       below was papering over just its half of this, not fixing it. */
+    align-items: stretch;
   }
 
   .hold-panel {
     flex-basis: auto;
-    width: 100%;
   }
 }
 
 /* ---------------------------------------------------------------------
    Combatant bubble
    --------------------------------------------------------------------- */
-.combatant-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.combatant-name {
-  flex: 1;
-  min-width: 0;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-.status-icons {
-  display: flex;
-  gap: 0.3rem;
-  flex-shrink: 0;
-}
-
-/* .removed-icon is a real <button> (clicking it un-removes, the same
-   shortcut the drag-handle/return-btn buttons offer elsewhere) — the
-   border/padding/font resets undo the browser's default button chrome so
-   it still reads as the plain round badge .status-icon looks like. */
-.status-icon {
-  display: inline-flex;
-  width: 1.4rem;
-  height: 1.4rem;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  padding: 0;
-  border-radius: 50%;
-  font: inherit;
-  cursor: pointer;
-  transition: opacity var(--transition-fast);
-}
-
-.status-icon:disabled {
-  cursor: not-allowed;
-}
-
-.status-icon svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-.removed-icon {
-  background: var(--color-removed-tint);
-  color: var(--color-removed);
-}
-
-.removed-icon:hover:not(:disabled) {
-  opacity: 0.75;
-}
-
-.hold-icon {
-  background: var(--color-hold-tint);
-  color: var(--color-hold);
-}
-
-.initiative-total {
-  flex-shrink: 0;
-  min-width: 2ch;
-  text-align: right;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.expand-btn svg {
-  transition: transform var(--transition-fast);
-}
-
-.expand-btn.rotated svg {
-  transform: rotate(180deg);
-}
+/* Combatant bubble row/status-icons/initiative-total/expand-btn/drawer
+   styling now lives in combatant-bubble.css — see CombatantBubble, which
+   both the main list and Hold Action panel bubbles below render via
+   <app-combatant-bubble>. What's left here is everything about the outer
+   <li> (drag/drop wiring, active/incapacitated/pop-animation state) and the
+   leading controls (drag handle, return button), which the two lists still
+   project into CombatantBubble themselves — see docs/DATA_MODEL.md and the
+   comments in encounter-detail.html for why that split landed there. */
 
 /* Smaller than the standard 44px icon-btn touch target — the held bubble is
    already tight for width, and this button sits right next to the equally
@@ -336,9 +224,10 @@
   cursor: not-allowed;
 }
 
-/* Grip icon for manually reordering the main list (see cdkDragHandle in the
-   template) — smaller than the standard icon-btn, same reasoning as
-   return-btn: it sits beside other controls in an already-busy row.
+/* Chevron-up-down icon for manually reordering the main list (see
+   cdkDragHandle in the template) — smaller than the standard icon-btn, same
+   reasoning as return-btn: it sits beside other controls in an already-busy
+   row.
    Hidden until needed: opacity/pointer-events (not display/visibility) so
    it keeps its layout space and the row doesn't reflow when it appears.
    Revealed by hovering the bubble, tapping it (.handle-revealed, toggled in
@@ -411,6 +300,19 @@
   cursor: pointer;
 }
 
+/* Base look for the placeholder's target-number span — duplicated from
+   combatant-bubble.css rather than shared, since these two placeholder
+   spans are written directly in this template (not inside
+   CombatantBubble), and a child component's styles can't reach back out
+   to style a parent's own elements. */
+.initiative-total {
+  flex-shrink: 0;
+  min-width: 2ch;
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .placeholder-inner .initiative-total {
   font-size: 1.1em;
 }
@@ -457,9 +359,11 @@
   box-shadow: var(--shadow-active-npc);
 }
 
-.combatant.active .combatant-name {
-  font-size: 1.05em;
-}
+/* .combatant-name's font-size bump lives in combatant-bubble.css instead —
+   it's part of CombatantBubble's own template, and the [active] input on
+   <app-combatant-bubble> (see encounter-detail.html) is what drives it,
+   since a plain ".combatant.active .combatant-name" rule here can't reach
+   across the component boundary into CombatantBubble's template. */
 
 /* Lighter than .active — signals "on deck" without implying it's their turn. */
 .combatant.on-hold:not(.active) {
@@ -467,7 +371,10 @@
   background: var(--color-hold-tint);
 }
 
-.combatant.removed {
+/* Same "greyed out" treatment as a Removed-from-Combat entry (.entry-removed
+   above) — Incapacitated combatants stay in the main list/Hold Action panel
+   and behave completely normally, this is purely a visual marker. */
+.combatant.incapacitated {
   background: var(--color-removed-tint);
   opacity: 0.65;
 }
@@ -523,45 +430,9 @@
   pointer-events: none;
 }
 
-/* ---------------------------------------------------------------------
-   Drawer — CSS grid-rows trick: animating 0fr -> 1fr grows/shrinks the
-   row smoothly without ever needing a hardcoded max-height. Three levels
-   are needed, not two: .drawer-clip (the actual grid item) must have
-   *no* padding/border/margin of its own, or those would still render as
-   a hairline even when the row track is 0px tall (a border paints at the
-   box's edge regardless of how short the box is). Pushing all spacing
-   onto the nested .drawer-content, which .drawer-clip's overflow:hidden
-   then fully clips away while collapsed, is what makes it disappear
-   completely instead of leaving a sliver behind.
-   --------------------------------------------------------------------- */
-.drawer {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows var(--transition-standard);
-}
-
-.drawer.expanded {
-  grid-template-rows: 1fr;
-}
-
-.drawer-clip {
-  overflow: hidden;
-}
-
-.drawer-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding-top: 0.75rem;
-  margin-top: 0.75rem;
-  border-top: 1px solid var(--color-border);
-}
-
-.drawer-content label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+/* Drawer (grid-rows expand trick) styling now lives in combatant-bubble.css
+   — the .drawer element itself is part of CombatantBubble's own template,
+   not this one. */
 
 .turn-controls {
   display: flex;
@@ -588,4 +459,25 @@
 .turn-controls button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Below the turn controls, same "heading + bubble-list" shape as the Hold
+   Action panel (see .hold-heading above) but full-width and unbordered —
+   there's no side-by-side layout to visually separate here, just a distinct
+   section of the page. */
+.removed-panel {
+  margin-top: 1.5rem;
+}
+
+.removed-heading {
+  margin: 0 0 0.6rem;
+  color: var(--color-text-muted);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.removed-list {
+  margin-bottom: 0;
 }

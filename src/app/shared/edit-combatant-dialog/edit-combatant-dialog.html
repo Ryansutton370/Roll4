@@ -1,0 +1,24 @@
+<!-- Native <dialog>, opened imperatively via showModal() (see openFor() in
+     edit-combatant-dialog.ts) — gets a free ::backdrop and Escape-to-close
+     from the browser, so there's no hand-rolled overlay/focus-trap here. -->
+<dialog #dialog class="edit-dialog">
+  <form class="entry-form" (ngSubmit)="save()">
+    <h2>Edit Combatant</h2>
+    <app-combatant-fields
+      [name]="name()"
+      (nameChange)="name.set($event)"
+      [initiativeModifier]="initiativeModifier()"
+      (initiativeModifierChange)="initiativeModifier.set($event)"
+      [ac]="ac()"
+      (acChange)="ac.set($event)"
+      [maxHp]="maxHp()"
+      (maxHpChange)="maxHp.set($event)"
+      [notes]="notes()"
+      (notesChange)="notes.set($event)"
+    />
+    <div class="dialog-actions">
+      <button type="button" (click)="cancel()">Cancel</button>
+      <button type="submit">Save</button>
+    </div>
+  </form>
+</dialog>

@@ -2,6 +2,8 @@
   <p><a routerLink="/encounters">← Back to Encounters</a></p>
   <h1>{{ e.name }}</h1>
 
+  <app-edit-combatant-dialog #editDialog (saveRequested)="onEditSave($event)" />
+
   @if (!hasStarted()) {
     <!-- Setup phase: review pulled-in PCs, add ad-hoc NPCs, then Roll. -->
     <section>
@@ -22,6 +24,7 @@
             <li
               class="bubble entry"
               [class.pc-entry]="c.type === 'pc'"
+              [class.npc-entry]="c.type === 'npc'"
               [class.entry-removed]="c.removedFromCombat"
             >
               <span
@@ -81,19 +84,17 @@
       }
 
       <form class="entry-form" (ngSubmit)="addNpc()">
-        <input
-          type="text"
-          [ngModel]="newNpcName()"
-          (ngModelChange)="newNpcName.set($event)"
-          name="npcName"
-          placeholder="NPC name"
-        />
-        <input
-          type="number"
-          [ngModel]="newNpcModifier()"
-          (ngModelChange)="newNpcModifier.set($event)"
-          name="npcModifier"
-          placeholder="Initiative Modifier"
+        <app-combatant-fields
+          [name]="newNpcName()"
+          (nameChange)="newNpcName.set($event)"
+          [initiativeModifier]="newNpcModifier()"
+          (initiativeModifierChange)="newNpcModifier.set($event)"
+          [ac]="newNpcAc()"
+          (acChange)="newNpcAc.set($event)"
+          [maxHp]="newNpcMaxHp()"
+          (maxHpChange)="newNpcMaxHp.set($event)"
+          [notes]="newNpcNotes()"
+          (notesChange)="newNpcNotes.set($event)"
         />
         <button type="submit">Add NPC</button>
       </form>
@@ -172,13 +173,6 @@
       -->
       <div class="combatant-columns">
         <div class="combatant-list-column">
-          <div class="combatant-row combatant-header">
-            <span class="type-dot-spacer"></span>
-            <span class="combatant-name-spacer"></span>
-            <span class="initiative-heading">Initiative</span>
-            <span class="expand-spacer"></span>
-          </div>
-
           <ol
             cdkDropList
             [cdkDropListData]="mainCombatants()"
@@ -216,108 +210,54 @@
               <li
                 cdkDrag
                 [cdkDragData]="c"
-                [cdkDragDisabled]="c.removedFromCombat || isPlacing()"
+                [cdkDragDisabled]="isPlacing()"
                 class="bubble combatant main-combatant"
                 [class.pc-entry]="c.type === 'pc'"
+                [class.npc-entry]="c.type === 'npc'"
                 [class.active]="c.id === activeCombatantId()"
-                [class.removed]="c.removedFromCombat"
+                [class.incapacitated]="c.incapacitated"
                 [class.handle-revealed]="isHandleRevealed(c.id)"
                 (click)="toggleHandleRevealed(c.id)"
               >
-                <div class="combatant-row">
+                <app-combatant-bubble
+                  [combatant]="c"
+                  [expanded]="isExpanded(c.id)"
+                  [isPlacing]="isPlacing()"
+                  [active]="c.id === activeCombatantId()"
+                  (expandToggle)="toggleExpanded(c.id)"
+                  (holdActionChange)="toggleHoldAction(c.id)"
+                  (incapacitatedToggle)="toggleIncapacitated(c.id)"
+                  (removedToggle)="toggleRemoved(c.id)"
+                  (editRequested)="openEditDialog(c)"
+                  (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
+                >
                   <!-- cdkDragHandle restricts the drag gesture to this icon
                        alone, so grabbing anywhere else on the bubble (the
                        expand chevron, the drawer's checkboxes) doesn't
-                       accidentally start a reorder drag. -->
+                       accidentally start a reorder drag. Projected in via
+                       [leading-control] (see combatant-bubble.html) rather
+                       than living inside CombatantBubble itself, since the
+                       reveal-on-hover styling below (.main-combatant:hover
+                       .drag-handle) targets it directly by class and needs
+                       it in this component's own style scope to do so. -->
                   <button
+                    leading-control
                     type="button"
                     cdkDragHandle
                     class="icon-btn drag-handle"
-                    [disabled]="c.removedFromCombat || isPlacing()"
+                    [disabled]="isPlacing()"
                     title="Drag to reorder"
                   >
                     <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path
-                        d="M7 5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM7 8.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM7 12a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"
+                        fill-rule="evenodd"
+                        d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81a.75.75 0 0 0 0 1.06l3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 15.94l-2.72-2.72a.75.75 0 0 0-1.06 0Z"
+                        clip-rule="evenodd"
                       />
                     </svg>
                     <span class="sr-only">Drag to reorder {{ c.name }}</span>
                   </button>
-
-                  <span
-                    class="type-dot"
-                    [class.pc]="c.type === 'pc'"
-                    [class.npc]="c.type === 'npc'"
-                  ></span>
-                  <span class="combatant-name">{{ c.name }}</span>
-
-                  <span class="status-icons">
-                    @if (c.removedFromCombat) {
-                      <!-- Clicking this is the same shortcut as unchecking
-                           "Removed from Combat" in the drawer below — lets
-                           the GM undo it without opening the drawer first. -->
-                      <button
-                        type="button"
-                        class="status-icon removed-icon"
-                        title="Removed from Combat — click to un-remove"
-                        [disabled]="isPlacing()"
-                        (click)="toggleRemoved(c.id)"
-                      >
-                        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path
-                            d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
-                          />
-                        </svg>
-                        <span class="sr-only">Un-remove {{ c.name }} from Combat</span>
-                      </button>
-                    }
-                  </span>
-
-                  <span class="initiative-total">{{ c.initiativeTotal ?? 'N/A' }}</span>
-
-                  <button
-                    type="button"
-                    class="icon-btn expand-btn"
-                    [class.rotated]="isExpanded(c.id)"
-                    [attr.aria-expanded]="isExpanded(c.id)"
-                    [disabled]="isPlacing()"
-                    (click)="toggleExpanded(c.id)"
-                  >
-                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path
-                        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.25a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
-                      />
-                    </svg>
-                    <span class="sr-only">Toggle options for {{ c.name }}</span>
-                  </button>
-                </div>
-
-                <!-- The CSS grid-rows expand trick (see encounter-detail.css)
-                   animates open/closed without needing a hardcoded max-height. -->
-                <div class="drawer" [class.expanded]="isExpanded(c.id)">
-                  <div class="drawer-clip">
-                    <div class="drawer-content">
-                      <label>
-                        <input
-                          type="checkbox"
-                          [checked]="c.removedFromCombat"
-                          [disabled]="isPlacing()"
-                          (change)="toggleRemoved(c.id)"
-                        />
-                        Removed from Combat
-                      </label>
-                      <label>
-                        <input
-                          type="checkbox"
-                          [checked]="c.onHold"
-                          [disabled]="c.removedFromCombat || isPlacing()"
-                          (change)="toggleHoldAction(c.id)"
-                        />
-                        Hold Action
-                      </label>
-                    </div>
-                  </div>
-                </div>
+                </app-combatant-bubble>
               </li>
 
               @if (c.id === activeCombatantId() && isPlacing()) {
@@ -365,12 +305,25 @@
                   class="bubble combatant on-hold held-bubble"
                   [class.placing]="isPlacing(c.id)"
                   [class.popping-out]="isResolving(c.id)"
+                  [class.incapacitated]="c.incapacitated"
                 >
-                  <div class="combatant-row">
+                  <app-combatant-bubble
+                    [combatant]="c"
+                    [expanded]="isExpanded(c.id)"
+                    [isPlacing]="isPlacing()"
+                    [compact]="true"
+                    (expandToggle)="toggleExpanded(c.id)"
+                    (holdActionChange)="beginPlacement(c.id)"
+                    (incapacitatedToggle)="toggleIncapacitated(c.id)"
+                    (removedToggle)="toggleRemoved(c.id)"
+                    (editRequested)="openEditDialog(c)"
+                    (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
+                  >
                     <!-- Leftmost and pointing left (toward the main list): a
                          shortcut into placement mode without opening the
                          drawer — see beginPlacement. -->
                     <button
+                      leading-control
                       type="button"
                       class="icon-btn return-btn"
                       title="Return to the main list"
@@ -384,56 +337,7 @@
                       </svg>
                       <span class="sr-only">Return {{ c.name }} to the main list</span>
                     </button>
-
-                    <span
-                      class="type-dot"
-                      [class.pc]="c.type === 'pc'"
-                      [class.npc]="c.type === 'npc'"
-                    ></span>
-                    <span class="combatant-name">{{ c.name }}</span>
-                    <span class="initiative-total">{{ c.initiativeTotal ?? 'N/A' }}</span>
-
-                    <button
-                      type="button"
-                      class="icon-btn expand-btn"
-                      [class.rotated]="isExpanded(c.id)"
-                      [attr.aria-expanded]="isExpanded(c.id)"
-                      [disabled]="isPlacing()"
-                      (click)="toggleExpanded(c.id)"
-                    >
-                      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path
-                          d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.25a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
-                        />
-                      </svg>
-                      <span class="sr-only">Toggle options for {{ c.name }}</span>
-                    </button>
-                  </div>
-
-                  <div class="drawer" [class.expanded]="isExpanded(c.id)">
-                    <div class="drawer-clip">
-                      <div class="drawer-content">
-                        <label>
-                          <input
-                            type="checkbox"
-                            [checked]="c.removedFromCombat"
-                            [disabled]="isPlacing()"
-                            (change)="toggleRemoved(c.id)"
-                          />
-                          Removed from Combat
-                        </label>
-                        <label>
-                          <input
-                            type="checkbox"
-                            [checked]="c.onHold"
-                            [disabled]="isPlacing()"
-                            (change)="beginPlacement(c.id)"
-                          />
-                          Hold Action
-                        </label>
-                      </div>
-                    </div>
-                  </div>
+                  </app-combatant-bubble>
 
                   <!-- Overrides CDK's default drag preview (an exact clone
                        of the whole bubble) with just the name — the
@@ -463,6 +367,40 @@
           }
         </button>
       </div>
+
+      @if (removedCombatants().length > 0) {
+        <div class="removed-panel">
+          <h2 class="removed-heading">Removed From Combat</h2>
+          <ul class="bubble-list removed-list">
+            @for (c of removedCombatants(); track c.id) {
+              <li class="bubble entry entry-removed">
+                <span
+                  class="type-dot"
+                  [class.pc]="c.type === 'pc'"
+                  [class.npc]="c.type === 'npc'"
+                ></span>
+                <span class="entry-title">{{ c.name }}</span>
+                <!-- Same shortcut as unchecking "Removed from Combat" would
+                     have offered back when this combatant was still shown in
+                     the main list's drawer. -->
+                <button
+                  type="button"
+                  class="icon-btn"
+                  [title]="'Mark ' + c.name + ' as present'"
+                  (click)="toggleRemoved(c.id)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
+                    />
+                  </svg>
+                  <span class="sr-only">Mark {{ c.name }} as present</span>
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      }
     </section>
   }
 } @else {

@@ -59,7 +59,7 @@ considerations).
 Still local-storage only, no backend yet — a feature pass that deepens what
 a combatant *is* before Phase 3 moves persistence off the browser.
 
-- [ ] Combatant HP / AC / Notes: optional fields alongside Initiative
+- [x] Combatant HP / AC / Notes: optional fields alongside Initiative
       Modifier, settable when creating a PC/NPC and editable live during an
       encounter, with column labels matching Initiative Modifier's. Answers
       the "how much combat data" open question in

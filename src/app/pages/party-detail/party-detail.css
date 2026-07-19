@@ -9,6 +9,17 @@
   flex-shrink: 0;
 }
 
+.pc-ac,
+.pc-max-hp {
+  width: 4rem;
+  flex-shrink: 0;
+}
+
+.pc-notes {
+  flex: 1;
+  min-width: 0;
+}
+
 /* Labels the two input columns in the PC list below. Mirrors the .entry
    row's flex layout (name flex: 1, modifier fixed width) so the headings
    line up with the inputs, plus the icon-btn's width so "Initiative
@@ -34,7 +45,68 @@
   text-align: center;
 }
 
+.pc-ac-heading,
+.pc-max-hp-heading {
+  width: 4rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.pc-notes-heading {
+  flex: 1;
+}
+
 .heading-spacer {
   width: 2.75rem;
   flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------
+   Headings above the create form — same label text as .column-headings
+   above (Name / Initiative Modifier / AC / Max HP / Notes), but sized to
+   match CombatantFields' own narrower, icon-led fields (see
+   combatant-fields.css) rather than the wider plain-input list columns
+   above, since the two rows use different field widths. Duplicated width
+   values rather than shared classes, matching this app's existing
+   "heading spacer widths mirror the row below" pattern (see
+   encounter-detail.css's .setup-list-header). */
+.player-form-headings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0 0 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.player-form-headings .heading-name {
+  flex: 1 1 5rem;
+  min-width: 4.5rem;
+}
+
+.player-form-headings .heading-field {
+  flex-shrink: 0;
+  width: 3.75rem;
+  text-align: center;
+}
+
+.player-form-headings .heading-notes {
+  flex: 1 1 4rem;
+  min-width: 3.5rem;
+}
+
+.player-form-headings .heading-spacer {
+  width: 6.5rem;
+}
+
+/* Matches the mobile Name field taking the full row (combatant-fields.css)
+   — its heading needs the same full-row treatment, or it'd sit above the
+   icon-field headings instead of above Name once Name wraps to its own
+   line. */
+@media (max-width: 480px) {
+  .player-form-headings .heading-name {
+    flex-basis: 100%;
+  }
 }

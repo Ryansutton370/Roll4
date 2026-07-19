@@ -19,14 +19,29 @@ function combatant(overrides: Partial<Combatant>): Combatant {
     pcId: null,
     name: 'Combatant',
     initiativeModifier: 0,
+    ac: null,
+    maxHp: null,
+    currentHp: null,
+    notes: '',
     lastRoll: null,
     initiativeTotal: null,
     removedFromCombat: false,
+    incapacitated: false,
     onHold: false,
     preHoldLastRoll: null,
     preHoldInitiativeTotal: null,
     ...overrides,
   };
+}
+
+/** Fields for an ad-hoc NPC with no AC/HP/Notes set — most tests only care about name/modifier. */
+function npcFields(name: string, initiativeModifier: number) {
+  return { name, initiativeModifier, ac: null, maxHp: null, notes: '' };
+}
+
+/** Same shape as npcFields, for PartyStore.addPc. */
+function pcFields(name: string, initiativeModifier: number) {
+  return { name, initiativeModifier, ac: null, maxHp: null, notes: '' };
 }
 
 describe('compareByInitiative (pure logic)', () => {
@@ -176,7 +191,7 @@ describe('EncounterStore', () => {
 
   it('pulls every PC from the selected Parties in as Combatants', () => {
     const party = partyStore.createParty('Party A');
-    const pc = partyStore.addPc(party.id, 'Aria', 3);
+    const pc = partyStore.addPc(party.id, pcFields('Aria', 3));
 
     const encounter = service.createEncounter('Goblin Ambush', [party.id]);
 
@@ -192,10 +207,20 @@ describe('EncounterStore', () => {
     expect(encounter.round).toBe(0);
   });
 
+  it('copies AC/Max HP/Notes onto the Combatant and initializes Current HP to Max HP', () => {
+    const party = partyStore.createParty('Party A');
+    partyStore.addPc(party.id, { name: 'Aria', initiativeModifier: 3, ac: 16, maxHp: 30, notes: 'Longsword' });
+
+    const encounter = service.createEncounter('Goblin Ambush', [party.id]);
+
+    const [aria] = service.combatantsForEncounter(encounter.id);
+    expect(aria).toMatchObject({ ac: 16, maxHp: 30, currentHp: 30, notes: 'Longsword' });
+  });
+
   it('adds ad-hoc NPCs to an encounter', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
 
-    service.addNpc(encounter.id, 'Goblin 1', 2);
+    service.addNpc(encounter.id, npcFields('Goblin 1', 2));
 
     const combatants = service.combatantsForEncounter(encounter.id);
     expect(combatants.map((c) => c.name)).toEqual(['Goblin 1']);
@@ -203,7 +228,7 @@ describe('EncounterStore', () => {
 
   it('removeCombatant only works before the first Roll', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'Goblin 1', 2);
+    service.addNpc(encounter.id, npcFields('Goblin 1', 2));
     const [npc] = service.combatantsForEncounter(encounter.id);
 
     service.rollInitiative(encounter.id);
@@ -214,8 +239,8 @@ describe('EncounterStore', () => {
 
   it('rollInitiative rolls everyone and starts round 1', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'Goblin 1', 2);
-    service.addNpc(encounter.id, 'Goblin 2', -1);
+    service.addNpc(encounter.id, npcFields('Goblin 1', 2));
+    service.addNpc(encounter.id, npcFields('Goblin 2', -1));
 
     service.rollInitiative(encounter.id);
 
@@ -237,8 +262,8 @@ describe('EncounterStore', () => {
   it('advances turns, then wraps into a new round', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
     // Modifiers far enough apart that roll variance (1-20) can't flip the order.
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.setReRollEachRound(encounter.id, false);
     service.rollInitiative(encounter.id);
 
@@ -261,8 +286,8 @@ describe('EncounterStore', () => {
 
   it('Back moves to the previous combatant but stops at the start of the round', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id);
 
     service.advanceTurn(encounter.id, 'forward'); // now on Low
@@ -275,8 +300,8 @@ describe('EncounterStore', () => {
 
   it('toggling Removed on the active combatant auto-advances the turn', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id);
 
     const [high] = service.combatantsForEncounter(encounter.id);
@@ -296,9 +321,9 @@ describe('EncounterStore', () => {
     // the active set) fell through to "start a new round" instead of
     // advancing to the correct next combatant.
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id);
     service.advanceTurn(encounter.id, 'forward'); // active is now Mid
 
@@ -313,9 +338,9 @@ describe('EncounterStore', () => {
 
   it('toggling Removed sets initiative to N/A (null) and sinks the combatant to the bottom of the order', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'A', 0);
-    service.addNpc(encounter.id, 'B', 0);
-    service.addNpc(encounter.id, 'C', 0);
+    service.addNpc(encounter.id, npcFields('A', 0));
+    service.addNpc(encounter.id, npcFields('B', 0));
+    service.addNpc(encounter.id, npcFields('C', 0));
 
     // In add order A, B, C: rolls of 1, 11, 20 -> sorted order becomes C, B, A.
     vi.spyOn(Math, 'random')
@@ -339,8 +364,8 @@ describe('EncounterStore', () => {
 
   it('un-removing rolls a fresh initiative capped below the Active total and reinserts there', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'A', 15);
-    service.addNpc(encounter.id, 'B', 0);
+    service.addNpc(encounter.id, npcFields('A', 15));
+    service.addNpc(encounter.id, npcFields('B', 0));
 
     vi.spyOn(Math, 'random')
       .mockReturnValueOnce(0) // A -> roll 1, total 16
@@ -366,9 +391,9 @@ describe('EncounterStore', () => {
 
   it('holding a combatant pins their displayed initiative to the Active total and adds them to holdOrder', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id); // order: High (Active), Mid, Low
 
     const [high, , low] = service.combatantsForEncounter(encounter.id);
@@ -385,9 +410,9 @@ describe('EncounterStore', () => {
 
   it('tracks Hold Action order by insertion, not initiative — first to hold sorts first', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id);
 
     const [, mid, low] = service.combatantsForEncounter(encounter.id);
@@ -399,9 +424,9 @@ describe('EncounterStore', () => {
 
   it('returnFromHold "above" places the combatant above Active and makes them the new Active — interrupting', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id); // order: High (Active), Mid, Low
 
     const [high, mid, low] = service.combatantsForEncounter(encounter.id);
@@ -427,9 +452,9 @@ describe('EncounterStore', () => {
 
   it('returnFromHold "below" places the combatant below Active, without disturbing whose turn it is', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id);
 
     const [high, , low] = service.combatantsForEncounter(encounter.id);
@@ -458,9 +483,9 @@ describe('EncounterStore', () => {
 
     it('moves a combatant to the top, one above its new upper neighbor', () => {
       const encounter = service.createEncounter('Goblin Ambush', []);
-      service.addNpc(encounter.id, 'A', 0);
-      service.addNpc(encounter.id, 'B', 0);
-      service.addNpc(encounter.id, 'C', 0);
+      service.addNpc(encounter.id, npcFields('A', 0));
+      service.addNpc(encounter.id, npcFields('B', 0));
+      service.addNpc(encounter.id, npcFields('C', 0));
       rollThreeDeterministic(encounter.id);
       expect(service.combatantsForEncounter(encounter.id).map((c) => c.name)).toEqual(['C', 'B', 'A']);
 
@@ -474,9 +499,9 @@ describe('EncounterStore', () => {
 
     it('moves a combatant to the bottom, one below its new lower neighbor', () => {
       const encounter = service.createEncounter('Goblin Ambush', []);
-      service.addNpc(encounter.id, 'A', 0);
-      service.addNpc(encounter.id, 'B', 0);
-      service.addNpc(encounter.id, 'C', 0);
+      service.addNpc(encounter.id, npcFields('A', 0));
+      service.addNpc(encounter.id, npcFields('B', 0));
+      service.addNpc(encounter.id, npcFields('C', 0));
       rollThreeDeterministic(encounter.id);
 
       const [c] = service.combatantsForEncounter(encounter.id);
@@ -490,9 +515,9 @@ describe('EncounterStore', () => {
 
     it('moves a combatant to a middle position, one below its new upper neighbor', () => {
       const encounter = service.createEncounter('Goblin Ambush', []);
-      service.addNpc(encounter.id, 'A', 0);
-      service.addNpc(encounter.id, 'B', 0);
-      service.addNpc(encounter.id, 'C', 0);
+      service.addNpc(encounter.id, npcFields('A', 0));
+      service.addNpc(encounter.id, npcFields('B', 0));
+      service.addNpc(encounter.id, npcFields('C', 0));
       rollThreeDeterministic(encounter.id);
 
       const [c, , a] = service.combatantsForEncounter(encounter.id);
@@ -503,10 +528,40 @@ describe('EncounterStore', () => {
       expect(combatants.find((cc) => cc.id === a.id)!.initiativeTotal).toBe(c.initiativeTotal! - 1);
     });
 
+    it('drops into place between two tied neighbors instead of sinking to the bottom', () => {
+      // Regression test: Gozer/Edgar both roll a total of 6 (tie broken by
+      // modifier, not the coin flip, so this stays deterministic), Goblin
+      // rolls 5. Dragging Goblin up between the tied pair used to compute
+      // above.total - 1 === 5 — Goblin's own total — so it re-sorted right
+      // back to the bottom instead of landing where it was dropped.
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, npcFields('Gozer', 5));
+      service.addNpc(encounter.id, npcFields('Edgar', 4));
+      service.addNpc(encounter.id, npcFields('Goblin', 3));
+      vi.spyOn(Math, 'random')
+        .mockReturnValueOnce(0) // Gozer -> roll 1, total 6
+        .mockReturnValueOnce(0.05) // Edgar -> roll 2, total 6
+        .mockReturnValueOnce(0.05); // Goblin -> roll 2, total 5
+      service.rollInitiative(encounter.id);
+      vi.restoreAllMocks();
+      expect(service.combatantsForEncounter(encounter.id).map((c) => c.name)).toEqual([
+        'Gozer',
+        'Edgar',
+        'Goblin',
+      ]);
+
+      const [, , goblin] = service.combatantsForEncounter(encounter.id);
+      service.reorderCombatant(encounter.id, goblin.id, 1); // drag Goblin between Gozer and Edgar
+
+      const combatants = service.combatantsForEncounter(encounter.id);
+      expect(combatants.map((cc) => cc.name)).toEqual(['Gozer', 'Goblin', 'Edgar']);
+      expect(combatants.find((cc) => cc.id === goblin.id)!.initiativeTotal).toBe(6);
+    });
+
     it('is a no-op for a Removed combatant', () => {
       const encounter = service.createEncounter('Goblin Ambush', []);
-      service.addNpc(encounter.id, 'A', 0);
-      service.addNpc(encounter.id, 'B', 0);
+      service.addNpc(encounter.id, npcFields('A', 0));
+      service.addNpc(encounter.id, npcFields('B', 0));
       service.rollInitiative(encounter.id);
 
       const [a] = service.combatantsForEncounter(encounter.id);
@@ -520,8 +575,8 @@ describe('EncounterStore', () => {
 
     it('is a no-op for an on-hold combatant', () => {
       const encounter = service.createEncounter('Goblin Ambush', []);
-      service.addNpc(encounter.id, 'A', 0);
-      service.addNpc(encounter.id, 'B', 0);
+      service.addNpc(encounter.id, npcFields('A', 0));
+      service.addNpc(encounter.id, npcFields('B', 0));
       service.rollInitiative(encounter.id);
 
       const [a] = service.combatantsForEncounter(encounter.id);
@@ -536,9 +591,9 @@ describe('EncounterStore', () => {
 
   it('a new round clears holdOrder and returns held combatants to the main list, rerolled by default', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id);
 
     const [, mid] = service.combatantsForEncounter(encounter.id);
@@ -555,9 +610,9 @@ describe('EncounterStore', () => {
 
   it('a new round restores the pre-hold initiative instead of rerolling when reRollEachRound is off', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.setReRollEachRound(encounter.id, false);
     service.rollInitiative(encounter.id);
 
@@ -577,9 +632,9 @@ describe('EncounterStore', () => {
 
   it('Forward skips on-hold combatants', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id);
 
     const [, mid] = service.combatantsForEncounter(encounter.id);
@@ -593,9 +648,9 @@ describe('EncounterStore', () => {
 
   it('un-holding leaves the combatant in place, so the next Forward lands on them', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id);
 
     const [, mid] = service.combatantsForEncounter(encounter.id);
@@ -619,7 +674,7 @@ describe('EncounterStore', () => {
   describe('setEncounterParties', () => {
     it('pulls in PCs from a newly-selected Party', () => {
       const partyA = partyStore.createParty('Party A');
-      const pcA = partyStore.addPc(partyA.id, 'Aria', 3);
+      const pcA = partyStore.addPc(partyA.id, pcFields('Aria', 3));
       const encounter = service.createEncounter('Goblin Ambush', []);
 
       service.setEncounterParties(encounter.id, [partyA.id]);
@@ -632,7 +687,7 @@ describe('EncounterStore', () => {
 
     it('drops PCs from a de-selected Party before the first Roll', () => {
       const partyA = partyStore.createParty('Party A');
-      partyStore.addPc(partyA.id, 'Aria', 3);
+      partyStore.addPc(partyA.id, pcFields('Aria', 3));
       const encounter = service.createEncounter('Goblin Ambush', [partyA.id]);
       expect(service.combatantsForEncounter(encounter.id)).toHaveLength(1);
 
@@ -644,7 +699,7 @@ describe('EncounterStore', () => {
 
     it('leaves already-in-combat PCs alone when their Party is de-selected after the first Roll', () => {
       const partyA = partyStore.createParty('Party A');
-      partyStore.addPc(partyA.id, 'Aria', 3);
+      partyStore.addPc(partyA.id, pcFields('Aria', 3));
       const encounter = service.createEncounter('Goblin Ambush', [partyA.id]);
       service.rollInitiative(encounter.id);
 
@@ -657,7 +712,7 @@ describe('EncounterStore', () => {
 
     it('does not duplicate a PC already pulled in from another selected Party', () => {
       const partyA = partyStore.createParty('Party A');
-      const pc = partyStore.addPc(partyA.id, 'Aria', 3);
+      const pc = partyStore.addPc(partyA.id, pcFields('Aria', 3));
       const encounter = service.createEncounter('Goblin Ambush', [partyA.id]);
 
       // Re-selecting the same Party (e.g. alongside a newly-added one) shouldn't add a duplicate.
@@ -670,9 +725,9 @@ describe('EncounterStore', () => {
 
   it('holding your own action while Active passes the turn, moving you into the Hold Action list', () => {
     const encounter = service.createEncounter('Goblin Ambush', []);
-    service.addNpc(encounter.id, 'High', 100);
-    service.addNpc(encounter.id, 'Mid', 0);
-    service.addNpc(encounter.id, 'Low', -100);
+    service.addNpc(encounter.id, npcFields('High', 100));
+    service.addNpc(encounter.id, npcFields('Mid', 0));
+    service.addNpc(encounter.id, npcFields('Low', -100));
     service.rollInitiative(encounter.id);
 
     const [high] = service.combatantsForEncounter(encounter.id);
@@ -684,5 +739,88 @@ describe('EncounterStore', () => {
     expect(combatants.find((c) => c.id === high.id)?.onHold).toBe(true);
     expect(updated.holdOrder).toEqual([high.id]);
     expect(updated.round).toBe(1);
+  });
+
+  describe('updateCombatantDetails', () => {
+    it('applies name/ac/maxHp/notes unconditionally', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, npcFields('Goblin', 2));
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.updateCombatantDetails(encounter.id, npc.id, {
+        name: 'Goblin Boss',
+        ac: 15,
+        maxHp: 20,
+        notes: 'Wears a crown',
+      });
+
+      const updated = service.combatantsForEncounter(encounter.id)[0];
+      expect(updated).toMatchObject({
+        name: 'Goblin Boss',
+        ac: 15,
+        maxHp: 20,
+        currentHp: 20,
+        notes: 'Wears a crown',
+      });
+    });
+
+    it('keeps the "initiative modifier locked after the first Roll" rule', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, npcFields('Goblin', 2));
+      const [npc] = service.combatantsForEncounter(encounter.id);
+      service.rollInitiative(encounter.id);
+
+      service.updateCombatantDetails(encounter.id, npc.id, { initiativeModifier: 10, name: 'Goblin Boss' });
+
+      const updated = service.combatantsForEncounter(encounter.id).find((c) => c.id === npc.id)!;
+      expect(updated.initiativeModifier).toBe(2); // unchanged
+      expect(updated.name).toBe('Goblin Boss'); // other fields still applied
+    });
+
+    it('reclamps currentHp into a lowered maxHp instead of resetting to full', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, { name: 'Goblin', initiativeModifier: 2, ac: null, maxHp: 30, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+      service.adjustCurrentHp(encounter.id, npc.id, -25); // 30 -> 5
+
+      service.updateCombatantDetails(encounter.id, npc.id, { maxHp: 10 });
+
+      const updated = service.combatantsForEncounter(encounter.id)[0];
+      expect(updated.currentHp).toBe(5); // preserved, still within [0, 10]
+      expect(updated.maxHp).toBe(10);
+    });
+  });
+
+  describe('adjustCurrentHp', () => {
+    it('applies a signed delta, clamped at 0', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, { name: 'Goblin', initiativeModifier: 2, ac: null, maxHp: 7, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.adjustCurrentHp(encounter.id, npc.id, -100);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].currentHp).toBe(0);
+    });
+
+    it('clamps healing at maxHp', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, { name: 'Goblin', initiativeModifier: 2, ac: null, maxHp: 7, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+      service.adjustCurrentHp(encounter.id, npc.id, -5); // 7 -> 2
+
+      service.adjustCurrentHp(encounter.id, npc.id, 100);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].currentHp).toBe(7);
+    });
+
+    it('is a no-op when maxHp is not set — nothing to track', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addNpc(encounter.id, npcFields('Goblin', 2));
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.adjustCurrentHp(encounter.id, npc.id, -5);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].currentHp).toBeNull();
+    });
   });
 });

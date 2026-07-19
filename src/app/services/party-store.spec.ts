@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { PartyStore } from './party-store';
 
+const pcFields = { initiativeModifier: 3, ac: null, maxHp: null, notes: '' };
+
 describe('PartyStore', () => {
   let service: PartyStore;
 
@@ -26,27 +28,41 @@ describe('PartyStore', () => {
   it('adds a PC to a party and links it both ways', () => {
     const party = service.createParty('Party A');
 
-    const pc = service.addPc(party.id, 'Aria Windmere', 3);
+    const pc = service.addPc(party.id, { name: 'Aria Windmere', ...pcFields });
 
     expect(pc.partyId).toBe(party.id);
     expect(service.getParty(party.id)?.pcIds).toEqual([pc.id]);
     expect(service.pcsForParty(party.id)).toEqual([pc]);
   });
 
+  it('stores the optional AC/Max HP/Notes fields', () => {
+    const party = service.createParty('Party A');
+
+    const pc = service.addPc(party.id, {
+      name: 'Aria Windmere',
+      initiativeModifier: 3,
+      ac: 16,
+      maxHp: 30,
+      notes: 'Wields a longsword',
+    });
+
+    expect(pc).toMatchObject({ ac: 16, maxHp: 30, notes: 'Wields a longsword' });
+  });
+
   it('updates a PC in place', () => {
     const party = service.createParty('Party A');
-    const pc = service.addPc(party.id, 'Aria', 3);
+    const pc = service.addPc(party.id, { name: 'Aria', ...pcFields });
 
-    service.updatePc(pc.id, { name: 'Aria Windmere', initiativeModifier: 4 });
+    service.updatePc(pc.id, { name: 'Aria Windmere', initiativeModifier: 4, ac: 16, maxHp: 30 });
 
     expect(service.pcsForParty(party.id)).toEqual([
-      { ...pc, name: 'Aria Windmere', initiativeModifier: 4 },
+      { ...pc, name: 'Aria Windmere', initiativeModifier: 4, ac: 16, maxHp: 30 },
     ]);
   });
 
   it('removes a PC and its reference from the party', () => {
     const party = service.createParty('Party A');
-    const pc = service.addPc(party.id, 'Aria', 3);
+    const pc = service.addPc(party.id, { name: 'Aria', ...pcFields });
 
     service.removePc(pc.id);
 
@@ -56,8 +72,8 @@ describe('PartyStore', () => {
 
   it('deleting a party cascades to its PCs', () => {
     const party = service.createParty('Party A');
-    service.addPc(party.id, 'Aria', 3);
-    service.addPc(party.id, 'Bram', 1);
+    service.addPc(party.id, { name: 'Aria', ...pcFields });
+    service.addPc(party.id, { name: 'Bram', ...pcFields, initiativeModifier: 1 });
 
     service.deleteParty(party.id);
 
@@ -67,7 +83,7 @@ describe('PartyStore', () => {
 
   it('persists across service instances via localStorage', () => {
     const party = service.createParty('Party A');
-    service.addPc(party.id, 'Aria', 3);
+    service.addPc(party.id, { name: 'Aria', ...pcFields });
 
     // effect() persists asynchronously; flush it before simulating reload.
     TestBed.tick();

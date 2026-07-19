@@ -203,6 +203,29 @@ h6 {
   overflow-wrap: anywhere;
 }
 
+/* PC/NPC color-coded badge dot — shown next to a name wherever a party
+   member or NPC is listed (encounter-list, and both the setup list and
+   combatant bubbles in encounter-detail). Global rather than page-scoped:
+   it was already duplicated identically across encounter-list.css and
+   encounter-detail.css, and Angular's view encapsulation means a
+   page-scoped copy can't reach into a child component's own template
+   anyway (see CombatantBubble in encounter-detail), so this is the one
+   definition every usage can share. */
+.type-dot {
+  flex-shrink: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+}
+
+.type-dot.pc {
+  background: var(--color-pc);
+}
+
+.type-dot.npc {
+  background: var(--color-npc);
+}
+
 .entry-title:hover {
   text-decoration: underline;
 }
@@ -269,7 +292,7 @@ button[type='submit']:disabled {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 

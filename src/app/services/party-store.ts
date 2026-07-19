@@ -1,7 +1,10 @@
 import { Service, effect, signal } from '@angular/core';
 import { Party, PlayerCharacter } from '../models/party.model';
 
-const STORAGE_KEY = 'roll4.parties';
+// Bumped from 'roll4.parties' — PlayerCharacter's shape changed (added
+// ac/maxHp/notes) and this app has no migration path yet (see
+// docs/ARCHITECTURE.md), so old-shaped data is simply left behind.
+const STORAGE_KEY = 'roll4.parties.v2';
 
 interface PartyStorageShape {
   parties: Party[];
@@ -81,8 +84,20 @@ export class PartyStore {
     this.pcsSignal.update((pcs) => pcs.filter((pc) => pc.partyId !== id));
   }
 
-  addPc(partyId: string, name: string, initiativeModifier: number): PlayerCharacter {
-    const pc: PlayerCharacter = { id: crypto.randomUUID(), partyId, name, initiativeModifier };
+  // An options object rather than positional params — now 5 fields wide
+  // (was 2), and a call like `addPc(id, 'Aria', 3, 16, 30)` would be
+  // unreadable at the call site without naming each argument.
+  addPc(
+    partyId: string,
+    fields: {
+      name: string;
+      initiativeModifier: number;
+      ac: number | null;
+      maxHp: number | null;
+      notes: string;
+    },
+  ): PlayerCharacter {
+    const pc: PlayerCharacter = { id: crypto.randomUUID(), partyId, ...fields };
     this.pcsSignal.update((pcs) => [...pcs, pc]);
     this.partiesSignal.update((parties) =>
       parties.map((p) => (p.id === partyId ? { ...p, pcIds: [...p.pcIds, pc.id] } : p)),
@@ -92,7 +107,7 @@ export class PartyStore {
 
   updatePc(
     id: string,
-    changes: Partial<Pick<PlayerCharacter, 'name' | 'initiativeModifier'>>,
+    changes: Partial<Pick<PlayerCharacter, 'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes'>>,
   ): void {
     this.pcsSignal.update((pcs) => pcs.map((pc) => (pc.id === id ? { ...pc, ...changes } : pc)));
   }

@@ -4,10 +4,11 @@ import { Router, RouterLink } from '@angular/router';
 import { Encounter } from '../../models/encounter.model';
 import { EncounterStore } from '../../services/encounter-store';
 import { PartyStore } from '../../services/party-store';
+import { CombatantFields } from '../../shared/combatant-fields/combatant-fields';
 
 @Component({
   selector: 'app-encounter-list',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, CombatantFields],
   templateUrl: './encounter-list.html',
   styleUrl: './encounter-list.css',
 })
@@ -44,6 +45,9 @@ export class EncounterList {
 
   protected readonly newNpcName = signal('');
   protected readonly newNpcModifier = signal(0);
+  protected readonly newNpcAc = signal<number | null>(null);
+  protected readonly newNpcMaxHp = signal<number | null>(null);
+  protected readonly newNpcNotes = signal('');
 
   protected togglePartySelected(partyId: string, checked: boolean): void {
     this.selectedPartyIds.update((ids) =>
@@ -66,6 +70,9 @@ export class EncounterList {
     this.selectedPartyIds.set([]);
     this.newNpcName.set('');
     this.newNpcModifier.set(0);
+    this.newNpcAc.set(null);
+    this.newNpcMaxHp.set(null);
+    this.newNpcNotes.set('');
   }
 
   protected submitEncounterForm(): void {
@@ -94,9 +101,18 @@ export class EncounterList {
     const encounterId = this.editingEncounterId();
     const name = this.newNpcName().trim();
     if (!encounterId || !name) return;
-    this.encounterStore.addNpc(encounterId, name, this.newNpcModifier());
+    this.encounterStore.addNpc(encounterId, {
+      name,
+      initiativeModifier: this.newNpcModifier(),
+      ac: this.newNpcAc(),
+      maxHp: this.newNpcMaxHp(),
+      notes: this.newNpcNotes(),
+    });
     this.newNpcName.set('');
     this.newNpcModifier.set(0);
+    this.newNpcAc.set(null);
+    this.newNpcMaxHp.set(null);
+    this.newNpcNotes.set('');
   }
 
   protected removeCombatantFromEditingEncounter(combatantId: string): void {

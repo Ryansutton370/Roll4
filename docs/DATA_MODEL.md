@@ -59,6 +59,9 @@ carrying an always-empty field until then.
 | `partyId`            | string | References `Party.id`                     |
 | `name`               | string | e.g. "Aria Windmere"                      |
 | `initiativeModifier` | number | Signed integer, e.g. `3`, `0`, `-1`       |
+| `ac`                 | number \| null | Optional. `null` means "not set," not zero |
+| `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the PC |
+| `notes`              | string | Optional. `''` means "not set"            |
 | `ownerId`            | string \| null | Future: references a Player `User.id` |
 
 ### Encounter
@@ -86,9 +89,14 @@ an NPC — never both.
 | `pcId`                | string \| null        | Set when `type === "pc"`                      |
 | `name`               | string                 | Copied from PC, or set directly for an NPC    |
 | `initiativeModifier` | number                 | Copied from PC, or set directly for an NPC    |
+| `ac`                 | number \| null         | Copied from PC, or set directly for an NPC. `null` = not set |
+| `maxHp`              | number \| null         | Copied from PC, or set directly for an NPC. `null` = not set |
+| `currentHp`          | number \| null         | Combatant-only — no PC/NPC equivalent. Starts equal to `maxHp`, then clamped to `[0, maxHp]` on every change. `null` whenever `maxHp` is `null` |
+| `notes`              | string                 | Copied from PC, or set directly for an NPC. `''` = not set |
 | `lastRoll`           | number \| null         | The 1–20 die result from the most recent roll |
 | `initiativeTotal`    | number \| null         | `lastRoll + initiativeModifier`; this is what sorts the list. `null` renders as "N/A" and sorts/counts as `0` |
 | `removedFromCombat`  | boolean                | Default `false`. See below.                   |
+| `incapacitated`      | boolean                | Default `false`. Purely cosmetic — see below. |
 | `onHold`             | boolean                | Default `false`. See below.                   |
 | `preHoldLastRoll`    | number \| null         | Snapshot of `lastRoll` taken when Hold Action was turned on. Default `null`. See below. |
 | `preHoldInitiativeTotal` | number \| null     | Snapshot of `initiativeTotal` taken when Hold Action was turned on. Default `null`. See below. |
@@ -100,6 +108,22 @@ the Combatant needs its own copy regardless. Giving PCs the same shape keeps
 without a `type` branch on every field — it only needs to branch on `type`
 for things that actually differ (like whether `pcId` is set).
 
+**Editing AC/Max HP/Notes on a Combatant (the drawer's Edit button) only
+changes that Combatant's own copy** — it never writes back to the source
+PC, the same as `setInitiativeModifier` already does for the initiative
+modifier. There's no "sync back to the library" concept yet; correcting a
+PC's permanent data means editing the PC itself on the Party screen.
+
+**Current HP and Max HP edits:** clicking the heart icon or the health bar
+opens a small input for a signed delta (e.g. `-15`, `+10`), applied via
+`EncounterStore.adjustCurrentHp` and always clamped to `[0, maxHp]` — Current
+HP can never go negative or exceed Max HP. Editing Max HP itself (via the
+Edit dialog) follows a different rule depending on the previous value: going
+from `null` to a number is treated as a full heal (nothing was being
+tracked before), but changing between two numbers **reclamps** Current HP
+into the new range instead of resetting it to full — lowering a monster's
+Max HP mid-fight shouldn't undo damage already tracked against it.
+
 **`removedFromCombat` and ordering:** removing a combatant sets its
 `lastRoll`/`initiativeTotal` to `null` ("N/A"), which sorts/counts as `0` —
 in practice this sinks it toward the bottom of `combatantIds`, since real
@@ -108,6 +132,20 @@ Un-removing it rolls a fresh initiative that's randomized but capped below
 whatever the current Active combatant's total is, and reinserts it into
 `combatantIds` at the matching sorted position — "rejoining mid-round, right
 where that roll would place them," not restoring its original spot.
+
+In the UI, a removed combatant is pulled out of the main initiative list
+entirely and shown in a separate "Removed From Combat" table below the
+turn controls — it's still present in `combatantIds` (still sunk to the
+bottom, still skipped by Forward/Back), this is purely how `EncounterDetail`
+partitions `combatantsForEncounter()` for display (see `mainCombatants` /
+`removedCombatants` in `encounter-detail.ts`).
+
+**`incapacitated`:** a purely cosmetic marker (e.g. unconscious, stunned) —
+unlike `removedFromCombat`/`onHold`, it has no effect on rolling, sorting, or
+turn order. An incapacitated combatant stays exactly where it would
+otherwise be (main list or Hold Action panel) and keeps taking turns
+normally; the UI just greys out its bubble, the same tint as a removed
+entry, with a small crescent-moon badge that toggles it back off.
 
 **`onHold` and ordering:** a combatant on Hold Action is pulled out of the
 main initiative list into a bordered Hold Action panel (beside the main list
