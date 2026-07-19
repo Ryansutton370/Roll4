@@ -1,0 +1,15 @@
+/* Mirrors party-detail.css exactly — same class name, but Angular's view
+   encapsulation scopes each copy to its own component. */
+.membership-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  cursor: pointer;
+}
+
+.membership-row input[type='checkbox'] {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+}

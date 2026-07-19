@@ -6,33 +6,68 @@ needing a fast, clear way to track turn order across multiple rounds.
 
 ## Core concepts
 
-- **Party** — a reusable group of Player Characters (PCs) that a GM registers
-  once and reuses across many encounters (e.g. "The Thursday Night Group").
-- **Player Character (PC)** — a character controlled by a player. Minimum
-  data needed to run combat: name and Initiative Modifier; AC, Max HP, and
-  Notes are optional on top of that. Belongs to a Party.
-- **NPC** — any non-player combatant: a monster, a villain, a townsperson who
-  joined the fight. Created within an Encounter (not tied to a reusable
-  library, at least for now). Same data as a PC: name and Initiative
-  Modifier required, AC/Max HP/Notes optional.
+- **Player** — a reusable library entry for a character controlled by a
+  player (renamed from "Player Character (PC)" this phase). Minimum data
+  needed to run combat: name and Initiative Modifier; AC, Max HP, and Notes
+  are optional on top of that. Lives in the GM's Player roster
+  (`/players`), independent of any one Party — see **Party** below. (Don't
+  confuse this with the *future* Player account role described later in
+  this doc — that's a login/permissions concept; this is character data the
+  GM manages today.)
+- **Party** — a reusable, named grouping of Players that a GM can pull into
+  an Encounter as a unit (e.g. "The Thursday Night Group"). A Player can
+  belong to more than one Party at once — Party membership is a tag on the
+  shared Player roster, not ownership of it, so deleting a Party never
+  deletes the Players in it.
+- **NPC** — a reusable library entry for any non-player combatant: a
+  monster, a villain, a townsperson who joined the fight. Same data as a
+  Player: name and Initiative Modifier required, AC/Max HP/Notes optional.
+  Lives in the GM's NPC roster (`/npcs`). NPCs can *also* still be created
+  ad-hoc, directly within an Encounter, without ever touching the roster —
+  that Phase 1 workflow is unchanged; the roster is an added option, not a
+  replacement for it.
+- **Troop** — the NPC-side equivalent of a Party: a reusable, named
+  grouping of NPCs. Same many-to-many membership rules as Party/Player.
 - **Initiative Modifier** — a signed integer (e.g. `+3`, `0`, `-1`) added to a
   d20 roll to produce a combatant's initiative result.
-- **Encounter** — one combat session. Combines the Party's PCs with
+- **Encounter** — one combat session. Combines Players (via Party or,
+  today, only via Party — see the open decision below) with
   encounter-specific NPCs, tracks initiative order, whose turn it is, and how
   many rounds have passed.
 
+## Navigation
+
+Two top-level tabs organize the GM's reusable data, each with its own
+sub-nav:
+- **Players** → **Roster** (every Player, regardless of Party) and
+  **Parties** (create/rename/delete a Party, and check which roster
+  Players belong to it).
+- **NPCs** → **Roster** (every NPC) and **Troops** (same shape as
+  Parties, for NPCs).
+
+**Encounters** remains its own top-level tab, unchanged.
+
 ## GM workflows
 
-### 1. Manage Parties
-The GM creates a Party and adds PCs to it (name + Initiative Modifier).
-Parties persist and can be reused across many Encounters.
+### 1. Manage the Player roster and Parties
+The GM adds Players to the roster (name + Initiative Modifier, plus
+optional AC/Max HP/Notes) from the **Players → Roster** page — this is now
+the only place a Player is created; a Party doesn't own its own dedicated
+characters the way it did in Phase 1. From **Players → Parties**, the GM
+creates a Party and checks which roster Players belong to it; the same
+Player can be checked into more than one Party. Parties persist and can be
+reused across many Encounters. NPCs/Troops work identically, under the
+**NPCs** tab.
 
 ### 2. Create an Encounter
-The GM picks a Party (or Parties) to pull PCs from, then adds NPCs specific to
-this fight (e.g. "Goblin 1", "Goblin 2", "Bandit Captain"). A saved Encounter
-can be edited later from the Encounters list — rename it, change which
-Parties are pulled in, or add/remove combatants (e.g. reinforcements) —
-using that same form.
+The GM picks a Party (or Parties) to pull Players from, then adds NPCs
+specific to this fight (e.g. "Goblin 1", "Goblin 2", "Bandit Captain") —
+today this is still always ad-hoc, typed directly into the Encounter; pulling
+from the NPC roster/Troops the same way Parties are pulled in is designed
+(see Core Concepts) but not wired up to Encounter creation yet. A saved
+Encounter can be edited later from the Encounters list — rename it, change
+which Parties are pulled in, or add/remove combatants (e.g. reinforcements)
+— using that same form.
 
 ### 3. Roll Initiative
 The GM presses **Roll**. Every combatant gets a random value from 1–20, plus
@@ -55,16 +90,17 @@ default rule, a previous round's order/rolls are no longer meaningful to
 return to.
 
 ### 4a. Combat data: AC / HP / Notes
-AC, Max HP, and Notes are optional fields a GM can set when creating a PC or
-NPC, and can also add or change later via the combatant bubble's **Edit**
-button (in the expansion drawer) — a pop-up that reuses the same input
-fields as creation, pre-filled with the combatant's current values. Every
-create/edit form for a PC/NPC uses the same layout: one field per row-item
-(Name, then an icon-labeled field per stat — a d20 for Initiative Modifier,
-shield for AC, heart for Max HP, notepad for Notes), all on one line
-alongside the submit button whenever there's room. This is the one shared
-form used everywhere a PC/NPC's data is entered (Party screen, ad-hoc NPC
-forms, the Edit pop-up) — a style change to it applies everywhere at once.
+AC, Max HP, and Notes are optional fields a GM can set when creating a
+Player or NPC, and can also add or change later via the combatant bubble's
+**Edit** button (in the expansion drawer) — a pop-up that reuses the same
+input fields as creation, pre-filled with the combatant's current values.
+Every create/edit form for a Player/NPC uses the same layout: one field
+per row-item (Name, then an icon-labeled field per stat — a d20 for
+Initiative Modifier, shield for AC, heart for Max HP, notepad for Notes),
+all on one line alongside the submit button whenever there's room. This is
+the one shared form used everywhere a Player/NPC's data is entered
+(Player/NPC roster, ad-hoc NPC forms, the Edit pop-up) — a style change to
+it applies everywhere at once.
 
 AC, HP, Notes, and Initiative each occupy the same fixed-width spot on
 every bubble, in that fixed order, each with the same icon used on the
@@ -97,7 +133,7 @@ collapses back to the same clipped width as every other bubble's Notes
 column.
 
 Editing AC/HP/Notes from a combatant's Edit button only affects that one
-Encounter — it doesn't write back to the PC/NPC's own saved data.
+Encounter — it doesn't write back to the Player/NPC's own saved roster data.
 
 ### 5. Rounds
 When the GM advances past the last combatant in the order, a new round
@@ -210,34 +246,45 @@ placement flow, above).
 
 ## Persistence
 
-GM data (Parties, PCs, Encounters, and encounter-in-progress state like
-current round/active combatant) needs to survive a page reload and be
-resumable later. See [ARCHITECTURE.md](./ARCHITECTURE.md) for how this is
-implemented in the current phase, and [ROADMAP.md](./ROADMAP.md) for when
-that changes.
+GM data (Players, NPCs, Parties, Troops, Encounters, and encounter-in-progress
+state like current round/active combatant) needs to survive a page reload
+and be resumable later. See [ARCHITECTURE.md](./ARCHITECTURE.md) for how
+this is implemented in the current phase, and [ROADMAP.md](./ROADMAP.md)
+for when that changes.
 
-## Future: Player role
+## Future: Player account role
 
-Not in the current build phase, but part of the intended direction:
-- A **Player** account type, separate from GM.
-- Players can upload/manage their own PC's data for a GM's Party.
+Not in the current build phase, but part of the intended direction — a
+different concept from the **Player** *character* library entry described
+above, despite the name collision:
+- A **Player** *account* type, separate from GM — a login/permissions
+  role, not the reusable character data in the GM's roster.
+- Account-holding players can upload/manage their own character's data for
+  a GM's Party, rather than the GM entering it on their behalf as today.
 - Players get a notification when it becomes their character's turn.
 
-This has real implications for the data model (a PC needs an *owner* distinct
-from the GM) and for hosting (notifications imply a live/realtime backend of
-some kind) — see [ARCHITECTURE.md](./ARCHITECTURE.md).
+This has real implications for the data model (a Player entity needs an
+*owner* distinct from the GM) and for hosting (notifications imply a
+live/realtime backend of some kind) — see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Open decisions
 
-These are known gaps we haven't resolved yet — call them out explicitly when
-they become relevant rather than silently picking an answer. Both have a
-rough direction sketched in the [ROADMAP.md](./ROADMAP.md) backlog (Troops
-tab; HP/AC/Notes), but neither is designed or phased yet:
+Known gaps not yet resolved:
 
-- **NPC reuse** — should NPCs ever be saved to a reusable "monster library"
-  across encounters, or are they always encounter-scoped?
+- **Pulling Troops/individual roster entries into an Encounter** — Parties
+  can be pulled into an Encounter as a unit today; NPCs can be added
+  ad-hoc; but pulling a whole Troop, or a single roster Player/NPC without
+  its whole group, the way a Party already can be, isn't wired up to
+  Encounter creation yet.
+- **Registering an ad-hoc Encounter entry into the roster** — a GM who
+  types a new NPC directly into an Encounter has no way yet to also save
+  it to the NPC roster (and optionally a Troop) without creating a
+  duplicate entry.
 
-**Resolved:** combat-relevant data beyond name + Initiative Modifier is AC,
-Max HP (tracked in-encounter as Current/Max), and Notes — all optional, all
-editable live during an Encounter via the Edit button. See "4a. Combat data:
-AC / HP / Notes" above.
+**Resolved this phase:**
+- Combat-relevant data beyond name + Initiative Modifier is AC, Max HP
+  (tracked in-encounter as Current/Max), and Notes — all optional, all
+  editable live during an Encounter via the Edit button. See "4a. Combat
+  data: AC / HP / Notes" above.
+- NPC reuse: yes, via the new NPC roster and Troops (mirroring
+  Players/Parties) — see "Core concepts" and "Navigation" above.

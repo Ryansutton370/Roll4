@@ -1,0 +1,108 @@
+<h1>Players</h1>
+
+@if (partyStore.players().length === 0) {
+  <p class="empty-state">No Players yet. Add one below.</p>
+} @else {
+  <div class="column-headings" aria-hidden="true">
+    <span class="pc-name-heading">Name</span>
+    <span class="pc-modifier-heading">Initiative Modifier</span>
+    <span class="pc-ac-heading">AC</span>
+    <span class="pc-max-hp-heading">Max HP</span>
+    <span class="pc-notes-heading">Notes</span>
+    <!-- Matches the width of the delete .icon-btn in each row below, so
+         the modifier heading lines up over its input instead of drifting
+         into the delete button's column. -->
+    <span class="heading-spacer"></span>
+  </div>
+  <ul class="bubble-list">
+    @for (player of partyStore.players(); track player.id) {
+      <li class="bubble player-entry">
+        <div class="player-row">
+          <input
+            type="text"
+            class="pc-name"
+            [ngModel]="player.name"
+            (ngModelChange)="renamePlayer(player.id, $event)"
+          />
+          <input
+            type="number"
+            class="pc-modifier"
+            [ngModel]="player.initiativeModifier"
+            (ngModelChange)="setPlayerModifier(player.id, $event)"
+          />
+          <input
+            type="number"
+            class="pc-ac"
+            placeholder="AC"
+            [ngModel]="player.ac"
+            (ngModelChange)="setPlayerAc(player.id, $event)"
+          />
+          <input
+            type="number"
+            class="pc-max-hp"
+            placeholder="Max HP"
+            [ngModel]="player.maxHp"
+            (ngModelChange)="setPlayerMaxHp(player.id, $event)"
+          />
+          <input
+            type="text"
+            class="pc-notes"
+            placeholder="Notes"
+            [ngModel]="player.notes"
+            (ngModelChange)="setPlayerNotes(player.id, $event)"
+          />
+          <button type="button" class="icon-btn danger" (click)="deletePlayer(player.id, player.name)">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+              />
+            </svg>
+            <span class="sr-only">Delete {{ player.name }}</span>
+          </button>
+        </div>
+        <!-- Which Parties this Player belongs to, if any — a Player is
+             created here in the roster first, so this is the only place
+             a GM can see its Party memberships at a glance without
+             opening each Party individually. -->
+        @if (partyStore.partiesForPlayer(player.id); as parties) {
+          @if (parties.length > 0) {
+            <div class="player-parties">
+              @for (party of parties; track party.id) {
+                <a class="badge party-chip" [routerLink]="['/players/parties', party.id]">{{
+                  party.name
+                }}</a>
+              }
+            </div>
+          }
+        }
+      </li>
+    }
+  </ul>
+}
+
+<!-- Same label text as the column headings above — sized to match this
+     form's own (narrower, icon-led) fields rather than the wider list-row
+     columns, since the two use different widths. -->
+<div class="player-form-headings" aria-hidden="true">
+  <span class="heading-name">Name</span>
+  <span class="heading-field">Initiative Modifier</span>
+  <span class="heading-field">AC</span>
+  <span class="heading-field">Max HP</span>
+  <span class="heading-notes">Notes</span>
+  <span class="heading-spacer"></span>
+</div>
+<form class="entry-form" (ngSubmit)="createPlayer()">
+  <app-combatant-fields
+    [name]="newPlayerName()"
+    (nameChange)="newPlayerName.set($event)"
+    [initiativeModifier]="newPlayerModifier()"
+    (initiativeModifierChange)="newPlayerModifier.set($event)"
+    [ac]="newPlayerAc()"
+    (acChange)="newPlayerAc.set($event)"
+    [maxHp]="newPlayerMaxHp()"
+    (maxHpChange)="newPlayerMaxHp.set($event)"
+    [notes]="newPlayerNotes()"
+    (notesChange)="newPlayerNotes.set($event)"
+  />
+  <button type="submit">Save Player</button>
+</form>

@@ -54,29 +54,47 @@ considerations).
 - [x] Combatant bubble expansion drawer for Removed from Combat / Hold
       Action, with status icons on the collapsed bubble.
 
-## Phase 2 — Combatant Data + Troops (current phase)
+## Phase 2 — Combatant Data + Players/NPCs Library (current phase)
 
 Still local-storage only, no backend yet — a feature pass that deepens what
-a combatant *is* before Phase 3 moves persistence off the browser.
+a combatant *is*, and turns Players/NPCs into a reusable, many-to-many
+library (instead of Phase 1's PC, owned 1:1 by a single Party) before
+Phase 3 moves persistence off the browser. Grew larger in scope than
+originally sketched here (a single "Troops tab" bullet) once Players
+turned out to need the same many-to-many rework as NPCs, not just NPCs —
+see [PRODUCT.md](./PRODUCT.md) for the resulting nav/data-model shape.
 
 - [x] Combatant HP / AC / Notes: optional fields alongside Initiative
-      Modifier, settable when creating a PC/NPC and editable live during an
-      encounter, with column labels matching Initiative Modifier's. Answers
-      the "how much combat data" open question in
+      Modifier, settable when creating a Player/NPC and editable live during
+      an encounter, with column labels matching Initiative Modifier's.
+      Answers the "how much combat data" open question in
       [PRODUCT.md](./PRODUCT.md).
-- [ ] Troops tab: a third top-nav tab alongside Parties and Encounters —
-      pre-made, reusable groupings of NPCs a GM can bring into an Encounter
-      the same way Party PCs are brought in today (a checkbox to include
-      the group). Answers the "NPC reuse" open question in
-      [PRODUCT.md](./PRODUCT.md).
+- [x] Players/Parties library rework: `PlayerCharacter` renamed to `Player`
+      and its single owning `partyId` dropped in favor of many-to-many
+      `Party` membership (a Player can belong to several Parties at once;
+      deleting a Party no longer deletes its members). New **Players**
+      top-nav tab (Roster + Parties sub-nav).
+- [x] NPCs/Troops library: a new reusable NPC library plus `Troop`
+      groupings, structurally mirroring Players/Parties. New **NPCs**
+      top-nav tab (Roster + Troops sub-nav). Answers the "NPC reuse" open
+      question in [PRODUCT.md](./PRODUCT.md) — NPCs can still be created
+      ad-hoc within an Encounter exactly as in Phase 1, unchanged; the
+      roster is additive, not a replacement for that.
+- [ ] Encounter-builder rework: pull a whole Troop into an Encounter the
+      same way a Party is pulled in today; add a single roster Player/NPC
+      without pulling its whole group; from an ad-hoc entry created during
+      Encounter setup, opt in to saving it to the roster (and optionally a
+      Party/Troop) without duplicating it in the encounter being built.
+- [ ] Duplicate-name lettering: within a single Encounter, combatants
+      sharing a name (case-insensitive) get " A"/" B" suffixes.
 
 ## Phase 3 — GM Accounts + Real Persistence
 
 - [ ] Choose a backend (see [ARCHITECTURE.md](./ARCHITECTURE.md) — deferred
       on purpose until this phase).
 - [ ] GM authentication/accounts.
-- [ ] Migrate Parties/PCs/Encounters/Troops from browser storage to the
-      backend, scoped per-GM.
+- [ ] Migrate Players/NPCs/Parties/Troops/Encounters from browser storage to
+      the backend, scoped per-GM.
 - [ ] Data accessible from more than one device/browser.
 
 ## Phase 4 — Player Role

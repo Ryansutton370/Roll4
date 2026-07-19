@@ -1,0 +1,33 @@
+<h1>Troops</h1>
+
+@if (npcStore.troops().length === 0) {
+  <p class="empty-state">No troops yet. Create one below to get started.</p>
+} @else {
+  <ul class="bubble-list">
+    @for (troop of npcStore.troops(); track troop.id) {
+      <li class="bubble entry">
+        <a class="entry-title" [routerLink]="['/npcs/troops', troop.id]">{{ troop.name }}</a>
+        <span class="badge">{{ npcStore.npcsForTroop(troop.id).length }} NPCs</span>
+        <button type="button" class="icon-btn danger" (click)="deleteTroop(troop.id, troop.name)">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path
+              d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+            />
+          </svg>
+          <span class="sr-only">Delete {{ troop.name }}</span>
+        </button>
+      </li>
+    }
+  </ul>
+}
+
+<form class="entry-form" (ngSubmit)="createTroop()">
+  <input
+    type="text"
+    [ngModel]="newTroopName()"
+    (ngModelChange)="newTroopName.set($event)"
+    name="troopName"
+    placeholder="Troop name, e.g. Goblin Warband"
+  />
+  <button type="submit">Create Troop</button>
+</form>

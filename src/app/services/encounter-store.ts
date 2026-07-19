@@ -216,7 +216,7 @@ export class EncounterStore {
   createEncounter(name: string, partyIds: string[]): Encounter {
     const encounterId = crypto.randomUUID();
     const newCombatants: Combatant[] = partyIds.flatMap((partyId) =>
-      this.partyStore.pcsForParty(partyId).map(
+      this.partyStore.playersForParty(partyId).map(
         (pc): Combatant => ({
           id: crypto.randomUUID(),
           encounterId,
@@ -287,7 +287,7 @@ export class EncounterStore {
 
     const newCombatants: Combatant[] = addedPartyIds.flatMap((partyId) =>
       this.partyStore
-        .pcsForParty(partyId)
+        .playersForParty(partyId)
         .filter((pc) => !existingPcIds.has(pc.id))
         .map(
           (pc): Combatant => ({
@@ -314,7 +314,7 @@ export class EncounterStore {
 
     const removedPcIds = new Set(
       encounter.activeCombatantIndex === null
-        ? removedPartyIds.flatMap((partyId) => this.partyStore.pcsForParty(partyId).map((pc) => pc.id))
+        ? removedPartyIds.flatMap((partyId) => this.partyStore.playersForParty(partyId).map((pc) => pc.id))
         : [],
     );
 

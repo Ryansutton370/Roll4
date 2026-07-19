@@ -28,9 +28,10 @@ framework itself is moving.
 ## Persistence — current phase: local-only
 
 **Decision:** for the current build phase, Roll4 has **no backend and no
-accounts**. All data (Parties, PCs, Encounters, in-progress round/turn
-state) is persisted to the browser via `localStorage` (or `IndexedDB` if we
-outgrow `localStorage`'s size/shape limits — unlikely at this scale).
+accounts**. All data (Players, NPCs, Parties, Troops, Encounters,
+in-progress round/turn state) is persisted to the browser via
+`localStorage` (or `IndexedDB` if we outgrow `localStorage`'s size/shape
+limits — unlikely at this scale).
 
 **Why defer hosting instead of picking one now:** the real requirements for
 a backend (multi-device access, GM accounts, and *especially* the future
@@ -61,6 +62,38 @@ last requirement pulls toward a backend with realtime/push support
 (Firebase, Supabase) rather than a plain REST API, but we should make that
 call once the Player-notification feature is actually being designed, not
 before.
+
+## Nested routes and section "shells"
+
+`app.routes.ts` uses Angular's route nesting (a route's `children: [...]`
+array) for the **Players** and **NPCs** sections — each has a small "shell"
+component (`PlayersShell`/`NpcsShell`) as the parent route's `component`,
+owning a `.section-nav` sub-nav (Roster / Parties, or Roster / Troops) and
+its own `<router-outlet>`. The three routes under `players` (roster, party
+list, party detail) render *into that outlet*, not `app.html`'s top-level
+one.
+
+**Why a shell instead of putting the sub-nav in each page, or in
+`app.html`:** every page under `/players` would otherwise have to render
+the identical Roster/Parties tab strip itself (real duplication), or
+`app.html`'s single global nav would need to know "am I currently
+somewhere under `/players`, and if so, show these two extra links" —
+coupling the app shell to the internal structure of one section. A nested
+route keeps that knowledge local to the section that owns it, and
+`app.html` stays exactly as simple as it was before these two tabs existed
+(see `app.html` — it only gained the two new top-level links).
+
+**The `routerLinkActiveOptions` gotcha this pattern runs into:**
+`routerLinkActive`'s default matching is a *prefix* match, not exact — a
+link to `/players` reads as "active" for `/players/parties/:id` too, since
+that URL starts with `/players`. Inside `PlayersShell`'s own sub-nav this
+is a real problem: the "Roster" link (`/players`) and the "Parties" link
+(`/players/parties`) would both show active while looking at a Party,
+since both are prefixes of that URL. Fix: `[routerLinkActiveOptions]="{
+exact: true }"` on the Roster link only, so it's active for `/players`
+exactly and nothing else. The "Parties" link is left at the default prefix
+match on purpose, since it *should* stay highlighted for both
+`/players/parties` and `/players/parties/:partyId`.
 
 ## Testing approach
 

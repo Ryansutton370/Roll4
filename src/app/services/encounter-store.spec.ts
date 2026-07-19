@@ -39,9 +39,20 @@ function npcFields(name: string, initiativeModifier: number) {
   return { name, initiativeModifier, ac: null, maxHp: null, notes: '' };
 }
 
-/** Same shape as npcFields, for PartyStore.addPc. */
+/** Same shape as npcFields, for PartyStore.createPlayer. */
 function pcFields(name: string, initiativeModifier: number) {
   return { name, initiativeModifier, ac: null, maxHp: null, notes: '' };
+}
+
+/** Creates a Player and adds it to a Party in one step — PartyStore.addPc no longer exists now that creation and Party membership are separate (many-to-many). */
+function addPlayerToParty(
+  partyStore: PartyStore,
+  partyId: string,
+  fields: { name: string; initiativeModifier: number; ac: number | null; maxHp: number | null; notes: string },
+) {
+  const player = partyStore.createPlayer(fields);
+  partyStore.addPlayerToParty(partyId, player.id);
+  return player;
 }
 
 describe('compareByInitiative (pure logic)', () => {
@@ -191,7 +202,7 @@ describe('EncounterStore', () => {
 
   it('pulls every PC from the selected Parties in as Combatants', () => {
     const party = partyStore.createParty('Party A');
-    const pc = partyStore.addPc(party.id, pcFields('Aria', 3));
+    const pc = addPlayerToParty(partyStore, party.id, pcFields('Aria', 3));
 
     const encounter = service.createEncounter('Goblin Ambush', [party.id]);
 
@@ -209,7 +220,7 @@ describe('EncounterStore', () => {
 
   it('copies AC/Max HP/Notes onto the Combatant and initializes Current HP to Max HP', () => {
     const party = partyStore.createParty('Party A');
-    partyStore.addPc(party.id, { name: 'Aria', initiativeModifier: 3, ac: 16, maxHp: 30, notes: 'Longsword' });
+    addPlayerToParty(partyStore, party.id, { name: 'Aria', initiativeModifier: 3, ac: 16, maxHp: 30, notes: 'Longsword' });
 
     const encounter = service.createEncounter('Goblin Ambush', [party.id]);
 
@@ -674,7 +685,7 @@ describe('EncounterStore', () => {
   describe('setEncounterParties', () => {
     it('pulls in PCs from a newly-selected Party', () => {
       const partyA = partyStore.createParty('Party A');
-      const pcA = partyStore.addPc(partyA.id, pcFields('Aria', 3));
+      const pcA = addPlayerToParty(partyStore, partyA.id, pcFields('Aria', 3));
       const encounter = service.createEncounter('Goblin Ambush', []);
 
       service.setEncounterParties(encounter.id, [partyA.id]);
@@ -687,7 +698,7 @@ describe('EncounterStore', () => {
 
     it('drops PCs from a de-selected Party before the first Roll', () => {
       const partyA = partyStore.createParty('Party A');
-      partyStore.addPc(partyA.id, pcFields('Aria', 3));
+      addPlayerToParty(partyStore, partyA.id, pcFields('Aria', 3));
       const encounter = service.createEncounter('Goblin Ambush', [partyA.id]);
       expect(service.combatantsForEncounter(encounter.id)).toHaveLength(1);
 
@@ -699,7 +710,7 @@ describe('EncounterStore', () => {
 
     it('leaves already-in-combat PCs alone when their Party is de-selected after the first Roll', () => {
       const partyA = partyStore.createParty('Party A');
-      partyStore.addPc(partyA.id, pcFields('Aria', 3));
+      addPlayerToParty(partyStore, partyA.id, pcFields('Aria', 3));
       const encounter = service.createEncounter('Goblin Ambush', [partyA.id]);
       service.rollInitiative(encounter.id);
 
@@ -712,7 +723,7 @@ describe('EncounterStore', () => {
 
     it('does not duplicate a PC already pulled in from another selected Party', () => {
       const partyA = partyStore.createParty('Party A');
-      const pc = partyStore.addPc(partyA.id, pcFields('Aria', 3));
+      const pc = addPlayerToParty(partyStore, partyA.id, pcFields('Aria', 3));
       const encounter = service.createEncounter('Goblin Ambush', [partyA.id]);
 
       // Re-selecting the same Party (e.g. alongside a newly-added one) shouldn't add a duplicate.

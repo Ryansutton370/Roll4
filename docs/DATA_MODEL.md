@@ -9,33 +9,52 @@ actually changes in code, since code and doc drifting apart helps no one.
 
 ```
 User (GM)
-  └── owns many → Party
-                    └── contains many → PlayerCharacter (PC)
+  └── owns many → Party ─┐
+                          │ playerIds (many-to-many)
+  └── owns many → Player ─┘
+
+User (GM)
+  └── owns many → Troop ──┐
+                           │ npcIds (many-to-many)
+  └── owns many → Npc ────┘
 
 User (GM)
   └── owns many → Encounter
-                    ├── references → one or more Party (to pull PCs from)
+                    ├── references → one or more Party (to pull Players from)
+                    ├── references → one or more Troop (to pull NPCs from)
                     └── contains many → Combatant
-                                          ├── wraps a PC, OR
-                                          └── wraps an NPC (defined inline)
+                                          ├── wraps a Player, OR
+                                          └── wraps an Npc, either from the
+                                              library or defined ad-hoc
 ```
 
-The key design decision here: a **Combatant** is not the same thing as a PC
-or an NPC. A PC is permanent data that lives in a Party and gets reused
-across many encounters. A Combatant is *that PC's participation in this one
-Encounter* — its rolled initiative, whether it's been removed from combat,
-etc. Mixing those together would mean a PC's "current initiative roll" leaks
-into the Party screen, which doesn't make sense once the same PC is used in
-a second encounter.
+The key design decision here: a **Combatant** is not the same thing as a
+Player or an Npc. A Player/Npc is permanent library data reused across many
+Parties/Troops and Encounters. A Combatant is *that Player's or Npc's
+participation in this one Encounter* — its rolled initiative, whether it's
+been removed from combat, etc. Mixing those together would mean a Player's
+"current initiative roll" leaks into the roster screen, which doesn't make
+sense once the same Player is used in a second encounter.
+
+The second key decision (Phase 2): **Party/Troop membership is
+many-to-many**, not the Phase 1 shape where a PC belonged to exactly one
+Party. A Player can be in several Parties (a GM running more than one
+group who shares a player between them, e.g.), and an Npc can be in
+several Troops. `Party.playerIds`/`Troop.npcIds` are the *owning* side of
+that relationship — Player/Npc carry no back-reference field at all;
+"which Parties is this Player in" is always derived by scanning every
+Party's `playerIds` (see `PartyStore.partiesForPlayer` /
+`NpcStore.troopsForNpc`), the same "list owns its members" convention
+already used for `Encounter.combatantIds`/`holdOrder`.
 
 ## Entities
 
 **Implementation note (Phase 1):** `User` and the `ownerId` fields below
-describe the target relational shape once GM accounts exist (Phase 2 — see
-[ROADMAP.md](./ROADMAP.md)). Phase 1 has no accounts at all — one GM, one
-browser — so the Phase 1 code has no `User` type and Party/Encounter have no
-`ownerId` field. They'll be added when auth actually lands, instead of
-carrying an always-empty field until then.
+describe the target relational shape once GM accounts exist (Phase 3 — see
+[ROADMAP.md](./ROADMAP.md)). Phase 1/2 have no accounts at all — one GM, one
+browser — so the code has no `User` type and no entity has an `ownerId`
+field yet. They'll be added when auth actually lands, instead of carrying
+an always-empty field until then.
 
 ### User
 | Field       | Type   | Notes                                   |
@@ -45,24 +64,55 @@ carrying an always-empty field until then.
 | `displayName` | string | |
 
 ### Party
-| Field   | Type     | Notes                          |
-|---------|----------|----------------------------------|
-| `id`    | string   | Unique identifier                |
-| `ownerId` | string | References `User.id` (the GM)  |
-| `name`  | string   | e.g. "The Thursday Night Group" |
-| `pcIds` | string[] | References `PlayerCharacter.id` |
+| Field       | Type     | Notes                                    |
+|-------------|----------|--------------------------------------------|
+| `id`        | string   | Unique identifier                          |
+| `ownerId`   | string   | References `User.id` (the GM)              |
+| `name`      | string   | e.g. "The Thursday Night Group"            |
+| `playerIds` | string[] | References `Player.id` — the owning side of a many-to-many; deleting a Party does **not** delete these Players, it just drops the grouping |
 
-### PlayerCharacter (PC)
+### Player
+A reusable library entry — not tied to any one Party (see `Party.playerIds`
+above). Renamed from Phase 1's `PlayerCharacter`, which was owned 1:1 by a
+single Party via a `partyId` field; that field is gone now that membership
+is many-to-many.
+
 | Field                | Type   | Notes                                  |
 |----------------------|--------|-------------------------------------------|
 | `id`                 | string | Unique identifier                         |
-| `partyId`            | string | References `Party.id`                     |
 | `name`               | string | e.g. "Aria Windmere"                      |
 | `initiativeModifier` | number | Signed integer, e.g. `3`, `0`, `-1`       |
 | `ac`                 | number \| null | Optional. `null` means "not set," not zero |
-| `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the PC |
+| `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the Player |
 | `notes`              | string | Optional. `''` means "not set"            |
-| `ownerId`            | string \| null | Future: references a Player `User.id` |
+| `ownerId`            | string \| null | Future: references a Player-role `User.id` |
+
+### Troop
+| Field     | Type     | Notes                                        |
+|-----------|----------|-------------------------------------------------|
+| `id`      | string   | Unique identifier                              |
+| `ownerId` | string   | References `User.id` (the GM)                  |
+| `name`    | string   | e.g. "Goblin Warband"                          |
+| `npcIds`  | string[] | References `Npc.id` — same many-to-many convention as `Party.playerIds` |
+
+### Npc
+The NPC-side mirror of Player — a reusable library entry, not tied to any
+one Troop. New this phase: NPCs had no persisted library at all before now
+(they were always created ad-hoc, inline in an Encounter). That ad-hoc path
+is untouched and still the only way to add an NPC to an Encounter today —
+this library and Troops exist alongside it, not in place of it yet; pulling
+a Troop into an Encounter (mirroring how a Party is pulled in today) is
+planned but not built.
+
+| Field                | Type   | Notes                                  |
+|----------------------|--------|-------------------------------------------|
+| `id`                 | string | Unique identifier                         |
+| `name`               | string | e.g. "Goblin Shaman"                      |
+| `initiativeModifier` | number | Signed integer, e.g. `3`, `0`, `-1`       |
+| `ac`                 | number \| null | Optional. `null` means "not set," not zero |
+| `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the NPC |
+| `notes`              | string | Optional. `''` means "not set"            |
+| `ownerId`            | string | References `User.id` (the GM)             |
 
 ### Encounter
 | Field              | Type      | Notes                                          |
@@ -70,7 +120,7 @@ carrying an always-empty field until then.
 | `id`               | string    | Unique identifier                                |
 | `ownerId`          | string    | References `User.id` (the GM)                    |
 | `name`             | string    | e.g. "Goblin Ambush"                              |
-| `partyIds`         | string[]  | Which Parties' PCs were pulled in                |
+| `partyIds`         | string[]  | Which Parties' Players were pulled in            |
 | `combatantIds`     | string[]  | **Ordered** by initiative (descending); this order IS the initiative order |
 | `activeCombatantIndex` | number \| null | Index into `combatantIds`; null before first Roll |
 | `holdOrder`        | string[]  | Ids of Combatants currently on Hold Action, oldest-first. Drives the secondary Hold Action list; cleared every round boundary |
@@ -78,17 +128,23 @@ carrying an always-empty field until then.
 | `reRollEachRound`  | boolean   | Default `true` (the homebrew rule)               |
 
 ### Combatant
-An Encounter-scoped participant. Either backed by a PC or defined inline as
-an NPC — never both.
+An Encounter-scoped participant. Either backed by a Player or defined
+inline as an NPC — never both.
+
+**Naming note:** `type`/`pcId` below still say "pc," matching the actual
+field names in code today — `PlayerCharacter` was renamed to `Player` this
+phase, but the `Combatant` side (`pcId` → `playerId`, plus a new `npcId`
+for library-backed NPCs) hasn't been renamed to match yet. Read `pcId` as
+"references `Player.id`."
 
 | Field                | Type                   | Notes                                        |
 |----------------------|------------------------|-----------------------------------------------|
 | `id`                 | string                 | Unique identifier                             |
 | `encounterId`        | string                 | References `Encounter.id`                     |
 | `type`               | `"pc"` \| `"npc"`      | Drives the color shown in the initiative list |
-| `pcId`                | string \| null        | Set when `type === "pc"`                      |
-| `name`               | string                 | Copied from PC, or set directly for an NPC    |
-| `initiativeModifier` | number                 | Copied from PC, or set directly for an NPC    |
+| `pcId`                | string \| null        | Set when `type === "pc"`; references `Player.id` |
+| `name`               | string                 | Copied from Player, or set directly for an NPC |
+| `initiativeModifier` | number                 | Copied from Player, or set directly for an NPC |
 | `ac`                 | number \| null         | Copied from PC, or set directly for an NPC. `null` = not set |
 | `maxHp`              | number \| null         | Copied from PC, or set directly for an NPC. `null` = not set |
 | `currentHp`          | number \| null         | Combatant-only — no PC/NPC equivalent. Starts equal to `maxHp`, then clamped to `[0, maxHp]` on every change. `null` whenever `maxHp` is `null` |

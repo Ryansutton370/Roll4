@@ -333,3 +333,37 @@ fieldset label {
   gap: 0.4rem;
   margin: 0.2rem 0.9rem 0.2rem 0;
 }
+
+/* ---------------------------------------------------------------------
+   Section sub-nav — the small "Roster / Parties" and "Roster / Troops"
+   tab strips owned by PlayersShell/NpcsShell. Global rather than
+   component-scoped: it's identical in both, and Angular's view
+   encapsulation would force a duplicate copy per component anyway (see
+   docs/ARCHITECTURE.md's "Splitting shared UI into components" section).
+   --------------------------------------------------------------------- */
+.section-nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section-nav a {
+  padding: 0.6rem 1rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.section-nav a:hover {
+  color: var(--color-text);
+}
+
+.section-nav a.active {
+  color: var(--color-text);
+  border-bottom-color: var(--color-focus);
+}
