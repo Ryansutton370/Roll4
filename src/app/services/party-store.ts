@@ -1,11 +1,16 @@
 import { Service, effect, signal } from '@angular/core';
-import { Party, PlayerCharacter } from '../models/party.model';
+import { Party, Player } from '../models/party.model';
 
-const STORAGE_KEY = 'roll4.parties';
+// Bumped from 'roll4.parties.v2' — Party/PlayerCharacter's shape changed
+// (PlayerCharacter renamed to Player and lost its single partyId in favor
+// of many-to-many membership via Party.playerIds) and this app has no
+// migration path yet (see docs/ARCHITECTURE.md), so old-shaped data is
+// simply left behind.
+const STORAGE_KEY = 'roll4.parties.v3';
 
 interface PartyStorageShape {
   parties: Party[];
-  pcs: PlayerCharacter[];
+  players: Player[];
 }
 
 // @Service(): Angular's newer, simpler alternative to
@@ -19,25 +24,25 @@ export class PartyStore {
   // (e.g. by calling `partyStore.parties()` in a template) automatically
   // re-render whenever it changes — no manual subscription/unsubscription.
   private readonly partiesSignal = signal<Party[]>([]);
-  private readonly pcsSignal = signal<PlayerCharacter[]>([]);
+  private readonly playersSignal = signal<Player[]>([]);
 
   // asReadonly() gives components a signal they can read but not `.set()`.
   // All mutation happens through the methods below, so state changes stay
   // in one place instead of being scattered across every component.
   readonly parties = this.partiesSignal.asReadonly();
-  readonly pcs = this.pcsSignal.asReadonly();
+  readonly players = this.playersSignal.asReadonly();
 
   constructor() {
     this.load();
 
     // effect(): a function that re-runs automatically whenever any signal it
-    // reads (here, partiesSignal/pcsSignal) changes. This is how we keep
+    // reads (here, partiesSignal/playersSignal) changes. This is how we keep
     // localStorage in sync without every mutation method remembering to save
     // — per docs/ARCHITECTURE.md, this is the one place persistence lives.
     effect(() => {
       const snapshot: PartyStorageShape = {
         parties: this.partiesSignal(),
-        pcs: this.pcsSignal(),
+        players: this.playersSignal(),
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
     });
@@ -49,7 +54,7 @@ export class PartyStore {
     try {
       const parsed = JSON.parse(raw) as PartyStorageShape;
       this.partiesSignal.set(parsed.parties ?? []);
-      this.pcsSignal.set(parsed.pcs ?? []);
+      this.playersSignal.set(parsed.players ?? []);
     } catch {
       // Corrupt/unreadable data — start fresh rather than crash the app.
     }
@@ -59,13 +64,24 @@ export class PartyStore {
     return this.partiesSignal().find((p) => p.id === id);
   }
 
-  /** All PCs belonging to a given Party, in the order they were added. */
-  pcsForParty(partyId: string): PlayerCharacter[] {
-    return this.pcsSignal().filter((pc) => pc.partyId === partyId);
+  getPlayer(id: string): Player | undefined {
+    return this.playersSignal().find((p) => p.id === id);
+  }
+
+  /** All Players belonging to a given Party, in roster (creation) order. */
+  playersForParty(partyId: string): Player[] {
+    const party = this.getParty(partyId);
+    if (!party) return [];
+    return this.playersSignal().filter((p) => party.playerIds.includes(p.id));
+  }
+
+  /** Derived, not stored — Player has no back-reference field; Party.playerIds is the single source of truth for membership. */
+  partiesForPlayer(playerId: string): Party[] {
+    return this.partiesSignal().filter((p) => p.playerIds.includes(playerId));
   }
 
   createParty(name: string): Party {
-    const party: Party = { id: crypto.randomUUID(), name, pcIds: [] };
+    const party: Party = { id: crypto.randomUUID(), name, playerIds: [] };
     this.partiesSignal.update((parties) => [...parties, party]);
     return party;
   }
@@ -76,34 +92,68 @@ export class PartyStore {
     );
   }
 
+  /**
+   * Unlike Phase 1's deleteParty, this no longer cascades to delete member
+   * Players — many-to-many membership means a Party is a tag on the
+   * shared Player roster, not an owner of it, so deleting a Party just
+   * removes that grouping. The Players in it stay in the roster (and in
+   * any other Party they also belong to).
+   */
   deleteParty(id: string): void {
     this.partiesSignal.update((parties) => parties.filter((p) => p.id !== id));
-    this.pcsSignal.update((pcs) => pcs.filter((pc) => pc.partyId !== id));
   }
 
-  addPc(partyId: string, name: string, initiativeModifier: number): PlayerCharacter {
-    const pc: PlayerCharacter = { id: crypto.randomUUID(), partyId, name, initiativeModifier };
-    this.pcsSignal.update((pcs) => [...pcs, pc]);
-    this.partiesSignal.update((parties) =>
-      parties.map((p) => (p.id === partyId ? { ...p, pcIds: [...p.pcIds, pc.id] } : p)),
-    );
-    return pc;
-  }
-
-  updatePc(
-    id: string,
-    changes: Partial<Pick<PlayerCharacter, 'name' | 'initiativeModifier'>>,
-  ): void {
-    this.pcsSignal.update((pcs) => pcs.map((pc) => (pc.id === id ? { ...pc, ...changes } : pc)));
-  }
-
-  removePc(id: string): void {
-    const pc = this.pcsSignal().find((p) => p.id === id);
-    if (!pc) return;
-    this.pcsSignal.update((pcs) => pcs.filter((p) => p.id !== id));
+  addPlayerToParty(partyId: string, playerId: string): void {
     this.partiesSignal.update((parties) =>
       parties.map((p) =>
-        p.id === pc.partyId ? { ...p, pcIds: p.pcIds.filter((pcId) => pcId !== id) } : p,
+        p.id === partyId && !p.playerIds.includes(playerId)
+          ? { ...p, playerIds: [...p.playerIds, playerId] }
+          : p,
+      ),
+    );
+  }
+
+  removePlayerFromParty(partyId: string, playerId: string): void {
+    this.partiesSignal.update((parties) =>
+      parties.map((p) =>
+        p.id === partyId ? { ...p, playerIds: p.playerIds.filter((id) => id !== playerId) } : p,
+      ),
+    );
+  }
+
+  /** Created directly into the roster, unattached to any Party — use addPlayerToParty to assign it to one. */
+  createPlayer(fields: {
+    name: string;
+    initiativeModifier: number;
+    ac: number | null;
+    maxHp: number | null;
+    notes: string;
+  }): Player {
+    const player: Player = { id: crypto.randomUUID(), ...fields };
+    this.playersSignal.update((players) => [...players, player]);
+    return player;
+  }
+
+  updatePlayer(
+    id: string,
+    changes: Partial<Pick<Player, 'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes'>>,
+  ): void {
+    this.playersSignal.update((players) =>
+      players.map((p) => (p.id === id ? { ...p, ...changes } : p)),
+    );
+  }
+
+  /**
+   * Reverse-cascades across *every* Party's playerIds, not just one —
+   * unlike Phase 1's removePc (a PC only ever had one owning Party), a
+   * Player can now belong to several Parties at once, so deleting one
+   * from the roster has to clean up every membership list that names it.
+   */
+  deletePlayer(id: string): void {
+    this.playersSignal.update((players) => players.filter((p) => p.id !== id));
+    this.partiesSignal.update((parties) =>
+      parties.map((p) =>
+        p.playerIds.includes(id) ? { ...p, playerIds: p.playerIds.filter((pid) => pid !== id) } : p,
       ),
     );
   }

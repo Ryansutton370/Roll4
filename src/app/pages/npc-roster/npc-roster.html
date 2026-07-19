@@ -1,0 +1,98 @@
+<h1>NPCs</h1>
+
+@if (npcStore.npcs().length === 0) {
+  <p class="empty-state">No NPCs yet. Add one below.</p>
+} @else {
+  <div class="column-headings" aria-hidden="true">
+    <span class="pc-name-heading">Name</span>
+    <span class="pc-modifier-heading">Initiative Modifier</span>
+    <span class="pc-ac-heading">AC</span>
+    <span class="pc-max-hp-heading">Max HP</span>
+    <span class="pc-notes-heading">Notes</span>
+    <span class="heading-spacer"></span>
+  </div>
+  <ul class="bubble-list">
+    @for (npc of npcStore.npcs(); track npc.id) {
+      <li class="bubble player-entry">
+        <div class="player-row">
+          <input
+            type="text"
+            class="pc-name"
+            [ngModel]="npc.name"
+            (ngModelChange)="renameNpc(npc.id, $event)"
+          />
+          <input
+            type="number"
+            class="pc-modifier"
+            [ngModel]="npc.initiativeModifier"
+            (ngModelChange)="setNpcModifier(npc.id, $event)"
+          />
+          <input
+            type="number"
+            class="pc-ac"
+            placeholder="AC"
+            [ngModel]="npc.ac"
+            (ngModelChange)="setNpcAc(npc.id, $event)"
+          />
+          <input
+            type="number"
+            class="pc-max-hp"
+            placeholder="Max HP"
+            [ngModel]="npc.maxHp"
+            (ngModelChange)="setNpcMaxHp(npc.id, $event)"
+          />
+          <input
+            type="text"
+            class="pc-notes"
+            placeholder="Notes"
+            [ngModel]="npc.notes"
+            (ngModelChange)="setNpcNotes(npc.id, $event)"
+          />
+          <button type="button" class="icon-btn danger" (click)="deleteNpc(npc.id, npc.name)">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+              />
+            </svg>
+            <span class="sr-only">Delete {{ npc.name }}</span>
+          </button>
+        </div>
+        @if (npcStore.troopsForNpc(npc.id); as troops) {
+          @if (troops.length > 0) {
+            <div class="player-parties">
+              @for (troop of troops; track troop.id) {
+                <a class="badge party-chip" [routerLink]="['/npcs/troops', troop.id]">{{
+                  troop.name
+                }}</a>
+              }
+            </div>
+          }
+        }
+      </li>
+    }
+  </ul>
+}
+
+<div class="player-form-headings" aria-hidden="true">
+  <span class="heading-name">Name</span>
+  <span class="heading-field">Initiative Modifier</span>
+  <span class="heading-field">AC</span>
+  <span class="heading-field">Max HP</span>
+  <span class="heading-notes">Notes</span>
+  <span class="heading-spacer"></span>
+</div>
+<form class="entry-form" (ngSubmit)="createNpc()">
+  <app-combatant-fields
+    [name]="newNpcName()"
+    (nameChange)="newNpcName.set($event)"
+    [initiativeModifier]="newNpcModifier()"
+    (initiativeModifierChange)="newNpcModifier.set($event)"
+    [ac]="newNpcAc()"
+    (acChange)="newNpcAc.set($event)"
+    [maxHp]="newNpcMaxHp()"
+    (maxHpChange)="newNpcMaxHp.set($event)"
+    [notes]="newNpcNotes()"
+    (notesChange)="newNpcNotes.set($event)"
+  />
+  <button type="submit">Save NPC</button>
+</form>

@@ -28,9 +28,10 @@ framework itself is moving.
 ## Persistence — current phase: local-only
 
 **Decision:** for the current build phase, Roll4 has **no backend and no
-accounts**. All data (Parties, PCs, Encounters, in-progress round/turn
-state) is persisted to the browser via `localStorage` (or `IndexedDB` if we
-outgrow `localStorage`'s size/shape limits — unlikely at this scale).
+accounts**. All data (Players, NPCs, Parties, Troops, Encounters,
+in-progress round/turn state) is persisted to the browser via
+`localStorage` (or `IndexedDB` if we outgrow `localStorage`'s size/shape
+limits — unlikely at this scale).
 
 **Why defer hosting instead of picking one now:** the real requirements for
 a backend (multi-device access, GM accounts, and *especially* the future
@@ -62,6 +63,38 @@ last requirement pulls toward a backend with realtime/push support
 call once the Player-notification feature is actually being designed, not
 before.
 
+## Nested routes and section "shells"
+
+`app.routes.ts` uses Angular's route nesting (a route's `children: [...]`
+array) for the **Players** and **NPCs** sections — each has a small "shell"
+component (`PlayersShell`/`NpcsShell`) as the parent route's `component`,
+owning a `.section-nav` sub-nav (Roster / Parties, or Roster / Troops) and
+its own `<router-outlet>`. The three routes under `players` (roster, party
+list, party detail) render *into that outlet*, not `app.html`'s top-level
+one.
+
+**Why a shell instead of putting the sub-nav in each page, or in
+`app.html`:** every page under `/players` would otherwise have to render
+the identical Roster/Parties tab strip itself (real duplication), or
+`app.html`'s single global nav would need to know "am I currently
+somewhere under `/players`, and if so, show these two extra links" —
+coupling the app shell to the internal structure of one section. A nested
+route keeps that knowledge local to the section that owns it, and
+`app.html` stays exactly as simple as it was before these two tabs existed
+(see `app.html` — it only gained the two new top-level links).
+
+**The `routerLinkActiveOptions` gotcha this pattern runs into:**
+`routerLinkActive`'s default matching is a *prefix* match, not exact — a
+link to `/players` reads as "active" for `/players/parties/:id` too, since
+that URL starts with `/players`. Inside `PlayersShell`'s own sub-nav this
+is a real problem: the "Roster" link (`/players`) and the "Parties" link
+(`/players/parties`) would both show active while looking at a Party,
+since both are prefixes of that URL. Fix: `[routerLinkActiveOptions]="{
+exact: true }"` on the Roster link only, so it's active for `/players`
+exactly and nothing else. The "Parties" link is left at the default prefix
+match on purpose, since it *should* stay highlighted for both
+`/players/parties` and `/players/parties/:partyId`.
+
 ## Testing approach
 
 Use Vitest (already configured by the CLI) for unit tests on:
@@ -70,3 +103,72 @@ Use Vitest (already configured by the CLI) for unit tests on:
   are the easiest place to catch bugs.
 - Component tests for user-facing behavior (Roll button, Forward/Back,
   Removed-from-Combat toggling) as those screens get built.
+
+## Splitting shared UI into components
+
+When to split: shared markup between two rendering contexts starts
+drifting into real duplication, and/or a single component's template grows
+unwieldy. Precedent: `CombatantBubble`
+(`src/app/pages/encounter-detail/combatant-bubble.ts`) was split out of
+`EncounterDetail` once its ~550-line template had the same combatant-row +
+drawer markup duplicated between the main initiative list and the Hold
+Action panel.
+
+**The gotcha to watch for:** Angular's view encapsulation scopes a
+component's CSS to elements written in *its own* template — a parent's
+stylesheet cannot reach into a child component's template, even when the
+child is nested directly inside a parent-styled element. Splitting
+`CombatantBubble` out hit this repeatedly: several classes previously
+styled from `encounter-detail.css` (`.type-dot`, `.initiative-total`, the
+Active combatant's larger name) quietly stopped applying the moment the
+element they styled moved into the child's own template.
+
+The convention going forward:
+- A style that's a genuinely shared "atom" across pages/components (e.g.
+  `.type-dot`, the PC/NPC indicator dot) belongs in the global
+  `src/styles.css`, not duplicated per component — `.icon-btn`/`.bubble-list`
+  already live there for the same reason.
+- A style that depends on state the *parent* knows but the child doesn't
+  (e.g. "this bubble is the Active combatant") should be exposed as a
+  boolean `input()` on the child, which the child's own template turns
+  into a plain local class inside its own scope. Don't reach for
+  `:host()`/`:host-context()` selectors from the parent's stylesheet
+  instead — they work, but they're solving with CSS a problem Angular
+  already has a mechanism for (passing state down via inputs).
+
+**A second gotcha, hit splitting `CombatantFields`
+(`src/app/shared/combatant-fields/`) out for reuse across the PC/NPC
+create and edit forms:** a component's host tag (`<app-combatant-fields>`
+itself) is a real DOM element, not a transparent wrapper — unlike
+`<ng-container>`, Angular does not dissolve it away. Left alone it defaults
+to `display: inline`, so when a component's template has several top-level
+elements meant to lay out individually alongside the *caller's* other
+content (here, 5 form fields meant to sit inline with the caller's submit
+button in one flex row), the host tag instead becomes a single opaque flex
+item sized to fit all of them together — the fields never get a chance to
+wrap or size independently. Fix: `:host { display: contents; }` in the
+component's own stylesheet, which removes the host's own box from layout
+entirely so its children lay out exactly as if they were the parent's
+direct children. Reach for this whenever a component exists purely to
+group a handful of *sibling* elements for reuse (as opposed to one, since
+that's the more common case where the host's default inline/block box
+never mattered before).
+
+**A third gotcha, a real bug found in `CombatantBubble`'s HP delta
+popover:** `position: absolute` only anchors to the *nearest positioned
+ancestor* — an element with `position` other than `static`, or one with a
+`transform` (transforms create a containing block too, which is easy to
+forget). The HP popover (`.hp-adjust-popover`) is a sibling of the button
+that opens it, not its child — a `<button>` can't validly contain another
+interactive control — so putting `position: relative` on the button itself
+did nothing for the popover; with no positioned ancestor at all, it
+anchored to the document, and could render anywhere on the page depending
+on document height. It happened to *look* fine for the Active combatant
+only by accident, because `.combatant.active` has `transform:
+scale(1.03)` for its highlight glow, which incidentally created the
+containing block the popover needed. Fix: wrap the button and the popover
+in a shared element and put `position: relative` on *that* wrapper, not on
+either of the things inside it. Whenever a popover/menu is a sibling
+(rather than a child) of the control that opens it, double check what its
+actual containing block resolves to — don't assume a `position: relative`
+somewhere nearby is the right one.

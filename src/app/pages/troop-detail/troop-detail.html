@@ -1,0 +1,29 @@
+@if (troop(); as t) {
+  <p><a routerLink="/npcs/troops">← Back to Troops</a></p>
+  <h1>{{ t.name }}</h1>
+
+  <h2>Members</h2>
+  @if (allNpcs().length === 0) {
+    <p class="empty-state">
+      No NPCs in the roster yet. <a routerLink="/npcs">Add one</a> first, then come back here to
+      add them to this Troop.
+    </p>
+  } @else {
+    <ul class="bubble-list">
+      @for (npc of allNpcs(); track npc.id) {
+        <li class="bubble entry">
+          <label class="membership-row">
+            <input
+              type="checkbox"
+              [checked]="isMember(npc.id)"
+              (change)="toggleMembership(npc.id, $any($event.target).checked)"
+            />
+            <span class="entry-title">{{ npc.name }}</span>
+          </label>
+        </li>
+      }
+    </ul>
+  }
+} @else {
+  <p>Troop not found. <a routerLink="/npcs/troops">Back to Troops</a></p>
+}

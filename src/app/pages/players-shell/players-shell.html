@@ -1,0 +1,10 @@
+<!-- routerLinkActiveOptions={exact:true} on the Roster link only — without
+     it, routerLinkActive's default prefix match would leave "Roster" also
+     marked active while on /players/parties (which starts with /players
+     too), fighting with "Parties" for the highlight. -->
+<nav class="section-nav">
+  <a routerLink="/players" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active">Roster</a>
+  <a routerLink="/players/parties" routerLinkActive="active">Parties</a>
+</nav>
+
+<router-outlet />

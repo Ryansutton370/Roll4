@@ -27,8 +27,11 @@ export class PartyList {
     this.newPartyName.set('');
   }
 
+  // Unlike Phase 1, deleting a Party no longer deletes its members — a
+  // Party is a tag over the shared Player roster now (many-to-many), not
+  // an owner of it, so the confirm copy says so explicitly.
   protected deleteParty(id: string, name: string): void {
-    if (confirm(`Delete "${name}"? This also deletes its PCs.`)) {
+    if (confirm(`Delete "${name}"? Players in it stay in the roster.`)) {
       this.partyStore.deleteParty(id);
     }
   }

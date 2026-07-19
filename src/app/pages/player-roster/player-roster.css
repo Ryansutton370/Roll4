@@ -1,0 +1,146 @@
+/* .player-entry stacks two rows: the editable fields (.player-row) and,
+   below it, any Party membership chips — unlike the old flat .entry row
+   (still used elsewhere for a single-line bubble), a Player can have a
+   second line of content here. */
+.player-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pc-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.pc-modifier {
+  width: 5rem;
+  flex-shrink: 0;
+}
+
+.pc-ac,
+.pc-max-hp {
+  width: 4rem;
+  flex-shrink: 0;
+}
+
+.pc-notes {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Labels the input columns in the roster list below. Mirrors .player-row's
+   flex layout so the headings line up with the inputs, plus the
+   icon-btn's width so "Initiative Modifier" doesn't drift over the
+   delete button column. */
+.column-headings {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.pc-name-heading {
+  flex: 1;
+}
+
+.pc-modifier-heading {
+  width: 5rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.pc-ac-heading,
+.pc-max-hp-heading {
+  width: 4rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.pc-notes-heading {
+  flex: 1;
+}
+
+.heading-spacer {
+  width: 2.75rem;
+  flex-shrink: 0;
+}
+
+/* Party membership chips — .badge (global) gives the pill shape/tint; this
+   just lays out however many a Player has and turns off the link
+   underline until hovered, matching .entry-title's convention elsewhere. */
+.player-parties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding-left: 1rem;
+}
+
+.party-chip {
+  text-decoration: none;
+}
+
+.party-chip:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------
+   Headings above the create form — same label text as .column-headings
+   above (Name / Initiative Modifier / AC / Max HP / Notes), but sized to
+   match CombatantFields' own narrower, icon-led fields (see
+   combatant-fields.css) rather than the wider plain-input list columns
+   above, since the two rows use different field widths. Duplicated width
+   values rather than shared classes, matching this app's existing
+   "heading spacer widths mirror the row below" pattern (see
+   encounter-detail.css's .setup-list-header). */
+.player-form-headings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0 0 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.player-form-headings .heading-name {
+  flex: 1 1 5rem;
+  min-width: 4.5rem;
+}
+
+.player-form-headings .heading-field {
+  flex-shrink: 0;
+  width: 4.75rem;
+  text-align: center;
+}
+
+.player-form-headings .heading-notes {
+  flex: 1 1 4rem;
+  min-width: 3.5rem;
+}
+
+.player-form-headings .heading-spacer {
+  width: 6.5rem;
+}
+
+/* Matches the mobile Name field taking the full row (combatant-fields.css)
+   — its heading needs the same full-row treatment, or it'd sit above the
+   icon-field headings instead of above Name once Name wraps to its own
+   line. */
+@media (max-width: 480px) {
+  .player-form-headings .heading-name {
+    flex-basis: 100%;
+  }
+}

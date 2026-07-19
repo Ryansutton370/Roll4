@@ -12,11 +12,25 @@ export interface Combatant {
   pcId: string | null;
   name: string;
   initiativeModifier: number;
+  /** Optional combat stats, copied from the source PC (or set directly for
+   *  an NPC) when the Combatant is created — same "own copy" precedent as
+   *  name/initiativeModifier above. null/'' means "not set". */
+  ac: number | null;
+  maxHp: number | null;
+  /** Combatant-only — no PC/NPC-library equivalent, since it's inherently
+   *  in-combat state (like lastRoll). Starts equal to maxHp, then clamped
+   *  to [0, maxHp] on every change (damage/heal or a Max HP edit). */
+  currentHp: number | null;
+  notes: string;
   lastRoll: number | null;
   /** null renders as "N/A" and sorts/counts as 0 — see removedFromCombat below. */
   initiativeTotal: number | null;
   /** true = dropped to the bottom of the order with a null (N/A) initiative. */
   removedFromCombat: boolean;
+  /** true = greyed out and marked as unable to act (unconscious, stunned,
+   *  etc.). Purely cosmetic — unlike removedFromCombat/onHold, it doesn't
+   *  affect rolling, sorting, or turn order in any way. */
+  incapacitated: boolean;
   /** true = holding their action: shown in the secondary Hold Action list
    *  (pinned to the Active combatant's total for display), and skipped by
    *  Forward/Back until unchecked. */

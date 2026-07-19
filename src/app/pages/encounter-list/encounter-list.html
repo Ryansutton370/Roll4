@@ -94,6 +94,7 @@
             <li
               class="bubble entry"
               [class.pc-entry]="c.type === 'pc'"
+              [class.npc-entry]="c.type === 'npc'"
               [class.entry-removed]="c.removedFromCombat"
             >
               <span class="type-dot" [class.pc]="c.type === 'pc'" [class.npc]="c.type === 'npc'"></span>
@@ -159,19 +160,17 @@
       }
 
       <div class="entry-form">
-        <input
-          type="text"
-          [ngModel]="newNpcName()"
-          (ngModelChange)="newNpcName.set($event)"
-          name="npcName"
-          placeholder="NPC name"
-        />
-        <input
-          type="number"
-          [ngModel]="newNpcModifier()"
-          (ngModelChange)="newNpcModifier.set($event)"
-          name="npcModifier"
-          placeholder="Initiative Modifier"
+        <app-combatant-fields
+          [name]="newNpcName()"
+          (nameChange)="newNpcName.set($event)"
+          [initiativeModifier]="newNpcModifier()"
+          (initiativeModifierChange)="newNpcModifier.set($event)"
+          [ac]="newNpcAc()"
+          (acChange)="newNpcAc.set($event)"
+          [maxHp]="newNpcMaxHp()"
+          (maxHpChange)="newNpcMaxHp.set($event)"
+          [notes]="newNpcNotes()"
+          (notesChange)="newNpcNotes.set($event)"
         />
         <button type="button" (click)="addNpcToEditingEncounter()">Add NPC</button>
       </div>

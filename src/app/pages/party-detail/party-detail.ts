@@ -1,8 +1,16 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PartyStore } from '../../services/party-store';
 
+/**
+ * A Party is now a membership *tag* over the shared Player roster
+ * (many-to-many), not an owner of dedicated PCs — so this screen is a
+ * checkbox list over every roster Player rather than an inline create
+ * form. Players themselves are created/edited on PlayerRoster, since a
+ * Player being creatable "inside" one Party stopped making sense once it
+ * can belong to several.
+ */
 @Component({
   selector: 'app-party-detail',
   imports: [FormsModule, RouterLink],
@@ -18,33 +26,19 @@ export class PartyDetail {
   // subscription needed.
   readonly partyId = input.required<string>();
 
-  // computed(): derives a value from other signals (partyId + the store's
-  // parties/pcs) and recalculates automatically whenever either changes.
   protected readonly party = computed(() => this.partyStore.getParty(this.partyId()));
-  protected readonly pcs = computed(() => this.partyStore.pcsForParty(this.partyId()));
+  protected readonly allPlayers = computed(() => this.partyStore.players());
 
-  protected readonly newPcName = signal('');
-  protected readonly newPcModifier = signal(0);
-
-  protected addPc(): void {
-    const name = this.newPcName().trim();
-    if (!name) return;
-    this.partyStore.addPc(this.partyId(), name, this.newPcModifier());
-    this.newPcName.set('');
-    this.newPcModifier.set(0);
+  protected isMember(playerId: string): boolean {
+    return this.party()?.playerIds.includes(playerId) ?? false;
   }
 
-  protected removePc(id: string, name: string): void {
-    if (confirm(`Remove ${name} from this party?`)) {
-      this.partyStore.removePc(id);
+  protected toggleMembership(playerId: string, checked: boolean): void {
+    const partyId = this.partyId();
+    if (checked) {
+      this.partyStore.addPlayerToParty(partyId, playerId);
+    } else {
+      this.partyStore.removePlayerFromParty(partyId, playerId);
     }
-  }
-
-  protected renamePc(id: string, name: string): void {
-    this.partyStore.updatePc(id, { name });
-  }
-
-  protected setPcModifier(id: string, initiativeModifier: number): void {
-    this.partyStore.updatePc(id, { initiativeModifier });
   }
 }

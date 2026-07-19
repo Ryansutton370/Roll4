@@ -1,40 +1,13 @@
-.pc-name {
-  flex: 1;
-  min-width: 0;
-  font-weight: 600;
-}
-
-.pc-modifier {
-  width: 5rem;
-  flex-shrink: 0;
-}
-
-/* Labels the two input columns in the PC list below. Mirrors the .entry
-   row's flex layout (name flex: 1, modifier fixed width) so the headings
-   line up with the inputs, plus the icon-btn's width so "Initiative
-   Modifier" doesn't drift over the delete button column. */
-.column-headings {
+.membership-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0 1rem;
-  margin-bottom: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
+  width: 100%;
+  cursor: pointer;
 }
 
-.pc-name-heading {
-  flex: 1;
-}
-
-.pc-modifier-heading {
-  width: 5rem;
+.membership-row input[type='checkbox'] {
   flex-shrink: 0;
-  text-align: center;
-}
-
-.heading-spacer {
-  width: 2.75rem;
-  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
 }

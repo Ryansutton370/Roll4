@@ -2,7 +2,16 @@ import { Service, effect, inject, signal } from '@angular/core';
 import { Combatant, Encounter } from '../models/encounter.model';
 import { PartyStore } from './party-store';
 
-const STORAGE_KEY = 'roll4.encounters';
+// Bumped from 'roll4.encounters' — Combatant's shape changed (added
+// ac/maxHp/currentHp/notes) and this app has no migration path yet (see
+// docs/ARCHITECTURE.md), so old-shaped data is simply left behind.
+const STORAGE_KEY = 'roll4.encounters.v2';
+
+/** Keeps Current HP within [0, maxHp] — null maxHp means "not tracked", so there's nothing to clamp. */
+function clampCurrentHp(currentHp: number, maxHp: number | null): number | null {
+  if (maxHp === null) return null;
+  return Math.min(Math.max(currentHp, 0), maxHp);
+}
 
 interface EncounterStorageShape {
   encounters: Encounter[];
@@ -207,7 +216,7 @@ export class EncounterStore {
   createEncounter(name: string, partyIds: string[]): Encounter {
     const encounterId = crypto.randomUUID();
     const newCombatants: Combatant[] = partyIds.flatMap((partyId) =>
-      this.partyStore.pcsForParty(partyId).map(
+      this.partyStore.playersForParty(partyId).map(
         (pc): Combatant => ({
           id: crypto.randomUUID(),
           encounterId,
@@ -215,9 +224,14 @@ export class EncounterStore {
           pcId: pc.id,
           name: pc.name,
           initiativeModifier: pc.initiativeModifier,
+          ac: pc.ac,
+          maxHp: pc.maxHp,
+          currentHp: pc.maxHp,
+          notes: pc.notes,
           lastRoll: null,
           initiativeTotal: null,
           removedFromCombat: false,
+          incapacitated: false,
           onHold: false,
           preHoldLastRoll: null,
           preHoldInitiativeTotal: null,
@@ -273,7 +287,7 @@ export class EncounterStore {
 
     const newCombatants: Combatant[] = addedPartyIds.flatMap((partyId) =>
       this.partyStore
-        .pcsForParty(partyId)
+        .playersForParty(partyId)
         .filter((pc) => !existingPcIds.has(pc.id))
         .map(
           (pc): Combatant => ({
@@ -283,9 +297,14 @@ export class EncounterStore {
             pcId: pc.id,
             name: pc.name,
             initiativeModifier: pc.initiativeModifier,
+            ac: pc.ac,
+            maxHp: pc.maxHp,
+            currentHp: pc.maxHp,
+            notes: pc.notes,
             lastRoll: null,
             initiativeTotal: null,
             removedFromCombat: false,
+            incapacitated: false,
             onHold: false,
             preHoldLastRoll: null,
             preHoldInitiativeTotal: null,
@@ -295,7 +314,7 @@ export class EncounterStore {
 
     const removedPcIds = new Set(
       encounter.activeCombatantIndex === null
-        ? removedPartyIds.flatMap((partyId) => this.partyStore.pcsForParty(partyId).map((pc) => pc.id))
+        ? removedPartyIds.flatMap((partyId) => this.partyStore.playersForParty(partyId).map((pc) => pc.id))
         : [],
     );
 
@@ -317,17 +336,31 @@ export class EncounterStore {
     });
   }
 
-  addNpc(encounterId: string, name: string, initiativeModifier: number): void {
+  addNpc(
+    encounterId: string,
+    fields: {
+      name: string;
+      initiativeModifier: number;
+      ac: number | null;
+      maxHp: number | null;
+      notes: string;
+    },
+  ): void {
     const npc: Combatant = {
       id: crypto.randomUUID(),
       encounterId,
       type: 'npc',
       pcId: null,
-      name,
-      initiativeModifier,
+      name: fields.name,
+      initiativeModifier: fields.initiativeModifier,
+      ac: fields.ac,
+      maxHp: fields.maxHp,
+      currentHp: fields.maxHp,
+      notes: fields.notes,
       lastRoll: null,
       initiativeTotal: null,
       removedFromCombat: false,
+      incapacitated: false,
       onHold: false,
       preHoldLastRoll: null,
       preHoldInitiativeTotal: null,
@@ -343,6 +376,49 @@ export class EncounterStore {
     const encounter = this.getEncounter(encounterId);
     if (!encounter || encounter.activeCombatantIndex !== null) return;
     this.updateCombatant(combatantId, { initiativeModifier });
+  }
+
+  /**
+   * The Edit modal's save handler — name/ac/maxHp/notes apply unconditionally,
+   * but initiativeModifier keeps setInitiativeModifier's existing "setup
+   * mistake correction" rule (dropped silently once the encounter has
+   * started) rather than gaining a second, looser way to change it. When
+   * maxHp changes, currentHp is reclamped into the new range instead of
+   * being reset to full — that preserves whatever damage was already being
+   * tracked instead of surprising the GM with a full heal on every edit.
+   */
+  updateCombatantDetails(
+    encounterId: string,
+    combatantId: string,
+    changes: {
+      name?: string;
+      initiativeModifier?: number;
+      ac?: number | null;
+      maxHp?: number | null;
+      notes?: string;
+    },
+  ): void {
+    const encounter = this.getEncounter(encounterId);
+    const combatant = this.combatantsSignal().find((c) => c.id === combatantId);
+    if (!encounter || !combatant) return;
+
+    const { initiativeModifier, ...rest } = changes;
+    const applied: Partial<Combatant> = { ...rest };
+    if (initiativeModifier !== undefined && encounter.activeCombatantIndex === null) {
+      applied.initiativeModifier = initiativeModifier;
+    }
+    if ('maxHp' in applied) {
+      applied.currentHp = clampCurrentHp(combatant.currentHp ?? applied.maxHp ?? 0, applied.maxHp ?? null);
+    }
+    this.updateCombatant(combatantId, applied);
+  }
+
+  /** Applies a signed HP delta (damage is negative, healing is positive), clamped to [0, maxHp]. No-op if maxHp isn't set — nothing to track. */
+  adjustCurrentHp(encounterId: string, combatantId: string, delta: number): void {
+    const combatant = this.combatantsForEncounter(encounterId).find((c) => c.id === combatantId);
+    if (!combatant || combatant.maxHp === null) return;
+    const currentHp = clampCurrentHp((combatant.currentHp ?? combatant.maxHp) + delta, combatant.maxHp);
+    this.updateCombatant(combatantId, { currentHp });
   }
 
   /** Only allowed before the first Roll — corrects a setup mistake. */
@@ -443,6 +519,18 @@ export class EncounterStore {
     };
     const reordered = insertBySortedPosition(order, updated);
     this.commitOrder(encounterId, syncHoldPositions(reordered, activeId), activeId);
+  }
+
+  /**
+   * Purely a display flag — unlike toggleRemoved/toggleHoldAction above, it
+   * doesn't touch ordering, activeCombatantIndex, or holdOrder: an
+   * Incapacitated combatant keeps rolling, sorting, and taking turns exactly
+   * like anyone else, just greyed out in the UI.
+   */
+  toggleIncapacitated(encounterId: string, combatantId: string): void {
+    const combatant = this.combatantsForEncounter(encounterId).find((c) => c.id === combatantId);
+    if (!combatant) return;
+    this.updateCombatant(combatantId, { incapacitated: !combatant.incapacitated });
   }
 
   /**
@@ -548,6 +636,17 @@ export class EncounterStore {
    * below it if dropped at the very top. Removed/on-hold combatants aren't
    * draggable in the UI, so this is a no-op for either (they don't have a
    * real position to move within the main order).
+   *
+   * Spliced directly into `newIndex` rather than routed through
+   * insertBySortedPosition: that helper re-derives position from the new
+   * total via compareStable, which only works when the total lands strictly
+   * between its neighbors. When the two neighbors are tied with each other
+   * (e.g. dropping between two combatants who both rolled the same total),
+   * there's no integer between them — above.total - 1 undercuts *both*, so
+   * a sort-based placement would bounce the dragged combatant to the
+   * bottom instead of leaving it where the GM dropped it. A direct splice
+   * always honors the drop position; the computed total is then just
+   * along for the ride, joining the tie when neighbors are tied.
    */
   reorderCombatant(encounterId: string, combatantId: string, newIndex: number): void {
     const encounter = this.getEncounter(encounterId);
@@ -559,18 +658,23 @@ export class EncounterStore {
     const rest = order.filter((c) => c.id !== combatantId);
     const above = rest[newIndex - 1] ?? null;
     const below = rest[newIndex] ?? null;
-    const total = above
-      ? (above.initiativeTotal ?? 0) - 1
-      : below
-        ? (below.initiativeTotal ?? 0) + 1
-        : (combatant.initiativeTotal ?? 0);
+    const aboveTotal = above?.initiativeTotal ?? null;
+    const belowTotal = below?.initiativeTotal ?? null;
+    const total =
+      aboveTotal !== null && belowTotal !== null && aboveTotal === belowTotal
+        ? aboveTotal
+        : aboveTotal !== null
+          ? aboveTotal - 1
+          : belowTotal !== null
+            ? belowTotal + 1
+            : (combatant.initiativeTotal ?? 0);
 
     const updated: Combatant = {
       ...combatant,
       initiativeTotal: total,
       lastRoll: total - combatant.initiativeModifier,
     };
-    const reordered = insertBySortedPosition(order, updated);
+    const reordered = [...rest.slice(0, newIndex), updated, ...rest.slice(newIndex)];
     const activeId = this.activeCombatantId(encounterId);
     this.commitOrder(encounterId, syncHoldPositions(reordered, activeId), activeId);
   }

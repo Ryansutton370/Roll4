@@ -41,6 +41,8 @@
   /* Actions */
   --color-danger: #991b1b;
   --color-danger-tint: #fbe9e9;
+  --color-heal: #15803d;
+  --color-heal-tint: #e9f7ef;
   --color-focus: #1d4ed8;
 
   /* Icon-only buttons (trash, chevron, etc.) — deliberately darker/bolder
@@ -203,6 +205,29 @@ h6 {
   overflow-wrap: anywhere;
 }
 
+/* PC/NPC color-coded badge dot — shown next to a name wherever a party
+   member or NPC is listed (encounter-list, and both the setup list and
+   combatant bubbles in encounter-detail). Global rather than page-scoped:
+   it was already duplicated identically across encounter-list.css and
+   encounter-detail.css, and Angular's view encapsulation means a
+   page-scoped copy can't reach into a child component's own template
+   anyway (see CombatantBubble in encounter-detail), so this is the one
+   definition every usage can share. */
+.type-dot {
+  flex-shrink: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+}
+
+.type-dot.pc {
+  background: var(--color-pc);
+}
+
+.type-dot.npc {
+  background: var(--color-npc);
+}
+
 .entry-title:hover {
   text-decoration: underline;
 }
@@ -269,7 +294,7 @@ button[type='submit']:disabled {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
@@ -309,4 +334,38 @@ fieldset label {
   align-items: center;
   gap: 0.4rem;
   margin: 0.2rem 0.9rem 0.2rem 0;
+}
+
+/* ---------------------------------------------------------------------
+   Section sub-nav — the small "Roster / Parties" and "Roster / Troops"
+   tab strips owned by PlayersShell/NpcsShell. Global rather than
+   component-scoped: it's identical in both, and Angular's view
+   encapsulation would force a duplicate copy per component anyway (see
+   docs/ARCHITECTURE.md's "Splitting shared UI into components" section).
+   --------------------------------------------------------------------- */
+.section-nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section-nav a {
+  padding: 0.6rem 1rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.section-nav a:hover {
+  color: var(--color-text);
+}
+
+.section-nav a.active {
+  color: var(--color-text);
+  border-bottom-color: var(--color-focus);
 }

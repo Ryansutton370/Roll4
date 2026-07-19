@@ -1,13 +1,19 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal, viewChild } from '@angular/core';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Combatant } from '../../models/encounter.model';
 import { EncounterStore } from '../../services/encounter-store';
+import { CombatantFields } from '../../shared/combatant-fields/combatant-fields';
+import {
+  CombatantDetailsChanges,
+  EditCombatantDialog,
+} from '../../shared/edit-combatant-dialog/edit-combatant-dialog';
+import { CombatantBubble } from './combatant-bubble';
 
 @Component({
   selector: 'app-encounter-detail',
-  imports: [FormsModule, RouterLink, DragDropModule],
+  imports: [FormsModule, RouterLink, DragDropModule, CombatantBubble, CombatantFields, EditCombatantDialog],
   templateUrl: './encounter-detail.html',
   styleUrl: './encounter-detail.css',
 })
@@ -40,8 +46,19 @@ export class EncounterDetail {
   });
 
   // The combatant bubbles shown in the main list — everyone holding their
-  // action is pulled out of here into the secondary list below.
-  protected readonly mainCombatants = computed(() => this.combatants().filter((c) => !c.onHold));
+  // action is pulled out into the secondary Hold Action list below, and
+  // everyone Removed from Combat is pulled out into the Removed From Combat
+  // table further down the page.
+  protected readonly mainCombatants = computed(() =>
+    this.combatants().filter((c) => !c.onHold && !c.removedFromCombat),
+  );
+
+  // Removed From Combat table, shown below the turn controls. Kept in
+  // combatants() order (already sunk to the bottom by the store — see
+  // EncounterStore.toggleRemoved) rather than re-sorted here.
+  protected readonly removedCombatants = computed(() =>
+    this.combatants().filter((c) => c.removedFromCombat),
+  );
 
   // The secondary Hold Action list, in the order combatants started holding
   // (Encounter.holdOrder) rather than initiative order.
@@ -97,6 +114,14 @@ export class EncounterDetail {
 
   protected readonly newNpcName = signal('');
   protected readonly newNpcModifier = signal(0);
+  protected readonly newNpcAc = signal<number | null>(null);
+  protected readonly newNpcMaxHp = signal<number | null>(null);
+  protected readonly newNpcNotes = signal('');
+
+  // viewChild(): the signal-based handle on the <app-edit-combatant-dialog
+  // #editDialog> instance in this component's own template — used to call
+  // its openFor() method imperatively from openEditDialog() below.
+  private readonly editDialog = viewChild.required<EditCombatantDialog>('editDialog');
 
   // Which combatant bubbles currently have their Removed/Hold-Action
   // drawer open. A Set (not a single id) because more than one bubble can
@@ -136,9 +161,30 @@ export class EncounterDetail {
   protected addNpc(): void {
     const name = this.newNpcName().trim();
     if (!name) return;
-    this.encounterStore.addNpc(this.encounterId(), name, this.newNpcModifier());
+    this.encounterStore.addNpc(this.encounterId(), {
+      name,
+      initiativeModifier: this.newNpcModifier(),
+      ac: this.newNpcAc(),
+      maxHp: this.newNpcMaxHp(),
+      notes: this.newNpcNotes(),
+    });
     this.newNpcName.set('');
     this.newNpcModifier.set(0);
+    this.newNpcAc.set(null);
+    this.newNpcMaxHp.set(null);
+    this.newNpcNotes.set('');
+  }
+
+  protected openEditDialog(combatant: Combatant): void {
+    this.editDialog().openFor(combatant);
+  }
+
+  protected onEditSave(event: { combatantId: string; changes: CombatantDetailsChanges }): void {
+    this.encounterStore.updateCombatantDetails(this.encounterId(), event.combatantId, event.changes);
+  }
+
+  protected onHpAdjustSubmit(combatantId: string, delta: number): void {
+    this.encounterStore.adjustCurrentHp(this.encounterId(), combatantId, delta);
   }
 
   protected removeCombatant(combatantId: string): void {
@@ -171,6 +217,11 @@ export class EncounterDetail {
     this.collapseExpanded(combatantId);
   }
 
+  protected toggleIncapacitated(combatantId: string): void {
+    this.encounterStore.toggleIncapacitated(this.encounterId(), combatantId);
+    this.collapseExpanded(combatantId);
+  }
+
   // Dragging a main-list bubble by its handle to manually reorder it. This
   // cdkDropList is self-contained (no cdkDropListConnectedTo/group) — it
   // only reorders among its own mainCombatants() items, deliberately kept
@@ -200,6 +251,40 @@ export class EncounterDetail {
         next.delete(combatantId);
       } else {
         next.add(combatantId);
+      }
+      return next;
+    });
+  }
+
+  // Which combatant's HP delta popover is currently open — needed here (not
+  // just as local state inside CombatantBubble) purely for z-index: every
+  // bubble's <li> has a permanent CSS `animation` on it (.main-combatant's
+  // pop-in), and per spec that gives every bubble its own stacking context
+  // for as long as the animation rule applies, not just while it's actually
+  // playing. That means a popover's own z-index (set in
+  // combatant-bubble.css) can never reach past its own <li> to outrank a
+  // sibling bubble's content — the <li> itself has to be raised instead
+  // (see .hp-adjusting in encounter-detail.css), and the <li> lives in this
+  // component's template, so this component needs to know. Fed by
+  // CombatantBubble's hpAdjustOpenChange output. Same Set-of-ids pattern as
+  // expandedCombatantIds above, even though in practice only one popover is
+  // ever open at a time — a Set costs nothing extra and needs no "what if
+  // two GMs open two at once" caveat.
+  protected readonly hpAdjustingIds = signal<ReadonlySet<string>>(new Set());
+
+  protected isHpAdjusting(combatantId: string): boolean {
+    return this.hpAdjustingIds().has(combatantId);
+  }
+
+  protected setHpAdjusting(combatantId: string, open: boolean): void {
+    this.hpAdjustingIds.update((ids) => {
+      const alreadyHas = ids.has(combatantId);
+      if (open === alreadyHas) return ids;
+      const next = new Set(ids);
+      if (open) {
+        next.add(combatantId);
+      } else {
+        next.delete(combatantId);
       }
       return next;
     });

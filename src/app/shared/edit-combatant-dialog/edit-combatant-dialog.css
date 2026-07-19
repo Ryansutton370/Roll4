@@ -1,0 +1,25 @@
+.edit-dialog {
+  width: min(28rem, calc(100vw - 2rem));
+  padding: 1.25rem;
+  border: none;
+  border-radius: var(--radius-bubble);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-md);
+}
+
+.edit-dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.edit-dialog h2 {
+  margin: 0 0 0.75rem;
+  flex-basis: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  flex-basis: 100%;
+}

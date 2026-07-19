@@ -1,0 +1,151 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Combatant } from '../../models/encounter.model';
+import { CombatantBubble } from './combatant-bubble';
+
+const combatant: Combatant = {
+  id: 'c1',
+  encounterId: 'e1',
+  type: 'pc',
+  pcId: 'pc1',
+  name: 'Aria Windmere',
+  initiativeModifier: 3,
+  ac: 16,
+  maxHp: 30,
+  currentHp: 22,
+  notes: 'Wields a longsword',
+  lastRoll: 12,
+  initiativeTotal: 15,
+  removedFromCombat: false,
+  incapacitated: false,
+  onHold: false,
+  preHoldLastRoll: null,
+  preHoldInitiativeTotal: null,
+};
+
+describe('CombatantBubble', () => {
+  let component: CombatantBubble;
+  let fixture: ComponentFixture<CombatantBubble>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CombatantBubble],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(CombatantBubble);
+    fixture.componentRef.setInput('combatant', combatant);
+    fixture.componentRef.setInput('expanded', false);
+    fixture.componentRef.setInput('isPlacing', false);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('emits expandToggle when the expand button is clicked', () => {
+    let emittedCount = 0;
+    component.expandToggle.subscribe(() => emittedCount++);
+
+    const expandBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.expand-btn');
+    expandBtn.click();
+
+    expect(emittedCount).toBe(1);
+  });
+
+  it('emits removedToggle when the drawer checkbox changes', () => {
+    let emittedCount = 0;
+    component.removedToggle.subscribe(() => emittedCount++);
+
+    // Each checkbox sits alone in its own <label>, so :last-of-type matches
+    // all three (one per label) — index into the NodeList by position
+    // (Hold Action, Incapacitated, Removed from Combat) instead.
+    const checkboxes = fixture.nativeElement.querySelectorAll(
+      '.drawer-content input[type="checkbox"]',
+    ) as NodeListOf<HTMLInputElement>;
+    checkboxes[2].dispatchEvent(new Event('change'));
+
+    expect(emittedCount).toBe(1);
+  });
+
+  it('emits editRequested when the drawer Edit button is clicked', () => {
+    let emittedCount = 0;
+    component.editRequested.subscribe(() => emittedCount++);
+
+    const editBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.drawer-edit-btn');
+    editBtn.click();
+
+    expect(emittedCount).toBe(1);
+  });
+
+  it('renders the AC/HP/Notes row and emits a damage delta by default', async () => {
+    const hpStat: HTMLButtonElement = fixture.nativeElement.querySelector('.hp-stat');
+    expect(hpStat.textContent).toContain('22/30');
+
+    let emitted: number | undefined;
+    component.hpAdjustSubmit.subscribe((delta) => (emitted = delta));
+
+    hpStat.click();
+    fixture.detectChanges();
+    // NgModel writes its bound value into the input asynchronously (a
+    // microtask, to avoid an ExpressionChangedAfterItHasBeenCheckedError) —
+    // whenStable() flushes that before the next assertion reads .value.
+    // See combatant-fields.spec.ts for the same pattern.
+    await fixture.whenStable();
+
+    // Damage is the default mode — typing "15" (just the magnitude) should
+    // submit as -15, with no +/- to type.
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('.hp-delta-input');
+    expect(input.value).toBe('-');
+    input.value = '-15';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const confirmBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.hp-adjust-popover .icon-btn',
+    );
+    confirmBtn.click();
+
+    expect(emitted).toBe(-15);
+  });
+
+  it('emits a positive delta once the Damage/Healing toggle is switched to Healing', async () => {
+    let emitted: number | undefined;
+    component.hpAdjustSubmit.subscribe((delta) => (emitted = delta));
+
+    const hpStat: HTMLButtonElement = fixture.nativeElement.querySelector('.hp-stat');
+    hpStat.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // The toggle is a real checkbox (styled as a switch, see .hp-mode-switch
+    // in combatant-bubble.css) — 'change' is what a click/tap/keyboard
+    // toggle actually fires on a checkbox, same as the drawer's checkboxes
+    // above.
+    const modeCheckbox: HTMLInputElement = fixture.nativeElement.querySelector(
+      '.hp-mode-switch input[type="checkbox"]',
+    );
+    modeCheckbox.checked = true;
+    modeCheckbox.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const modeLabel: HTMLElement = fixture.nativeElement.querySelector('.hp-mode-label');
+    expect(modeLabel.textContent?.trim()).toBe('Healing');
+
+    // Typing a literal "-" is stripped along with the digits it's typed
+    // with — only the toggle can set the sign, so this still heals.
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('.hp-delta-input');
+    input.value = '+-10';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(input.value).toBe('+10');
+
+    const confirmBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.hp-adjust-popover .icon-btn',
+    );
+    confirmBtn.click();
+
+    expect(emitted).toBe(10);
+  });
+});

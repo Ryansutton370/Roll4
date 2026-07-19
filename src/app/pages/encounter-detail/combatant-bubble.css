@@ -1,0 +1,487 @@
+/* flex-wrap: wrap is a fallback, not the goal — on any reasonably wide
+   bubble everything fits on one line; narrow (mobile) widths wrap instead
+   of squeezing/overflowing. */
+.combatant-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.6rem;
+}
+
+/* flex: 1 1 6rem plus ellipsis truncation (rather than the old
+   overflow-wrap: anywhere, which let a long name wrap the row taller) —
+   the name gives up space to the other stats first, but never grows the
+   row's height on its own. */
+.combatant-name {
+  flex: 1 1 6rem;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Driven by the `active` input — this is the encounter's current Active
+   combatant (see encounter-detail.html's [active] binding). */
+.combatant-name.active {
+  font-size: 1.05em;
+}
+
+/* Zero-size on desktop (no effect on the one-line layout) — forced to
+   flex-basis: 100% only on mobile, so every bubble wraps at the exact same
+   point (name alone, then every stat column together) instead of each one
+   wrapping wherever its own AC/HP/Notes happen to run out of room. */
+.row-break {
+  flex-basis: 0;
+  width: 0;
+}
+
+/* Mobile only: reorders the row so the name and the expand button share one
+   line instead of the button falling to its own line below. flex `order`
+   is purely a paint-order override — it doesn't touch the DOM, so the
+   drag-handle/return-btn projected in via [leading-control] (a real
+   sibling of these, just not stylable from here — see the comment on
+   .drag-handle in encounter-detail.css) keeps its default order: 0 and
+   stays leftmost without needing a rule of its own. .row-break (see
+   below) does the actual line-break; it's reordered to right after
+   .expand-btn instead of right after .combatant-name, so it's now
+   AC/HP/Notes/status/Initiative that wrap onto the second line, not the
+   expand button. Desktop is untouched — `order` only applies inside this
+   media query. */
+@media (max-width: 480px) {
+  .type-dot {
+    order: 1;
+  }
+
+  .combatant-name {
+    order: 2;
+  }
+
+  .expand-btn {
+    order: 3;
+  }
+
+  .row-break {
+    flex-basis: 100%;
+    order: 4;
+  }
+
+  .ac-stat {
+    order: 5;
+  }
+
+  .hp-stat-wrapper {
+    order: 6;
+  }
+
+  .notes-stat {
+    order: 7;
+  }
+
+  .status-icons {
+    order: 8;
+  }
+
+  .init-stat {
+    order: 9;
+  }
+}
+
+/* Faint, normal-weight — reads as a secondary annotation next to the bold
+   name rather than competing with it, the same "muted" language used for
+   .round-indicator in encounter-detail.css. */
+.incapacitated-label {
+  margin-left: 0.35rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: 0.85em;
+}
+
+.status-icons {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.status-icon {
+  display: inline-flex;
+  width: 1.4rem;
+  height: 1.4rem;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  font: inherit;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.status-icon:disabled {
+  cursor: not-allowed;
+}
+
+.status-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.incapacitated-icon {
+  background: var(--color-removed-tint);
+  color: var(--color-removed);
+}
+
+.incapacitated-icon:hover:not(:disabled) {
+  opacity: 0.75;
+}
+
+.expand-btn svg {
+  transition: transform var(--transition-fast);
+}
+
+.expand-btn.rotated svg {
+  transform: rotate(180deg);
+}
+
+/* Angular's view encapsulation means encounter-detail.css's page-wide
+   ".icon-btn:disabled" rule can't reach this button (it only exists inside
+   this component's own template) — restated here so a disabled expand
+   button still reads as disabled. */
+.expand-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Driven by the `compact` input (true in the Hold Action panel, where the
+   bubble is narrower) — smaller than the main list's expand button. */
+.expand-btn.compact {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+}
+
+.expand-btn.compact svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ---------------------------------------------------------------------
+   Drawer — CSS grid-rows trick: animating 0fr -> 1fr grows/shrinks the row
+   smoothly without ever needing a hardcoded max-height. Three levels are
+   needed, not two: .drawer-clip (the actual grid item) must have *no*
+   padding/border/margin of its own, or those would still render as a
+   hairline even when the row track is 0px tall (a border paints at the
+   box's edge regardless of how short the box is). Pushing all spacing onto
+   the nested .drawer-content, which .drawer-clip's overflow:hidden then
+   fully clips away while collapsed, is what makes it disappear completely
+   instead of leaving a sliver behind.
+   --------------------------------------------------------------------- */
+.drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition-standard);
+}
+
+.drawer.expanded {
+  grid-template-rows: 1fr;
+}
+
+.drawer-clip {
+  overflow: hidden;
+}
+
+.drawer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.drawer-content label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.drawer-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: flex-start;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.drawer-edit-btn:hover:not(:disabled) {
+  background: var(--color-removed-tint);
+}
+
+.drawer-edit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.drawer-edit-btn svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+/* ---------------------------------------------------------------------
+   AC / HP / Initiative / Notes "stat" pills — all styled the same way
+   (small muted icon + value) so Initiative reads consistently with the
+   others instead of standing out as the one bold, differently-shaped
+   number. Direct children of .combatant-row now (there's no more separate
+   second row) — see combatant-bubble.html.
+   --------------------------------------------------------------------- */
+.stat {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Fixed widths on ac-stat/hp-stat/notes-stat/init-stat (not just
+   flex-shrink: 0, an actual width) — every bubble reserves the same space
+   for each column whether or not that combatant has the field set (see the
+   @if/@else split in combatant-bubble.html moving inside these spans
+   instead of around them), so AC/HP/Notes/Initiative line up vertically
+   across every bubble in the list, table-style. */
+.ac-stat {
+  width: 2.75rem;
+}
+
+.init-stat {
+  width: 3rem;
+}
+
+/* The fixed-width flex item + position: relative containing block both
+   live here now, not on .hp-stat — see the comment in
+   combatant-bubble.html on why the popover needs a wrapper around both
+   itself and the button rather than anchoring directly to the button. */
+.hp-stat-wrapper {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 8rem;
+}
+
+.hp-stat {
+  width: 100%;
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.hp-numbers {
+  min-width: 3ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.hp-bar {
+  display: inline-block;
+  width: 4.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-panel-bg);
+  overflow: hidden;
+}
+
+/* --hp-hue is set per-combatant from CombatantBubble.hpHue() (see
+   combatant-bubble.ts) — 120 (green) at full HP through 60 (yellow) at
+   half down to 0 (red) at empty, so the bar itself telegraphs how hurt a
+   combatant is at a glance, not just the numbers next to it. */
+.hp-bar-fill {
+  display: block;
+  height: 100%;
+  background: hsl(var(--hp-hue, 120) 70% 45%);
+  transition:
+    width var(--transition-standard),
+    background-color var(--transition-standard);
+}
+
+/* Below this width there isn't room for icon + numbers + a 4.5rem bar
+   without crowding everything else off the row — the bar is the one part
+   of the HP stat that's purely redundant with the numbers next to it
+   (same information, just visual), so it's the first thing to go. */
+@media (max-width: 480px) {
+  .hp-bar {
+    display: none;
+  }
+
+  .hp-stat-wrapper {
+    width: 3.5rem;
+  }
+}
+
+/* Anchored to .hp-stat-wrapper (position: relative, above), so it always
+   lands right below the heart/bar regardless of what else is on the row.
+   z-index here only has to win against the hp-stat button/health bar
+   behind it — beating a SIBLING bubble's own content is handled by raising
+   this popover's whole <li> instead (see .hp-adjusting in
+   encounter-detail.css), not by this z-index. Input on the left; the
+   toggle switch + confirm button stack in a column on the right (see
+   .hp-adjust-controls just below). */
+.hp-adjust-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.hp-adjust-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+/* A real toggle switch — a visually-hidden native checkbox (still focusable
+   and operable by keyboard/screen readers) driving a track+thumb built from
+   two plain spans, plus a text label. The switch's slide/color state is
+   driven by the .healing class from hpAdjustMode() (see
+   combatant-bubble.html), the same "Angular class binding drives the look"
+   pattern as .rotated on the expand button elsewhere in this file, rather
+   than relying on the checkbox's own :checked pseudo-class here. */
+.hp-mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Hidden in place (not via .sr-only, which is position: absolute and would
+   pull it out of this flex row) so it still occupies no visible space but
+   stays a real, focusable, keyboard-operable checkbox. */
+.hp-mode-switch input[type='checkbox'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+
+.hp-mode-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.15rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  background: var(--color-danger);
+  transition: background-color var(--transition-fast);
+}
+
+.hp-mode-switch.healing .hp-mode-track {
+  background: var(--color-heal);
+}
+
+.hp-mode-thumb {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: var(--color-surface);
+  transition: transform var(--transition-fast);
+}
+
+.hp-mode-switch.healing .hp-mode-thumb {
+  transform: translateX(0.95rem);
+}
+
+/* The checkbox itself is visually hidden, so its own focus ring would be
+   invisible — this puts the ring on the track instead, the same
+   :focus-visible-only convention as the global rule in styles.css (a ring
+   for keyboard/AT users, none from a mouse click). */
+.hp-mode-switch input[type='checkbox']:focus-visible + .hp-mode-track {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.hp-mode-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.hp-mode-switch.healing .hp-mode-label {
+  color: var(--color-heal);
+}
+
+.hp-delta-input {
+  width: 6rem;
+}
+
+.notes-stat {
+  width: 8rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  /* Only color/background transition now — animating width here (the old
+     hover-to-expand behavior) forced a layout reflow on every pointer
+     move across the list, which is what caused the stutter this replaced. */
+  transition: background-color var(--transition-fast);
+}
+
+/* Hover no longer expands the note — it's just an affordance hinting that
+   the icon/text is clickable. Actual reveal only happens via .revealed
+   (click/tap, toggled in combatant-bubble.ts), which is cheap because it
+   only ever fires on an explicit click, not on every pointer move. */
+.notes-stat:hover {
+  background: var(--color-removed-tint);
+}
+
+.notes-text {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Expanding (click/tap, toggled via notesRevealed() in combatant-bubble.ts)
+   lifts the fixed width and lets the text wrap onto as many lines as it
+   needs — this is the "temporary" growth PRODUCT.md describes: the bubble
+   is compact by default and only grows while the GM is actually looking at
+   the note, snapping back to the same fixed width as every other bubble's
+   Notes column once they click away or click the icon/text again. Capped
+   at 20rem so one very long note can't blow the bubble out indefinitely. */
+.notes-stat.revealed {
+  width: auto;
+  max-width: 20rem;
+  background: var(--color-removed-tint);
+}
+
+.notes-stat.revealed .notes-text {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

@@ -9,8 +9,8 @@
   <ul class="bubble-list">
     @for (party of partyStore.parties(); track party.id) {
       <li class="bubble entry">
-        <a class="entry-title" [routerLink]="['/parties', party.id]">{{ party.name }}</a>
-        <span class="badge">{{ partyStore.pcsForParty(party.id).length }} PCs</span>
+        <a class="entry-title" [routerLink]="['/players/parties', party.id]">{{ party.name }}</a>
+        <span class="badge">{{ partyStore.playersForParty(party.id).length }} Players</span>
         <button
           type="button"
           class="icon-btn danger"

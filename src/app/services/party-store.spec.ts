@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { PartyStore } from './party-store';
 
+const playerFields = { initiativeModifier: 3, ac: null, maxHp: null, notes: '' };
+
 describe('PartyStore', () => {
   let service: PartyStore;
 
@@ -15,59 +17,109 @@ describe('PartyStore', () => {
     expect(service).toBeTruthy();
   });
 
-  it('creates a party with no PCs', () => {
+  it('creates a party with no players', () => {
     const party = service.createParty('The Thursday Night Group');
 
     expect(party.name).toBe('The Thursday Night Group');
-    expect(party.pcIds).toEqual([]);
+    expect(party.playerIds).toEqual([]);
     expect(service.parties()).toEqual([party]);
   });
 
-  it('adds a PC to a party and links it both ways', () => {
-    const party = service.createParty('Party A');
+  it('creates a player unattached to any party', () => {
+    const player = service.createPlayer({ name: 'Aria Windmere', ...playerFields });
 
-    const pc = service.addPc(party.id, 'Aria Windmere', 3);
-
-    expect(pc.partyId).toBe(party.id);
-    expect(service.getParty(party.id)?.pcIds).toEqual([pc.id]);
-    expect(service.pcsForParty(party.id)).toEqual([pc]);
+    expect(service.players()).toEqual([player]);
+    expect(service.partiesForPlayer(player.id)).toEqual([]);
   });
 
-  it('updates a PC in place', () => {
+  it('stores the optional AC/Max HP/Notes fields', () => {
+    const player = service.createPlayer({
+      name: 'Aria Windmere',
+      initiativeModifier: 3,
+      ac: 16,
+      maxHp: 30,
+      notes: 'Wields a longsword',
+    });
+
+    expect(player).toMatchObject({ ac: 16, maxHp: 30, notes: 'Wields a longsword' });
+  });
+
+  it('adds and removes a player from a party', () => {
     const party = service.createParty('Party A');
-    const pc = service.addPc(party.id, 'Aria', 3);
+    const player = service.createPlayer({ name: 'Aria', ...playerFields });
 
-    service.updatePc(pc.id, { name: 'Aria Windmere', initiativeModifier: 4 });
+    service.addPlayerToParty(party.id, player.id);
+    expect(service.getParty(party.id)?.playerIds).toEqual([player.id]);
+    expect(service.playersForParty(party.id)).toEqual([player]);
+    expect(service.partiesForPlayer(player.id)).toEqual([{ ...party, playerIds: [player.id] }]);
 
-    expect(service.pcsForParty(party.id)).toEqual([
-      { ...pc, name: 'Aria Windmere', initiativeModifier: 4 },
+    service.removePlayerFromParty(party.id, player.id);
+    expect(service.getParty(party.id)?.playerIds).toEqual([]);
+    expect(service.playersForParty(party.id)).toEqual([]);
+  });
+
+  it('adding the same player to a party twice does not duplicate the membership', () => {
+    const party = service.createParty('Party A');
+    const player = service.createPlayer({ name: 'Aria', ...playerFields });
+
+    service.addPlayerToParty(party.id, player.id);
+    service.addPlayerToParty(party.id, player.id);
+
+    expect(service.getParty(party.id)?.playerIds).toEqual([player.id]);
+  });
+
+  it('a player can belong to multiple parties at once', () => {
+    const partyA = service.createParty('Party A');
+    const partyB = service.createParty('Party B');
+    const player = service.createPlayer({ name: 'Aria', ...playerFields });
+
+    service.addPlayerToParty(partyA.id, player.id);
+    service.addPlayerToParty(partyB.id, player.id);
+
+    expect(service.partiesForPlayer(player.id).map((p) => p.name)).toEqual(['Party A', 'Party B']);
+    expect(service.playersForParty(partyA.id)).toEqual([player]);
+    expect(service.playersForParty(partyB.id)).toEqual([player]);
+  });
+
+  it('updates a player in place', () => {
+    const player = service.createPlayer({ name: 'Aria', ...playerFields });
+
+    service.updatePlayer(player.id, { name: 'Aria Windmere', initiativeModifier: 4, ac: 16, maxHp: 30 });
+
+    expect(service.players()).toEqual([
+      { ...player, name: 'Aria Windmere', initiativeModifier: 4, ac: 16, maxHp: 30 },
     ]);
   });
 
-  it('removes a PC and its reference from the party', () => {
+  it('deleting a party does NOT delete its players — they stay in the roster', () => {
     const party = service.createParty('Party A');
-    const pc = service.addPc(party.id, 'Aria', 3);
-
-    service.removePc(pc.id);
-
-    expect(service.pcsForParty(party.id)).toEqual([]);
-    expect(service.getParty(party.id)?.pcIds).toEqual([]);
-  });
-
-  it('deleting a party cascades to its PCs', () => {
-    const party = service.createParty('Party A');
-    service.addPc(party.id, 'Aria', 3);
-    service.addPc(party.id, 'Bram', 1);
+    const player = service.createPlayer({ name: 'Aria', ...playerFields });
+    service.addPlayerToParty(party.id, player.id);
 
     service.deleteParty(party.id);
 
     expect(service.parties()).toEqual([]);
-    expect(service.pcs()).toEqual([]);
+    expect(service.players()).toEqual([player]);
+  });
+
+  it('deleting a player removes them from every party they belonged to', () => {
+    const partyA = service.createParty('Party A');
+    const partyB = service.createParty('Party B');
+    const player = service.createPlayer({ name: 'Aria', ...playerFields });
+    service.addPlayerToParty(partyA.id, player.id);
+    service.addPlayerToParty(partyB.id, player.id);
+
+    service.deletePlayer(player.id);
+
+    expect(service.players()).toEqual([]);
+    expect(service.getParty(partyA.id)?.playerIds).toEqual([]);
+    expect(service.getParty(partyB.id)?.playerIds).toEqual([]);
   });
 
   it('persists across service instances via localStorage', () => {
     const party = service.createParty('Party A');
-    service.addPc(party.id, 'Aria', 3);
+    const player = service.createPlayer({ name: 'Aria', ...playerFields });
+    service.addPlayerToParty(party.id, player.id);
 
     // effect() persists asynchronously; flush it before simulating reload.
     TestBed.tick();
@@ -77,10 +129,7 @@ describe('PartyStore', () => {
     TestBed.resetTestingModule();
     const reloaded = TestBed.inject(PartyStore);
 
-    // `party` is a snapshot from before addPc ran — state updates are
-    // immutable, so its pcIds is stale by design. Compare against the
-    // reloaded store's own view instead.
-    expect(reloaded.parties()).toEqual([{ ...party, pcIds: [expect.any(String)] }]);
-    expect(reloaded.pcsForParty(party.id).map((pc) => pc.name)).toEqual(['Aria']);
+    expect(reloaded.parties()).toEqual([{ ...party, playerIds: [player.id] }]);
+    expect(reloaded.playersForParty(party.id).map((p) => p.name)).toEqual(['Aria']);
   });
 });

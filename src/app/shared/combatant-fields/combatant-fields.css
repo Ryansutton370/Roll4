@@ -1,0 +1,90 @@
+/* :host targets this component's own host element — <app-combatant-fields>
+   itself, not anything inside its template. Angular still renders that
+   host tag as a real DOM element (unlike <ng-container>), which defaults
+   to display: inline and would otherwise act as ONE flex item inside the
+   caller's .entry-form — sized to fit all 5 fields together, rather than
+   letting each field size/wrap independently alongside the caller's submit
+   button. display: contents makes the host box itself disappear from
+   layout entirely, so .entry-form sees straight through to the 5 fields as
+   if they were its own direct children. */
+:host {
+  display: contents;
+}
+
+/* Every caller wraps this component in a <form class="entry-form">
+   (styles.css), whose ".entry-form input[type=...]" rules apply here too —
+   they're plain global CSS, not another component's scoped stylesheet, so
+   the view-encapsulation gotcha documented in docs/ARCHITECTURE.md doesn't
+   block them from reaching in. The rules below only override the *widths*
+   those set, so all 5 fields plus the caller's submit button have a
+   realistic chance of fitting on one line — qualified with the input's own
+   type/class (not just a class) so they win the specificity tie against
+   the global rule rather than depending on stylesheet load order. */
+input[type='text'].field-name {
+  flex: 1 1 5rem;
+  min-width: 4.5rem;
+}
+
+/* Below this width, letting Name shrink down alongside 4 more fields and a
+   submit button left it just a few characters wide — unreadable. Giving it
+   the full row to itself (flex-basis: 100% forces everything after it in
+   the flex-wrap onto the next line) trades one extra line for an actually
+   legible Name field, which is the one every other field's icon can't
+   compensate for. */
+@media (max-width: 480px) {
+  input[type='text'].field-name {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+}
+
+/* Icon + input, styled to match the same stat pills on the combatant
+   bubble (see combatant-bubble.css's .stat) — the icon is the field's only
+   label, so it has to be the same icon used there for the pairing to read
+   clearly. Wide enough for 3 digits (Max HP can run into triple digits;
+   AC/Initiative Modifier only need 2 in practice, but get the same width
+   for visual consistency) with a little slack for a leading sign on the
+   modifier, while still leaving room for all 5 fields plus the caller's
+   submit button to fit on one line within the page's 700px content column
+   (see main's max-width in app.css) at typical desktop widths. */
+.field-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-text-muted);
+}
+
+.field-icon svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.field-icon input {
+  width: 3.5rem;
+}
+
+/* Dropping the native up/down spinner reclaims most of that 2.5rem for the
+   digits themselves — at this width the spinner arrows were crowding the
+   value out almost entirely. The icon already signals "this is a number
+   field," so losing the spinner costs little. */
+.field-icon input[type='number']::-webkit-outer-spin-button,
+.field-icon input[type='number']::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.field-icon input[type='number'] {
+  appearance: textfield;
+}
+
+.field-icon-notes {
+  flex: 1 1 4rem;
+  min-width: 3.5rem;
+}
+
+.field-icon-notes input {
+  width: auto;
+  min-width: 0;
+}

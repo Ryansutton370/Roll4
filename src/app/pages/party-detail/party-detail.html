@@ -1,64 +1,32 @@
 @if (party(); as p) {
-  <p><a routerLink="/parties">← Back to Parties</a></p>
+  <p><a routerLink="/players/parties">← Back to Parties</a></p>
   <h1>{{ p.name }}</h1>
 
-  <h2>Player Characters</h2>
-  @if (pcs().length === 0) {
-    <p class="empty-state">No PCs yet. Add one below.</p>
+  <h2>Members</h2>
+  @if (allPlayers().length === 0) {
+    <p class="empty-state">
+      No Players in the roster yet. <a routerLink="/players">Add one</a> first, then come back here
+      to add them to this Party.
+    </p>
   } @else {
-    <div class="column-headings" aria-hidden="true">
-      <span class="pc-name-heading">Name</span>
-      <span class="pc-modifier-heading">Initiative Modifier</span>
-      <!-- Matches the width of the delete .icon-btn in each row below, so
-           the modifier heading lines up over its input instead of drifting
-           into the delete button's column. -->
-      <span class="heading-spacer"></span>
-    </div>
+    <!-- Every roster Player is listed, checked or not — this is the one
+         screen that answers "who's in this Party," so it needs to show
+         everyone, not just current members. -->
     <ul class="bubble-list">
-      @for (pc of pcs(); track pc.id) {
+      @for (player of allPlayers(); track player.id) {
         <li class="bubble entry">
-          <input
-            type="text"
-            class="pc-name"
-            [ngModel]="pc.name"
-            (ngModelChange)="renamePc(pc.id, $event)"
-          />
-          <input
-            type="number"
-            class="pc-modifier"
-            [ngModel]="pc.initiativeModifier"
-            (ngModelChange)="setPcModifier(pc.id, $event)"
-          />
-          <button type="button" class="icon-btn danger" (click)="removePc(pc.id, pc.name)">
-            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path
-                d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
-              />
-            </svg>
-            <span class="sr-only">Remove {{ pc.name }}</span>
-          </button>
+          <label class="membership-row">
+            <input
+              type="checkbox"
+              [checked]="isMember(player.id)"
+              (change)="toggleMembership(player.id, $any($event.target).checked)"
+            />
+            <span class="entry-title">{{ player.name }}</span>
+          </label>
         </li>
       }
     </ul>
   }
-
-  <form class="entry-form" (ngSubmit)="addPc()">
-    <input
-      type="text"
-      [ngModel]="newPcName()"
-      (ngModelChange)="newPcName.set($event)"
-      name="pcName"
-      placeholder="PC name"
-    />
-    <input
-      type="number"
-      [ngModel]="newPcModifier()"
-      (ngModelChange)="newPcModifier.set($event)"
-      name="pcModifier"
-      placeholder="Initiative Modifier"
-    />
-    <button type="submit">Add PC</button>
-  </form>
 } @else {
-  <p>Party not found. <a routerLink="/parties">Back to Parties</a></p>
+  <p>Party not found. <a routerLink="/players/parties">Back to Parties</a></p>
 }

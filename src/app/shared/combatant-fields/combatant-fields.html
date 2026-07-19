@@ -1,0 +1,88 @@
+<!-- No <form>/name attributes needed: NgModel looks for an ancestor NgForm
+     only within this component's own template (it stops at this
+     component's host boundary), so it never tries to register with
+     whatever <form> the parent happens to wrap this component in. -->
+<input
+  type="text"
+  class="field-name"
+  [ngModel]="name()"
+  (ngModelChange)="name.set($event)"
+  placeholder="Name"
+  aria-label="Name"
+/>
+
+<!-- Each of these wraps an icon + input in one <label> — the icon (no
+     visible text) doubles as a persistent visual label, the same icon used
+     for this stat on the combatant bubble (see combatant-bubble.html), so
+     the create/edit form and the bubble read as one consistent language
+     instead of the bubble being the only place these are explained. -->
+<label class="field-icon" title="Initiative Modifier">
+  <svg
+    viewBox="0 0 20 20"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.3"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+    aria-hidden="true"
+  >
+    <path d="M10 1.5 17.5 6v8L10 18.5 2.5 14V6Z" />
+    <path
+      d="M10 1.5V10M17.5 6 10 10M2.5 6 10 10M10 10v8.5M2.5 14 10 10M17.5 14 10 10"
+      stroke-width="1"
+    />
+  </svg>
+  <input
+    type="number"
+    class="field-modifier"
+    [ngModel]="initiativeModifier()"
+    (ngModelChange)="initiativeModifier.set($event)"
+    aria-label="Initiative Modifier"
+  />
+</label>
+
+<label class="field-icon" title="AC">
+  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path
+      d="M10 2.25 3.75 4.5v4.75c0 4.86 2.98 7.9 6.25 8.75 3.27-.85 6.25-3.89 6.25-8.75V4.5L10 2.25Z"
+    />
+  </svg>
+  <input
+    type="number"
+    class="field-ac"
+    [ngModel]="ac()"
+    (ngModelChange)="ac.set($event)"
+    aria-label="AC"
+  />
+</label>
+
+<label class="field-icon" title="Max HP">
+  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path
+      d="M10 17.35 8.55 16.03C4 11.9 1 9.19 1 5.86 1 3.17 3.12 1 5.75 1c1.47 0 2.89.68 3.8 1.76A5.07 5.07 0 0 1 13.35 1 4.7 4.7 0 0 1 18 5.86c0 3.33-3 6.04-7.55 10.17L10 17.35Z"
+    />
+  </svg>
+  <input
+    type="number"
+    class="field-max-hp"
+    [ngModel]="maxHp()"
+    (ngModelChange)="maxHp.set($event)"
+    aria-label="Max HP"
+  />
+</label>
+
+<label class="field-icon field-icon-notes" title="Notes">
+  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path
+      d="M5 2.5A1.5 1.5 0 0 0 3.5 4v12A1.5 1.5 0 0 0 5 17.5h10a1.5 1.5 0 0 0 1.5-1.5V4A1.5 1.5 0 0 0 15 2.5H5Zm1 4h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h5a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Z"
+    />
+  </svg>
+  <input
+    type="text"
+    class="field-notes"
+    [ngModel]="notes()"
+    (ngModelChange)="notes.set($event)"
+    placeholder="Notes"
+    aria-label="Notes"
+  />
+</label>
