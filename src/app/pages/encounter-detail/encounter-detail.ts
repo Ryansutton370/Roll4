@@ -256,6 +256,40 @@ export class EncounterDetail {
     });
   }
 
+  // Which combatant's HP delta popover is currently open — needed here (not
+  // just as local state inside CombatantBubble) purely for z-index: every
+  // bubble's <li> has a permanent CSS `animation` on it (.main-combatant's
+  // pop-in), and per spec that gives every bubble its own stacking context
+  // for as long as the animation rule applies, not just while it's actually
+  // playing. That means a popover's own z-index (set in
+  // combatant-bubble.css) can never reach past its own <li> to outrank a
+  // sibling bubble's content — the <li> itself has to be raised instead
+  // (see .hp-adjusting in encounter-detail.css), and the <li> lives in this
+  // component's template, so this component needs to know. Fed by
+  // CombatantBubble's hpAdjustOpenChange output. Same Set-of-ids pattern as
+  // expandedCombatantIds above, even though in practice only one popover is
+  // ever open at a time — a Set costs nothing extra and needs no "what if
+  // two GMs open two at once" caveat.
+  protected readonly hpAdjustingIds = signal<ReadonlySet<string>>(new Set());
+
+  protected isHpAdjusting(combatantId: string): boolean {
+    return this.hpAdjustingIds().has(combatantId);
+  }
+
+  protected setHpAdjusting(combatantId: string, open: boolean): void {
+    this.hpAdjustingIds.update((ids) => {
+      const alreadyHas = ids.has(combatantId);
+      if (open === alreadyHas) return ids;
+      const next = new Set(ids);
+      if (open) {
+        next.add(combatantId);
+      } else {
+        next.delete(combatantId);
+      }
+      return next;
+    });
+  }
+
   // The Active combatant's current initiative total — the two placeholder
   // spots when placing a returning combatant sit at this ±1.
   protected readonly activeTotal = computed(() => {

@@ -41,6 +41,8 @@
   /* Actions */
   --color-danger: #991b1b;
   --color-danger-tint: #fbe9e9;
+  --color-heal: #15803d;
+  --color-heal-tint: #e9f7ef;
   --color-focus: #1d4ed8;
 
   /* Icon-only buttons (trash, chevron, etc.) — deliberately darker/bolder

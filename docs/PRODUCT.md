@@ -118,19 +118,21 @@ current/max numbers, to help everything fit.
 In an Encounter, HP displays as **Current / Max**, drawn as a health bar
 showing the percentage remaining, its color easing from green through
 yellow to red as that percentage drops. Clicking the heart icon or the bar
-itself, on *any* combatant (not just the Active one), opens a small input
-where the GM types a signed delta — `+10` to heal 10. A bare number with no
-sign (e.g. `15`) is taken as damage (`-15`), since that's the more common
-case; a leading `+` or `-` is only needed to say otherwise. Current HP is
-always clamped between `0` and Max HP.
+itself, on *any* combatant (not just the Active one), opens a small popover:
+a magnitude input on the left, and a Damage/Healing switch (red/Damage by
+default, green when flipped to Healing) stacked above a confirm button on
+the right. The switch sets the sign — the input only ever holds the number
+typed into it, shown with a leading `-` or `+` that the switch controls and
+typing can't overwrite. Current HP is always clamped between `0` and Max HP.
 
 Notes shows the note's own text right on the bubble, clipped to the same
 fixed width on every bubble (regardless of how long that particular note
-is) rather than just an icon with nothing next to it. Clicking (or
-hovering, for a mouse) the notepad icon expands it in place to show the
-full text, growing the bubble only for as long as it's expanded, then
-collapses back to the same clipped width as every other bubble's Notes
-column.
+is) rather than just an icon with nothing next to it. Hovering (mouse) or
+tapping (touch) the notepad icon just highlights it as a hint that it's
+clickable; clicking/tapping it is what actually expands it in place to show
+the full text, growing the bubble only for as long as it's expanded, then
+collapses back to the same clipped width — either by clicking the note
+again or clicking anywhere else — as every other bubble's Notes column.
 
 Editing AC/HP/Notes from a combatant's Edit button only affects that one
 Encounter — it doesn't write back to the Player/NPC's own saved roster data.

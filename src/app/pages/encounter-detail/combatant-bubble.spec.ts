@@ -78,7 +78,7 @@ describe('CombatantBubble', () => {
     expect(emittedCount).toBe(1);
   });
 
-  it('renders the AC/HP/Notes row and emits hpAdjustSubmit with the typed delta', () => {
+  it('renders the AC/HP/Notes row and emits a damage delta by default', async () => {
     const hpStat: HTMLButtonElement = fixture.nativeElement.querySelector('.hp-stat');
     expect(hpStat.textContent).toContain('22/30');
 
@@ -87,15 +87,65 @@ describe('CombatantBubble', () => {
 
     hpStat.click();
     fixture.detectChanges();
+    // NgModel writes its bound value into the input asynchronously (a
+    // microtask, to avoid an ExpressionChangedAfterItHasBeenCheckedError) —
+    // whenStable() flushes that before the next assertion reads .value.
+    // See combatant-fields.spec.ts for the same pattern.
+    await fixture.whenStable();
 
+    // Damage is the default mode — typing "15" (just the magnitude) should
+    // submit as -15, with no +/- to type.
     const input: HTMLInputElement = fixture.nativeElement.querySelector('.hp-delta-input');
+    expect(input.value).toBe('-');
     input.value = '-15';
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    const confirmBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.hp-adjust-popover .icon-btn');
+    const confirmBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.hp-adjust-popover .icon-btn',
+    );
     confirmBtn.click();
 
     expect(emitted).toBe(-15);
+  });
+
+  it('emits a positive delta once the Damage/Healing toggle is switched to Healing', async () => {
+    let emitted: number | undefined;
+    component.hpAdjustSubmit.subscribe((delta) => (emitted = delta));
+
+    const hpStat: HTMLButtonElement = fixture.nativeElement.querySelector('.hp-stat');
+    hpStat.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // The toggle is a real checkbox (styled as a switch, see .hp-mode-switch
+    // in combatant-bubble.css) — 'change' is what a click/tap/keyboard
+    // toggle actually fires on a checkbox, same as the drawer's checkboxes
+    // above.
+    const modeCheckbox: HTMLInputElement = fixture.nativeElement.querySelector(
+      '.hp-mode-switch input[type="checkbox"]',
+    );
+    modeCheckbox.checked = true;
+    modeCheckbox.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const modeLabel: HTMLElement = fixture.nativeElement.querySelector('.hp-mode-label');
+    expect(modeLabel.textContent?.trim()).toBe('Healing');
+
+    // Typing a literal "-" is stripped along with the digits it's typed
+    // with — only the toggle can set the sign, so this still heals.
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('.hp-delta-input');
+    input.value = '+-10';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(input.value).toBe('+10');
+
+    const confirmBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.hp-adjust-popover .icon-btn',
+    );
+    confirmBtn.click();
+
+    expect(emitted).toBe(10);
   });
 });

@@ -1,4 +1,14 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Combatant } from '../../models/encounter.model';
 
@@ -57,6 +67,8 @@ export class CombatantBubble {
   readonly editRequested = output<void>();
   /** A signed HP delta typed into the popover below (damage negative, healing positive) — EncounterDetail applies it via EncounterStore.adjustCurrentHp. */
   readonly hpAdjustSubmit = output<number>();
+  /** Mirrors hpAdjustOpen() below — EncounterDetail needs to know so it can raise the open bubble's <li> above its siblings (see the comment on the effect() below for why). */
+  readonly hpAdjustOpenChange = output<boolean>();
 
   // Current/Max HP as a 0-100 percentage for the health bar's width. Guards
   // against maxHp being 0 (not a realistic value, but still a valid number)
@@ -83,40 +95,128 @@ export class CombatantBubble {
   // these from outside, so lifting them would just be copying the drawer's
   // pattern where it isn't earning its keep.
   protected readonly hpAdjustOpen = signal(false);
-  protected readonly hpDeltaInput = signal('');
+  /** Damage/Healing toggle above the input — Damage is the default each time the popover opens. */
+  protected readonly hpAdjustMode = signal<'damage' | 'healing'>('damage');
+  // Only ever holds the digits the GM typed — the sign is never part of
+  // this, it's added back by hpDeltaDisplay() below from hpAdjustMode()
+  // instead, so the toggle (not the keyboard) is the only way to change it.
+  protected readonly hpDeltaMagnitude = signal('');
+
+  // computed(): derives the input's displayed value from the two signals
+  // above — re-runs automatically whenever either changes. This is what
+  // makes the leading -/+ un-typeable: every keystroke re-renders the input
+  // from this, so even if the GM's edit touched the sign character, the
+  // next render puts the correct one straight back.
+  protected readonly hpDeltaDisplay = computed(
+    () => (this.hpAdjustMode() === 'damage' ? '-' : '+') + this.hpDeltaMagnitude(),
+  );
+
+  // viewChild(): a signal-based reference to the '#hpDeltaInputEl' input in
+  // this component's own template — only present in the DOM while the
+  // popover (hpAdjustOpen()) is open, so this reads as undefined the rest
+  // of the time.
+  private readonly hpDeltaInputEl = viewChild<ElementRef<HTMLInputElement>>('hpDeltaInputEl');
+
+  // effect(): re-runs whenever any signal it reads changes — here that's
+  // hpAdjustOpen() and (once it exists) hpDeltaInputEl(). Angular schedules
+  // effects to run *after* change detection has updated the DOM, so by the
+  // time this fires following toggleHpAdjust() opening the popover, the
+  // input it's reading via viewChild is already there to focus. This
+  // replaces a plain HTML `autofocus` attribute on the input (see the old
+  // template), which doesn't work reliably here: `autofocus` per spec only
+  // fires once per document navigation, so on a single-page app it would
+  // only ever focus the very first popover a GM opened, not every one
+  // after — an effect re-focuses on every open instead.
+  //
+  // Also emits hpAdjustOpenChange every time hpAdjustOpen() changes — every
+  // combatant <li> in the main list has a permanent CSS `animation` on it
+  // (.main-combatant's pop-in, see encounter-detail.css), and per the CSS
+  // spec an element with an applicable `animation` targeting `transform`
+  // creates its own stacking context for as long as that animation rule
+  // matches it — not just while the animation is actually playing. That
+  // means every bubble is already its own stacking context, so this
+  // popover's own z-index (in combatant-bubble.css) only ever wins against
+  // OTHER content inside the SAME bubble; it can't reach past its <li> to
+  // outrank a sibling bubble's content, no matter how high that z-index is
+  // — sibling bubbles below it in the DOM paint on top of it instead. The
+  // fix has to raise the <li> itself, which lives in EncounterDetail's own
+  // template, not this component's — hence telling the parent via an
+  // output instead of just handling it locally. Constructor is where
+  // effect() needs to run, since it needs the component's injection
+  // context.
+  constructor() {
+    effect(() => {
+      const open = this.hpAdjustOpen();
+      this.hpAdjustOpenChange.emit(open);
+      if (open) {
+        this.hpDeltaInputEl()?.nativeElement.focus();
+      }
+    });
+  }
 
   protected toggleHpAdjust(): void {
     this.hpAdjustOpen.update((open) => !open);
-    this.hpDeltaInput.set('');
+    this.hpDeltaMagnitude.set('');
+    this.hpAdjustMode.set('damage');
+  }
+
+  protected toggleHpAdjustMode(): void {
+    this.hpAdjustMode.update((mode) => (mode === 'damage' ? 'healing' : 'damage'));
+  }
+
+  // Bound to the input's (ngModelChange) — strips anything that isn't a
+  // digit out of what the GM typed/pasted, including the -/+ itself (there's
+  // no way to tell "the sign we rendered" apart from "a sign the GM typed"
+  // once they're both just characters in the same string, so the simplest
+  // reliable fix is to disallow typing one at all and let toggleHpAdjustMode()
+  // be the only source of the sign).
+  protected onHpDeltaInput(raw: string): void {
+    this.hpDeltaMagnitude.set(raw.replace(/[^0-9]/g, ''));
   }
 
   protected submitHpAdjust(): void {
-    const delta = this.parseHpDelta(this.hpDeltaInput());
-    if (Number.isFinite(delta) && delta !== 0) {
+    const magnitude = Number(this.hpDeltaMagnitude());
+    if (Number.isFinite(magnitude) && magnitude !== 0) {
+      const delta = this.hpAdjustMode() === 'damage' ? -magnitude : magnitude;
       this.hpAdjustSubmit.emit(delta);
     }
     this.hpAdjustOpen.set(false);
-    this.hpDeltaInput.set('');
+    this.hpDeltaMagnitude.set('');
+    this.hpAdjustMode.set('damage');
   }
 
-  // "+10"/"-15" are taken as written; a bare "15" (no leading sign) is
-  // assumed to mean damage (-15) rather than healing — a GM reaching for
-  // this control is typing damage far more often than healing, so leaving
-  // the sign off should mean the common case instead of a no-op/error.
-  private parseHpDelta(input: string): number {
-    const trimmed = input.trim();
-    const value = Number(trimmed);
-    if (!Number.isFinite(value)) return NaN;
-    return /^[+-]/.test(trimmed) ? value : -value;
-  }
-
-  // Tap-to-reveal for touch input, alongside the CSS :hover in
-  // combatant-bubble.css — mirrors the drag-handle reveal pattern in
-  // encounter-detail.ts, but kept local here since no sibling needs to know
-  // about it.
+  // Click/tap-to-reveal the full note text (see combatant-bubble.html/css —
+  // hover only highlights now, it no longer expands anything, since
+  // expand-on-hover was what caused the stutter this replaced). Kept local
+  // here rather than lifted to EncounterDetail, same as hpAdjustOpen above —
+  // no sibling needs to know about it.
   protected readonly notesRevealed = signal(false);
+
+  // viewChild(): a signal-based reference to the '#notesToggle' element in
+  // this component's own template (see combatant-bubble.html) — used below
+  // to tell a click on the note itself apart from a click elsewhere on the
+  // page, so the document-wide listener knows when to collapse it.
+  private readonly notesToggle = viewChild<ElementRef<HTMLElement>>('notesToggle');
 
   protected toggleNotesRevealed(): void {
     this.notesRevealed.update((revealed) => !revealed);
+  }
+
+  // @HostListener('document:click', ...): registers a click listener on the
+  // whole document (not just this component's own element), so this fires
+  // for a click ANYWHERE on the page — that's what "collapse after a click
+  // away" needs. A click on the notes element itself already toggled
+  // notesRevealed via (click) in the template above by the time this runs
+  // (that handler fires first, then the same click event bubbles up to
+  // document), so re-checking notesRevealed() here and bailing out when the
+  // click landed inside the notes element avoids immediately closing what
+  // that click just opened.
+  @HostListener('document:click', ['$event'])
+  protected collapseNotesOnClickAway(event: MouseEvent): void {
+    if (!this.notesRevealed()) return;
+    const notesEl = this.notesToggle()?.nativeElement;
+    if (notesEl && !notesEl.contains(event.target as Node)) {
+      this.notesRevealed.set(false);
+    }
   }
 }

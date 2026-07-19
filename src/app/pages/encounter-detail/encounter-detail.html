@@ -217,6 +217,7 @@
                 [class.active]="c.id === activeCombatantId()"
                 [class.incapacitated]="c.incapacitated"
                 [class.handle-revealed]="isHandleRevealed(c.id)"
+                [class.hp-adjusting]="isHpAdjusting(c.id)"
                 (click)="toggleHandleRevealed(c.id)"
               >
                 <app-combatant-bubble
@@ -230,6 +231,7 @@
                   (removedToggle)="toggleRemoved(c.id)"
                   (editRequested)="openEditDialog(c)"
                   (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
+                  (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
                 >
                   <!-- cdkDragHandle restricts the drag gesture to this icon
                        alone, so grabbing anywhere else on the bubble (the
@@ -306,6 +308,7 @@
                   [class.placing]="isPlacing(c.id)"
                   [class.popping-out]="isResolving(c.id)"
                   [class.incapacitated]="c.incapacitated"
+                  [class.hp-adjusting]="isHpAdjusting(c.id)"
                 >
                   <app-combatant-bubble
                     [combatant]="c"
@@ -318,6 +321,7 @@
                     (removedToggle)="toggleRemoved(c.id)"
                     (editRequested)="openEditDialog(c)"
                     (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
+                    (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
                   >
                     <!-- Leftmost and pointing left (toward the main list): a
                          shortcut into placement mode without opening the

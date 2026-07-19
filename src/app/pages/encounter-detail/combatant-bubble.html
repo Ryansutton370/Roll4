@@ -93,29 +93,53 @@
         ></span>
       </button>
       @if (hpAdjustOpen()) {
-        <!-- Typed as a signed delta (e.g. "-15" or "+10") — see
-             EncounterStore.adjustCurrentHp. A plain number with no +/-
-             prefix (e.g. "15") is treated as damage (-15): typing a
-             sign only to heal, never to damage, matches how a GM more
-             often reaches for this control — see parseHpDelta(). -->
+        <!-- Damage/Healing switch sets the sign; the input only ever holds
+             the digits the GM types (see onHpDeltaInput()) — the -/+ shown
+             in the box comes from hpDeltaDisplay(), which is recomputed
+             (and thus re-rendered into the input) on every change, so
+             there's no way to type over it. See EncounterStore.adjustCurrentHp
+             for how the resulting signed delta is applied. Input on the
+             left, switch stacked above the confirm button on the right
+             (see .hp-adjust-controls in combatant-bubble.css). -->
         <span class="hp-adjust-popover">
           <input
+            #hpDeltaInputEl
             type="text"
+            inputmode="numeric"
             class="hp-delta-input"
-            [ngModel]="hpDeltaInput()"
-            (ngModelChange)="hpDeltaInput.set($event)"
+            [ngModel]="hpDeltaDisplay()"
+            (ngModelChange)="onHpDeltaInput($event)"
             (keydown.enter)="submitHpAdjust()"
-            placeholder="+/-"
-            autofocus
           />
-          <button type="button" class="icon-btn" (click)="submitHpAdjust()">
-            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path
-                d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.58l7.3-7.28a1 1 0 0 1 1.4 0Z"
+          <span class="hp-adjust-controls">
+            <!-- A real toggle switch (checkbox styled as a track+thumb,
+                 see .hp-mode-switch in combatant-bubble.css) rather than a
+                 plain button — [class.healing] drives both the switch's
+                 slide position and its red/green color from hpAdjustMode(),
+                 the same "Angular class binding drives the visual state"
+                 pattern used everywhere else in this file (e.g. .rotated on
+                 the expand button) rather than relying on the checkbox's own
+                 :checked pseudo-class in CSS. -->
+            <label class="hp-mode-switch" [class.healing]="hpAdjustMode() === 'healing'">
+              <input
+                type="checkbox"
+                [checked]="hpAdjustMode() === 'healing'"
+                (change)="toggleHpAdjustMode()"
               />
-            </svg>
-            <span class="sr-only">Apply HP change</span>
-          </button>
+              <span class="hp-mode-track"><span class="hp-mode-thumb"></span></span>
+              <span class="hp-mode-label">{{
+                hpAdjustMode() === 'damage' ? 'Damage' : 'Healing'
+              }}</span>
+            </label>
+            <button type="button" class="icon-btn" (click)="submitHpAdjust()">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.58l7.3-7.28a1 1 0 0 1 1.4 0Z"
+                />
+              </svg>
+              <span class="sr-only">Apply HP change</span>
+            </button>
+          </span>
         </span>
       }
     </span>
@@ -126,10 +150,15 @@
   <!-- Fixed width regardless of the note's length (see .notes-stat in
        combatant-bubble.css) — a long note used to make this column wider
        than everyone else's, throwing off the AC/HP/Initiative columns
-       after it. Clipped to that width normally; clicking (or hovering,
-       for a mouse) the icon expands it in place to its full text, then
-       collapses back on a second click/mouseleave. -->
+       after it. Clipped to that width normally; hover just highlights it
+       (see combatant-bubble.css) as a hint that it's clickable — actually
+       expanding to the full text only happens on click/tap, which also
+       collapses it again, same as clicking away (see the document click
+       listener in combatant-bubble.ts). Expanding on hover used to make
+       the mouse passing over the list stutter, since it forced a layout
+       reflow on every pointer move instead of only on an explicit click. -->
   <span
+    #notesToggle
     class="stat notes-stat"
     [class.revealed]="notesRevealed()"
     [attr.tabindex]="combatant().notes ? 0 : null"
