@@ -96,7 +96,9 @@ by a random coin flip.
 
 ### 4. Run the Encounter
 The initiative order is displayed as a list. Each entry shows:
-- Combatant name
+- Combatant name — two combatants sharing a name (e.g. two "Goblin"s) each
+  get an " A"/" B" suffix so they're never ambiguous, in the order they
+  were added to the Encounter
 - A color indicating PC vs. NPC
 - AC, Current/Max HP, and Notes, whenever set (see 4a below)
 

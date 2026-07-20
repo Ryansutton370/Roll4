@@ -2,7 +2,7 @@ import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Combatant, Encounter } from '../../models/encounter.model';
-import { EncounterStore } from '../../services/encounter-store';
+import { EncounterStore, computeDisplayNames } from '../../services/encounter-store';
 import { NpcStore } from '../../services/npc-store';
 import { PartyStore } from '../../services/party-store';
 import { AddCombatantDialog, NewCombatantSubmitted } from '../../shared/add-combatant-dialog/add-combatant-dialog';
@@ -46,6 +46,20 @@ export class EncounterList {
       a.type === b.type ? 0 : a.type === 'pc' ? -1 : 1,
     );
   });
+
+  // "Goblin"/"Goblin" -> "Goblin A"/"Goblin B" — see EncounterDetail's
+  // identical displayNames/displayName pair, and computeDisplayNames' own
+  // doc comment, for why this needs creation order specifically.
+  protected readonly displayNames = computed(() => {
+    const id = this.editingEncounterId();
+    return id
+      ? computeDisplayNames(this.encounterStore.combatantsForEncounterInCreationOrder(id))
+      : new Map<string, string>();
+  });
+
+  protected displayName(combatantId: string): string {
+    return this.displayNames().get(combatantId) ?? '';
+  }
 
   // Roster entries not yet in the Encounter being edited — same "never
   // offer a no-op add" filtering as EncounterDetail's pickers, fed into

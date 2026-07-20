@@ -340,6 +340,44 @@ round-boundary reconciliation:
   gets a fresh, **uncapped** roll — "joining combat for real," not
   "rejoining mid-round" — and is inserted at that sorted position.
 
+## Duplicate-name lettering
+
+Two combatants sharing a name (e.g. two "Goblin"s, or a "Goblin" and a
+"goblin") each get a disambiguating " A"/" B" suffix wherever the UI shows
+or announces a combatant's name — the bubble label, its expand-drawer/edit
+dialog, the Removed From Combat and Ready to Join lists, the "Link to:"
+timer picker, drag handles/previews, and `encounter-list.html`'s edit-mode
+table. A name with no duplicate is shown unsuffixed.
+
+`EncounterStore.computeDisplayNames(combatantsInCreationOrder: Combatant[])`
+groups by trimmed, case-insensitive name and returns a `Map<combatantId,
+displayName>` — pure logic, no store/DI, same standalone-testability
+reasoning as `compareByInitiative`. Each page (`EncounterDetail`,
+`EncounterList`) computes its own `displayNames` map and a `displayName(id)`
+lookup, feeding `combatantsForEncounterInCreationOrder(encounterId)` — a
+new read-only `EncounterStore` method — into it.
+
+**Why creation order, not initiative order:** letters are assigned in the
+order combatants appear in `combatantsForEncounterInCreationOrder`'s
+result, which filters the raw, append-only `combatantsSignal` directly —
+**not** `combatantsForEncounter`'s `Encounter.combatantIds` order, which
+re-sorts on every re-roll, manual drag-reorder, and Hold Action
+return-from-hold. Keying lettering off initiative order would relabel
+"A"/"B" on nearly every turn; `combatantsSignal` itself is only ever
+appended to, so creation order is stable across all of that churn.
+
+**The one accepted wrinkle:** deleting a combatant *can* relabel the
+survivors. This only happens via `removeCombatant` (a hard delete — today
+only reachable from the setup-phase list's trash icon on an ad-hoc NPC
+before the first Roll), which actually removes the record from
+`combatantsSignal`. If "Goblin A" is deleted while "Goblin B" remains,
+"Goblin B" relabels to plain "Goblin" (now the only one) the next time
+`computeDisplayNames` runs — same relabel-on-removal behavior already
+accepted for `toggleRemoved`'s "N/A" initiative placement elsewhere. Toggling
+`removedFromCombat` (the *soft* Removed From Combat flag, everywhere else
+in the app) does **not** touch `combatantsSignal`, so it never triggers this
+— a combatant moved to the Removed From Combat list keeps its letter.
+
 ## Timers
 
 A Timer (see the entity above) is created via the same "+" menu as a

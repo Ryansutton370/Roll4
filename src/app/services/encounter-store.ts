@@ -156,6 +156,43 @@ export function firstActiveIndex(order: Combatant[]): number | null {
   return index === -1 ? null : index;
 }
 
+/**
+ * "Goblin"/"Goblin"/"goblin" (grouped case-insensitively, trimmed) become
+ * "Goblin A"/"Goblin B"/"Goblin C" — letters assigned in the order they
+ * appear in `combatantsInCreationOrder`, so the caller must pass creation
+ * order (EncounterStore.combatantsForEncounterInCreationOrder), not
+ * initiative order (combatantsForEncounter). Initiative order re-sorts on
+ * every re-roll/manual-reorder/hold-return, which would relabel "A"/"B"
+ * far more often than intended — creation order only changes when a
+ * combatant is actually added or removed. A name with no duplicates is
+ * returned unsuffixed. Exported and kept pure (no store/DI) for the same
+ * standalone-testability reason as compareByInitiative above.
+ */
+export function computeDisplayNames(combatantsInCreationOrder: Combatant[]): Map<string, string> {
+  const groups = new Map<string, Combatant[]>();
+  for (const c of combatantsInCreationOrder) {
+    const key = c.name.trim().toLowerCase();
+    const group = groups.get(key);
+    if (group) {
+      group.push(c);
+    } else {
+      groups.set(key, [c]);
+    }
+  }
+
+  const displayNames = new Map<string, string>();
+  for (const group of groups.values()) {
+    if (group.length === 1) {
+      displayNames.set(group[0].id, group[0].name);
+      continue;
+    }
+    group.forEach((c, index) => {
+      displayNames.set(c.id, `${c.name.trim()} ${String.fromCharCode(65 + index)}`);
+    });
+  }
+  return displayNames;
+}
+
 @Service()
 export class EncounterStore {
   private readonly encountersSignal = signal<Encounter[]>([]);
@@ -209,6 +246,20 @@ export class EncounterStore {
     if (!encounter) return [];
     const byId = new Map(this.combatantsSignal().map((c) => [c.id, c]));
     return encounter.combatantIds.map((id) => byId.get(id)).filter((c): c is Combatant => !!c);
+  }
+
+  /**
+   * Combatants for an Encounter in creation/insertion order — deliberately
+   * NOT the initiative order combatantsForEncounter above returns (which
+   * re-sorts on every re-roll/manual-reorder/hold-return). Filters
+   * combatantsSignal directly by encounterId, same "no combatantIds
+   * indirection" shape as timersForEncounter below, since combatantsSignal
+   * itself is only ever appended to, never reordered — feeds
+   * computeDisplayNames, which needs a stable order to letter duplicate
+   * names consistently.
+   */
+  combatantsForEncounterInCreationOrder(encounterId: string): Combatant[] {
+    return this.combatantsSignal().filter((c) => c.encounterId === encounterId);
   }
 
   /** Timers for an Encounter — no ordering guarantee needed, the UI sorts/groups as it sees fit. */

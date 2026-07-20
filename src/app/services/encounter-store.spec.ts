@@ -6,6 +6,7 @@ import {
   EncounterStore,
   clearHoldWithoutReroll,
   compareByInitiative,
+  computeDisplayNames,
   firstActiveIndex,
   foldInReadyToJoin,
   reRollRound,
@@ -223,6 +224,67 @@ describe('foldInReadyToJoin (pure logic)', () => {
     expect(joined.readyToJoin).toBe(false);
     expect(joined.initiativeTotal).toBe(20); // uncapped — well above Active's 3
     expect(result.map((c) => c.id)).toEqual(['pending', 'active']); // sorted in by the new total
+  });
+});
+
+describe('computeDisplayNames (pure logic)', () => {
+  it('leaves a name with no duplicates unsuffixed', () => {
+    const solo = combatant({ id: 'a', name: 'Goblin' });
+    const other = combatant({ id: 'b', name: 'Kobold' });
+    const displayNames = computeDisplayNames([solo, other]);
+    expect(displayNames.get('a')).toBe('Goblin');
+    expect(displayNames.get('b')).toBe('Kobold');
+  });
+
+  it('suffixes a 2-way duplicate " A"/" B" in creation order', () => {
+    const first = combatant({ id: 'a', name: 'Goblin' });
+    const second = combatant({ id: 'b', name: 'Goblin' });
+    const displayNames = computeDisplayNames([first, second]);
+    expect(displayNames.get('a')).toBe('Goblin A');
+    expect(displayNames.get('b')).toBe('Goblin B');
+  });
+
+  it('suffixes a 3-way duplicate " A"/" B"/" C"', () => {
+    const combatants = [
+      combatant({ id: 'a', name: 'Goblin' }),
+      combatant({ id: 'b', name: 'Goblin' }),
+      combatant({ id: 'c', name: 'Goblin' }),
+    ];
+    const displayNames = computeDisplayNames(combatants);
+    expect(displayNames.get('a')).toBe('Goblin A');
+    expect(displayNames.get('b')).toBe('Goblin B');
+    expect(displayNames.get('c')).toBe('Goblin C');
+  });
+
+  it('groups case-insensitively and trims whitespace, but keeps each combatant\'s own casing in the suffixed name', () => {
+    const combatants = [
+      combatant({ id: 'a', name: 'Goblin' }),
+      combatant({ id: 'b', name: 'goblin' }),
+      combatant({ id: 'c', name: ' Goblin ' }),
+    ];
+    const displayNames = computeDisplayNames(combatants);
+    expect(displayNames.get('a')).toBe('Goblin A');
+    expect(displayNames.get('b')).toBe('goblin B');
+    expect(displayNames.get('c')).toBe('Goblin C');
+  });
+
+  it('does not change output when only initiative order (not creation order) churns', () => {
+    const first = combatant({ id: 'a', name: 'Goblin', initiativeTotal: 5 });
+    const second = combatant({ id: 'b', name: 'Goblin', initiativeTotal: 12 });
+    const creationOrder = [first, second]; // 'a' created before 'b', regardless of initiative
+
+    const beforeReroll = computeDisplayNames(creationOrder);
+    // Simulates a re-roll: initiativeTotal changes, order-in-array (if the
+    // caller mistakenly used initiative order) would flip, but creation
+    // order — what this function actually takes — doesn't.
+    const rerolled = [
+      { ...first, initiativeTotal: 18 },
+      { ...second, initiativeTotal: 2 },
+    ];
+    const afterReroll = computeDisplayNames(rerolled);
+
+    expect(afterReroll.get('a')).toBe(beforeReroll.get('a'));
+    expect(afterReroll.get('b')).toBe(beforeReroll.get('b'));
   });
 });
 
@@ -565,6 +627,28 @@ describe('EncounterStore', () => {
       expect(combatants.map((cc) => cc.name)).toEqual(['B', 'A', 'C']);
       const a = combatants.find((cc) => cc.name === 'A')!;
       expect(combatants.find((cc) => cc.id === c.id)!.initiativeTotal).toBe(a.initiativeTotal! - 1);
+    });
+
+    it('combatantsForEncounterInCreationOrder stays in add order regardless of roll/reorder', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('A', 0));
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('B', 0));
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('C', 0));
+      rollThreeDeterministic(encounter.id);
+      expect(service.combatantsForEncounter(encounter.id).map((c) => c.name)).toEqual(['C', 'B', 'A']);
+
+      const [c] = service.combatantsForEncounter(encounter.id);
+      service.reorderCombatant(encounter.id, c.id, 2);
+      expect(service.combatantsForEncounter(encounter.id).map((cc) => cc.name)).toEqual(['B', 'A', 'C']);
+
+      // Initiative order above got fully scrambled by the roll + reorder —
+      // creation order, what computeDisplayNames' "A"/"B" lettering
+      // actually depends on, never moves.
+      expect(service.combatantsForEncounterInCreationOrder(encounter.id).map((cc) => cc.name)).toEqual([
+        'A',
+        'B',
+        'C',
+      ]);
     });
 
     it('moves a combatant to a middle position, one below its new upper neighbor', () => {

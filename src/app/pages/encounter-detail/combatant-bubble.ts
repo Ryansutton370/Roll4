@@ -50,6 +50,8 @@ export class CombatantBubble {
   // app (see party-detail.ts) — the parent's template binding sets these,
   // and the template below re-renders whenever they change.
   readonly combatant = input.required<Combatant>();
+  /** combatant().name, but with an " A"/" B" suffix if another combatant in this encounter shares the name — see EncounterStore.computeDisplayNames. Used everywhere this component shows or announces a name, so a GM (or screen reader) can always tell two same-named combatants apart. */
+  readonly displayName = input.required<string>();
   readonly expanded = input.required<boolean>();
   readonly isPlacing = input.required<boolean>();
   /** True in the Hold Action panel, where the bubble is narrower — shrinks the expand button. */

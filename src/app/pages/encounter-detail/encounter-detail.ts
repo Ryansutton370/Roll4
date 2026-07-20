@@ -14,7 +14,7 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Combatant, Timer } from '../../models/encounter.model';
-import { EncounterStore } from '../../services/encounter-store';
+import { EncounterStore, computeDisplayNames } from '../../services/encounter-store';
 import { NpcStore } from '../../services/npc-store';
 import { PartyStore } from '../../services/party-store';
 import { AddCombatantDialog, NewCombatantSubmitted } from '../../shared/add-combatant-dialog/add-combatant-dialog';
@@ -51,6 +51,18 @@ export class EncounterDetail {
   protected readonly combatants = computed(() =>
     this.encounterStore.combatantsForEncounter(this.encounterId()),
   );
+
+  // "Goblin"/"Goblin" -> "Goblin A"/"Goblin B" — keyed by creation order
+  // (combatantsForEncounterInCreationOrder), not the initiative order
+  // combatants() above uses, so a re-roll/manual-reorder/hold-return never
+  // relabels who's "A" vs "B" — see computeDisplayNames' own doc comment.
+  protected readonly displayNames = computed(() =>
+    computeDisplayNames(this.encounterStore.combatantsForEncounterInCreationOrder(this.encounterId())),
+  );
+
+  protected displayName(combatantId: string): string {
+    return this.displayNames().get(combatantId) ?? '';
+  }
 
   // Party members always shown first, ad-hoc NPCs after — same ordering as
   // EncounterList's editing form. Only used by the setup-phase list below:
@@ -299,7 +311,7 @@ export class EncounterDetail {
   }
 
   protected openEditDialog(combatant: Combatant): void {
-    this.editDialog().openFor(combatant);
+    this.editDialog().openFor(combatant, this.displayName(combatant.id));
   }
 
   // The drawer's "Create Timer" button — instant creation with a default

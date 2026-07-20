@@ -46,17 +46,24 @@ export class EditCombatantDialog {
   protected readonly ac = signal<number | null>(null);
   protected readonly maxHp = signal<number | null>(null);
   protected readonly notes = signal('');
+  // The combatant's disambiguated "Goblin A"-style name (see
+  // EncounterStore.computeDisplayNames), shown in the dialog's own heading
+  // so a GM editing one of several same-named combatants can confirm which
+  // one they opened — separate from `name` above, which is the real,
+  // unsuffixed name being edited in the form itself.
+  protected readonly dialogTitle = signal('Edit Combatant');
 
   readonly saveRequested = output<{ combatantId: string; changes: CombatantDetailsChanges }>();
 
   /** Seeds the form from the combatant's current values and opens the dialog. */
-  openFor(combatant: Combatant): void {
+  openFor(combatant: Combatant, displayName: string): void {
     this.combatantId = combatant.id;
     this.name.set(combatant.name);
     this.initiativeModifier.set(combatant.initiativeModifier);
     this.ac.set(combatant.ac);
     this.maxHp.set(combatant.maxHp);
     this.notes.set(combatant.notes);
+    this.dialogTitle.set(`Edit ${displayName}`);
     this.dialogRef().nativeElement.showModal();
   }
 

@@ -50,7 +50,7 @@ describe('EditCombatantDialog', () => {
     const showModalSpy = vi.fn();
     dialog.showModal = showModalSpy;
 
-    component.openFor(combatant);
+    component.openFor(combatant, 'Goblin B');
     fixture.detectChanges();
     // NgModel defers writing the DOM value to a microtask (to avoid an
     // ExpressionChangedAfterItHasBeenCheckedError) rather than doing it
@@ -60,6 +60,11 @@ describe('EditCombatantDialog', () => {
     expect(showModalSpy).toHaveBeenCalled();
     const nameInput: HTMLInputElement = fixture.nativeElement.querySelector('.field-name');
     expect(nameInput.value).toBe('Goblin');
+    // The heading uses the disambiguated display name (passed in
+    // separately from the real, editable name above) so a GM editing one
+    // of several same-named combatants can confirm which one this is.
+    const heading: HTMLElement = fixture.nativeElement.querySelector('h2');
+    expect(heading.textContent).toBe('Edit Goblin B');
   });
 
   it('emits saveRequested with the edited fields and closes the dialog', async () => {
@@ -68,7 +73,7 @@ describe('EditCombatantDialog', () => {
     const closeSpy = vi.fn();
     dialog.close = closeSpy;
 
-    component.openFor(combatant);
+    component.openFor(combatant, 'Goblin');
     fixture.detectChanges();
     await fixture.whenStable();
 

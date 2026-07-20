@@ -35,6 +35,7 @@ describe('CombatantBubble', () => {
 
     fixture = TestBed.createComponent(CombatantBubble);
     fixture.componentRef.setInput('combatant', combatant);
+    fixture.componentRef.setInput('displayName', combatant.name);
     fixture.componentRef.setInput('expanded', false);
     fixture.componentRef.setInput('isPlacing', false);
     component = fixture.componentInstance;
