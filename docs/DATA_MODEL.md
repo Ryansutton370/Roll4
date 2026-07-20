@@ -162,6 +162,68 @@ a Player, ad-hoc or otherwise."
 | `preHoldInitiativeTotal` | number \| null     | Snapshot of `initiativeTotal` taken when Hold Action was turned on. Default `null`. See below. |
 | `readyToJoin`        | boolean                | Default `false`. See "Ready to Join" below. |
 
+### NameTable
+Seed data, not GM-editable — one d100 column from the GM's Random
+Generators spreadsheet, converted once by `scripts/import-names.cjs` into
+`public/data/name-tables.json` and loaded read-only via `NameTableStore`
+(see [ARCHITECTURE.md](./ARCHITECTURE.md)). Despite the name, not every
+table holds *person* names — the source spreadsheet also has place-name,
+plant/alchemy-substance-name, and byname/epithet tabs, so the shape is kept
+generic (a labeled list of strings) rather than modeling "name" specially.
+
+| Field       | Type                     | Notes                                          |
+|-------------|--------------------------|-------------------------------------------------|
+| `id`        | string                   | Slug of setName+tableName+gender, e.g. `european-german-male` |
+| `setName`   | string                   | The source spreadsheet tab, e.g. `"European"`, `"Fantasy"`, `"Places"` |
+| `tableName` | string                   | The column, gender suffix stripped, e.g. `"German"`, `"Goblin"`, `"Forest"` |
+| `gender`    | `'male'` \| `'female'` \| `null` | Parsed from a `"(M)"`/`"(F)"` suffix on the column header; `null` for ungendered columns (most of them) |
+| `entries`   | string[]                 | The column's values. Usually 100 (a d100 table), but a handful of source columns are still partially filled in — imported as-is rather than padded or rejected |
+
+**Why a flat list of tables instead of nesting `entries` under a
+`setName` → `tableName` tree:** `NameTableStore.tablesForSet`/`setNames`
+derive the grouping from this flat list on read, the same
+"derive, don't duplicate the structure" convention as
+`PartyStore.partiesForPlayer` deriving Party membership from
+`Party.playerIds` rather than storing a back-reference. A flat list is also
+what a straightforward per-row JSON import naturally produces.
+
+### MonsterTemplate
+Seed data, not GM-editable — imported once from two open-license sources
+(see `scripts/import-monsters-5e-srd.cjs` / `import-monsters-shadowdark.cjs`)
+into `public/data/monsters-5e-srd.json` / `monsters-shadowdark.json`, loaded
+read-only via `MonsterStore` (see [ARCHITECTURE.md](./ARCHITECTURE.md)). Not
+yet linked to anything — the (planned) Encounter Generator (Phase 2.5
+Milestone 3) will use these as candidates, and Milestone 4 will link a
+generated `Npc`/`Combatant` back to the template it came from.
+
+| Field                | Type                        | Notes                                        |
+|-----------------------|-----------------------------|-----------------------------------------------|
+| `id`                  | string                      | e.g. `5e-srd-goblin`, `shadowdark-goblin`      |
+| `source`              | `'5e-srd'` \| `'shadowdark'` |                                                |
+| `name`                | string                      |                                                |
+| `difficulty`          | number \| null              | CR for `'5e-srd'` (e.g. `0.25`, `10`), Level for `'shadowdark'`. `null` for the handful of Shadowdark monsters (the four Elementals, the Hydra) whose stats scale with context rather than having one fixed value |
+| `ac`                  | number \| null              |                                                |
+| `maxHp`               | number \| null              | `null` for the same context-scaling monsters as `difficulty` |
+| `initiativeModifier`  | number                      | DEX modifier — both systems key Roll4's d20 initiative roll off it, even though neither system's actual rules roll individual per-monster initiative quite this way |
+| `statBlock`           | `{ label: string; value: string }[]` | Deliberately loose rather than one rigid schema — 5e's ability-scores/saves/skills/actions shape and Shadowdark's flat-bonus/numbered-Talents shape don't line up section-for-section |
+
+**Sources and required attribution** (surfaced to the GM in a Credits
+section on the Random Generators page, `name-generator.html`):
+- **5e SRD**: [Open5e](https://open5e.com)'s System Reference Document 5.1
+  data, OGL-licensed. The OGL's Section 15 copyright notice must be
+  reproduced verbatim wherever this data is used — verified directly
+  against the official `SRD-OGL_V5.1.pdf`, not a paraphrase, since exact
+  wording matters for OGL compliance.
+- **Shadowdark**: the "Unofficial Shadowdark Monster List" by Michael
+  Putlack (Night Noon Games) — a third-party compilation of official
+  Shadowdark Core Rulebook monster stat blocks (every row's source column
+  reads `"CR"`; no homebrew mixed in). Two licenses stack: the monster text
+  itself is used under the Shadowdark RPG Third-Party License (requiring a
+  specific disclaimer), and the compilation itself is CC BY-SA 4.0 (requiring
+  attribution to Night Noon Games, and — per ShareAlike — that this derived
+  JSON carry the same CC BY-SA 4.0 license forward if the app is ever
+  hosted/distributed publicly, an open item to revisit before Phase 3).
+
 ### Timer
 An Encounter-scoped countdown, created via the same "+" menu (next to the
 Previous/Next Turn buttons, run phase only) as a mid-encounter Combatant —

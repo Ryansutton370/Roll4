@@ -1,0 +1,7267 @@
+[
+  {
+    "id": "shadowdark-aboleth",
+    "source": "shadowdark",
+    "name": "Aboleth",
+    "difficulty": 8,
+    "ac": 16,
+    "maxHp": 39,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 tentacle (near) +5 (1d8 + curse) or 1 tail +5 (3d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D -1, C +3, I +4, W +2, Ch +2"
+      },
+      {
+        "label": "Curse",
+        "value": "DC 15 CON or target gains a magical curse, turning into a deep one over 2d10 days."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-acolyte",
+    "source": "shadowdark",
+    "name": "Acolyte",
+    "difficulty": 1,
+    "ac": 12,
+    "maxHp": 4,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "1 mace +1 (1d6) or 1 spell +2"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D -1, C +0, I -1, W +2, Ch +0"
+      },
+      {
+        "label": "Healing Touch (WIS Spell)",
+        "value": "DC 11. Heal one creature within close for 1d4 HP."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-angel-archangel",
+    "source": "shadowdark",
+    "name": "Angel, Archangel",
+    "difficulty": 16,
+    "ac": 18,
+    "maxHp": 76,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "3 flaming greatsword +10 (2d12)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +2, C +4, I +4, W +5, Ch +5"
+      },
+      {
+        "label": "Command",
+        "value": "DC 18 CHA to resist an archangel's command."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-angel-domini",
+    "source": "shadowdark",
+    "name": "Angel, Domini",
+    "difficulty": 9,
+    "ac": 17,
+    "maxHp": 42,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bastard sword +7 (1d8) or 1 horn"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +2, I +3, W +4, Ch +4"
+      },
+      {
+        "label": "Horn",
+        "value": "All enemies in near DC 15 CHA or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-angel-principi",
+    "source": "shadowdark",
+    "name": "Angel, Principi",
+    "difficulty": 11,
+    "ac": 16,
+    "maxHp": 53,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "3 silvered bastard sword +9 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +4, I +4, W +4, Ch +4"
+      },
+      {
+        "label": "Moonlight Aura",
+        "value": "Hostile spells targeting the principi are DC 15."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-angel-seraph",
+    "source": "shadowdark",
+    "name": "Angel, Seraph",
+    "difficulty": 3,
+    "ac": 14,
+    "maxHp": 14,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "2 longsword +3 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +1, I +2, W +3, Ch +3"
+      },
+      {
+        "label": "Bless",
+        "value": "3/day, touch one target to give it a luck token."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-animated-armor",
+    "source": "shadowdark",
+    "name": "Animated Armor",
+    "difficulty": 2,
+    "ac": 15,
+    "maxHp": 11,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 longsword +3 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D -1, C +2, I -1, W +1, Ch +0"
+      },
+      {
+        "label": "Statue",
+        "value": "When standing still, looks exactly like a suit of armor."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-ankheg",
+    "source": "shadowdark",
+    "name": "Ankheg",
+    "difficulty": 3,
+    "ac": 14,
+    "maxHp": 14,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +4 (1d6) or 1 acid spray (near) +4 (2d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (burrow)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +2, C +1, I -2, W +1, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-ape",
+    "source": "shadowdark",
+    "name": "Ape",
+    "difficulty": 2,
+    "ac": 12,
+    "maxHp": 10,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 fist +2 (1d6) or 1 rock (far) +2 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +2, C +1, I -2, W +1, Ch +0"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-ape-snow",
+    "source": "shadowdark",
+    "name": "Ape, Snow",
+    "difficulty": 4,
+    "ac": 13,
+    "maxHp": 19,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 fist +4 (1d6) or 1 rock (far) +4 (2d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +1, I -2, W +1, Ch +0"
+      },
+      {
+        "label": "Thick Fur",
+        "value": "Cold immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-apprentice",
+    "source": "shadowdark",
+    "name": "Apprentice",
+    "difficulty": 1,
+    "ac": 11,
+    "maxHp": 3,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 dagger (close/near) +1 (1d4) or 1 spell +2"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -1, D +1, C -1, I +2, W +0, Ch +0"
+      },
+      {
+        "label": "Beguile (INT Spell)",
+        "value": "DC 11. Focus. One target in near of LV 2 or less is stupefied for the duration."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-archmage",
+    "source": "shadowdark",
+    "name": "Archmage",
+    "difficulty": 10,
+    "ac": 12,
+    "maxHp": 44,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "2 spell +7"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -1, D +2, C -1, I +4, W +2, Ch +1"
+      },
+      {
+        "label": "Death Bolt (INT Spell)",
+        "value": "DC 15. One target of LV 9 or less within near DC 15 CON or go to 0 HP."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-assassin",
+    "source": "shadowdark",
+    "name": "Assassin",
+    "difficulty": 8,
+    "ac": 15,
+    "maxHp": 38,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 poisoned dagger (close/near) +6 (2d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +4, C +2, I +2, W +3, Ch +3"
+      },
+      {
+        "label": "Execute",
+        "value": "Deals x3 damage against surprised targets."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-azer",
+    "source": "shadowdark",
+    "name": "Azer",
+    "difficulty": 3,
+    "ac": 15,
+    "maxHp": 15,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "2 flaming warhammer +3 (1d10, ignites flammables) or 1 crossbow (far) +0 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +2, I +0, W +0, Ch +0"
+      },
+      {
+        "label": "Impervious",
+        "value": "Fire immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-badger",
+    "source": "shadowdark",
+    "name": "Badger",
+    "difficulty": 1,
+    "ac": 11,
+    "maxHp": 5,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +2 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near (burrow)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +0, C +1, I -3, W +1, Ch -2"
+      },
+      {
+        "label": "Rage",
+        "value": "1/day, immune to morale checks, +1d4 damage (3 rounds)."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-bandit",
+    "source": "shadowdark",
+    "name": "Bandit",
+    "difficulty": 1,
+    "ac": 13,
+    "maxHp": 4,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 club +1 (1d4) or 1 shortbow (far) +0 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +0, C +0, I -1, W +0, Ch -1"
+      },
+      {
+        "label": "Ambush",
+        "value": "Deal an extra die of damage when undetected."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-basilisk",
+    "source": "shadowdark",
+    "name": "Basilisk",
+    "difficulty": 5,
+    "ac": 14,
+    "maxHp": 25,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +4 (2d6 + petrify)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +3, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Petrify",
+        "value": "Any creature that touches the basilisk or meets its gaze, DC 15 CON or petrified."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-bat-giant",
+    "source": "shadowdark",
+    "name": "Bat, Giant",
+    "difficulty": 2,
+    "ac": 12,
+    "maxHp": 9,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -1, D +2, C +0, I -3, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-bat-swarm",
+    "source": "shadowdark",
+    "name": "Bat, Swarm",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 18,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bite +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -3, D +2, C +0, I -3, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-bear-brown",
+    "source": "shadowdark",
+    "name": "Bear, Brown",
+    "difficulty": 5,
+    "ac": 13,
+    "maxHp": 25,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +4 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +3, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Crush",
+        "value": "Deals an extra die of damage if it hits the same target with both claws."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-bear-polar",
+    "source": "shadowdark",
+    "name": "Bear, Polar",
+    "difficulty": 7,
+    "ac": 13,
+    "maxHp": 34,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +6 (2d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +3, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Crush",
+        "value": "Deals an extra die of damage if it hits the same target with both claws."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-beastman",
+    "source": "shadowdark",
+    "name": "Beastman",
+    "difficulty": 1,
+    "ac": 12,
+    "maxHp": 5,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 spear (close/near) +2 (1d6 + 1)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +1, I -2, W +1, Ch -1"
+      },
+      {
+        "label": "Brutal",
+        "value": "+1 damage with melee weapons (included)."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-berserker",
+    "source": "shadowdark",
+    "name": "Berserker",
+    "difficulty": 2,
+    "ac": 12,
+    "maxHp": 10,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "greataxe +2 (1d10) or 1 spear\n(close/near) +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +1, I +0, W +1, Ch +0"
+      },
+      {
+        "label": "Rage",
+        "value": "1/day, immune to morale checks, +1d4 damage (3 rounds)."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-black-pudding",
+    "source": "shadowdark",
+    "name": "Black Pudding",
+    "difficulty": 6,
+    "ac": 9,
+    "maxHp": 30,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 tentacle +4 (2d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D -1, C +3, I -4, W -3, Ch -4"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by fire."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-boar",
+    "source": "shadowdark",
+    "name": "Boar",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 14,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 tusk +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +1, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Gore",
+        "value": "Deals an extra die of damage if it hits the same target with both tusks."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-brain-eater",
+    "source": "shadowdark",
+    "name": "Brain Eater",
+    "difficulty": 8,
+    "ac": 14,
+    "maxHp": 36,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "4 tentacle +5 (1d8 + latch) or 1 mind\nblast or 1 mind control"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +3, C +0, I +4, W +2, Ch +4"
+      },
+      {
+        "label": "Hear Thoughts",
+        "value": "Can hear the surface thoughts of all intelligent creatures within near."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-bugbear",
+    "source": "shadowdark",
+    "name": "Bugbear",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 14,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 spiked mace +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +1, I -1, W +0, Ch -2"
+      },
+      {
+        "label": "Stealthy",
+        "value": "ADV on checks to sneak and hide."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-bulette",
+    "source": "shadowdark",
+    "name": "Bulette",
+    "difficulty": 8,
+    "ac": 17,
+    "maxHp": 40,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bite +5 (2d6) or 1 leap"
+      },
+      {
+        "label": "Move",
+        "value": "near (burrow)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +1, C +4, I -3, W +1, Ch -2"
+      },
+      {
+        "label": "Leap",
+        "value": "Jump up to near in height and double near in distance, then make 2 bite attacks."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-camel",
+    "source": "shadowdark",
+    "name": "Camel",
+    "difficulty": 2,
+    "ac": 10,
+    "maxHp": 12,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 hoof +3 (1d6) or 1 spit"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +3, I -2, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-cave-brute",
+    "source": "shadowdark",
+    "name": "Cave Brute",
+    "difficulty": 6,
+    "ac": 14,
+    "maxHp": 28,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +5 (1d8) and 1 mandible +5 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "near (burrow)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +1, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Bewilder",
+        "value": "Creatures within near that see the cave brute's eyes, DC 12 CHA at start of their turn or dazed and no action."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-cave-creeper",
+    "source": "shadowdark",
+    "name": "Cave Creeper",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 18,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +3 (1d6) and 1 tentacles +3 (1d8 + toxin)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +2, C +0, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Toxin",
+        "value": "DC 12 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-centaur",
+    "source": "shadowdark",
+    "name": "Centaur",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 14,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 spear (close/near) +2 (1d6) or 1 longbow (far) +1 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +1, I +0, W +2, Ch +1"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-centipede-giant",
+    "source": "shadowdark",
+    "name": "Centipede, Giant",
+    "difficulty": 1,
+    "ac": 11,
+    "maxHp": 4,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +1 (1d4 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -3, D +1, C +0, I -4, W -3, Ch -4"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 12 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-centipede-swarm",
+    "source": "shadowdark",
+    "name": "Centipede, Swarm",
+    "difficulty": 4,
+    "ac": 11,
+    "maxHp": 18,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bite +1 (1d4 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -3, D +1, C +0, I -4, W -3, Ch -4"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 12 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-chimera",
+    "source": "shadowdark",
+    "name": "Chimera",
+    "difficulty": 10,
+    "ac": 16,
+    "maxHp": 49,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "4 rend +7 (2d8) and 1 fire breath"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +4, C +4, I -3, W +2, Ch -1"
+      },
+      {
+        "label": "Fire Breath",
+        "value": "Fills a near-sized cube extending from chimera. DC 15 DEX or 4d6 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-chuul",
+    "source": "shadowdark",
+    "name": "Chuul",
+    "difficulty": 5,
+    "ac": 15,
+    "maxHp": 25,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 pincer +4 (1d8 + grab)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D -1, C +3, I -1, W +1, Ch -2"
+      },
+      {
+        "label": "Grab",
+        "value": "DC 15 STR or held in pincer. DC 15 STR to break free on turn."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-cloaker",
+    "source": "shadowdark",
+    "name": "Cloaker",
+    "difficulty": 6,
+    "ac": 13,
+    "maxHp": 28,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 lash +4 (1d8) or 1 screech"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +3, C +1, I +1, W +1, Ch +0"
+      },
+      {
+        "label": "Phantoms",
+        "value": "1/day, in place of attacks. Create 3 illusory duplicates that disappear when hit. Determine randomly if an attack hits cloaker or illusions."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-cockatrice",
+    "source": "shadowdark",
+    "name": "Cockatrice",
+    "difficulty": 3,
+    "ac": 11,
+    "maxHp": 14,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +1 (1d4 + petrify)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +1, C +1, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Petrify",
+        "value": "DC 12 CON or petrified."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-couatl",
+    "source": "shadowdark",
+    "name": "Couatl",
+    "difficulty": 9,
+    "ac": 16,
+    "maxHp": 42,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bite +6 (2d6 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +3, C +2, I +4, W +4, Ch +5"
+      },
+      {
+        "label": "Change Shape",
+        "value": "In place of attacks, transform into any similarly-sized creature."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-crab-giant",
+    "source": "shadowdark",
+    "name": "Crab, Giant",
+    "difficulty": 5,
+    "ac": 15,
+    "maxHp": 24,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 pincer +4 (1d8 + crush)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +2, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Crush",
+        "value": "DC 15 STR or target takes 1d8 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-crocodile",
+    "source": "shadowdark",
+    "name": "Crocodile",
+    "difficulty": 4,
+    "ac": 14,
+    "maxHp": 20,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +3 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +2, I -2, W +1, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-cultist",
+    "source": "shadowdark",
+    "name": "Cultist",
+    "difficulty": 2,
+    "ac": 14,
+    "maxHp": 9,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 longsword +1 (1d8) or 1 spell +2"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D -1, C +0, I -1, W +2, Ch +0"
+      },
+      {
+        "label": "Fearless",
+        "value": "Immune to morale checks."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-cyclops",
+    "source": "shadowdark",
+    "name": "Cyclops",
+    "difficulty": 8,
+    "ac": 11,
+    "maxHp": 38,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 greatclub +7 (2d8) or 1 rock (far) +5 (1d12)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +0, C +2, I -1, W -2, Ch +0"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-darkmantle",
+    "source": "shadowdark",
+    "name": "Darkmantle",
+    "difficulty": 1,
+    "ac": 13,
+    "maxHp": 4,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +3 (1d4) or 1 darkness"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +3, C +0, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Darkness",
+        "value": "Extinguish all light sources in near."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-deep-one",
+    "source": "shadowdark",
+    "name": "Deep One",
+    "difficulty": 2,
+    "ac": 13,
+    "maxHp": 10,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 spear (close/near) +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +1, I -2, W +0, Ch -2"
+      },
+      {
+        "label": "Sunblind",
+        "value": "Blinded in bright light."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-demon-balor",
+    "source": "shadowdark",
+    "name": "Demon, Balor",
+    "difficulty": 16,
+    "ac": 19,
+    "maxHp": 77,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 greatsword +10 (2d12 + hellfire) and 1 fire\nwhip (near) +10 (2d6 + grab),"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +6, D +2, C +5, I +4, W +3, Ch +4"
+      },
+      {
+        "label": "Impervious",
+        "value": "Fire immune. Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-demon-dretch",
+    "source": "shadowdark",
+    "name": "Demon, Dretch",
+    "difficulty": 2,
+    "ac": 12,
+    "maxHp": 11,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 claw +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +0, C +2, I -2, W -1, Ch -3"
+      },
+      {
+        "label": "Gas",
+        "value": "All in near DC 12 CON or blinded for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-demon-glabrezu",
+    "source": "shadowdark",
+    "name": "Demon, Glabrezu",
+    "difficulty": 8,
+    "ac": 15,
+    "maxHp": 40,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 pincer +7 (2d8 + crush)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +4, I +3, W +2, Ch +2"
+      },
+      {
+        "label": "Crush",
+        "value": "DC 15 STR or target takes\n2d8 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-demon-marilith",
+    "source": "shadowdark",
+    "name": "Demon, Marilith",
+    "difficulty": 9,
+    "ac": 17,
+    "maxHp": 44,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "6 longsword +7 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +4, C +3, I +3, W +3, Ch +4"
+      },
+      {
+        "label": "Parry",
+        "value": "Trade 2 longsword attacks next round to deflect a melee attack that would hit."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-demon-vrock",
+    "source": "shadowdark",
+    "name": "Demon, Vrock",
+    "difficulty": 5,
+    "ac": 14,
+    "maxHp": 24,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 talons +4 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +2, C +2, I -1, W +1, Ch +0"
+      },
+      {
+        "label": "Carrion Mist",
+        "value": "Each time vrock hit, 3:6 chance of carrion mist in near-sized cube centered on vrock. All enemies DC 15 CON or violent vomiting 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-devil-archdevil",
+    "source": "shadowdark",
+    "name": "Devil, Archdevil",
+    "difficulty": 16,
+    "ac": 19,
+    "maxHp": 76,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "4 iron scepter +10 (3d10) or 1 soulbind"
+      },
+      {
+        "label": "Move",
+        "value": "far (teleport)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +4, C +4, I +5, W +4, Ch +7"
+      },
+      {
+        "label": "Impervious",
+        "value": "Fire immune. Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-devil-barbed",
+    "source": "shadowdark",
+    "name": "Devil, Barbed",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 14,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 spine (near) +3 (1d6 + barb) or 1 fire blast (far) +3 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +3, C +1, I +1, W +1, Ch +1"
+      },
+      {
+        "label": "Barb",
+        "value": "Each spine sticks, dealing 1d4 damage each round. DC 12 STR check on turn to remove."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-devil-cubi",
+    "source": "shadowdark",
+    "name": "Devil, Cubi",
+    "difficulty": 6,
+    "ac": 14,
+    "maxHp": 29,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 kiss +4 (1d6 + drain) or 1 charm"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +4, C +2, I +3, W +2, Ch +5"
+      },
+      {
+        "label": "Change Shape",
+        "value": "In place of attacks, transform into any similarly-sized humanoid."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-devil-erinyes",
+    "source": "shadowdark",
+    "name": "Devil, Erinyes",
+    "difficulty": 9,
+    "ac": 17,
+    "maxHp": 43,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 greatsword +8 (1d12) or 2 longbow (far) +8 (1d8 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +4, C +3, I +4, W +4, Ch +5"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 15 CON or target's eyes go jet black and it turns on its allies for 1d4 rounds. DC 15 WIS on turn to end effect."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-devil-horned",
+    "source": "shadowdark",
+    "name": "Devil, Horned",
+    "difficulty": 7,
+    "ac": 16,
+    "maxHp": 35,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 burning trident (near) +7 (2d6) or 1 fire blast (far) +4 (2d8)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +2, C +4, I +2, W +1, Ch +2"
+      },
+      {
+        "label": "Iron Hide",
+        "value": "Half damage from non-magical weapons."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-devil-imp",
+    "source": "shadowdark",
+    "name": "Devil, Imp",
+    "difficulty": 2,
+    "ac": 13,
+    "maxHp": 9,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 stinger +3 (1d4 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +3, C +0, I +1, W +0, Ch +2"
+      },
+      {
+        "label": "Impervious",
+        "value": "Fire immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dinosaur-brachiosaurus",
+    "source": "shadowdark",
+    "name": "Dinosaur, Brachiosaurus",
+    "difficulty": 12,
+    "ac": 13,
+    "maxHp": 57,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 stomp +7 (2d10)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +6, D -1, C +3, I -3, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dinosaur-plesiosaurus",
+    "source": "shadowdark",
+    "name": "Dinosaur, Plesiosaurus",
+    "difficulty": 6,
+    "ac": 13,
+    "maxHp": 30,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +5 (2d8)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +3, C +3, I -3, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dinosaur-pterodactyl",
+    "source": "shadowdark",
+    "name": "Dinosaur, Pterodactyl",
+    "difficulty": 4,
+    "ac": 14,
+    "maxHp": 20,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 beak +4 (1d8 + grab)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +4, C +2, I -2, W +1, Ch -3"
+      },
+      {
+        "label": "Grab",
+        "value": "DC 15 STR or held. DC 15 STR on turn to break free."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dinosaur-triceratops",
+    "source": "shadowdark",
+    "name": "Dinosaur, Triceratops",
+    "difficulty": 7,
+    "ac": 17,
+    "maxHp": 35,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 horns +6 (1d10) or 1 charge"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D -1, C +4, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Charge",
+        "value": "Move up to double near in straight line and make 1 horn attack. If hit, x3 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dinosaur-tyrannosaurus",
+    "source": "shadowdark",
+    "name": "Dinosaur, Tyrannosaurus",
+    "difficulty": 9,
+    "ac": 13,
+    "maxHp": 44,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bite +8 (2d12)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +1, C +4, I -3, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dinosaur-velociraptor",
+    "source": "shadowdark",
+    "name": "Dinosaur, Velociraptor",
+    "difficulty": 2,
+    "ac": 13,
+    "maxHp": 10,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 claw +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -1, D +3, C +1, I -2, W +1, Ch -3"
+      },
+      {
+        "label": "Clever",
+        "value": "+1d4 damage when attacking with surprise."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-djinni",
+    "source": "shadowdark",
+    "name": "Djinni",
+    "difficulty": 10,
+    "ac": 14,
+    "maxHp": 48,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 scimitar +7 (1d12) or 1 whirlwind"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +4, C +3, I +4, W +3, Ch +3"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-doppelganger",
+    "source": "shadowdark",
+    "name": "Doppelganger",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 20,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 dagger (close/near) +2 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +2, C +2, I +1, W +0, Ch +4"
+      },
+      {
+        "label": "Change Shape",
+        "value": "In place of attacks, transform into any similarly-sized humanoid."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dragon-desert",
+    "source": "shadowdark",
+    "name": "Dragon, Desert",
+    "difficulty": 13,
+    "ac": 17,
+    "maxHp": 61,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "3 rend +9 (2d10) or 1 lightning breath"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +3, C +3, I +4, W +5, Ch +5"
+      },
+      {
+        "label": "Stormblood",
+        "value": "Electricity immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dragon-fire",
+    "source": "shadowdark",
+    "name": "Dragon, Fire",
+    "difficulty": 17,
+    "ac": 18,
+    "maxHp": 80,
+    "initiativeModifier": 5,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "4 rend +11 (2d12) or 1 fire breath"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +6, D +5, C +4, I +4, W +4, Ch +5"
+      },
+      {
+        "label": "Fireblood",
+        "value": "Fire immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dragon-forest",
+    "source": "shadowdark",
+    "name": "Dragon, Forest",
+    "difficulty": 12,
+    "ac": 16,
+    "maxHp": 58,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 rend +8 (2d8) or 1 poison breath"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +3, C +4, I +3, W +3, Ch +4"
+      },
+      {
+        "label": "Animate Plants",
+        "value": "1/day, in place of attacks. Vines grab at all enemies within double near of dragon. DC 15 DEX or unable to move 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dragon-frost",
+    "source": "shadowdark",
+    "name": "Dragon, Frost",
+    "difficulty": 14,
+    "ac": 17,
+    "maxHp": 68,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "4 rend +9 (2d10) or 1 ice breath"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +3, C +5, I +3, W +4, Ch +3"
+      },
+      {
+        "label": "Frostblood",
+        "value": "Cold immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dragon-sea",
+    "source": "shadowdark",
+    "name": "Dragon, Sea",
+    "difficulty": 16,
+    "ac": 17,
+    "maxHp": 76,
+    "initiativeModifier": 6,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "4 rend +10 (2d10) or 1 steam breath or 1 water spout"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly, swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +6, C +4, I +4, W +5, Ch +5"
+      },
+      {
+        "label": "Steam Breath",
+        "value": "Fills a double near-sized cube extending from dragon. DC 15 DEX or 4d12 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dragon-swamp",
+    "source": "shadowdark",
+    "name": "Dragon, Swamp",
+    "difficulty": 12,
+    "ac": 16,
+    "maxHp": 58,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 rend +8 (2d10) or 1 smog breath"
+      },
+      {
+        "label": "Move",
+        "value": "double near (burrow, swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +3, C +4, I +4, W +3, Ch +3"
+      },
+      {
+        "label": "Smog Breath",
+        "value": "Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-drow",
+    "source": "shadowdark",
+    "name": "Drow",
+    "difficulty": 2,
+    "ac": 16,
+    "maxHp": 9,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 poison dart (near) +3 (1d4 + poison) or 1 longsword +1 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +3, C +0, I +1, W +1, Ch +1"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 15 CON or sleep."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-drow-drider",
+    "source": "shadowdark",
+    "name": "Drow, Drider",
+    "difficulty": 6,
+    "ac": 16,
+    "maxHp": 29,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 longsword +3 (1d8) or 2 longbow (far) +3 (1d8 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +3, C +2, I +2, W +2, Ch +0"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 15 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-drow-priestess",
+    "source": "shadowdark",
+    "name": "Drow, Priestess",
+    "difficulty": 6,
+    "ac": 16,
+    "maxHp": 28,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 snake whip (near) +4 (1d8 + poison) or 1 spell +4"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +3, C +1, I +3, W +4, Ch +3"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 15 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-druid",
+    "source": "shadowdark",
+    "name": "Druid",
+    "difficulty": 7,
+    "ac": 11,
+    "maxHp": 31,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 staff +0 (1d4) or 2 spell +5"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +1, C +0, I +4, W +3, Ch +0"
+      },
+      {
+        "label": "Barkskin (INT Spell)",
+        "value": "Self. DC 13. AC becomes 15 for 5 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dryad",
+    "source": "shadowdark",
+    "name": "Dryad",
+    "difficulty": 4,
+    "ac": 13,
+    "maxHp": 19,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 staff -1 (1d4) or 1 charm"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -1, D +2, C +1, I +1, W +3, Ch +4"
+      },
+      {
+        "label": "Charm",
+        "value": "Near, one creature, DC 14 CHA or friendship for 1d8 days."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-duergar",
+    "source": "shadowdark",
+    "name": "Duergar",
+    "difficulty": 2,
+    "ac": 15,
+    "maxHp": 12,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 war pick +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +0, C +3, I +0, W -1, Ch -1"
+      },
+      {
+        "label": "Enlarge",
+        "value": "1/day, +1d6 damage on melee attacks and ADV on STR checks for 3 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-dung-beetle-giant",
+    "source": "shadowdark",
+    "name": "Dung Beetle, Giant",
+    "difficulty": 2,
+    "ac": 13,
+    "maxHp": 10,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 horn +1 (1d4 + knock)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D -1, C +1, I -3, W -1, Ch -3"
+      },
+      {
+        "label": "Knock",
+        "value": "DC 9 STR or pushed a close distance and fall down."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-efreeti",
+    "source": "shadowdark",
+    "name": "Efreeti",
+    "difficulty": 9,
+    "ac": 15,
+    "maxHp": 43,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 scimitar +8 (2d10) or 2 fire bolt +5 (2d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +2, C +3, I +3, W +2, Ch +3"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by magical sources. Fire immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-elemental-air",
+    "source": "shadowdark",
+    "name": "Elemental, Air",
+    "difficulty": null,
+    "ac": 16,
+    "maxHp": null,
+    "initiativeModifier": 5,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 slam +7 (*d6) or 1 whirlwind"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +5, C +2, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-elemental-earth",
+    "source": "shadowdark",
+    "name": "Elemental, Earth",
+    "difficulty": null,
+    "ac": 17,
+    "maxHp": null,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 slam +7 (*d8) or 1 avalanche"
+      },
+      {
+        "label": "Move",
+        "value": "near (burrow)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +0, C +4, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-elemental-fire",
+    "source": "shadowdark",
+    "name": "Elemental, Fire",
+    "difficulty": null,
+    "ac": 15,
+    "maxHp": null,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 slam +6 (*d10) or 1 inferno"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +3, C +3, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by magical sources. Fire immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-elemental-water",
+    "source": "shadowdark",
+    "name": "Elemental, Water",
+    "difficulty": null,
+    "ac": 15,
+    "maxHp": null,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 slam +6 (*d6) or 1 whirlpool"
+      },
+      {
+        "label": "Move",
+        "value": "double near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +2, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-elephant",
+    "source": "shadowdark",
+    "name": "Elephant",
+    "difficulty": 7,
+    "ac": 14,
+    "maxHp": 34,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 tusks +6 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +0, C +3, I -2, W +1, Ch +0"
+      },
+      {
+        "label": "Charge",
+        "value": "Move up to double near in straight line and make 1 tusks attack. If hit, x3 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-elf",
+    "source": "shadowdark",
+    "name": "Elf",
+    "difficulty": 2,
+    "ac": 13,
+    "maxHp": 9,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "1 longbow (far) +3 (1d8) or 1 longsword +1 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +3, C +0, I +1, W +1, Ch +1"
+      },
+      {
+        "label": "Feyblood",
+        "value": "ADV on DEX checks while in the natural wilds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-ettercap",
+    "source": "shadowdark",
+    "name": "Ettercap",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 14,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +2 (1d6) or 1 poison web (near) +2"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +2, C +1, I +0, W +0, Ch -1"
+      },
+      {
+        "label": "Poison Web",
+        "value": "One target stuck in place and 1d4 damage/round. DC 12 DEX to escape on turn."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-fairy",
+    "source": "shadowdark",
+    "name": "Fairy",
+    "difficulty": 1,
+    "ac": 13,
+    "maxHp": 4,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 needle +3 (1 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +3, C +0, I +1, W +0, Ch +1"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 12 CON or fall into deep sleep for 1d4 hours."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-frog-giant",
+    "source": "shadowdark",
+    "name": "Frog, Giant",
+    "difficulty": 2,
+    "ac": 12,
+    "maxHp": 10,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 tongue and 1 bite +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +2, C +1, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Tongue",
+        "value": "1 creature in near DC 12 DEX or pulled to close range."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-gargoyle",
+    "source": "shadowdark",
+    "name": "Gargoyle",
+    "difficulty": 4,
+    "ac": 16,
+    "maxHp": 20,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +2, I +0, W +1, Ch -1"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-gelatinous-cube",
+    "source": "shadowdark",
+    "name": "Gelatinous Cube",
+    "difficulty": 5,
+    "ac": 11,
+    "maxHp": 24,
+    "initiativeModifier": -4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 touch +4 (1d8 + toxin + engulf)"
+      },
+      {
+        "label": "Move",
+        "value": "near S +3, D +1"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D -4, C +1, I -4, W +1, Ch -4"
+      },
+      {
+        "label": "Engulf",
+        "value": "DC 12 STR or trapped inside cube. Touch attack autohits engulfed targets each round. DC 12 STR on turn to escape. Fail checks if paralyzed."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-ghast",
+    "source": "shadowdark",
+    "name": "Ghast",
+    "difficulty": 4,
+    "ac": 11,
+    "maxHp": 20,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +4 (1d8 + paralyze)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +2, I +0, W +0, Ch +2"
+      },
+      {
+        "label": "Undead",
+        "value": "Immune to morale checks."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-ghost",
+    "source": "shadowdark",
+    "name": "Ghost",
+    "difficulty": 6,
+    "ac": 13,
+    "maxHp": 27,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 death touch +5 (1d8 + life drain) or 1 possess"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +3, C +0, I +0, W +0, Ch +4"
+      },
+      {
+        "label": "Greater Undead",
+        "value": "Immune to morale checks. Only damaged by silver or magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-ghoul",
+    "source": "shadowdark",
+    "name": "Ghoul",
+    "difficulty": 2,
+    "ac": 11,
+    "maxHp": 11,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 claw +2 (1d6 + paralyze)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +2, I -3, W -1, Ch +0"
+      },
+      {
+        "label": "Undead",
+        "value": "Immune to morale checks."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-giant-cloud",
+    "source": "shadowdark",
+    "name": "Giant, Cloud",
+    "difficulty": 10,
+    "ac": 15,
+    "maxHp": 48,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 morningstar +9 (2d10)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +4, C +3, I +3, W +3, Ch +3"
+      },
+      {
+        "label": "Alert",
+        "value": "ADV on checks to detect sneaking or hiding creatures."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-giant-fire",
+    "source": "shadowdark",
+    "name": "Giant, Fire",
+    "difficulty": 9,
+    "ac": 15,
+    "maxHp": 44,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 greatsword +9 (2d12)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +6, D +0, C +4, I +1, W +2, Ch +1"
+      },
+      {
+        "label": "Fireblood",
+        "value": "Fire immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-giant-frost",
+    "source": "shadowdark",
+    "name": "Giant, Frost",
+    "difficulty": 9,
+    "ac": 14,
+    "maxHp": 44,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 greataxe +8 (2d10)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +1, C +4, I +2, W +3, Ch +2"
+      },
+      {
+        "label": "Frostblood",
+        "value": "Cold immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-giant-goat",
+    "source": "shadowdark",
+    "name": "Giant, Goat",
+    "difficulty": 8,
+    "ac": 12,
+    "maxHp": 39,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 greatclub +7 (2d8)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +3, I -2, W +0, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-giant-hill",
+    "source": "shadowdark",
+    "name": "Giant, Hill",
+    "difficulty": 7,
+    "ac": 11,
+    "maxHp": 34,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 greatclub +6 (2d8) or 1 boulder (far) +6 (2d10)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +0, C +3, I -2, W -2, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-giant-stone",
+    "source": "shadowdark",
+    "name": "Giant, Stone",
+    "difficulty": 8,
+    "ac": 17,
+    "maxHp": 40,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 greatclub +7 (2d8)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +4, I +1, W +1, Ch -1"
+      },
+      {
+        "label": "Stone Hide",
+        "value": "Half damage from stabbing and cutting weapons."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-giant-storm",
+    "source": "shadowdark",
+    "name": "Giant, Storm",
+    "difficulty": 12,
+    "ac": 15,
+    "maxHp": 58,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "3 greatsword +10 (2d12) or 1 lightning bolt"
+      },
+      {
+        "label": "Move",
+        "value": "double near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +6, D +2, C +4, I +3, W +4, Ch +4"
+      },
+      {
+        "label": "Stormblood",
+        "value": "Electricity immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-gibbering-mouther",
+    "source": "shadowdark",
+    "name": "Gibbering Mouther",
+    "difficulty": 4,
+    "ac": 8,
+    "maxHp": 21,
+    "initiativeModifier": -2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +3 (1d8 + latch)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb, swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D -2, C +3, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Gibbering",
+        "value": "Creatures within near DC 12 WIS on turn or take a random action (d8): 1-3. do nothing, 4-5. move in random direction, 6-7. attack nearest creature, 8. flee."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-gladiator",
+    "source": "shadowdark",
+    "name": "Gladiator",
+    "difficulty": 3,
+    "ac": 16,
+    "maxHp": 15,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 longsword +3 (1d8) or 1 spear (close/near) +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (burrow)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +2, I +0, W +0, Ch +1"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-gnoll",
+    "source": "shadowdark",
+    "name": "Gnoll",
+    "difficulty": 2,
+    "ac": 12,
+    "maxHp": 10,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 spear (close/near) +1 (1d6) or 1 longbow (far) +1 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +1, C +1, I -1, W +0, Ch -1"
+      },
+      {
+        "label": "Rage",
+        "value": "1/day, immune to morale checks, +1d4 damage (3 rounds)."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-gnome-deep",
+    "source": "shadowdark",
+    "name": "Gnome, Deep",
+    "difficulty": 3,
+    "ac": 14,
+    "maxHp": 14,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "1 pick +3 (1d6) or 1 dart (near) +2 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +1, I +1, W +1, Ch +1"
+      },
+      {
+        "label": "Stone Meld",
+        "value": "2/day, underground only. Turn invisible for 3 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-goblin",
+    "source": "shadowdark",
+    "name": "Goblin",
+    "difficulty": 1,
+    "ac": 11,
+    "maxHp": 5,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 club +0 (1d4) or 1 shortbow (far) +1 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +1, C +1, I -1, W -1, Ch -2"
+      },
+      {
+        "label": "Keen Senses",
+        "value": "Can't be surprised."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-goblin-boss",
+    "source": "shadowdark",
+    "name": "Goblin, Boss",
+    "difficulty": 4,
+    "ac": 14,
+    "maxHp": 20,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 spear (close/near) +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +2, I -1, W +0, Ch +1"
+      },
+      {
+        "label": "Keen Senses",
+        "value": "Can't be surprised."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-goblin-shaman",
+    "source": "shadowdark",
+    "name": "Goblin, Shaman",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 19,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 staff +0 (1d4) or 1 spell +3"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +1, C +1, I +0, W +2, Ch +1"
+      },
+      {
+        "label": "Keen Senses",
+        "value": "Can't be surprised."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-golem-clay",
+    "source": "shadowdark",
+    "name": "Golem, Clay",
+    "difficulty": 8,
+    "ac": 14,
+    "maxHp": 40,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 slam +6 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +0, C +4, I -2, W +0, Ch -2"
+      },
+      {
+        "label": "Golem",
+        "value": "Immune to damage from fire, cold, electricity, or non-magical sources. Healed by acid."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-golem-flesh",
+    "source": "shadowdark",
+    "name": "Golem, Flesh",
+    "difficulty": 7,
+    "ac": 9,
+    "maxHp": 35,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 slam +6 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D -1, C +4, I -1, W +1, Ch -3"
+      },
+      {
+        "label": "Golem",
+        "value": "Immune to damage from fire, cold, or non-magical sources. Healed by electricity."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-golem-iron",
+    "source": "shadowdark",
+    "name": "Golem, Iron",
+    "difficulty": 10,
+    "ac": 19,
+    "maxHp": 49,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 slam +8 (2d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D -1, C +4, I -2, W +0, Ch -2"
+      },
+      {
+        "label": "Golem",
+        "value": "Immune to damage from cold or non-magical sources. Healed by fire."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-golem-stone",
+    "source": "shadowdark",
+    "name": "Golem, Stone",
+    "difficulty": 8,
+    "ac": 18,
+    "maxHp": 40,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 slam +6 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D -1, C +4, I -2, W +0, Ch -2"
+      },
+      {
+        "label": "Golem",
+        "value": "Immune to damage from fire, cold, electricity, or non-magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-gorgon",
+    "source": "shadowdark",
+    "name": "Gorgon",
+    "difficulty": 7,
+    "ac": 18,
+    "maxHp": 33,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 gore +6 (2d8) or 1 charge or 1 petrify fog"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +0, C +2, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Charge",
+        "value": "Move up to double near in straight line and make 1 gore attack. If hit, x3 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-gorilla",
+    "source": "shadowdark",
+    "name": "Gorilla",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 20,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 rend +5 (2d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +2, I -1, W +1, Ch -1"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-gray-ooze",
+    "source": "shadowdark",
+    "name": "Gray Ooze",
+    "difficulty": 2,
+    "ac": 11,
+    "maxHp": 9,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 tentacle +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +1, C +0, I -4, W -3, Ch -4"
+      },
+      {
+        "label": "Impervious",
+        "value": "Immune to damage from acid, cold, or fire."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-grick",
+    "source": "shadowdark",
+    "name": "Grick",
+    "difficulty": 4,
+    "ac": 14,
+    "maxHp": 19,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 beak +3 (1d8) and 1 tentacle +3 (1d6 + grab)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +1, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Camouflage",
+        "value": "Hard to see in cave terrain or rocks."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-griffon",
+    "source": "shadowdark",
+    "name": "Griffon",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 19,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 rend +4 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +1, I -3, W +1, Ch -1"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-grimlow",
+    "source": "shadowdark",
+    "name": "Grimlow",
+    "difficulty": 9,
+    "ac": 12,
+    "maxHp": 43,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 grab and 3 bite +6 (2d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +3, I -3, W +1, Ch -2"
+      },
+      {
+        "label": "Grab",
+        "value": "One target in near DC 15 STR or wrapped in grimlow's tongue and pulled into its mouth. Bite attacks automatically hit the target. Can only grab 1 target at a time. DC 15 STR on turn to break free."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-guard",
+    "source": "shadowdark",
+    "name": "Guard",
+    "difficulty": 1,
+    "ac": 15,
+    "maxHp": 4,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "1 spear +1 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +0, C +0, I +0, W +1, Ch +0"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-hag-night",
+    "source": "shadowdark",
+    "name": "Hag, Night",
+    "difficulty": 8,
+    "ac": 14,
+    "maxHp": 37,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +6 (1d10) and 1 blind"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +1, I +2, W +3, Ch +3"
+      },
+      {
+        "label": "Blind",
+        "value": "One target within near DC 15 CHA or blinded for 1d4 days."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-hag-sea",
+    "source": "shadowdark",
+    "name": "Hag, Sea",
+    "difficulty": 6,
+    "ac": 15,
+    "maxHp": 28,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +4 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +3, C +1, I +1, W +2, Ch +2"
+      },
+      {
+        "label": "Shapechange",
+        "value": "Instantly change to look like any other humanoid."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-hag-weald",
+    "source": "shadowdark",
+    "name": "Hag, Weald",
+    "difficulty": 6,
+    "ac": 14,
+    "maxHp": 28,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +4 (1d8) or 1 drink pain"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +1, I +1, W +2, Ch +3"
+      },
+      {
+        "label": "Drink Pain",
+        "value": "Near range. DC 12 CHA to deal 2d4 damage to a creature; regain that many HP."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-harpy",
+    "source": "shadowdark",
+    "name": "Harpy",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 14,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +3 (1d6) or 1 song"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +3, C +1, I +0, W +0, Ch +1"
+      },
+      {
+        "label": "Song",
+        "value": "Enemies who can hear within double near DC 12 CHA or dazed and drawn to harpy for 1d4 rounds. Immune for 1 day if passed check."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-hell-hound",
+    "source": "shadowdark",
+    "name": "Hell Hound",
+    "difficulty": 4,
+    "ac": 13,
+    "maxHp": 19,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +4 (1d8) or 1 fire breath"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +1, I -2, W +1, Ch -3"
+      },
+      {
+        "label": "Impervious",
+        "value": "Fire immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-hippogriff",
+    "source": "shadowdark",
+    "name": "Hippogriff",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 14,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 rend +3 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +3, C +1, I -3, W +1, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-hippopotamus",
+    "source": "shadowdark",
+    "name": "Hippopotamus",
+    "difficulty": 5,
+    "ac": 12,
+    "maxHp": 24,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +4 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +0, C +2, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Stumpy",
+        "value": "ADV on STR checks to grab or drag other creatures."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-hobgoblin",
+    "source": "shadowdark",
+    "name": "Hobgoblin",
+    "difficulty": 2,
+    "ac": 15,
+    "maxHp": 10,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 longsword +3 (1d8) or 1 longbow (far) +0 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +1, I +2, W +1, Ch +1"
+      },
+      {
+        "label": "Phalanx",
+        "value": "+1 to attacks and AC when in close range of an allied hobgoblin."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-horse",
+    "source": "shadowdark",
+    "name": "Horse",
+    "difficulty": 2,
+    "ac": 11,
+    "maxHp": 11,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 hooves +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +2, I -3, W +1, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-hydra",
+    "source": "shadowdark",
+    "name": "Hydra",
+    "difficulty": null,
+    "ac": 15,
+    "maxHp": null,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite (near) +6 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +1, C +2, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Heads",
+        "value": "Choose how many heads the hydra has. Each is LV 2, AC 15, and can make 1 bite attack. A killed head sprouts into two new heads at the start of the hydra's turn unless cauterized beforehand. Treat the hydra's LV as all the heads combined."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-invisible-stalker",
+    "source": "shadowdark",
+    "name": "Invisible Stalker",
+    "difficulty": 6,
+    "ac": 13,
+    "maxHp": 29,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 pummel +4 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +3, C +2, I +2, W +1, Ch +0"
+      },
+      {
+        "label": "Bound",
+        "value": "A secret, mundane contingency (such as the touch of a feather) ends the invisible stalker's magical servitude."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-jellyfish",
+    "source": "shadowdark",
+    "name": "Jellyfish",
+    "difficulty": 0,
+    "ac": 11,
+    "maxHp": 1,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 sting +1 (1 + toxin)"
+      },
+      {
+        "label": "Move",
+        "value": "close (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -4, D +1, C +0, I -4, W +1, Ch -4"
+      },
+      {
+        "label": "Toxin",
+        "value": "DC 9 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-knight",
+    "source": "shadowdark",
+    "name": "Knight",
+    "difficulty": 3,
+    "ac": 17,
+    "maxHp": 14,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bastard sword +3 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +1, I +0, W +0, Ch +1"
+      },
+      {
+        "label": "Oath",
+        "value": "3/day, ADV on a roll made in service of knight's order."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-kobold",
+    "source": "shadowdark",
+    "name": "Kobold",
+    "difficulty": 0,
+    "ac": 13,
+    "maxHp": 1,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 spear (close/near) +0 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +2, C +0, I -1, W +0, Ch -1"
+      },
+      {
+        "label": "Dodge",
+        "value": "1/day, an attack that would hit misses instead."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-kobold-sorcerer",
+    "source": "shadowdark",
+    "name": "Kobold, Sorcerer",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 13,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 club +1 (1d4) or 1 spell +2"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +2, C +0, I -1, W +1, Ch +2"
+      },
+      {
+        "label": "Dodge",
+        "value": "1/day, an attack that would hit misses instead."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-kraken",
+    "source": "shadowdark",
+    "name": "Kraken",
+    "difficulty": 17,
+    "ac": 18,
+    "maxHp": 80,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "4 tentacle (near) +9 (2d12) or 1 storm or 1d4 lightning bolt"
+      },
+      {
+        "label": "Move",
+        "value": "double near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +6, D +3, C +4, I +4, W +3, Ch +4"
+      },
+      {
+        "label": "Impervious",
+        "value": "Electricity immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-leech-giant",
+    "source": "shadowdark",
+    "name": "Leech, Giant",
+    "difficulty": 2,
+    "ac": 9,
+    "maxHp": 10,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +1 (1d4 + attach)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D -1, C +1, I -3, W -1, Ch -3"
+      },
+      {
+        "label": "Attach",
+        "value": "Attach to target; bite auto-hits next round. DC 12 STR on turn to tear off."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-leprechaun",
+    "source": "shadowdark",
+    "name": "Leprechaun",
+    "difficulty": 4,
+    "ac": 13,
+    "maxHp": 19,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 spell +4"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +3, C +1, I +2, W +1, Ch +3"
+      },
+      {
+        "label": "Alert",
+        "value": "Cannot be surprised."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-lich",
+    "source": "shadowdark",
+    "name": "Lich",
+    "difficulty": 13,
+    "ac": 16,
+    "maxHp": 62,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 touch +6 (2d8 + paralysis) and 2 spell +7"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +4, I +4, W +3, Ch +3"
+      },
+      {
+        "label": "Supreme Undead",
+        "value": "Immune to morale checks. Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-lion",
+    "source": "shadowdark",
+    "name": "Lion",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 15,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 rend +4 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +2, I -3, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-lizardfolk",
+    "source": "shadowdark",
+    "name": "Lizardfolk",
+    "difficulty": 2,
+    "ac": 14,
+    "maxHp": 11,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 spear (close/near) +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +1, C +2, I -1, W +1, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-mage",
+    "source": "shadowdark",
+    "name": "Mage",
+    "difficulty": 6,
+    "ac": 11,
+    "maxHp": 27,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "1 spell +5"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -1, D +1, C +0, I +3, W +1, Ch +0"
+      },
+      {
+        "label": "Arcane Armor (INT Spell)",
+        "value": "Self. DC 12. AC 16 for 2d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-mammoth",
+    "source": "shadowdark",
+    "name": "Mammoth",
+    "difficulty": 9,
+    "ac": 15,
+    "maxHp": 44,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 tusks +7 (1d12)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +0, C +4, I -2, W +1, Ch +0"
+      },
+      {
+        "label": "Thick Fur",
+        "value": "Cold immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-manta-ray-giant",
+    "source": "shadowdark",
+    "name": "Manta Ray, Giant",
+    "difficulty": 8,
+    "ac": 13,
+    "maxHp": 37,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 sting +5"
+      },
+      {
+        "label": "Move",
+        "value": "double near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +3, C +1, I -2, W +1, Ch -3"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 15 CON or drop to 0 hit points in 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-manticore",
+    "source": "shadowdark",
+    "name": "Manticore",
+    "difficulty": 6,
+    "ac": 14,
+    "maxHp": 29,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 rend +6 (2d6) or 2 tail spike (far) +4 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +2, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Spikes",
+        "value": "Manticores have 4d6 tail spikes. They regrow each day."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-mastiff",
+    "source": "shadowdark",
+    "name": "Mastiff",
+    "difficulty": 1,
+    "ac": 11,
+    "maxHp": 4,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +1 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +1, C +0, I -2, W +1, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-medusa",
+    "source": "shadowdark",
+    "name": "Medusa",
+    "difficulty": 8,
+    "ac": 14,
+    "maxHp": 38,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 snake bite +6 (1d6 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +2, I +2, W +3, Ch +4"
+      },
+      {
+        "label": "Godborn",
+        "value": "Hostile spells targeting the medusa are DC 15 to cast."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-merfolk",
+    "source": "shadowdark",
+    "name": "Merfolk",
+    "difficulty": 2,
+    "ac": 11,
+    "maxHp": 9,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "1 spear (close/near) +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near(swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +1, C +0, I +0, W +1, Ch +1"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-mimic",
+    "source": "shadowdark",
+    "name": "Mimic",
+    "difficulty": 5,
+    "ac": 12,
+    "maxHp": 23,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +5 (1d8 + stick)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +0, C +1, I -2, W +0, Ch -3"
+      },
+      {
+        "label": "Stick",
+        "value": "DC 15 STR or adhere to target; auto-hit with bite. DC 15 STR on turn to remove."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-minotaur",
+    "source": "shadowdark",
+    "name": "Minotaur",
+    "difficulty": 7,
+    "ac": 14,
+    "maxHp": 34,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 greataxe +6 (1d10) and 1 horns +6 (1d12)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +3, I +1, W +2, Ch +1"
+      },
+      {
+        "label": "Charge",
+        "value": "In place of attacks, move up to double near in a straight line and make 1 horn attack. If hit, x2 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-moose",
+    "source": "shadowdark",
+    "name": "Moose",
+    "difficulty": 4,
+    "ac": 11,
+    "maxHp": 19,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 antler +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +1, I -2, W +0, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-mordanticus-the-flayed",
+    "source": "shadowdark",
+    "name": "Mordanticus The Flayed",
+    "difficulty": 19,
+    "ac": 17,
+    "maxHp": 89,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 rot touch +8 (1d10 + necrosis) and 3 spell +8"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +4, C +4, I +5, W +4, Ch +5"
+      },
+      {
+        "label": "Legendary Undead",
+        "value": "Immune to morale checks. Only damaged by magical sources. Hostile spells targeting Mordanticus are DC 18 to cast."
+      },
+      {
+        "label": "True Name (INT Spell)",
+        "value": "DC 15. Near. Learn the True Name of target."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-mummy",
+    "source": "shadowdark",
+    "name": "Mummy",
+    "difficulty": 10,
+    "ac": 13,
+    "maxHp": 47,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 rot touch +8"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +2, I +3, W +2, Ch +3"
+      },
+      {
+        "label": "Supreme Undead",
+        "value": "Immune to morale checks. Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-mushroomfolk",
+    "source": "shadowdark",
+    "name": "Mushroomfolk",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 15,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 slam +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D -1, C +2, I +0, W +1, Ch +0"
+      },
+      {
+        "label": "Sunblind",
+        "value": "Blinded in bright light."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-naga",
+    "source": "shadowdark",
+    "name": "Naga",
+    "difficulty": 9,
+    "ac": 16,
+    "maxHp": 43,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +7"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +3, I +2, W +2, Ch +4"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 15 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-naga-bone",
+    "source": "shadowdark",
+    "name": "Naga, Bone",
+    "difficulty": 6,
+    "ac": 13,
+    "maxHp": 31,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +5"
+      },
+      {
+        "label": "Move",
+        "value": "near (burrow, climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +4, I -3, W +0, Ch +4"
+      },
+      {
+        "label": "Greater Undead",
+        "value": "Immune to morale checks. Only damaged by silver or magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-nightmare",
+    "source": "shadowdark",
+    "name": "Nightmare",
+    "difficulty": 6,
+    "ac": 13,
+    "maxHp": 29,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 hooves +5"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +3, C +2, I -1, W +1, Ch -2"
+      },
+      {
+        "label": "Impervious",
+        "value": "Nightmare and its rider immune to fire."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-obe-ixx-of-azarumme",
+    "source": "shadowdark",
+    "name": "Obe-Ixx Of Azarumme",
+    "difficulty": 16,
+    "ac": 18,
+    "maxHp": 76,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "4 greatsword (near) +11 (1d12 + 2 + Moonbite properties) and 1 bite + 9 (1d8 + blood drain) and 1 charm"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb, fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +3, C +4, I +3, W +4, Ch +5"
+      },
+      {
+        "label": "Immune to morale checks",
+        "value": "Only damaged by magical sources. Hostile spells targeting Obe-Ixx are DC 18 to cast."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-ochre-jelly",
+    "source": "shadowdark",
+    "name": "Ochre Jelly",
+    "difficulty": 4,
+    "ac": 9,
+    "maxHp": 20,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 tentacle +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D -1, C +2, I -4, W -3, Ch -4"
+      },
+      {
+        "label": "Split",
+        "value": "If cut or chopped, split into two smaller oozes (divide remaining HP between both). Can split up to four times."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-octopus-giant",
+    "source": "shadowdark",
+    "name": "Octopus, Giant",
+    "difficulty": 5,
+    "ac": 13,
+    "maxHp": 23,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 tentacle (near) +4 (1d8 + grab)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +3, C +1, I -2, W +1, Ch -3"
+      },
+      {
+        "label": "Grab",
+        "value": "DC 15 STR or immobilized. Tentacle auto-hits each round. DC 15 STR on turn to break free. Ink. In place of attacks, ink cloud blinds all in near for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-ogre",
+    "source": "shadowdark",
+    "name": "Ogre",
+    "difficulty": 6,
+    "ac": 9,
+    "maxHp": 30,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 greatclub +6 (2d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D -1, C +3, I -2, W -2, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-oni",
+    "source": "shadowdark",
+    "name": "Oni",
+    "difficulty": 7,
+    "ac": 11,
+    "maxHp": 33,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 glaive (near) +6 (1d10) or 1 spell +5"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +1, C +2, I +2, W +1, Ch +3"
+      },
+      {
+        "label": "Shapeshift",
+        "value": "In place of attacks, turn into any humanoid or back into original form."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-orc",
+    "source": "shadowdark",
+    "name": "Orc",
+    "difficulty": 1,
+    "ac": 15,
+    "maxHp": 4,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 greataxe +2 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +0, C +0, I -1, W +0, Ch -1"
+      },
+      {
+        "label": "Rage",
+        "value": "1/day, immune to morale checks, +1d4 damage (3 rounds)."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-orc-chieftain",
+    "source": "shadowdark",
+    "name": "Orc, Chieftain",
+    "difficulty": 4,
+    "ac": 14,
+    "maxHp": 19,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 greataxe +4 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +1, I -1, W +0, Ch -1"
+      },
+      {
+        "label": "Rage",
+        "value": "1/day, immune to morale checks, +1d4 damage (3 rounds)."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-otyugh",
+    "source": "shadowdark",
+    "name": "Otyugh",
+    "difficulty": 7,
+    "ac": 13,
+    "maxHp": 35,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 tentacle +5 (1d8) and 1 bite +5 (1d10 +\ndisease)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D -1, C +4, I -2, W +0, Ch -3"
+      },
+      {
+        "label": "Disease",
+        "value": "DC 15 CON or infected. DC 15 CON each day or lose 1d6 HP (can't heal). Ends on success."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-outsider-primordial-slime",
+    "source": "shadowdark",
+    "name": "Outsider, Primordial Slime",
+    "difficulty": 6,
+    "ac": 9,
+    "maxHp": 30,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 tentacle +4 (1d10 + dissolve)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +3, I -4, W -3, Ch -4"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only harmed by fire."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-outsider-rime-walker",
+    "source": "shadowdark",
+    "name": "Outsider, Rime Walker",
+    "difficulty": 9,
+    "ac": 16,
+    "maxHp": 43,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "4 claw +8 (1d12)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +4, C +3, I +2, W +2, Ch +2"
+      },
+      {
+        "label": "Impervious",
+        "value": "Immune to cold."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-outsider-void-spawn",
+    "source": "shadowdark",
+    "name": "Outsider, Void Spawn",
+    "difficulty": 7,
+    "ac": 13,
+    "maxHp": 34,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 scythe +6 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +3, I +0, W +1, Ch -1"
+      },
+      {
+        "label": "Impervious",
+        "value": "Immune to cold."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-outsider-void-spider",
+    "source": "shadowdark",
+    "name": "Outsider, Void Spider",
+    "difficulty": 5,
+    "ac": 13,
+    "maxHp": 23,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +4 (1d8 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +3, C +1, I -1, W +1, Ch -2"
+      },
+      {
+        "label": "Impervious",
+        "value": "Immune to cold."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-owlbear",
+    "source": "shadowdark",
+    "name": "Owlbear",
+    "difficulty": 6,
+    "ac": 13,
+    "maxHp": 30,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +5 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb) S +4"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +3, I -2, W +2, Ch -3"
+      },
+      {
+        "label": "Crush",
+        "value": "Deals an extra die of damage if it hits the same target with both claws."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-panther",
+    "source": "shadowdark",
+    "name": "Panther",
+    "difficulty": 3,
+    "ac": 14,
+    "maxHp": 3,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 rend +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb) S +3"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +4, C +1, I -2, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-peasant",
+    "source": "shadowdark",
+    "name": "Peasant",
+    "difficulty": 1,
+    "ac": 10,
+    "maxHp": 4,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "1 club +0 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +0, C +0, I +0, W +0, Ch +0"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-pegasus",
+    "source": "shadowdark",
+    "name": "Pegasus",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 15,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 hooves +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly) S +3"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +2, I -3, W +1, Ch +0"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-phoenix",
+    "source": "shadowdark",
+    "name": "Phoenix",
+    "difficulty": 13,
+    "ac": 16,
+    "maxHp": 60,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "4 rend +8 (2d12)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +4, C +2, I +3, W +3, Ch +3"
+      },
+      {
+        "label": "Impervious",
+        "value": "Immune to fire. Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-piranha-swarm",
+    "source": "shadowdark",
+    "name": "Piranha, Swarm",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 13,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +2, C +0, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Savage",
+        "value": "ADV on attacks against creatures below half their HP."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-pirate",
+    "source": "shadowdark",
+    "name": "Pirate",
+    "difficulty": 1,
+    "ac": 12,
+    "maxHp": 4,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 cutlass +1 (1d6) or 1 dagger (close/near) +1 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +1, C +0, I +0, W +0, Ch +0"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-priest",
+    "source": "shadowdark",
+    "name": "Priest",
+    "difficulty": 5,
+    "ac": 15,
+    "maxHp": 23,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "2 mace +3 (1d6) or 1 spell +3"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +0, C +1, I +0, W +2, Ch +1"
+      },
+      {
+        "label": "Anoint (WIS Spell)",
+        "value": "DC 12. Close. One weapon or armor becomes a magic +2 version for 10 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-purple-worm",
+    "source": "shadowdark",
+    "name": "Purple Worm",
+    "difficulty": 12,
+    "ac": 18,
+    "maxHp": 57,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +9 (2d12 + swallow) and 1 sting (1d10 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (burrow)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +1, C +3, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 15 CON or go to 0 HP."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-rakshasa",
+    "source": "shadowdark",
+    "name": "Rakshasa",
+    "difficulty": 8,
+    "ac": 16,
+    "maxHp": 39,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +6 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +3, C +3, I +3, W +3, Ch +4"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by magical sources. Immune to hostile spells of 3rd tier or lower."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-rat",
+    "source": "shadowdark",
+    "name": "Rat",
+    "difficulty": 0,
+    "ac": 10,
+    "maxHp": 1,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +0 (1 + disease)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -3, D +0, C +1, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Disease",
+        "value": "DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-rat-dire",
+    "source": "shadowdark",
+    "name": "Rat, Dire",
+    "difficulty": 2,
+    "ac": 12,
+    "maxHp": 10,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +2 (1d6 + disease)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +2, C +1, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Disease",
+        "value": "DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-rat-giant",
+    "source": "shadowdark",
+    "name": "Rat, Giant",
+    "difficulty": 1,
+    "ac": 11,
+    "maxHp": 5,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +1 (1d4 + disease)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +1, C +1, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Disease",
+        "value": "DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-rat-swarm",
+    "source": "shadowdark",
+    "name": "Rat, Swarm",
+    "difficulty": 6,
+    "ac": 10,
+    "maxHp": 28,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "4 bite +0 (1 + disease)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -3, D +0, C +1, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Disease",
+        "value": "DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-rathgamnon",
+    "source": "shadowdark",
+    "name": "Rathgamnon",
+    "difficulty": 19,
+    "ac": 17,
+    "maxHp": 89,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "2 rend (near) +9 (2d10) and 2 spell +8"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +3, C +4, I +5, W +6, Ch +5"
+      },
+      {
+        "label": "Legendary",
+        "value": "Only damaged by magical sources. Hostile spells\ntargeting Rathgamnon are DC 18 to cast."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-reaver",
+    "source": "shadowdark",
+    "name": "Reaver",
+    "difficulty": 6,
+    "ac": 17,
+    "maxHp": 28,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bastard sword +4 (1d8 + 2)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +0, C +1, I +0, W +0, Ch +2"
+      },
+      {
+        "label": "Bloodlust",
+        "value": "+2 damage with melee weapons (included)."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-remorhaz",
+    "source": "shadowdark",
+    "name": "Remorhaz",
+    "difficulty": 10,
+    "ac": 16,
+    "maxHp": 47,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bite +7 (2d6 + swallow)"
+      },
+      {
+        "label": "Move",
+        "value": "near (burrow)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +1, C +2, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Impervious",
+        "value": "Immune to cold and fire."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-rhinoceros",
+    "source": "shadowdark",
+    "name": "Rhinoceros",
+    "difficulty": 5,
+    "ac": 14,
+    "maxHp": 25,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 horn +4 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D -1, C +3, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Charge",
+        "value": "Move up to double near in straight line and make 1 horn attack. If hit, x3 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-roc",
+    "source": "shadowdark",
+    "name": "Roc",
+    "difficulty": 15,
+    "ac": 15,
+    "maxHp": 69,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "4 rend +9 (2d10 + grab)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +3, C +2, I -2, W +2, Ch -2"
+      },
+      {
+        "label": "Grab",
+        "value": "DC 18 STR or target held. DC 18 STR on turn to break free."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-roper",
+    "source": "shadowdark",
+    "name": "Roper",
+    "difficulty": 6,
+    "ac": 14,
+    "maxHp": 31,
+    "initiativeModifier": -2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "4 tendril (double near) +4 (1d6 + grab) and 1 bite +4 (2d8)"
+      },
+      {
+        "label": "Move",
+        "value": "close (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D -2, C +4, I -1, W +2, Ch +1"
+      },
+      {
+        "label": "Impervious",
+        "value": "Can only be damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-rot-flower",
+    "source": "shadowdark",
+    "name": "Rot Flower",
+    "difficulty": 2,
+    "ac": 9,
+    "maxHp": 10,
+    "initiativeModifier": -3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +1 (1d4 + toxin)"
+      },
+      {
+        "label": "Move",
+        "value": "none"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D -3, C +1, I -4, W -3, Ch -4"
+      },
+      {
+        "label": "Toxin",
+        "value": "DC 12 CON or unconscious for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-rust-monster",
+    "source": "shadowdark",
+    "name": "Rust Monster",
+    "difficulty": 4,
+    "ac": 13,
+    "maxHp": 19,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +3, C +1, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Corrosive",
+        "value": "Metal that touches the rust monster is destroyed on a d6 roll of 1-3."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-sahuagin",
+    "source": "shadowdark",
+    "name": "Sahuagin",
+    "difficulty": 2,
+    "ac": 14,
+    "maxHp": 9,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 trident (near) +1 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +1, C +0, I -1, W +0, Ch -1"
+      },
+      {
+        "label": "Half-Amphibious",
+        "value": "Must be submerged in water every 4 hours or suffocates."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-salamander",
+    "source": "shadowdark",
+    "name": "Salamander",
+    "difficulty": 5,
+    "ac": 13,
+    "maxHp": 24,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 flaming spear (close/near) +4 (1d6, ignites flammables) or 1 iron longbow (far) +2 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +0, C +2, I -1, W +1, Ch -1"
+      },
+      {
+        "label": "Impervious",
+        "value": "Fire immune. Heat Aura. Creatures in close DC 12 CON on turn or 1d8 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-scarab-swarm",
+    "source": "shadowdark",
+    "name": "Scarab, Swarm",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 14,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -1, D +3, C +1, I -3, W +0, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-scarecrow",
+    "source": "shadowdark",
+    "name": "Scarecrow",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 15,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claws +2 (1d6) or 1 scream"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +2, C +2, I +0, W +0, Ch +2"
+      },
+      {
+        "label": "Scream",
+        "value": "Creatures who hear in double near DC 12 CHA or paralyzed for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-scorpion",
+    "source": "shadowdark",
+    "name": "Scorpion",
+    "difficulty": 0,
+    "ac": 11,
+    "maxHp": 1,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 sting +1 (1 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -4, D +1, C +0, I -4, W +0, Ch -4"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 9 CON or go to 0 HP."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-scorpion-giant",
+    "source": "shadowdark",
+    "name": "Scorpion, Giant",
+    "difficulty": 3,
+    "ac": 14,
+    "maxHp": 13,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 claw +2 (1d6 + grab) and 1 sting +2 (1d4 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +2, C +0, I -4, W +0, Ch -4"
+      },
+      {
+        "label": "Grab",
+        "value": "DC 12 STR or target held. DC 12 STR on turn to break free. Poison. DC 12 CON or go to 0 HP."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-shadow",
+    "source": "shadowdark",
+    "name": "Shadow",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 15,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 touch +2 (1d4 + drain)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -4, D +2, C +2, I -2, W +0, Ch -1"
+      },
+      {
+        "label": "Drain",
+        "value": "DC 12 CON or target's STR reduced by 1. At 0 STR, target dies and becomes a shadow."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-shambling-mound",
+    "source": "shadowdark",
+    "name": "Shambling Mound",
+    "difficulty": 4,
+    "ac": 14,
+    "maxHp": 20,
+    "initiativeModifier": -2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 slam +3 (1d6 + engulf)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D -2, C +2, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Impervious",
+        "value": "Fire immune. Healed by electricity."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-shark",
+    "source": "shadowdark",
+    "name": "Shark",
+    "difficulty": 3,
+    "ac": 11,
+    "maxHp": 15,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +3 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +2, I -3, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-shark-megalodon",
+    "source": "shadowdark",
+    "name": "Shark, Megalodon",
+    "difficulty": 8,
+    "ac": 13,
+    "maxHp": 8,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bite +7 (2d8)"
+      },
+      {
+        "label": "Move",
+        "value": "ouble near (swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +5, D +1, C +2, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Fearless",
+        "value": "Immune to morale checks."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-siren",
+    "source": "shadowdark",
+    "name": "Siren",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 18,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +2 (1d6) or 1 song"
+      },
+      {
+        "label": "Move",
+        "value": "near (swim, fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +2, C +0, I +2, W +2, Ch +4"
+      },
+      {
+        "label": "Song",
+        "value": "Enemies who can hear within double near DC 15 CHA or paralyzed 1d4 rounds. Immune for 1 day if passed check."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-skeleton",
+    "source": "shadowdark",
+    "name": "Skeleton",
+    "difficulty": 2,
+    "ac": 13,
+    "maxHp": 11,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 shortsword +1 (1d6) or 1 shortbow (far) +0 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +0, C +2, I -2, W +0, Ch -1"
+      },
+      {
+        "label": "Undead",
+        "value": "Immune to morale checks."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-smilodon",
+    "source": "shadowdark",
+    "name": "Smilodon",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 14,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +1, I -3, W +1, Ch -3"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-snake-cobra",
+    "source": "shadowdark",
+    "name": "Snake, Cobra",
+    "difficulty": 1,
+    "ac": 12,
+    "maxHp": 4,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +2 (1 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -3, D +2, C +0, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 18 CON or go to 0 HP with a death timer of 1."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-snake-giant",
+    "source": "shadowdark",
+    "name": "Snake, Giant",
+    "difficulty": 5,
+    "ac": 12,
+    "maxHp": 23,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +4 (1d6) and 1 constrict (near)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +1, I -2, W +0, Ch -2"
+      },
+      {
+        "label": "Constrict",
+        "value": "Contested STR to hold target immobile for one round."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-snake-swarm",
+    "source": "shadowdark",
+    "name": "Snake, Swarm",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 19,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bite +2 (1d4 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -3, D +2, C +1, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 12 CON or go to 0 HP in 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-soldier",
+    "source": "shadowdark",
+    "name": "Soldier",
+    "difficulty": 2,
+    "ac": 15,
+    "maxHp": 10,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "1 longsword +2 (1d8) or 1 crossbow (far) +1 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +0, C +1, I +0, W +0, Ch +0"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-sphinx",
+    "source": "shadowdark",
+    "name": "Sphinx",
+    "difficulty": 9,
+    "ac": 16,
+    "maxHp": 42,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "3 claw +7 (1d10) or 2 spell +5"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +1, C +2, I +4, W +4, Ch +3"
+      },
+      {
+        "label": "Roar",
+        "value": "In place of attacks, all creatures who can hear within far DC 18 CHA or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-spider",
+    "source": "shadowdark",
+    "name": "Spider",
+    "difficulty": 0,
+    "ac": 11,
+    "maxHp": 1,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +1 (1 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -4, D +1, C +0, I -4, W +0, Ch -4"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 9 CON or take 1d4 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-spider-giant",
+    "source": "shadowdark",
+    "name": "Spider, Giant",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 13,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +3 (1d4 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +3, C +0, I -2, W +1, Ch -2"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 12 CON or paralyzed 1d4 hours."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-spider-swarm",
+    "source": "shadowdark",
+    "name": "Spider, Swarm",
+    "difficulty": 2,
+    "ac": 13,
+    "maxHp": 9,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +3 (1d4 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -1, D +3, C +0, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 12 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-stingbat",
+    "source": "shadowdark",
+    "name": "Stingbat",
+    "difficulty": 1,
+    "ac": 12,
+    "maxHp": 4,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 beak +2 (1d4 + blood drain)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +2, C +0, I -2, W +0, Ch -2"
+      },
+      {
+        "label": "Blood Drain",
+        "value": "Attach to bitten target; auto-hit the next round. DC 9 STR on turn to remove."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-strangler",
+    "source": "shadowdark",
+    "name": "Strangler",
+    "difficulty": 3,
+    "ac": 12,
+    "maxHp": 14,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claws +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -2, D +2, C +1, I -2, W +0, Ch -2"
+      },
+      {
+        "label": "Stealthy",
+        "value": "ADV on DEX checks to hide and sneak."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-the-tarrasque",
+    "source": "shadowdark",
+    "name": "The Tarrasque",
+    "difficulty": 30,
+    "ac": 22,
+    "maxHp": 140,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "4 thrash (near) +13 (3d10 + sever) and 1 bite (near) +13 (5d10 + sever + swallow)"
+      },
+      {
+        "label": "Move",
+        "value": "triple near (burrow, swim)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +7, D +2, C +5, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Legendary",
+        "value": "Only damaged by magical sources. Hostile spells targeting the tarrasque are DC 18 to cast."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-the-ten-eyed-oracle",
+    "source": "shadowdark",
+    "name": "The Ten-Eyed Oracle",
+    "difficulty": 18,
+    "ac": 17,
+    "maxHp": 85,
+    "initiativeModifier": 5,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2d4 eyestalk ray"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +5, C +4, I +5, W +4, Ch +4"
+      },
+      {
+        "label": "Legendary",
+        "value": "Only damaged by magical sources. Hostile spells targeting The Ten-Eyed Oracle are DC 18 to cast."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-the-wandering-merchant",
+    "source": "shadowdark",
+    "name": "The Wandering Merchant",
+    "difficulty": 15,
+    "ac": 16,
+    "maxHp": 71,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "4 +3 vorpal bastard sword +9 (1d10 + lop)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +3, C +4, I +3, W +4, Ch +5"
+      },
+      {
+        "label": "Legendary",
+        "value": "Only damaged by magical sources. Hostile spells targeting The Wandering Merchant are DC 18 to cast."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-thief",
+    "source": "shadowdark",
+    "name": "Thief",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 13,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 dagger (close/near) +2 (1d4) or 1 shortsword +0 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +2, C +0, I +0, W +0, Ch +1"
+      },
+      {
+        "label": "Stealthy",
+        "value": "ADV on DEX checks to sneak and hide."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-thug",
+    "source": "shadowdark",
+    "name": "Thug",
+    "difficulty": 1,
+    "ac": 13,
+    "maxHp": 4,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 shortsword +1 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +0, C +0, I -1, W +1, Ch -1"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-treant",
+    "source": "shadowdark",
+    "name": "Treant",
+    "difficulty": 8,
+    "ac": 14,
+    "maxHp": 8,
+    "initiativeModifier": -1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "3 slam +8 (1d10) or 1 rock (far) +8 (2d12)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D -1, C +2, I +2, W +3, Ch +1"
+      },
+      {
+        "label": "Animate Tree",
+        "value": "2/day. In place of attacks, one tree within near awakens as a treant ally without this ability. Reverts back in 1 day."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-troll",
+    "source": "shadowdark",
+    "name": "Troll",
+    "difficulty": 5,
+    "ac": 12,
+    "maxHp": 24,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +4 (1d6) and 1 bite +4 (1d10)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +2, I -1, W +0, Ch -1"
+      },
+      {
+        "label": "Regenerate",
+        "value": "Regains 2d6 HP on its turn unless its wounds are cauterized with fire or acid."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-troll-frost",
+    "source": "shadowdark",
+    "name": "Troll, Frost",
+    "difficulty": 7,
+    "ac": 13,
+    "maxHp": 34,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 claw +5 (1d8) and 1 bite +5 (1d12)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +3, I -1, W +0, Ch -1"
+      },
+      {
+        "label": "Impervious",
+        "value": "Cold and fire immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-unicorn",
+    "source": "shadowdark",
+    "name": "Unicorn",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 20,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Lawful"
+      },
+      {
+        "label": "Attack",
+        "value": "1 hooves +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +2, I +1, W +2, Ch +3"
+      },
+      {
+        "label": "Healing Horn",
+        "value": "A touch heals 2d6 HP or ends one curse or disease."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-vampire",
+    "source": "shadowdark",
+    "name": "Vampire",
+    "difficulty": 11,
+    "ac": 15,
+    "maxHp": 52,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 bite +7 (1d8 + blood drain) or 1 charm"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +3, C +3, I +1, W +3, Ch +4"
+      },
+      {
+        "label": "Supreme Undead",
+        "value": "Immune to morale checks. Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-vampire-spawn",
+    "source": "shadowdark",
+    "name": "Vampire Spawn",
+    "difficulty": 5,
+    "ac": 13,
+    "maxHp": 25,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +4 (1d8 + blood drain)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +3, I -1, W +1, Ch +2"
+      },
+      {
+        "label": "Greater Undead",
+        "value": "Immune to morale checks. Only damaged by silver or magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-violet-fungus",
+    "source": "shadowdark",
+    "name": "Violet Fungus",
+    "difficulty": 2,
+    "ac": 7,
+    "maxHp": 9,
+    "initiativeModifier": -2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 tendril (near) +0 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "close"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -3, D -2, C +0, I -4, W -3, Ch -4"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-viperian",
+    "source": "shadowdark",
+    "name": "Viperian",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 13,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 scimitar +2 (1d6) or 1 javelin (close/far) +2 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +1, C +0, I +0, W +1, Ch +0"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-viperian-ophid",
+    "source": "shadowdark",
+    "name": "Viperian, Ophid",
+    "difficulty": 6,
+    "ac": 14,
+    "maxHp": 28,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 falchion +5 (1d10) or 2 longbow (far) +3 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +1, I +1, W +1, Ch +1"
+      },
+      {
+        "label": "Impervious",
+        "value": "Can only be harmed by magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-viperian-wizard",
+    "source": "shadowdark",
+    "name": "Viperian, Wizard",
+    "difficulty": 8,
+    "ac": 13,
+    "maxHp": 37,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 dagger (close/near) +2 (1d4) or 2 spell +5"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +0, D +1, C +0, I +3, W +1, Ch +1"
+      },
+      {
+        "label": "Hiss (INT Spell)",
+        "value": "DC 12. End one spell within far."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-vulture",
+    "source": "shadowdark",
+    "name": "Vulture",
+    "difficulty": 1,
+    "ac": 10,
+    "maxHp": 5,
+    "initiativeModifier": 0,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 tear +1 (1d4)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +0, C +1, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Carrion Tracker",
+        "value": "Can track dead flesh unerringly within a mile."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-wasp-giant",
+    "source": "shadowdark",
+    "name": "Wasp, Giant",
+    "difficulty": 2,
+    "ac": 13,
+    "maxHp": 9,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 sting +3 (1d6+venom)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +3, C +0, I -3, W +0, Ch -3"
+      },
+      {
+        "label": "Venom",
+        "value": "DC 9 CON or go to 0 HP."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-wererat",
+    "source": "shadowdark",
+    "name": "Wererat",
+    "difficulty": 3,
+    "ac": 13,
+    "maxHp": 14,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near (climb)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +1, D +2, C +1, I -1, W +1, Ch -1"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by silver or magic sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-werewolf",
+    "source": "shadowdark",
+    "name": "Werewolf",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 20,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 rend +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +2, I +0, W +1, Ch +0"
+      },
+      {
+        "label": "Impervious",
+        "value": "Only damaged by silver or magic sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-wight",
+    "source": "shadowdark",
+    "name": "Wight",
+    "difficulty": 3,
+    "ac": 14,
+    "maxHp": 15,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bastard sword +3 (1d10) and 1 life drain +3"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +1, C +2, I +1, W +0, Ch +3"
+      },
+      {
+        "label": "Greater Undead",
+        "value": "Immune to morale checks. Only damaged by silver or magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-will-o-wisp",
+    "source": "shadowdark",
+    "name": "Will-O'-Wisp",
+    "difficulty": 2,
+    "ac": 13,
+    "maxHp": 10,
+    "initiativeModifier": 3,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 life drain +3"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -3, D +3, C +1, I -1, W -1, Ch -2"
+      },
+      {
+        "label": "Life Drain",
+        "value": "1d4 CON damage. Death if reduced to 0 CON."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-wolf",
+    "source": "shadowdark",
+    "name": "Wolf",
+    "difficulty": 2,
+    "ac": 12,
+    "maxHp": 10,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +2, C +1, I -2, W +1, Ch +0"
+      },
+      {
+        "label": "Pack Hunter",
+        "value": "Deals +1 damage while an ally is close."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-wolf-dire",
+    "source": "shadowdark",
+    "name": "Wolf, Dire",
+    "difficulty": 4,
+    "ac": 12,
+    "maxHp": 19,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +4 (1d8)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +1, I -1, W +1, Ch +0"
+      },
+      {
+        "label": "Pack Hunter",
+        "value": "Deals +1 damage while next to an ally."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-wolf-winter",
+    "source": "shadowdark",
+    "name": "Wolf, Winter",
+    "difficulty": 5,
+    "ac": 12,
+    "maxHp": 23,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "2 bite +4 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +3, D +2, C +1, I +0, W +1, Ch +0"
+      },
+      {
+        "label": "Impervious",
+        "value": "Cold immune."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-worg",
+    "source": "shadowdark",
+    "name": "Worg",
+    "difficulty": 3,
+    "ac": 11,
+    "maxHp": 14,
+    "initiativeModifier": 1,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 bite +3 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "double near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D +1, C +1, I -2, W +1, Ch -2"
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-wraith",
+    "source": "shadowdark",
+    "name": "Wraith",
+    "difficulty": 8,
+    "ac": 14,
+    "maxHp": 36,
+    "initiativeModifier": 4,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "3 death touch +6 (1d10 + life drain)"
+      },
+      {
+        "label": "Move",
+        "value": "near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S -4, D +4, C +0, I +0, W +0, Ch +3"
+      },
+      {
+        "label": "Greater Undead",
+        "value": "Immune to morale checks. Only damaged by silver or magical sources."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-wyvern",
+    "source": "shadowdark",
+    "name": "Wyvern",
+    "difficulty": 8,
+    "ac": 15,
+    "maxHp": 37,
+    "initiativeModifier": 2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Neutral"
+      },
+      {
+        "label": "Attack",
+        "value": "2 rend +6 (1d8) and 1 stinger +6 (1d6 + poison)"
+      },
+      {
+        "label": "Move",
+        "value": "double near (fly)"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +4, D +2, C +1, I -3, W +1, Ch -3"
+      },
+      {
+        "label": "Poison",
+        "value": "DC 15 CON or take 2d10 damage."
+      }
+    ]
+  },
+  {
+    "id": "shadowdark-zombie",
+    "source": "shadowdark",
+    "name": "Zombie",
+    "difficulty": 2,
+    "ac": 8,
+    "maxHp": 11,
+    "initiativeModifier": -2,
+    "statBlock": [
+      {
+        "label": "Alignment",
+        "value": "Chaotic"
+      },
+      {
+        "label": "Attack",
+        "value": "1 slam +2 (1d6)"
+      },
+      {
+        "label": "Move",
+        "value": "near"
+      },
+      {
+        "label": "Ability Scores",
+        "value": "S +2, D -2, C +2, I -2, W -2, Ch -3"
+      },
+      {
+        "label": "Undead",
+        "value": "Immune to morale checks."
+      }
+    ]
+  }
+]

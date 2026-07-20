@@ -1,5 +1,15 @@
-import { Component, model } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  computed,
+  inject,
+  model,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NameTableStore } from '../../services/name-table-store';
 
 /**
  * The 5-field input set shared by every place a PC/NPC's data is entered or
@@ -32,4 +42,71 @@ export class CombatantFields {
   readonly ac = model.required<number | null>();
   readonly maxHp = model.required<number | null>();
   readonly notes = model.required<string>();
+
+  // Injected directly (rather than piping the name-table data down through
+  // an input, or a generated-name choice back up through an output): this
+  // is read-only reference data, not app state a parent needs to own or
+  // react to, so there's nothing for the parent to mediate — same reasoning
+  // ARCHITECTURE.md gives for services in general, just applied to a
+  // component that happens to read one directly.
+  protected readonly nameTableStore = inject(NameTableStore);
+
+  protected readonly namePickerOpen = signal(false);
+  protected readonly selectedSetName = signal<string | null>(null);
+  protected readonly selectedTableId = signal<string | null>(null);
+  protected readonly rolledNames = signal<string[]>([]);
+
+  protected readonly tablesForSelectedSet = computed(() => {
+    const setName = this.selectedSetName();
+    return setName ? this.nameTableStore.tablesForSet(setName) : [];
+  });
+
+  // viewChild + HostListener('document:click'): the same "collapse on
+  // click away" pattern as CombatantBubble's HP-adjust/notes popovers —
+  // see that component for the fuller explanation. A click that opened the
+  // popover (on generateNameBtn) also bubbles up to this same document
+  // listener; toggleNamePicker already ran by then, so re-checking
+  // namePickerOpen() here doesn't immediately re-close what that click just
+  // opened.
+  private readonly namePickerEl = viewChild<ElementRef<HTMLElement>>('namePicker');
+
+  @HostListener('document:click', ['$event'])
+  protected collapseNamePickerOnClickAway(event: MouseEvent): void {
+    if (!this.namePickerOpen()) return;
+    const el = this.namePickerEl()?.nativeElement;
+    if (el && !el.contains(event.target as Node)) {
+      this.namePickerOpen.set(false);
+    }
+  }
+
+  protected toggleNamePicker(): void {
+    const opening = !this.namePickerOpen();
+    this.namePickerOpen.set(opening);
+    if (opening && this.selectedSetName() === null) {
+      this.selectSet(this.nameTableStore.setNames()[0] ?? null);
+    }
+  }
+
+  protected selectSet(setName: string | null): void {
+    this.selectedSetName.set(setName);
+    const firstTable = setName ? this.nameTableStore.tablesForSet(setName)[0] : undefined;
+    this.selectedTableId.set(firstTable?.id ?? null);
+    this.rolledNames.set([]);
+  }
+
+  protected selectTable(tableId: string): void {
+    this.selectedTableId.set(tableId);
+    this.rolledNames.set([]);
+  }
+
+  protected rollNames(): void {
+    const tableId = this.selectedTableId();
+    if (!tableId) return;
+    this.rolledNames.set(this.nameTableStore.rollNames(tableId, 6));
+  }
+
+  protected pickName(candidate: string): void {
+    this.name.set(candidate);
+    this.namePickerOpen.set(false);
+  }
 }

@@ -15,14 +15,21 @@
    (styles.css), whose ".entry-form input[type=...]" rules apply here too —
    they're plain global CSS, not another component's scoped stylesheet, so
    the view-encapsulation gotcha documented in docs/ARCHITECTURE.md doesn't
-   block them from reaching in. The rules below only override the *widths*
-   those set, so all 5 fields plus the caller's submit button have a
-   realistic chance of fitting on one line — qualified with the input's own
-   type/class (not just a class) so they win the specificity tie against
-   the global rule rather than depending on stylesheet load order. */
-input[type='text'].field-name {
+   block them from reaching in. The flex sizing that used to live directly
+   on .field-name now lives on its wrapper (below) instead, since the
+   generate-name button needs to size/position alongside the input rather
+   than as a second top-level flex item of the caller's .entry-form. */
+.name-field-wrapper {
+  position: relative;
+  display: inline-flex;
   flex: 1 1 5rem;
   min-width: 4.5rem;
+  align-items: center;
+}
+
+input[type='text'].field-name {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* Below this width, letting Name shrink down alongside 4 more fields and a
@@ -32,10 +39,108 @@ input[type='text'].field-name {
    legible Name field, which is the one every other field's icon can't
    compensate for. */
 @media (max-width: 480px) {
-  input[type='text'].field-name {
+  .name-field-wrapper {
     flex-basis: 100%;
     min-width: 0;
   }
+}
+
+.generate-name-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-left: 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.generate-name-btn:hover {
+  background: var(--color-removed-tint);
+  color: var(--color-text);
+}
+
+.generate-name-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Anchored to .name-field-wrapper (position: relative, above) — the same
+   "wrapper needs the containing block, not the button itself" lesson as
+   CombatantBubble's .hp-adjust-popover (see docs/ARCHITECTURE.md's third
+   gotcha): the popover is a sibling of the button that opens it, not its
+   child, so position: relative has to live one level up from both. */
+.name-picker-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: max(16rem, 100%);
+  margin-top: 0.3rem;
+  padding: 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.name-picker-selects {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.name-picker-selects select {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.name-picker-roll {
+  padding: 0.4rem 0.7rem;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.name-picker-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.name-picker-results button {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-removed-tint);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.name-picker-results button:hover {
+  background: var(--color-pc-tint);
 }
 
 /* Icon + input, styled to match the same stat pills on the combatant

@@ -52,6 +52,17 @@ any component code. This is one of the more important patterns to learn in
 Angular: **push side effects (storage, HTTP, timers) into services; keep
 components focused on displaying signals and handling user events.**
 
+**The one exception, and why it's still "local-only":** `NameTableStore` and
+`MonsterStore` (Phase 2.5) read static JSON files (`public/data/name-tables.json`,
+`monsters-5e-srd.json`, `monsters-shadowdark.json`) via `HttpClient` instead
+of `localStorage` — the app's first HTTP calls. This isn't a backend: the
+JSON files are static, checked into the repo, and served by whatever's
+already hosting the app's own bundle, with no server-side logic or
+GM-specific data behind them (read-only reference data, same category as a
+hardcoded constant — it just happens to be too large to comfortably inline
+as one). `toSignal` bridges the resulting Observable into a signal, so
+every other component still just reads a signal, same as everywhere else.
+
 ## Future: choosing a real backend
 
 Deferred until Phase 2 (see [ROADMAP.md](./ROADMAP.md)). When we get there,

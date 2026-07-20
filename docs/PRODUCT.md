@@ -47,6 +47,11 @@ sub-nav:
 
 **Encounters** remains its own top-level tab, unchanged.
 
+**Random Generators** is a fourth top-level tab (see "11. Random
+Generators" below) — currently a single Names page; it'll gain its own
+Roster-style sub-nav once the Encounter Generator (Phase 2.5, see
+[ROADMAP.md](./ROADMAP.md)) adds a second page.
+
 ## GM workflows
 
 ### 1. Manage the Player roster and Parties
@@ -342,6 +347,23 @@ transition is hard to miss, the countdown stops moving on its own, and the
 card shows the name in bold white text on a red background (the count
 stays visible, now reading 0). An **×** button on every card dismisses it
 at any time.
+
+### 11. Random Generators
+A GM's spreadsheet of d100 name tables (grouped into "sets" like
+"European", "Non-European", "Fantasy", "Titles & Bynames", "Potions &
+Alchemy", "Places" — not every table is a *person* name, e.g. Places holds
+settlement names) is imported once into the app (see
+[DATA_MODEL.md](./DATA_MODEL.md)'s `NameTable`). Two ways to use it:
+
+- **The Random Generators tab** (`/generators`): pick a set, then a table
+  within it, choose how many results to roll, and copy any result — a
+  standalone browsing/rolling tool, not tied to any particular Player/NPC.
+- **Inline, wherever a Name is entered**: every Player/NPC create/edit
+  screen shares one form (`CombatantFields` — Player/NPC roster, ad-hoc NPC
+  forms, the Edit pop-up, per section 4a above) with a 🎲 button next to the
+  Name field. Clicking it opens the same set/table picker in a small
+  popover; clicking a rolled name fills the Name field directly, without
+  navigating away from whatever screen the GM was already on.
 
 ## Persistence
 

@@ -102,6 +102,38 @@ see [PRODUCT.md](./PRODUCT.md) for the resulting nav/data-model shape.
       [DATA_MODEL.md](./DATA_MODEL.md) for the resulting behavior, which
       supersedes the rougher Backlog sketch this used to be.
 
+## Phase 2.5 — Random Generators
+
+Still local-storage only. Turns the "NPC name generator" / "Monster manual
+database import" / "Encounter generator" Backlog sketches below into real
+phase work — see [PRODUCT.md](./PRODUCT.md) for the Random Generators tab
+and [DATA_MODEL.md](./DATA_MODEL.md) for `NameTable`.
+
+- [x] Milestone 1 — Name Generator: the GM's "European"/"Non-European"/
+      "Fantasy"/"Titles & Bynames"/"Potions & Alchemy"/"Places" spreadsheet
+      imported into `public/data/name-tables.json` (see
+      `scripts/import-names.cjs`), a new top-level **Random Generators** tab
+      to browse/roll any table, and an inline 🎲 popover on every Name field
+      (via the shared `CombatantFields`) so a GM never has to leave a
+      Player/NPC create/edit screen to name someone.
+- [x] Milestone 2 — Monster template data: 322 5e SRD monsters (Open5e's
+      OGL-licensed SRD 5.1 data) and 239 Shadowdark monsters (transcribed
+      from the "Unofficial Shadowdark Monster List" — a third-party
+      compilation of official Core Rulebook stat blocks, CC BY-SA 4.0 —
+      after the user provided it in place of retyping the book directly)
+      imported as seed `MonsterTemplate` data, plus a Credits section on
+      the Random Generators page with both sources' required attribution.
+      Data-only, no generator/stat-block UI yet — see
+      [DATA_MODEL.md](./DATA_MODEL.md).
+- [ ] Milestone 3 — Encounter Generator: a second Random Generators page
+      (the tab gains its Names/Encounter sub-nav at this point) to generate
+      a monster list by sourcebook + difficulty, edit it, bulk-apply
+      generated names, and save the result as a Troop.
+- [ ] Milestone 4 — Combatant integration: an Eye icon on a
+      monster-generated combatant's bubble opens its full stat block; a
+      combatant with both a personal name and a creature type displays as
+      "Barry" (small "Goblin" subtitle) instead of just "Goblin".
+
 ## Phase 3 — GM Accounts + Real Persistence
 
 - [ ] Choose a backend (see [ARCHITECTURE.md](./ARCHITECTURE.md) — deferred
@@ -125,22 +157,10 @@ see [PRODUCT.md](./PRODUCT.md) for the resulting nav/data-model shape.
 Captured so they aren't lost, not scheduled into a phase yet. Needs proper
 design (data model, UI) before it becomes phase work.
 
-- **NPC name generator** — a tool to generate NPC names on demand.
-- **Monster manual database import** — pull in basic monster/creature stat
-  blocks from various open-source game systems (e.g. SRD-licensed content
-  like 5e's System Reference Document, Pathfinder's, etc.) as seed data, so
-  an eventual encounter generator has a ready-made library to draw from
-  instead of the GM hand-entering every NPC. Needs a licensing check per
-  source (stick to open-license SRDs) and a data-shape decision (how a
-  seeded monster maps to the `Player`/NPC roster shape in
-  [DATA_MODEL.md](./DATA_MODEL.md)) before it becomes phase work.
-- **Encounter generator** — using the imported monster database above,
-  let a GM generate a random/suggested Encounter (e.g. by party level/size
-  and difficulty) instead of building it combatant-by-combatant. Depends on
-  the monster manual import existing first.
-- **Name generators beyond NPCs** — extend the NPC name generator idea to
-  other name-needing spots in the flow (e.g. Party names, Troop names,
-  quick placeholder Player names), not just individual NPCs.
+- **Name generators beyond individual PCs/NPCs** — extend the Random
+  Generators tab/inline-popover pattern (see Phase 2.5) to other
+  name-needing spots in the flow, e.g. Party names, Troop names, or a
+  quick "suggest a name" for the Encounter itself.
 - **Custom themes** — let the GM pick an overall look (color palette, font,
   general aesthetic) instead of the single fixed style from the Phase 1.5
   design-token pass, e.g. a classic-fantasy theme, a retro theme, a sci-fi
