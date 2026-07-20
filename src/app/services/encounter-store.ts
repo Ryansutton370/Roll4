@@ -1,13 +1,12 @@
 import { Service, effect, inject, signal } from '@angular/core';
-import { Combatant, CombatantType, Encounter } from '../models/encounter.model';
+import { Combatant, CombatantType, Encounter, Timer } from '../models/encounter.model';
 import { NpcStore } from './npc-store';
 import { PartyStore } from './party-store';
 
-// Bumped from 'roll4.encounters.v2' — Combatant.pcId was renamed to
-// playerId, Combatant gained npcId, and Encounter gained troopIds. This app
-// has no migration path yet (see docs/ARCHITECTURE.md), so old-shaped data
-// is simply left behind.
-const STORAGE_KEY = 'roll4.encounters.v3';
+// Bumped from 'roll4.encounters.v3' — Combatant gained readyToJoin, and the
+// storage shape gained a new Timer[] array. This app has no migration path
+// yet (see docs/ARCHITECTURE.md), so old-shaped data is simply left behind.
+const STORAGE_KEY = 'roll4.encounters.v4';
 
 /** Keeps Current HP within [0, maxHp] — null maxHp means "not tracked", so there's nothing to clamp. */
 function clampCurrentHp(currentHp: number, maxHp: number | null): number | null {
@@ -18,6 +17,7 @@ function clampCurrentHp(currentHp: number, maxHp: number | null): number | null 
 interface EncounterStorageShape {
   encounters: Encounter[];
   combatants: Combatant[];
+  timers: Timer[];
 }
 
 function rollD20(): number {
@@ -88,7 +88,10 @@ function syncHoldPositions(order: Combatant[], activeId: string | null): Combata
  * Rerolls every combatant except Removed (N/A, no roll to make). On-hold
  * combatants are also cleared here — a new round always empties the Hold
  * Action list, and when reRollEachRound is true that means a fresh roll
- * like everyone else, discarding the pre-hold snapshot.
+ * like everyone else, discarding the pre-hold snapshot. Ready to Join
+ * combatants are folded in the same way — they're already sitting in
+ * combatantIds, so clearing the flag before rolling is all that's needed
+ * to fold them in alongside everyone else's fresh roll.
  */
 export function reRollRound(order: Combatant[]): Combatant[] {
   const rerolled = order.map((c) => {
@@ -96,7 +99,8 @@ export function reRollRound(order: Combatant[]): Combatant[] {
     const base = c.onHold
       ? { ...c, onHold: false, preHoldLastRoll: null, preHoldInitiativeTotal: null }
       : c;
-    return rollInitiativeFor(base);
+    const ready = base.readyToJoin ? { ...base, readyToJoin: false } : base;
+    return rollInitiativeFor(ready);
   });
   return [...rerolled].sort(compareByInitiative);
 }
@@ -127,9 +131,28 @@ export function clearHoldWithoutReroll(order: Combatant[]): Combatant[] {
   return heldIds.reduce((acc, id) => insertBySortedPosition(acc, acc.find((c) => c.id === id)!), restored);
 }
 
-/** The first combatant eligible to act — skips Removed and on-hold entries. */
+/**
+ * Called at a round boundary when reRollEachRound is false: the Classic-
+ * mode counterpart to clearHoldWithoutReroll above, for Ready to Join
+ * combatants instead of Hold Action ones. Unlike a held combatant, a
+ * ready-to-join combatant has no prior roll to restore — there's no
+ * preHold-style snapshot, since they were never in the turn order to
+ * begin with — so each gets a fresh, uncapped roll (like joining combat
+ * for the first time) instead. A no-op (same array reference) when nobody
+ * is Ready to Join.
+ */
+export function foldInReadyToJoin(order: Combatant[]): Combatant[] {
+  const pendingIds = order.filter((c) => c.readyToJoin).map((c) => c.id);
+  if (pendingIds.length === 0) return order;
+  const rolled = order.map((c) =>
+    c.readyToJoin ? rollInitiativeFor({ ...c, readyToJoin: false }) : c,
+  );
+  return pendingIds.reduce((acc, id) => insertBySortedPosition(acc, acc.find((c) => c.id === id)!), rolled);
+}
+
+/** The first combatant eligible to act — skips Removed, on-hold, and Ready to Join entries. */
 export function firstActiveIndex(order: Combatant[]): number | null {
-  const index = order.findIndex((c) => !c.removedFromCombat && !c.onHold);
+  const index = order.findIndex((c) => !c.removedFromCombat && !c.onHold && !c.readyToJoin);
   return index === -1 ? null : index;
 }
 
@@ -137,9 +160,11 @@ export function firstActiveIndex(order: Combatant[]): number | null {
 export class EncounterStore {
   private readonly encountersSignal = signal<Encounter[]>([]);
   private readonly combatantsSignal = signal<Combatant[]>([]);
+  private readonly timersSignal = signal<Timer[]>([]);
 
   readonly encounters = this.encountersSignal.asReadonly();
   readonly combatants = this.combatantsSignal.asReadonly();
+  readonly timers = this.timersSignal.asReadonly();
 
   // inject(): fetches a dependency from Angular's DI container. It must be
   // called during class field initialization (an "injection context"),
@@ -155,6 +180,7 @@ export class EncounterStore {
       const snapshot: EncounterStorageShape = {
         encounters: this.encountersSignal(),
         combatants: this.combatantsSignal(),
+        timers: this.timersSignal(),
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
     });
@@ -167,6 +193,7 @@ export class EncounterStore {
       const parsed = JSON.parse(raw) as EncounterStorageShape;
       this.encountersSignal.set(parsed.encounters ?? []);
       this.combatantsSignal.set(parsed.combatants ?? []);
+      this.timersSignal.set(parsed.timers ?? []);
     } catch {
       // Corrupt/unreadable data — start fresh rather than crash the app.
     }
@@ -182,6 +209,11 @@ export class EncounterStore {
     if (!encounter) return [];
     const byId = new Map(this.combatantsSignal().map((c) => [c.id, c]));
     return encounter.combatantIds.map((id) => byId.get(id)).filter((c): c is Combatant => !!c);
+  }
+
+  /** Timers for an Encounter — no ordering guarantee needed, the UI sorts/groups as it sees fit. */
+  timersForEncounter(encounterId: string): Timer[] {
+    return this.timersSignal().filter((t) => t.encounterId === encounterId);
   }
 
   private updateEncounter(id: string, changes: Partial<Encounter>): void {
@@ -215,56 +247,62 @@ export class EncounterStore {
     });
   }
 
+  /**
+   * Builds a fresh Combatant object — the one shape shared by every
+   * creation path below (createEncounter's Party/Troop pull-in,
+   * setEncounterParties/setEncounterTroops's diffed adds, addPlayerCombatant/
+   * addNpcCombatant, addAdHocCombatant). Factored out once readyToJoin
+   * needed adding to all of them, rather than repeating this ~20-line
+   * literal (and now that field) at every call site.
+   */
+  private buildCombatant(
+    encounterId: string,
+    type: CombatantType,
+    linkIds: { playerId: string | null; npcId: string | null },
+    fields: {
+      name: string;
+      initiativeModifier: number;
+      ac: number | null;
+      maxHp: number | null;
+      notes: string;
+    },
+    readyToJoin = false,
+  ): Combatant {
+    return {
+      id: crypto.randomUUID(),
+      encounterId,
+      type,
+      playerId: linkIds.playerId,
+      npcId: linkIds.npcId,
+      name: fields.name,
+      initiativeModifier: fields.initiativeModifier,
+      ac: fields.ac,
+      maxHp: fields.maxHp,
+      currentHp: fields.maxHp,
+      notes: fields.notes,
+      lastRoll: null,
+      initiativeTotal: null,
+      removedFromCombat: false,
+      incapacitated: false,
+      onHold: false,
+      preHoldLastRoll: null,
+      preHoldInitiativeTotal: null,
+      readyToJoin,
+    };
+  }
+
   /** Creates an Encounter and pulls in every Player from the selected Parties, and every Npc from the selected Troops, as Combatants. */
   createEncounter(name: string, partyIds: string[], troopIds: string[] = []): Encounter {
     const encounterId = crypto.randomUUID();
     const newPlayerCombatants: Combatant[] = partyIds.flatMap((partyId) =>
-      this.partyStore.playersForParty(partyId).map(
-        (pc): Combatant => ({
-          id: crypto.randomUUID(),
-          encounterId,
-          type: 'pc',
-          playerId: pc.id,
-          npcId: null,
-          name: pc.name,
-          initiativeModifier: pc.initiativeModifier,
-          ac: pc.ac,
-          maxHp: pc.maxHp,
-          currentHp: pc.maxHp,
-          notes: pc.notes,
-          lastRoll: null,
-          initiativeTotal: null,
-          removedFromCombat: false,
-          incapacitated: false,
-          onHold: false,
-          preHoldLastRoll: null,
-          preHoldInitiativeTotal: null,
-        }),
-      ),
+      this.partyStore
+        .playersForParty(partyId)
+        .map((pc) => this.buildCombatant(encounterId, 'pc', { playerId: pc.id, npcId: null }, pc)),
     );
     const newNpcCombatants: Combatant[] = troopIds.flatMap((troopId) =>
-      this.npcStore.npcsForTroop(troopId).map(
-        (npc): Combatant => ({
-          id: crypto.randomUUID(),
-          encounterId,
-          type: 'npc',
-          playerId: null,
-          npcId: npc.id,
-          name: npc.name,
-          initiativeModifier: npc.initiativeModifier,
-          ac: npc.ac,
-          maxHp: npc.maxHp,
-          currentHp: npc.maxHp,
-          notes: npc.notes,
-          lastRoll: null,
-          initiativeTotal: null,
-          removedFromCombat: false,
-          incapacitated: false,
-          onHold: false,
-          preHoldLastRoll: null,
-          preHoldInitiativeTotal: null,
-        }),
-      ),
+      this.npcStore
+        .npcsForTroop(troopId)
+        .map((npc) => this.buildCombatant(encounterId, 'npc', { playerId: null, npcId: npc.id }, npc)),
     );
     const newCombatants = [...newPlayerCombatants, ...newNpcCombatants];
 
@@ -319,28 +357,7 @@ export class EncounterStore {
       this.partyStore
         .playersForParty(partyId)
         .filter((pc) => !existingPlayerIds.has(pc.id))
-        .map(
-          (pc): Combatant => ({
-            id: crypto.randomUUID(),
-            encounterId,
-            type: 'pc',
-            playerId: pc.id,
-            npcId: null,
-            name: pc.name,
-            initiativeModifier: pc.initiativeModifier,
-            ac: pc.ac,
-            maxHp: pc.maxHp,
-            currentHp: pc.maxHp,
-            notes: pc.notes,
-            lastRoll: null,
-            initiativeTotal: null,
-            removedFromCombat: false,
-            incapacitated: false,
-            onHold: false,
-            preHoldLastRoll: null,
-            preHoldInitiativeTotal: null,
-          }),
-        ),
+        .map((pc) => this.buildCombatant(encounterId, 'pc', { playerId: pc.id, npcId: null }, pc)),
     );
 
     const removedPlayerIds = new Set(
@@ -390,28 +407,7 @@ export class EncounterStore {
       this.npcStore
         .npcsForTroop(troopId)
         .filter((npc) => !existingNpcIds.has(npc.id))
-        .map(
-          (npc): Combatant => ({
-            id: crypto.randomUUID(),
-            encounterId,
-            type: 'npc',
-            playerId: null,
-            npcId: npc.id,
-            name: npc.name,
-            initiativeModifier: npc.initiativeModifier,
-            ac: npc.ac,
-            maxHp: npc.maxHp,
-            currentHp: npc.maxHp,
-            notes: npc.notes,
-            lastRoll: null,
-            initiativeTotal: null,
-            removedFromCombat: false,
-            incapacitated: false,
-            onHold: false,
-            preHoldLastRoll: null,
-            preHoldInitiativeTotal: null,
-          }),
-        ),
+        .map((npc) => this.buildCombatant(encounterId, 'npc', { playerId: null, npcId: npc.id }, npc)),
     );
 
     const removedNpcIds = new Set(
@@ -443,34 +439,25 @@ export class EncounterStore {
    * pulling its whole Party/Troop — a no-op if that Player/Npc is already
    * present in this Encounter (same dedup spirit as setEncounterParties/
    * setEncounterTroops above, just for one id instead of a diffed list).
+   * readyToJoin defaults to false (today's setup-phase behavior, straight
+   * into the turn order); the run-phase "+" menu's Add Combatant flow
+   * passes true instead, so the new Combatant lands in the Ready to Join
+   * list rather than the active order — see docs/DATA_MODEL.md.
    */
-  addPlayerCombatant(encounterId: string, playerId: string): void {
+  addPlayerCombatant(encounterId: string, playerId: string, readyToJoin = false): void {
     const player = this.partyStore.getPlayer(playerId);
     if (!player) return;
     const alreadyPresent = this.combatantsForEncounter(encounterId).some(
       (c) => c.playerId === playerId,
     );
     if (alreadyPresent) return;
-    const combatant: Combatant = {
-      id: crypto.randomUUID(),
+    const combatant = this.buildCombatant(
       encounterId,
-      type: 'pc',
-      playerId: player.id,
-      npcId: null,
-      name: player.name,
-      initiativeModifier: player.initiativeModifier,
-      ac: player.ac,
-      maxHp: player.maxHp,
-      currentHp: player.maxHp,
-      notes: player.notes,
-      lastRoll: null,
-      initiativeTotal: null,
-      removedFromCombat: false,
-      incapacitated: false,
-      onHold: false,
-      preHoldLastRoll: null,
-      preHoldInitiativeTotal: null,
-    };
+      'pc',
+      { playerId: player.id, npcId: null },
+      player,
+      readyToJoin,
+    );
     this.combatantsSignal.update((combatants) => [...combatants, combatant]);
     this.updateEncounter(encounterId, {
       combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
@@ -478,31 +465,18 @@ export class EncounterStore {
   }
 
   /** Npc-side mirror of addPlayerCombatant above. */
-  addNpcCombatant(encounterId: string, npcId: string): void {
+  addNpcCombatant(encounterId: string, npcId: string, readyToJoin = false): void {
     const npc = this.npcStore.getNpc(npcId);
     if (!npc) return;
     const alreadyPresent = this.combatantsForEncounter(encounterId).some((c) => c.npcId === npcId);
     if (alreadyPresent) return;
-    const combatant: Combatant = {
-      id: crypto.randomUUID(),
+    const combatant = this.buildCombatant(
       encounterId,
-      type: 'npc',
-      playerId: null,
-      npcId: npc.id,
-      name: npc.name,
-      initiativeModifier: npc.initiativeModifier,
-      ac: npc.ac,
-      maxHp: npc.maxHp,
-      currentHp: npc.maxHp,
-      notes: npc.notes,
-      lastRoll: null,
-      initiativeTotal: null,
-      removedFromCombat: false,
-      incapacitated: false,
-      onHold: false,
-      preHoldLastRoll: null,
-      preHoldInitiativeTotal: null,
-    };
+      'npc',
+      { playerId: null, npcId: npc.id },
+      npc,
+      readyToJoin,
+    );
     this.combatantsSignal.update((combatants) => [...combatants, combatant]);
     this.updateEncounter(encounterId, {
       combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
@@ -513,7 +487,7 @@ export class EncounterStore {
    * Adds a combatant that isn't backed by any library entry yet — today's
    * only NPC-creation path (Phase 1), generalized to also allow an ad-hoc
    * Player (e.g. a guest joining for one session). Replaces the old
-   * type-locked addNpc.
+   * type-locked addNpc. readyToJoin: see addPlayerCombatant above.
    */
   addAdHocCombatant(
     encounterId: string,
@@ -525,27 +499,15 @@ export class EncounterStore {
       maxHp: number | null;
       notes: string;
     },
+    readyToJoin = false,
   ): void {
-    const combatant: Combatant = {
-      id: crypto.randomUUID(),
+    const combatant = this.buildCombatant(
       encounterId,
       type,
-      playerId: null,
-      npcId: null,
-      name: fields.name,
-      initiativeModifier: fields.initiativeModifier,
-      ac: fields.ac,
-      maxHp: fields.maxHp,
-      currentHp: fields.maxHp,
-      notes: fields.notes,
-      lastRoll: null,
-      initiativeTotal: null,
-      removedFromCombat: false,
-      incapacitated: false,
-      onHold: false,
-      preHoldLastRoll: null,
-      preHoldInitiativeTotal: null,
-    };
+      { playerId: null, npcId: null },
+      fields,
+      readyToJoin,
+    );
     this.combatantsSignal.update((combatants) => [...combatants, combatant]);
     this.updateEncounter(encounterId, {
       combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
@@ -649,6 +611,23 @@ export class EncounterStore {
   }
 
   /**
+   * Rolls a fresh initiative for `combatant` — randomized, but always
+   * capped below the current Active combatant's total — for "rejoining
+   * mid-round, right where that roll would place them" rather than
+   * snapping back to an original spot or interrupting whoever's turn it
+   * currently is. Shared by toggleRemoved's un-remove branch and
+   * joinReadyToJoinCombatant below, which use the exact same logic.
+   */
+  private rollCombatantInBelowActive(encounterId: string, combatant: Combatant): Combatant {
+    const activeId = this.activeCombatantId(encounterId);
+    const order = this.combatantsForEncounter(encounterId);
+    const activeTotal = activeId ? (order.find((c) => c.id === activeId)?.initiativeTotal ?? 0) : 0;
+    const roll = rollD20();
+    const total = Math.min(roll + combatant.initiativeModifier, activeTotal - 1);
+    return { ...combatant, lastRoll: roll, initiativeTotal: total };
+  }
+
+  /**
    * Marking the currently-active combatant Removed would leave
    * activeCombatantIndex pointing at a skipped entry, so we auto-advance to
    * the next active combatant — the natural GM behavior when whoever's turn
@@ -704,15 +683,25 @@ export class EncounterStore {
     // Un-removing: an already-removed combatant is never Active, so the
     // Active total we're capping against is unaffected by this toggle.
     const activeId = this.activeCombatantId(encounterId);
-    const activeTotal = activeId ? order.find((c) => c.id === activeId)?.initiativeTotal ?? 0 : 0;
-    const roll = rollD20();
-    const total = Math.min(roll + combatant.initiativeModifier, activeTotal - 1);
-    const updated: Combatant = {
-      ...combatant,
-      removedFromCombat: false,
-      lastRoll: roll,
-      initiativeTotal: total,
-    };
+    const updated: Combatant = { ...this.rollCombatantInBelowActive(encounterId, combatant), removedFromCombat: false };
+    const reordered = insertBySortedPosition(order, updated);
+    this.commitOrder(encounterId, syncHoldPositions(reordered, activeId), activeId);
+  }
+
+  /**
+   * Manually joining a Ready to Join combatant — per the GM spec, "same
+   * logic as leaving Removed from Combat": a fresh roll capped below the
+   * current Active total, inserted at that sorted position. Never
+   * interrupts whoever's turn it currently is. Combatants left un-joined
+   * are folded into the main list automatically at the next round
+   * boundary instead — see reRollRound/foldInReadyToJoin.
+   */
+  joinReadyToJoinCombatant(encounterId: string, combatantId: string): void {
+    const order = this.combatantsForEncounter(encounterId);
+    const combatant = order.find((c) => c.id === combatantId);
+    if (!combatant || !combatant.readyToJoin) return;
+    const activeId = this.activeCombatantId(encounterId);
+    const updated: Combatant = { ...this.rollCombatantInBelowActive(encounterId, combatant), readyToJoin: false };
     const reordered = insertBySortedPosition(order, updated);
     this.commitOrder(encounterId, syncHoldPositions(reordered, activeId), activeId);
   }
@@ -815,6 +804,14 @@ export class EncounterStore {
     this.updateEncounter(encounterId, {
       holdOrder: encounter.holdOrder.filter((id) => id !== combatantId),
     });
+    // "Above" interrupts, immediately ending the previously-Active
+    // combatant's turn — this is the one place activeCombatantIndex
+    // changes without going through advanceTurn, so it needs its own
+    // explicit linked-timer credit (see the guard's own comment for why
+    // a redundant call elsewhere would be harmless anyway).
+    if (position === 'above') {
+      this.creditLinkedTimerDeparture(encounterId, previousActiveId, encounter.round);
+    }
     const reordered = insertBySortedPosition(order, updated);
     const nextActiveId = position === 'above' ? combatantId : previousActiveId;
     this.commitOrder(encounterId, syncHoldPositions(reordered, nextActiveId), nextActiveId);
@@ -849,7 +846,7 @@ export class EncounterStore {
     if (!encounter) return;
     const order = this.combatantsForEncounter(encounterId);
     const combatant = order.find((c) => c.id === combatantId);
-    if (!combatant || combatant.removedFromCombat || combatant.onHold) return;
+    if (!combatant || combatant.removedFromCombat || combatant.onHold || combatant.readyToJoin) return;
 
     const rest = order.filter((c) => c.id !== combatantId);
     const above = rest[newIndex - 1] ?? null;
@@ -881,7 +878,7 @@ export class EncounterStore {
 
     const order = this.combatantsForEncounter(encounterId);
     const activeIndices = order.reduce<number[]>((acc, c, i) => {
-      if (!c.removedFromCombat && !c.onHold) acc.push(i);
+      if (!c.removedFromCombat && !c.onHold && !c.readyToJoin) acc.push(i);
       return acc;
     }, []);
     if (activeIndices.length === 0) return;
@@ -898,9 +895,15 @@ export class EncounterStore {
       const previous = [...activeIndices].reverse().find((i) => i < current);
       if (previous === undefined) return; // Phase 1: Back doesn't cross a round boundary.
       const activeId = order[previous].id;
+      this.uncreditLinkedTimerOnBack(encounterId, activeId, encounter.round);
       this.commitOrder(encounterId, syncHoldPositions(order, activeId), activeId);
       return;
     }
+
+    // Forward always means the current Active combatant's turn just ended
+    // — credit their linked timer (if any) before deciding whether that's
+    // a same-round advance or a round rollover, since both cases count.
+    this.creditLinkedTimerDeparture(encounterId, order[current]?.id ?? null, encounter.round);
 
     const next = activeIndices.find((i) => i > current);
     if (next !== undefined) {
@@ -909,16 +912,29 @@ export class EncounterStore {
       return;
     }
 
-    // Advancing past the last active combatant starts a new round: the Hold
-    // Action list always empties back into the main order here, either with
-    // a fresh reroll (default homebrew rule) or each combatant's pre-hold
-    // initiative (see clearHoldWithoutReroll/reRollRound for which).
+    // Advancing past the last active combatant starts a new round: unlinked
+    // timers tick once here, and any combatant still on Hold Action (never
+    // returned to take a turn this round) credits its linked timer too —
+    // creditLinkedTimerDeparture's once-per-round guard means this is a
+    // no-op for anyone already credited above (e.g. they went on Hold
+    // *this* round, which already fired the credit at that moment).
+    this.decrementUnlinkedTimers(encounterId);
+    order
+      .filter((c) => c.onHold)
+      .forEach((c) => this.creditLinkedTimerDeparture(encounterId, c.id, encounter.round));
+
+    // The Hold Action list always empties back into the main order here,
+    // either with a fresh reroll (default homebrew rule) or each
+    // combatant's pre-hold initiative (see clearHoldWithoutReroll/
+    // reRollRound for which) — and any Ready to Join combatant not
+    // manually joined during the round folds in alongside them.
     const nextRound = encounter.round + 1;
     if (!encounter.reRollEachRound) {
       const cleared = clearHoldWithoutReroll(order);
-      const nextActiveIndex = firstActiveIndex(cleared);
-      const activeId = nextActiveIndex !== null ? cleared[nextActiveIndex].id : null;
-      this.commitOrder(encounterId, cleared, activeId);
+      const folded = foldInReadyToJoin(cleared);
+      const nextActiveIndex = firstActiveIndex(folded);
+      const activeId = nextActiveIndex !== null ? folded[nextActiveIndex].id : null;
+      this.commitOrder(encounterId, folded, activeId);
       this.updateEncounter(encounterId, { round: nextRound, holdOrder: [] });
       return;
     }
@@ -928,5 +944,101 @@ export class EncounterStore {
     const activeId = nextActiveIndex !== null ? rolled[nextActiveIndex].id : null;
     this.commitOrder(encounterId, rolled, activeId);
     this.updateEncounter(encounterId, { round: nextRound, holdOrder: [] });
+  }
+
+  /**
+   * Decrements a timer linked to `combatantId`, floored at 0, at most once
+   * per round (guarded by lastTickedRoundCredited !== round) — a linked
+   * combatant's turn can "end" more than once in the same round (going on
+   * Hold, then later actually taking a delayed turn after returning), and
+   * the timer should still only tick once for that round, the same
+   * once-per-round cadence an unlinked timer gets from the round boundary
+   * itself. Safe to call defensively from multiple sites for the same
+   * combatant/round — redundant calls are no-ops.
+   */
+  private creditLinkedTimerDeparture(encounterId: string, combatantId: string | null, round: number): void {
+    if (!combatantId) return;
+    this.timersSignal.update((timers) =>
+      timers.map((t) =>
+        t.encounterId === encounterId &&
+        t.linkedCombatantId === combatantId &&
+        t.lastTickedRoundCredited !== round
+          ? { ...t, remaining: Math.max(0, t.remaining - 1), lastTickedRoundCredited: round }
+          : t,
+      ),
+    );
+  }
+
+  /**
+   * Back's mirror of creditLinkedTimerDeparture: undoes the current
+   * round's credit for a timer linked to whoever Back just landed on, only
+   * if that credit was actually applied this round. Back never crosses a
+   * round boundary (see isFirstActiveCombatant in encounter-detail.ts), so
+   * there's never an earlier round's credit here to worry about touching —
+   * and unlike the automatic decrement, this undo is intentionally not
+   * floored, so it exactly reverses whatever creditLinkedTimerDeparture did.
+   */
+  private uncreditLinkedTimerOnBack(encounterId: string, combatantId: string | null, round: number): void {
+    if (!combatantId) return;
+    this.timersSignal.update((timers) =>
+      timers.map((t) =>
+        t.encounterId === encounterId &&
+        t.linkedCombatantId === combatantId &&
+        t.lastTickedRoundCredited === round
+          ? { ...t, remaining: t.remaining + 1, lastTickedRoundCredited: null }
+          : t,
+      ),
+    );
+  }
+
+  /** Unlinked timers tick once per round, at the round boundary itself — no guard needed, this only ever runs once per advanceTurn call. */
+  private decrementUnlinkedTimers(encounterId: string): void {
+    this.timersSignal.update((timers) =>
+      timers.map((t) =>
+        t.encounterId === encounterId && t.linkedCombatantId === null
+          ? { ...t, remaining: Math.max(0, t.remaining - 1) }
+          : t,
+      ),
+    );
+  }
+
+  createTimer(
+    encounterId: string,
+    name: string,
+    initialValue: number,
+    linkedCombatantId: string | null,
+  ): Timer {
+    const timer: Timer = {
+      id: crypto.randomUUID(),
+      encounterId,
+      name,
+      remaining: initialValue,
+      initialValue,
+      linkedCombatantId,
+      lastTickedRoundCredited: null,
+    };
+    this.timersSignal.update((timers) => [...timers, timer]);
+    return timer;
+  }
+
+  renameTimer(encounterId: string, timerId: string, name: string): void {
+    this.timersSignal.update((timers) =>
+      timers.map((t) => (t.encounterId === encounterId && t.id === timerId ? { ...t, name } : t)),
+    );
+  }
+
+  dismissTimer(encounterId: string, timerId: string): void {
+    this.timersSignal.update((timers) =>
+      timers.filter((t) => !(t.encounterId === encounterId && t.id === timerId)),
+    );
+  }
+
+  /** The GM's manual +/- nudge — unlike the automatic ticks above, deliberately unclamped, so a mistake can be corrected either direction. */
+  adjustTimerValue(encounterId: string, timerId: string, delta: number): void {
+    this.timersSignal.update((timers) =>
+      timers.map((t) =>
+        t.encounterId === encounterId && t.id === timerId ? { ...t, remaining: t.remaining + delta } : t,
+      ),
+    );
   }
 }

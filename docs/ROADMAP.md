@@ -87,6 +87,16 @@ see [PRODUCT.md](./PRODUCT.md) for the resulting nav/data-model shape.
       Party/Troop) without duplicating it in the encounter being built.
 - [ ] Duplicate-name lettering: within a single Encounter, combatants
       sharing a name (case-insensitive) get " A"/" B" suffixes.
+- [x] Timers + mid-encounter "Ready to Join" combatants: a "+" menu next
+      to the Previous/Next Turn buttons (run phase only) adds a Timer
+      Card (optionally linked to a combatant, so it ticks on their turn
+      instead of the round boundary) or a new combatant that lands in a
+      "Ready to Join" list until manually joined or auto-folded in at the
+      next round boundary. Grew out of scope beyond the original
+      4-milestone plan sketched for this phase — see
+      [PRODUCT.md](./PRODUCT.md) sections 9–10 and
+      [DATA_MODEL.md](./DATA_MODEL.md) for the resulting behavior, which
+      supersedes the rougher Backlog sketch this used to be.
 
 ## Phase 3 — GM Accounts + Real Persistence
 
@@ -111,14 +121,28 @@ see [PRODUCT.md](./PRODUCT.md) for the resulting nav/data-model shape.
 Captured so they aren't lost, not scheduled into a phase yet. Needs proper
 design (data model, UI) before it becomes phase work.
 
-- **Timers** — an Encounter feature: an "Add Timer" button creates a Timer
-  Card with a GM-written label (e.g. "Water floods the room in 4 rounds")
-  that counts down each turn or round. Timer Cards sit above the
-  combatants table, showing a progress bar/chart and rounds-or-turns
-  remaining. On expiry, a timer is highlighted rather than removed — the GM
-  dismisses it manually via an X. The GM can also nudge the remaining count
-  up/down with +/- controls.
 - **NPC name generator** — a tool to generate NPC names on demand.
+- **Monster manual database import** — pull in basic monster/creature stat
+  blocks from various open-source game systems (e.g. SRD-licensed content
+  like 5e's System Reference Document, Pathfinder's, etc.) as seed data, so
+  an eventual encounter generator has a ready-made library to draw from
+  instead of the GM hand-entering every NPC. Needs a licensing check per
+  source (stick to open-license SRDs) and a data-shape decision (how a
+  seeded monster maps to the `Player`/NPC roster shape in
+  [DATA_MODEL.md](./DATA_MODEL.md)) before it becomes phase work.
+- **Encounter generator** — using the imported monster database above,
+  let a GM generate a random/suggested Encounter (e.g. by party level/size
+  and difficulty) instead of building it combatant-by-combatant. Depends on
+  the monster manual import existing first.
+- **Name generators beyond NPCs** — extend the NPC name generator idea to
+  other name-needing spots in the flow (e.g. Party names, Troop names,
+  quick placeholder Player names), not just individual NPCs.
+- **Custom themes** — let the GM pick an overall look (color palette, font,
+  general aesthetic) instead of the single fixed style from the Phase 1.5
+  design-token pass, e.g. a classic-fantasy theme, a retro theme, a sci-fi
+  theme. Likely builds on the existing design tokens (see
+  [ARCHITECTURE.md](./ARCHITECTURE.md)) by making them swappable per-theme
+  rather than introducing a separate styling system.
 
 ## Explicitly not planned yet
 

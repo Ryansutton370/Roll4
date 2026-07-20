@@ -47,6 +47,46 @@ export interface Combatant {
    *  null while onHold is false. */
   preHoldLastRoll: number | null;
   preHoldInitiativeTotal: number | null;
+  /** true = added mid-encounter via the "+" menu (see EncounterDetail),
+   *  not yet rolled into the main list. Shown in a separate "Ready to
+   *  Join" list; excluded from turn order (firstActiveIndex/advanceTurn's
+   *  activeIndices) the same way removedFromCombat/onHold already are.
+   *  Cleared either by manually joining (EncounterStore.
+   *  joinReadyToJoinCombatant — same roll-capped-below-Active logic as
+   *  un-removing) or automatically at the next round boundary. */
+  readyToJoin: boolean;
+}
+
+/**
+ * An Encounter-scoped countdown, created via the same "+" menu as an
+ * ad-hoc mid-combat Combatant. Ticks down once per round — either at
+ * every round boundary (linkedCombatantId null), or only when the linked
+ * combatant's turn ends that round (see EncounterStore.advanceTurn's
+ * creditLinkedTimerDeparture/uncreditLinkedTimerOnBack for the tick/untick
+ * bookkeeping, and docs/DATA_MODEL.md for the full rationale).
+ */
+export interface Timer {
+  id: string;
+  encounterId: string;
+  name: string;
+  remaining: number;
+  /** The value the GM set at creation — never changes afterward. Used only
+   *  to compute the light-grey-to-black card background as a percentage
+   *  (remaining / initialValue), so a timer that started at 3 and one that
+   *  started at 20 both read as "urgent" as they approach their own zero. */
+  initialValue: number;
+  /** Optional link, chosen at creation from combatants currently in the
+   *  main list or Hold Action panel. null = ticks at every round boundary.
+   *  Set = ticks when that combatant's turn ends instead (see
+   *  EncounterStore.advanceTurn). */
+  linkedCombatantId: string | null;
+  /** Internal bookkeeping, not GM-facing: the Encounter.round this timer
+   *  was last decremented for. A linked timer ticks at most once per
+   *  round no matter how many times its combatant's turn "ends" within
+   *  that round (normal turn end, going on Hold mid-turn, then later
+   *  actually acting after returning from Hold) — this is what makes that
+   *  idempotent. null before the first credit, or after Back undoes it. */
+  lastTickedRoundCredited: number | null;
 }
 
 export interface Encounter {

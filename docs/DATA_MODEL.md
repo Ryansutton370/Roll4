@@ -160,6 +160,22 @@ a Player, ad-hoc or otherwise."
 | `onHold`             | boolean                | Default `false`. See below.                   |
 | `preHoldLastRoll`    | number \| null         | Snapshot of `lastRoll` taken when Hold Action was turned on. Default `null`. See below. |
 | `preHoldInitiativeTotal` | number \| null     | Snapshot of `initiativeTotal` taken when Hold Action was turned on. Default `null`. See below. |
+| `readyToJoin`        | boolean                | Default `false`. See "Ready to Join" below. |
+
+### Timer
+An Encounter-scoped countdown, created via the same "+" menu (next to the
+Previous/Next Turn buttons, run phase only) as a mid-encounter Combatant —
+see "Timers" below for the full behavior.
+
+| Field                    | Type           | Notes                                        |
+|---------------------------|----------------|-----------------------------------------------|
+| `id`                      | string         | Unique identifier                              |
+| `encounterId`             | string         | References `Encounter.id`                      |
+| `name`                    | string         | GM-entered label, e.g. "Room floods"           |
+| `remaining`               | number         | Current countdown value                        |
+| `initialValue`            | number         | The value set at creation; never changes afterward — used only to compute the card's light-grey-to-black background as `remaining / initialValue` |
+| `linkedCombatantId`       | string \| null | Optional, set at creation. `null` = ticks at every round boundary. Set = ticks when that combatant's turn ends instead |
+| `lastTickedRoundCredited` | number \| null | Internal bookkeeping, not GM-facing — see "Timers" below |
 
 **Why copy `name`/`initiativeModifier` onto the Combatant instead of always
 reading through to the Player/Npc?** An ad-hoc entry has no library source
@@ -290,6 +306,88 @@ up below it if dropped at the very top) rather than computing a midpoint.
 This `cdkDropList` is deliberately self-contained — no
 `cdkDropListConnectedTo` linking it to the Hold Action panel's drop lists —
 so the two drag interactions can never cross into each other.
+
+**`readyToJoin` — adding a combatant mid-encounter:** the "+" menu next to
+the Previous/Next Turn buttons (run phase only, i.e. after the first Roll)
+offers "Add Timer" or "Add Combatant." Add Combatant reuses the exact same
+add flow as setup (`addPlayerCombatant`/`addNpcCombatant`/
+`addAdHocCombatant`, including ad-hoc "Save to Roster"), but passes
+`readyToJoin: true` — the new Combatant's id still lands in
+`combatantIds` (so the existing "list owns its members" convention holds),
+but with `initiativeTotal`/`lastRoll` both `null` and excluded from turn
+order the same way `removedFromCombat`/`onHold` already are
+(`firstActiveIndex`, `advanceTurn`'s eligible-index filter,
+`reorderCombatant`'s not-draggable guard). In the UI it's shown in its own
+"Ready to Join" list, between the turn controls and Removed From Combat.
+
+Clicking a Ready to Join combatant joins it in via
+`EncounterStore.joinReadyToJoinCombatant` — the exact same roll-capped-
+below-the-Active-total-and-reinsert logic as un-removing from Removed From
+Combat (both now share a private `rollCombatantInBelowActive` helper),
+never interrupting whoever's turn it currently is.
+
+Left un-joined, a Ready to Join combatant folds into the main list
+automatically at the next round boundary, alongside Hold Action's own
+round-boundary reconciliation:
+- **Re-roll mode** (`reRollEachRound: true`): `reRollRound` clears
+  `readyToJoin` the same way it already clears a held combatant's
+  `onHold` — since the combatant's id is already in `combatantIds`, that
+  alone is enough for it to get a fresh roll alongside everyone else's.
+- **Classic mode** (`reRollEachRound: false`): `foldInReadyToJoin` is the
+  round-boundary counterpart to `clearHoldWithoutReroll`. Unlike a held
+  combatant, a ready-to-join combatant has no `preHold*`-style snapshot to
+  restore (it was never in the turn order to begin with), so it instead
+  gets a fresh, **uncapped** roll — "joining combat for real," not
+  "rejoining mid-round" — and is inserted at that sorted position.
+
+## Timers
+
+A Timer (see the entity above) is created via the same "+" menu as a
+mid-encounter Combatant, run phase only. `remaining` counts down by 1 —
+either at every round boundary (`linkedCombatantId: null`), or only when
+that specific combatant's turn ends (`linkedCombatantId` set), chosen once
+at creation from whichever combatants are currently in the main list or
+Hold Action panel (not Removed, not Ready to Join — neither has a "turn"
+to tick against right now).
+
+**Automatic ticking is floored at 0** (a linked or unlinked timer never
+free-falls into negative territory on its own); **the GM's manual +/-
+nudge is deliberately unclamped**, so a mistake can be corrected in either
+direction even past 0. Once `remaining <= 0`, the UI drops the numeric
+value entirely, shows just the name in bold white text, and swaps the
+card's background to red — ticking back above 0 (only possible manually)
+reverts it to the normal light-grey-to-black gradient.
+
+**The once-per-round rule for linked timers, and why `lastTickedRoundCredited`
+exists:** a linked combatant's turn can "end" more than once in the same
+round — going on Hold Action mid-turn, then later actually taking a
+delayed turn after returning from Hold. A linked timer still only ticks
+**once** per round no matter how many of these happen, the same
+once-per-round cadence an unlinked timer gets for free from the round
+boundary itself. `EncounterStore` guards this with `lastTickedRoundCredited`
+(the last `Encounter.round` a decrement was actually applied for): every
+"this combatant's turn just ended" event calls the same private
+`creditLinkedTimerDeparture(encounterId, combatantId, round)`, which is a
+no-op if that timer already credited `round`. This is called from three
+places, all safe to call redundantly for the same combatant/round thanks
+to the guard:
+1. `advanceTurn`'s Forward branch, for whoever was Active before the step
+   (same-round advance and round-rollover both count).
+2. `advanceTurn`'s round-rollover branch, additionally, for every
+   combatant still `onHold` at that moment — covers a combatant linked to
+   a Hold Action combatant who never got a turn that round at all; a
+   no-op if they *did* go on Hold this same round (already credited by
+   the Forward branch when they held).
+3. `returnFromHold`'s `'above'` interrupt branch, for the combatant being
+   interrupted — this is the one place `activeCombatantIndex` changes
+   without going through `advanceTurn` at all.
+
+`advanceTurn`'s Back branch mirrors this with `uncreditLinkedTimerOnBack`:
+if the combatant Back just landed on has a linked timer credited *this*
+round, increment it by 1 and clear the credit. Back never crosses a round
+boundary (see `isFirstActiveCombatant` in `encounter-detail.ts`), so
+there's never an earlier round's credit to worry about touching — this
+exactly reverses whatever the matching credit call did.
 
 ## Notes on "re-roll every round"
 

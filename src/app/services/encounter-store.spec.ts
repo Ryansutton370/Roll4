@@ -7,6 +7,7 @@ import {
   clearHoldWithoutReroll,
   compareByInitiative,
   firstActiveIndex,
+  foldInReadyToJoin,
   reRollRound,
 } from './encounter-store';
 import { NpcStore } from './npc-store';
@@ -32,6 +33,7 @@ function combatant(overrides: Partial<Combatant>): Combatant {
     onHold: false,
     preHoldLastRoll: null,
     preHoldInitiativeTotal: null,
+    readyToJoin: false,
     ...overrides,
   };
 }
@@ -195,6 +197,32 @@ describe('firstActiveIndex (pure logic)', () => {
       combatant({ id: 'b', onHold: true }),
     ];
     expect(firstActiveIndex(order)).toBeNull();
+  });
+
+  it('skips Ready to Join entries too', () => {
+    const order = [combatant({ id: 'a', readyToJoin: true }), combatant({ id: 'b' })];
+    expect(firstActiveIndex(order)).toBe(1);
+  });
+});
+
+describe('foldInReadyToJoin (pure logic)', () => {
+  it('returns the same array reference when nobody is Ready to Join', () => {
+    const order = [combatant({ id: 'a' }), combatant({ id: 'b' })];
+    expect(foldInReadyToJoin(order)).toBe(order);
+  });
+
+  it('gives a Ready to Join combatant a fresh, uncapped roll and un-sets the flag', () => {
+    const active = combatant({ id: 'active', initiativeTotal: 3 });
+    const pending = combatant({ id: 'pending', readyToJoin: true, initiativeModifier: 0 });
+
+    vi.spyOn(Math, 'random').mockReturnValueOnce(0.95); // -> roll 20
+    const result = foldInReadyToJoin([active, pending]);
+    vi.restoreAllMocks();
+
+    const joined = result.find((c) => c.id === 'pending')!;
+    expect(joined.readyToJoin).toBe(false);
+    expect(joined.initiativeTotal).toBe(20); // uncapped — well above Active's 3
+    expect(result.map((c) => c.id)).toEqual(['pending', 'active']); // sorted in by the new total
   });
 });
 
@@ -980,6 +1008,194 @@ describe('EncounterStore', () => {
       const combatants = service.combatantsForEncounter(encounter.id);
       expect(combatants).toHaveLength(1); // no duplicate created
       expect(combatants[0]).toMatchObject({ id: combatant.id, playerId: player.id, npcId: null });
+    });
+  });
+
+  describe('Ready to Join (mid-encounter adds)', () => {
+    it('addAdHocCombatant with readyToJoin true keeps the combatant out of turn order', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('High', 100));
+      service.rollInitiative(encounter.id);
+
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Late Arrival', 0), true);
+
+      const combatants = service.combatantsForEncounter(encounter.id);
+      const late = combatants.find((c) => c.name === 'Late Arrival')!;
+      expect(late.readyToJoin).toBe(true);
+      expect(late.initiativeTotal).toBeNull();
+      // Still the only active combatant — Forward has nowhere else to go.
+      const updated = service.getEncounter(encounter.id)!;
+      expect(combatants[updated.activeCombatantIndex!].name).toBe('High');
+    });
+
+    it('joinReadyToJoinCombatant rolls capped below Active and inserts without interrupting', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('High', 15));
+      vi.spyOn(Math, 'random').mockReturnValueOnce(0); // High -> roll 1, total 16
+      service.rollInitiative(encounter.id);
+      vi.restoreAllMocks();
+
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Late Arrival', 0), true);
+      const late = service.combatantsForEncounter(encounter.id).find((c) => c.name === 'Late Arrival')!;
+
+      // A natural roll of 20 would exceed High's total of 16, so it's capped to 15.
+      vi.spyOn(Math, 'random').mockReturnValueOnce(0.95);
+      service.joinReadyToJoinCombatant(encounter.id, late.id);
+      vi.restoreAllMocks();
+
+      const combatants = service.combatantsForEncounter(encounter.id);
+      const joined = combatants.find((c) => c.id === late.id)!;
+      expect(joined.readyToJoin).toBe(false);
+      expect(joined.initiativeTotal).toBe(15);
+      expect(combatants[0].name).toBe('High'); // still Active, not interrupted
+      const updated = service.getEncounter(encounter.id)!;
+      expect(combatants[updated.activeCombatantIndex!].name).toBe('High');
+    });
+
+    it('folds an un-joined Ready to Join combatant into the main list at the next round boundary (re-roll mode)', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Only', 0));
+      service.rollInitiative(encounter.id);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Late Arrival', 0), true);
+
+      service.advanceTurn(encounter.id, 'forward'); // Only was the only eligible combatant -> new round
+
+      const updated = service.getEncounter(encounter.id)!;
+      expect(updated.round).toBe(2);
+      const late = service.combatantsForEncounter(encounter.id).find((c) => c.name === 'Late Arrival')!;
+      expect(late.readyToJoin).toBe(false);
+      expect(late.initiativeTotal).not.toBeNull();
+    });
+
+    it('folds an un-joined Ready to Join combatant in with a fresh, uncapped roll at the round boundary (Classic mode)', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Only', 0));
+      service.setReRollEachRound(encounter.id, false);
+      vi.spyOn(Math, 'random').mockReturnValueOnce(0); // Only -> roll 1, total 1
+      service.rollInitiative(encounter.id);
+      vi.restoreAllMocks();
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Late Arrival', 0), true);
+
+      vi.spyOn(Math, 'random').mockReturnValueOnce(0.95); // Late Arrival -> roll 20, well above Only's 1
+      service.advanceTurn(encounter.id, 'forward'); // wraps into round 2
+      vi.restoreAllMocks();
+
+      const combatants = service.combatantsForEncounter(encounter.id);
+      const late = combatants.find((c) => c.name === 'Late Arrival')!;
+      expect(late.readyToJoin).toBe(false);
+      expect(late.initiativeTotal).toBe(20);
+      expect(combatants[0].name).toBe('Late Arrival'); // sorted in above Only's untouched roll
+    });
+
+    it('is not draggable via reorderCombatant', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('High', 100));
+      service.rollInitiative(encounter.id);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Late Arrival', 0), true);
+      const late = service.combatantsForEncounter(encounter.id).find((c) => c.name === 'Late Arrival')!;
+      const before = service.combatantsForEncounter(encounter.id);
+
+      service.reorderCombatant(encounter.id, late.id, 0);
+
+      expect(service.combatantsForEncounter(encounter.id)).toEqual(before);
+    });
+  });
+
+  describe('Timers', () => {
+    it('createTimer/dismissTimer/adjustTimerValue/renameTimer', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+
+      const timer = service.createTimer(encounter.id, 'Flooding room', 3, null);
+      expect(service.timersForEncounter(encounter.id)).toEqual([timer]);
+      expect(timer.remaining).toBe(3);
+
+      service.adjustTimerValue(encounter.id, timer.id, -1);
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(2);
+      service.adjustTimerValue(encounter.id, timer.id, 5); // unclamped, can exceed initialValue
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(7);
+
+      service.renameTimer(encounter.id, timer.id, 'Flooding room (fixed)');
+      expect(service.timersForEncounter(encounter.id)[0].name).toBe('Flooding room (fixed)');
+
+      service.dismissTimer(encounter.id, timer.id);
+      expect(service.timersForEncounter(encounter.id)).toEqual([]);
+    });
+
+    it('an unlinked timer ticks once at each round boundary, floored at 0', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Only', 0));
+      service.rollInitiative(encounter.id);
+      const timer = service.createTimer(encounter.id, 'Flooding room', 1, null);
+
+      service.advanceTurn(encounter.id, 'forward'); // Only is the sole active combatant -> new round
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(0);
+
+      service.advanceTurn(encounter.id, 'forward'); // another round boundary — stays floored
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(0);
+    });
+
+    it('a linked timer ticks when the linked combatant\'s turn ends, and unticks on Back', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('High', 100));
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Low', -100));
+      service.rollInitiative(encounter.id); // order: High (Active), Low
+      const [high] = service.combatantsForEncounter(encounter.id);
+      const timer = service.createTimer(encounter.id, 'Illusion', 3, high.id);
+
+      service.advanceTurn(encounter.id, 'forward'); // High's turn ends
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(2);
+
+      service.advanceTurn(encounter.id, 'back'); // undo, back onto High
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(3);
+
+      service.advanceTurn(encounter.id, 'forward'); // redo
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(2);
+      expect(timer.linkedCombatantId).toBe(high.id);
+    });
+
+    it('a linked timer ticks only once per round even if its combatant goes on Hold then still holds through the round boundary', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('High', 100));
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Low', -100));
+      service.rollInitiative(encounter.id); // order: High (Active), Low
+      const [high] = service.combatantsForEncounter(encounter.id);
+      service.createTimer(encounter.id, 'Illusion', 5, high.id);
+
+      service.toggleHoldAction(encounter.id, high.id); // High holds -> auto-advances to Low, ticks once
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(4);
+
+      service.advanceTurn(encounter.id, 'forward'); // Low's turn ends -> round boundary; High still on Hold
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(4); // not double-ticked
+      expect(service.getEncounter(encounter.id)!.round).toBe(2);
+    });
+
+    it('a linked timer ticks at the round boundary for a combatant who was already on Hold the whole round and never acted', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('High', 100));
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Low', -100));
+      service.rollInitiative(encounter.id);
+      const [high] = service.combatantsForEncounter(encounter.id);
+      service.toggleHoldAction(encounter.id, high.id); // High holds before the timer is even created
+
+      service.createTimer(encounter.id, 'Illusion', 5, high.id);
+
+      service.advanceTurn(encounter.id, 'forward'); // Low's turn ends -> round boundary; High still held
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(4);
+      expect(service.getEncounter(encounter.id)!.round).toBe(2);
+    });
+
+    it('returnFromHold "above" credits the interrupted combatant\'s linked timer', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('High', 100));
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Low', -100));
+      service.rollInitiative(encounter.id);
+      const [high, low] = service.combatantsForEncounter(encounter.id);
+      service.createTimer(encounter.id, 'Illusion', 3, high.id);
+      service.toggleHoldAction(encounter.id, low.id); // Low holds, High still Active
+
+      service.returnFromHold(encounter.id, low.id, 'above'); // interrupts High mid-turn
+
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(2);
     });
   });
 });

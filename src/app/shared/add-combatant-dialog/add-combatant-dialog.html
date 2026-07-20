@@ -1,0 +1,71 @@
+<!-- Native <dialog>, opened imperatively via showModal() (see open() in
+     add-combatant-dialog.ts) — same free ::backdrop + Escape-to-cancel as
+     EditCombatantDialog. Escape fires the dialog's own native 'cancel' then
+     'close' events, which need no handler here: the GM just sees it vanish,
+     exactly like clicking the Cancel button below. -->
+<dialog #dialog class="add-dialog">
+  <h2>Add Combatant</h2>
+
+  @if (step() === 'choose') {
+    <!-- Three peer choices, per the GM spec: Existing NPC / Existing
+         Player / Create New — not "existing" with "new" buried behind a
+         toggle link, and not a type radio that re-scopes a single
+         existing/new toggle underneath it. -->
+    <div class="choose-step">
+      <button type="button" class="choose-btn" (click)="startExisting('npc')">Existing NPC</button>
+      <button type="button" class="choose-btn" (click)="startExisting('pc')">Existing Player</button>
+      <button type="button" class="choose-btn" (click)="startNew()">Create New</button>
+    </div>
+  } @else if (step() === 'existing') {
+    <!-- Picking a roster entry adds it immediately (pickExisting emits +
+         closes), rather than a separate select-then-confirm — one click
+         through the modal is the whole flow. -->
+    @if (currentAvailable().length > 0) {
+      <ul class="roster-pick-list">
+        @for (entry of currentAvailable(); track entry.id) {
+          <li>
+            <button type="button" (click)="pickExisting(entry.id)">{{ entry.name }}</button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty-state">
+        No saved {{ type() === 'pc' ? 'Players' : 'NPCs' }} to add yet.
+      </p>
+    }
+    <button type="button" class="mode-toggle" (click)="backToChoose()">← Back</button>
+  } @else {
+    <!-- A brand-new ad-hoc combatant still needs a type — asked here,
+         rather than up front, since it isn't relevant until this step. -->
+    <fieldset class="ad-hoc-type">
+      <label>
+        <input type="radio" name="addCombatantType" [checked]="type() === 'npc'" (change)="type.set('npc')" />
+        NPC
+      </label>
+      <label>
+        <input type="radio" name="addCombatantType" [checked]="type() === 'pc'" (change)="type.set('pc')" />
+        Player
+      </label>
+    </fieldset>
+    <form class="entry-form" (ngSubmit)="submitNew()">
+      <app-combatant-fields
+        [name]="name()"
+        (nameChange)="name.set($event)"
+        [initiativeModifier]="initiativeModifier()"
+        (initiativeModifierChange)="initiativeModifier.set($event)"
+        [ac]="ac()"
+        (acChange)="ac.set($event)"
+        [maxHp]="maxHp()"
+        (maxHpChange)="maxHp.set($event)"
+        [notes]="notes()"
+        (notesChange)="notes.set($event)"
+      />
+      <button type="submit">Add</button>
+    </form>
+    <button type="button" class="mode-toggle" (click)="backToChoose()">← Back</button>
+  }
+
+  <div class="dialog-actions">
+    <button type="button" (click)="cancel()">Cancel</button>
+  </div>
+</dialog>

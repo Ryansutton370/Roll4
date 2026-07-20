@@ -19,6 +19,19 @@
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Click-to-expand (see toggleNameExpanded() in combatant-bubble.ts) — same
+   "temporary growth that snaps back after the user's done" as
+   .notes-stat.revealed below: lifts the truncation so the full name can
+   wrap onto as many lines as it needs instead of stopping at the
+   container-query ladder's tightened flex-basis. */
+.combatant-name.name-expanded {
+  flex-basis: auto;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Driven by the `active` input — this is the encounter's current Active
@@ -36,57 +49,6 @@
   width: 0;
 }
 
-/* Mobile only: reorders the row so the name and the expand button share one
-   line instead of the button falling to its own line below. flex `order`
-   is purely a paint-order override — it doesn't touch the DOM, so the
-   drag-handle/return-btn projected in via [leading-control] (a real
-   sibling of these, just not stylable from here — see the comment on
-   .drag-handle in encounter-detail.css) keeps its default order: 0 and
-   stays leftmost without needing a rule of its own. .row-break (see
-   below) does the actual line-break; it's reordered to right after
-   .expand-btn instead of right after .combatant-name, so it's now
-   AC/HP/Notes/status/Initiative that wrap onto the second line, not the
-   expand button. Desktop is untouched — `order` only applies inside this
-   media query. */
-@media (max-width: 480px) {
-  .type-dot {
-    order: 1;
-  }
-
-  .combatant-name {
-    order: 2;
-  }
-
-  .expand-btn {
-    order: 3;
-  }
-
-  .row-break {
-    flex-basis: 100%;
-    order: 4;
-  }
-
-  .ac-stat {
-    order: 5;
-  }
-
-  .hp-stat-wrapper {
-    order: 6;
-  }
-
-  .notes-stat {
-    order: 7;
-  }
-
-  .status-icons {
-    order: 8;
-  }
-
-  .init-stat {
-    order: 9;
-  }
-}
-
 /* Faint, normal-weight — reads as a secondary annotation next to the bold
    name rather than competing with it, the same "muted" language used for
    .round-indicator in encounter-detail.css. */
@@ -95,6 +57,21 @@
   color: var(--color-text-muted);
   font-weight: 400;
   font-size: 0.85em;
+}
+
+/* Small clock badge next to the name — a purely informational marker (not
+   a control, unlike the status icons below), so it's a plain <span> rather
+   than a <button>. */
+.linked-timer-icon {
+  display: inline-flex;
+  margin-left: 0.3rem;
+  color: var(--color-text-muted);
+  vertical-align: -0.15em;
+}
+
+.linked-timer-icon svg {
+  width: 0.9em;
+  height: 0.9em;
 }
 
 .status-icons {
@@ -190,19 +167,34 @@
   overflow: hidden;
 }
 
+/* Row of two columns: checkboxes on the left, action buttons stacked on
+   the right (see .drawer-checkboxes/.drawer-actions below) — wraps to
+   stacked columns if the bubble itself is ever too narrow for both. */
 .drawer-content {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
   padding-top: 0.75rem;
   margin-top: 0.75rem;
   border-top: 1px solid var(--color-border);
 }
 
-.drawer-content label {
+.drawer-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.drawer-checkboxes label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.drawer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
 /* Compact (Hold Action panel) bubbles only: #statsBlock (AC/HP/Notes/
@@ -220,7 +212,7 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.drawer-edit-btn {
+.drawer-action-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -234,16 +226,16 @@
   transition: background-color var(--transition-fast);
 }
 
-.drawer-edit-btn:hover:not(:disabled) {
+.drawer-action-btn:hover:not(:disabled) {
   background: var(--color-removed-tint);
 }
 
-.drawer-edit-btn:disabled {
+.drawer-action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.drawer-edit-btn svg {
+.drawer-action-btn svg {
   width: 0.9rem;
   height: 0.9rem;
 }
@@ -278,11 +270,53 @@
    instead of around them), so AC/HP/Notes/Initiative line up vertically
    across every bubble in the list, table-style. */
 .ac-stat {
-  width: 2.75rem;
+  width: 2.4rem;
 }
 
 .init-stat {
-  width: 3rem;
+  width: 2.4rem;
+}
+
+/* AC/Initiative badge: a solid icon with the value reversed (white) and
+   centered on top of it, rather than icon-then-text side by side. Sized to
+   comfortably fit two-digit values (AC 18, Initiative 23) — bigger than the
+   plain 0.95rem icons used elsewhere in this file, since the icon itself is
+   now the whole control, not a small annotation next to the real content.
+   (Bumped up again from an initial 1.7rem/0.65rem pass — AC/HP/Initiative
+   were still hard to read at a glance, worth the bubble growing slightly
+   taller to fix.) */
+.badge-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex-shrink: 0;
+}
+
+.badge-icon svg {
+  width: 100%;
+  height: 100%;
+  color: #000;
+}
+
+.badge-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* "N/A" is 3 characters where every other value here is 1-2 — shrunk down
+   so it still fits inside the same badge instead of overflowing it. */
+.badge-value.na {
+  font-size: 0.5rem;
 }
 
 /* The fixed-width flex item + position: relative containing block both
@@ -293,7 +327,7 @@
   position: relative;
   display: inline-flex;
   flex-shrink: 0;
-  width: 8rem;
+  width: 8.75rem;
 }
 
 .hp-stat {
@@ -306,15 +340,23 @@
   cursor: pointer;
 }
 
+/* Bigger than the plain .stat svg default (0.95rem, still used by Notes'
+   icon) — HP specifically called out as hard to read at a glance. */
+.hp-stat svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .hp-numbers {
   min-width: 3ch;
+  font-size: 1rem;
   font-variant-numeric: tabular-nums;
 }
 
 .hp-bar {
   display: inline-block;
   width: 4.5rem;
-  height: 0.5rem;
+  height: 0.65rem;
   border-radius: 999px;
   background: var(--color-panel-bg);
   overflow: hidden;
@@ -331,20 +373,6 @@
   transition:
     width var(--transition-standard),
     background-color var(--transition-standard);
-}
-
-/* Below this width there isn't room for icon + numbers + a 4.5rem bar
-   without crowding everything else off the row — the bar is the one part
-   of the HP stat that's purely redundant with the numbers next to it
-   (same information, just visual), so it's the first thing to go. */
-@media (max-width: 480px) {
-  .hp-bar {
-    display: none;
-  }
-
-  .hp-stat-wrapper {
-    width: 3.5rem;
-  }
 }
 
 /* Anchored to .hp-stat-wrapper (position: relative, above), so it always
@@ -499,4 +527,103 @@
   overflow: visible;
   white-space: normal;
   overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------------
+   Responsive truncation ladder — @container, not @media. A viewport media
+   query only fires based on the whole page's width, but this bubble can
+   end up effectively mobile-narrow on a wide desktop viewport once the
+   Timers rail and the Hold Action panel both eat into the row's width (see
+   `container-type: inline-size` on .main-combatant/.held-bubble in
+   encounter-detail.css) — @container measures the bubble's own rendered
+   width instead, so it fires whenever the row is actually tight, desktop
+   or mobile alike. Each tier below only spends its width savings once the
+   previous tier's wasn't enough — Notes first (least essential, and
+   already click-to-reveal so nothing is lost), then the HP bar (redundant
+   with the numbers next to it), then the Name, and only as an absolute
+   last resort reordering onto two lines. The bubble should never wrap
+   while any of these are still available to reclaim space instead.
+
+   Deliberately placed at the END of the file, after every base rule it
+   overrides (.notes-stat, .hp-bar, .combatant-name, etc.) — a @container
+   rule doesn't automatically outrank a plain rule of equal specificity;
+   when both match, the LATER one in source order wins, container query or
+   not. Putting this block first (as it originally was, right after
+   .row-break) meant the plain .hp-bar/.notes-stat rules further down the
+   file were silently winning back everything this was supposed to hide.
+   --------------------------------------------------------------------- */
+
+/* Notes: icon-only, full text only reachable via the existing
+   click-to-reveal (.revealed, see toggleNotesRevealed() in
+   combatant-bubble.ts) — :not(.revealed) so a note the GM already has open
+   stays open even if the container is this narrow. */
+@container (max-width: 36rem) {
+  .notes-stat:not(.revealed) {
+    width: 1.6rem;
+    padding: 0.1rem;
+  }
+
+  .notes-stat:not(.revealed) .notes-text {
+    display: none;
+  }
+}
+
+/* HP bar: purely redundant with the numbers right next to it (same
+   information, just visual) — the first real pixels to give up once Notes
+   alone wasn't enough. */
+@container (max-width: 33rem) {
+  .hp-bar {
+    display: none;
+  }
+
+  .hp-stat-wrapper {
+    width: 4rem;
+  }
+}
+
+/* Name: tightened further, with a click-to-expand escape hatch (see
+   .name-expanded / toggleNameExpanded() in combatant-bubble.ts) — same
+   "temporary growth on click, snaps back on click-away" pattern already
+   used for Notes above. The native `title` attribute (combatant-bubble.html)
+   covers hover for free, no extra CSS/JS needed for that half of it. */
+@container (max-width: 24rem) {
+  .combatant-name:not(.name-expanded) {
+    flex-basis: 3.5rem;
+  }
+}
+
+/* Last resort: reorders onto two lines (name on one, every stat column on
+   the next) — only reached once Notes/HP-bar/Name truncation together
+   still aren't enough, which should now be rare. .row-break's flex-basis:
+   100% does the actual line-break.
+
+   The expand button and the drag handle are pulled OUT of the row's normal
+   flex flow entirely here, rather than reserving their own inline space
+   (which is what used to leave a line effectively dedicated to just the
+   chevron): .expand-btn becomes an absolutely-positioned button pinned to
+   the row's top-right corner, and .drag-handle (styled in
+   encounter-detail.css, since it's content projected in from there — see
+   [leading-control] in combatant-bubble.html) becomes one pinned to the
+   left, vertically centered, overlaying the row instead of sitting inline
+   in front of the name. Both were already hidden until revealed
+   (expand-btn always visible, drag-handle only on hover/tap/focus) — this
+   just changes how they're positioned once visible, not when. Name and
+   every stat column now use the full row width (minus the padding
+   reserved for the expand button, so text doesn't render underneath it)
+   instead of leaving a gap for either button inline. */
+@container (max-width: 22rem) {
+  .combatant-row {
+    position: relative;
+    padding-right: 2.4rem;
+  }
+
+  .row-break {
+    flex-basis: 100%;
+  }
+
+  .expand-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
 }
