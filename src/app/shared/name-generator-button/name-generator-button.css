@@ -1,0 +1,110 @@
+/* A real box (not display: contents) — needs to act as one flex item
+   alongside whatever input the caller places next to it. No position:
+   relative here (the popover below no longer anchors off this — see its
+   own comment for why: it's position: fixed, positioned via JS instead of
+   a CSS offset from this host). */
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.generate-name-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.generate-name-btn:hover {
+  background: var(--color-removed-tint);
+  color: var(--color-text);
+}
+
+.generate-name-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* position: fixed with top/left set inline from name-generator-button.ts
+   (positionPopover()), not a CSS anchor off the button — verified live
+   that a CSS-only anchor (position: absolute, offset from :host) breaks
+   the moment this opens inside a container narrower than the popover
+   itself, e.g. AddCombatantDialog: the popover rendered partly outside the
+   dialog's own box, and the dialog's browser-default `overflow: auto`
+   silently scrolled that part out of its clipped viewport rather than
+   showing it — still in the DOM, still partly visible, but unclickable.
+   Fixed positioning is relative to the viewport (no ancestor here sets a
+   transform/etc. that would change that), so no ancestor's overflow can
+   clip or scroll it away regardless of context — full page, a narrow
+   dialog, a roster row. */
+.name-picker-popover {
+  position: fixed;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 16rem;
+  padding: 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.name-picker-selects {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.name-picker-selects select {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.name-picker-roll {
+  padding: 0.4rem 0.7rem;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.name-picker-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.name-picker-results button {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-removed-tint);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.name-picker-results button:hover {
+  background: var(--color-pc-tint);
+}

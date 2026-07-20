@@ -103,15 +103,22 @@ export class NpcStore {
     );
   }
 
-  /** Created directly into the roster, unattached to any Troop — use addNpcToTroop to assign it to one. */
+  /** Created directly into the roster, unattached to any Troop — use addNpcToTroop to assign it to one. monsterTemplateId/monsterName are optional so every existing hand-entered-NPc call site is unaffected; only the Encounter Generator's "Save as Troop" step sets them. */
   createNpc(fields: {
     name: string;
     initiativeModifier: number;
     ac: number | null;
     maxHp: number | null;
     notes: string;
+    monsterTemplateId?: string | null;
+    monsterName?: string | null;
   }): Npc {
-    const npc: Npc = { id: crypto.randomUUID(), ...fields };
+    const npc: Npc = {
+      id: crypto.randomUUID(),
+      ...fields,
+      monsterTemplateId: fields.monsterTemplateId ?? null,
+      monsterName: fields.monsterName ?? null,
+    };
     this.npcsSignal.update((npcs) => [...npcs, npc]);
     return npc;
   }

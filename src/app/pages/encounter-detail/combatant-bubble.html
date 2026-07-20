@@ -16,7 +16,11 @@
        know which one it's showing. -->
   <ng-content select="[leading-control]"></ng-content>
 
-  <span class="type-dot" [class.pc]="combatant().type === 'pc'" [class.npc]="combatant().type === 'npc'"></span>
+  <span
+    class="type-dot"
+    [class.pc]="combatant().type === 'pc'"
+    [class.npc]="combatant().type === 'npc'"
+  ></span>
   <!-- title: free native hover tooltip showing the full name once the
        container-query ladder (combatant-bubble.css) has truncated it.
        (click): the same "expand on click, snap back on click-away" pattern
@@ -31,6 +35,9 @@
     tabindex="0"
     (click)="toggleNameExpanded()"
     >{{ displayName() }}
+    @if (monsterSubtitle(); as subtitle) {
+      <span class="monster-subtitle">- {{ subtitle }}</span>
+    }
     @if (combatant().incapacitated) {
       <span class="incapacitated-label">Incapacitated</span>
     }
@@ -158,12 +165,28 @@
           (click)="editRequested.emit()"
         >
           <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path
-              d="M13.59 2.59a2 2 0 0 1 2.83 2.83l-8.83 8.83-3.54.71.71-3.54 8.83-8.83Z"
-            />
+            <path d="M13.59 2.59a2 2 0 0 1 2.83 2.83l-8.83 8.83-3.54.71.71-3.54 8.83-8.83Z" />
           </svg>
           Edit Info
         </button>
+        <!-- Only shown for a combatant generated from a monster stat block
+             (see MonsterTemplate in docs/DATA_MODEL.md) — a hand-entered
+             combatant has no monsterTemplateId and nothing to show here. -->
+        @if (combatant().monsterTemplateId) {
+          <button
+            type="button"
+            class="drawer-action-btn view-stat-block-btn"
+            [disabled]="isPlacing()"
+            (click)="viewStatBlockRequested.emit()"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                d="M10 4.5c-4.2 0-7.75 2.9-9 5.5 1.25 2.6 4.8 5.5 9 5.5s7.75-2.9 9-5.5c-1.25-2.6-4.8-5.5-9-5.5Zm0 9.17A3.67 3.67 0 1 1 10 6.33a3.67 3.67 0 0 1 0 7.34Zm0-1.5a2.17 2.17 0 1 0 0-4.34 2.17 2.17 0 0 0 0 4.34Z"
+              />
+            </svg>
+            View Stat Block
+          </button>
+        }
       </div>
     </div>
   </div>
@@ -183,7 +206,10 @@
        centered inside it, rather than icon-then-text side by side — reads
        faster at a glance and costs less row width (see .badge-icon/
        .badge-value in combatant-bubble.css). -->
-  <span class="stat ac-stat" [title]="combatant().ac !== null ? 'Armor Class: ' + combatant().ac : null">
+  <span
+    class="stat ac-stat"
+    [title]="combatant().ac !== null ? 'Armor Class: ' + combatant().ac : null"
+  >
     @if (combatant().ac !== null) {
       <span class="badge-icon">
         <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -230,11 +256,7 @@
              green through yellow to red as hpPercent() drops, driven by
              the --hp-hue custom property below. -->
         <span class="hp-bar"
-          ><span
-            class="hp-bar-fill"
-            [style.width.%]="hpPercent()"
-            [style.--hp-hue]="hpHue()"
-          ></span
+          ><span class="hp-bar-fill" [style.width.%]="hpPercent()" [style.--hp-hue]="hpHue()"></span
         ></span>
       </button>
       @if (hpAdjustOpen()) {

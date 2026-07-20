@@ -49,6 +49,19 @@
   width: 0;
 }
 
+/* "Barry - Goblin": the personal name (combatant-name's own bold text)
+   stays primary, this creature-type annotation rides along at a smaller,
+   muted size — same "secondary annotation" treatment as .incapacitated-label
+   just below, and only ever rendered when CombatantBubble.monsterSubtitle()
+   has something to show (see that computed's own comment for when it
+   doesn't). */
+.monster-subtitle {
+  margin-left: 0.3rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: 0.8em;
+}
+
 /* Faint, normal-weight — reads as a secondary annotation next to the bold
    name rather than competing with it, the same "muted" language used for
    .round-indicator in encounter-detail.css. */

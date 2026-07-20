@@ -125,6 +125,19 @@ unwieldy. Precedent: `CombatantBubble`
 drawer markup duplicated between the main initiative list and the Hold
 Action panel.
 
+A second precedent, extracting a smaller *behavior* rather than a big
+chunk of markup: `NameGeneratorButton`
+(`src/app/shared/name-generator-button/`) was split out of
+`CombatantFields` once the Encounter Generator's Roster list needed the
+same 🎲-button-plus-popover next to its own per-row name input — copying
+that popover's open/roll/pick/click-away logic a second time wasn't worth
+it once there were two call sites. It deliberately owns *only* the button
+and popover, not a name `<input>` of its own: the parent supplies that
+input and listens for `nameSelected`, so the component stays usable next
+to any name-ish field regardless of that field's placeholder, styling, or
+what "submit" means there — the same "child reports, parent decides"
+separation `CombatantBubble`'s outputs already use.
+
 **The gotcha to watch for:** Angular's view encapsulation scopes a
 component's CSS to elements written in *its own* template — a parent's
 stylesheet cannot reach into a child component's template, even when the

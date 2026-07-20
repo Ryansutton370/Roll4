@@ -102,7 +102,7 @@ see [PRODUCT.md](./PRODUCT.md) for the resulting nav/data-model shape.
       [DATA_MODEL.md](./DATA_MODEL.md) for the resulting behavior, which
       supersedes the rougher Backlog sketch this used to be.
 
-## Phase 2.5 — Random Generators
+## Phase 2.5 — Random Generators (complete)
 
 Still local-storage only. Turns the "NPC name generator" / "Monster manual
 database import" / "Encounter generator" Backlog sketches below into real
@@ -125,14 +125,30 @@ and [DATA_MODEL.md](./DATA_MODEL.md) for `NameTable`.
       the Random Generators page with both sources' required attribution.
       Data-only, no generator/stat-block UI yet — see
       [DATA_MODEL.md](./DATA_MODEL.md).
-- [ ] Milestone 3 — Encounter Generator: a second Random Generators page
-      (the tab gains its Names/Encounter sub-nav at this point) to generate
-      a monster list by sourcebook + difficulty, edit it, bulk-apply
-      generated names, and save the result as a Troop.
-- [ ] Milestone 4 — Combatant integration: an Eye icon on a
-      monster-generated combatant's bubble opens its full stat block; a
-      combatant with both a personal name and a creature type displays as
-      "Barry" (small "Goblin" subtitle) instead of just "Goblin".
+- [x] Milestone 3 — Encounter Generator: a second Random Generators page
+      (`/generators/encounter`, the tab's Names/Encounter sub-nav landed
+      with it) generates a monster list — a real DMG XP-budget algorithm
+      for 5e SRD, a level-range random draw for Shadowdark (which has no
+      XP-budget system of its own — see [DATA_MODEL.md](./DATA_MODEL.md)),
+      lets the GM edit it, bulk-applies generated names, and saves the
+      result as a Troop. Pulled forward the `monsterTemplateId`/
+      `monsterName` half of Milestone 4's data model (the Eye icon and
+      name-display UI itself are still Milestone 4), since "Save as Troop"
+      needed somewhere to put the link.
+- [x] Milestone 4 — Combatant integration: a "View Stat Block" button in a
+      monster-generated combatant's drawer (only shown when
+      `monsterTemplateId` is set) opens its full stat block in a read-only
+      `MonsterStatBlockDialog`; a combatant with both a personal name and a
+      creature type displays as "Barry" with a smaller "- Goblin" subtitle
+      instead of just "Goblin" (see `CombatantBubble.monsterSubtitle`).
+      Also, per user feedback while reviewing Milestone 3: extracted the
+      name-picker popover out of `CombatantFields` into its own
+      `NameGeneratorButton` component (just the 🎲 button + popover, no
+      input of its own — the parent supplies that and listens for
+      `nameSelected`), and added it per-row on the Encounter Generator's
+      Roster list alongside the existing bulk "Generate Names" pass, so a
+      GM can mix tables/genders across one roster instead of every monster
+      coming from the same category.
 
 ## Phase 3 — GM Accounts + Real Persistence
 

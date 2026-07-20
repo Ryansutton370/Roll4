@@ -76,10 +76,28 @@ export class CombatantBubble {
   readonly editRequested = output<void>();
   /** Drawer's Create Timer button — EncounterDetail creates a Timer linked to this combatant with a default name/value. */
   readonly createTimerRequested = output<void>();
+  /** Drawer's View Stat Block button (only shown when combatant().monsterTemplateId is set) — EncounterDetail looks up the MonsterTemplate and opens the shared MonsterStatBlockDialog. */
+  readonly viewStatBlockRequested = output<void>();
   /** A signed HP delta typed into the popover below (damage negative, healing positive) — EncounterDetail applies it via EncounterStore.adjustCurrentHp. */
   readonly hpAdjustSubmit = output<number>();
   /** Mirrors hpAdjustOpen() below — EncounterDetail needs to know so it can raise the open bubble's <li> above its siblings (see the comment on the effect() below for why). */
   readonly hpAdjustOpenChange = output<boolean>();
+
+  // The creature-type subtitle ("Goblin") shown next to a personal name
+  // ("Barry") — null whenever there's nothing to add: no monsterName at
+  // all (a hand-entered combatant), or a generated monster that was never
+  // given a personal name (name and monsterName are the same string, e.g.
+  // both "Goblin"). Compared against the raw `name` field, not
+  // displayName() — displayName() adds an " A"/" B" duplicate-name suffix
+  // (see EncounterStore.computeDisplayNames), which would otherwise make
+  // two unnamed "Goblin"s wrongly look like they'd been given a personal
+  // name the moment they got lettered apart.
+  protected readonly monsterSubtitle = computed(() => {
+    const c = this.combatant();
+    if (!c.monsterName) return null;
+    if (c.name.trim().toLowerCase() === c.monsterName.trim().toLowerCase()) return null;
+    return c.monsterName;
+  });
 
   // Current/Max HP as a 0-100 percentage for the health bar's width. Guards
   // against maxHp being 0 (not a realistic value, but still a valid number)

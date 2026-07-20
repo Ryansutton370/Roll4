@@ -3,6 +3,7 @@
   <h1>{{ e.name }}</h1>
 
   <app-edit-combatant-dialog #editDialog (saveRequested)="onEditSave($event)" />
+  <app-monster-stat-block-dialog #statBlockDialog />
 
   <!-- One shared instance for both the setup-phase button and the run-phase
        "+" menu (see openAddCombatantDialog in encounter-detail.ts) — it
@@ -210,13 +211,20 @@
                    to the roster — a Party/Troop-pulled or already-linked
                    combatant has nothing new to save. -->
               @if (!c.playerId && !c.npcId) {
-                <button type="button" class="save-to-roster-btn" (click)="toggleSavingToRoster(c.id)">
+                <button
+                  type="button"
+                  class="save-to-roster-btn"
+                  (click)="toggleSavingToRoster(c.id)"
+                >
                   {{ isSavingToRoster(c.id) ? 'Cancel' : 'Save to Roster' }}
                 </button>
               }
             </li>
             @if (isSavingToRoster(c.id)) {
-              <ng-container [ngTemplateOutlet]="saveToRosterPicker" [ngTemplateOutletContext]="{ $implicit: c }" />
+              <ng-container
+                [ngTemplateOutlet]="saveToRosterPicker"
+                [ngTemplateOutletContext]="{ $implicit: c }"
+              />
             }
           }
         </ul>
@@ -308,7 +316,12 @@
                 [class.shaking]="isShaking(t.id)"
                 [style.--timer-lightness.%]="timerLightness(t)"
               >
-                <button type="button" class="timer-dismiss" title="Dismiss timer" (click)="dismissTimer(t.id)">
+                <button
+                  type="button"
+                  class="timer-dismiss"
+                  title="Dismiss timer"
+                  (click)="dismissTimer(t.id)"
+                >
                   ×
                   <span class="sr-only">Dismiss {{ t.name }}</span>
                 </button>
@@ -368,7 +381,11 @@
                   />
                   <label>
                     Link to:
-                    <select name="timerLink" [ngModel]="newTimerLinkedId()" (ngModelChange)="newTimerLinkedId.set($event)">
+                    <select
+                      name="timerLink"
+                      [ngModel]="newTimerLinkedId()"
+                      (ngModelChange)="newTimerLinkedId.set($event)"
+                    >
                       <option [ngValue]="null">Not linked</option>
                       @for (c of linkableCombatants(); track c.id) {
                         <option [ngValue]="c.id">{{ displayName(c.id) }}</option>
@@ -385,12 +402,12 @@
       }
 
       <div class="run-main">
-      <!-- <h2>, not <p> — this is the heading for everything below it
+        <!-- <h2>, not <p> — this is the heading for everything below it
            (combatant list, turn controls), one level under the encounter
            name's <h1> above. -->
-      <h2 class="round-indicator">Round {{ e.round }}</h2>
+        <h2 class="round-indicator">Round {{ e.round }}</h2>
 
-      <!--
+        <!--
         combatant-columns lays the main list and the Hold Action panel side
         by side (column below 560px — see encounter-detail.css). They're two
         separate <ol>s, not one shared grid: the panel is its own bordered
@@ -403,18 +420,18 @@
         versa. The panel's own drop lists (hold-list + the two placeholders)
         are wired to each other separately, by id, further down.
       -->
-      <div class="combatant-columns" #combatantColumns>
-        <div class="combatant-list-column">
-          <ol
-            cdkDropList
-            [cdkDropListData]="mainCombatants()"
-            [cdkDropListDisabled]="isPlacing()"
-            (cdkDropListDropped)="onReorderDropped($event)"
-            class="bubble-list combatant-list"
-          >
-            @for (c of mainCombatants(); track c.id) {
-              @if (c.id === activeCombatantId() && isPlacing()) {
-                <!-- Placeholder: shows where the returning combatant would
+        <div class="combatant-columns" #combatantColumns>
+          <div class="combatant-list-column">
+            <ol
+              cdkDropList
+              [cdkDropListData]="mainCombatants()"
+              [cdkDropListDisabled]="isPlacing()"
+              (cdkDropListDropped)="onReorderDropped($event)"
+              class="bubble-list combatant-list"
+            >
+              @for (c of mainCombatants(); track c.id) {
+                @if (c.id === activeCombatantId() && isPlacing()) {
+                  <!-- Placeholder: shows where the returning combatant would
                    land if placed just ahead of Active — just the number, so
                    it reads as a target initiative slot rather than another
                    combatant bubble. Connected (by id, below) to the Hold
@@ -422,55 +439,56 @@
                    resolves it the same way clicking does (see
                    choosePlacement) — separate from this <ol>'s own
                    self-contained cdkDropList used for manual reordering. -->
-                <li
-                  cdkDropList
-                  id="hold-placeholder-above"
-                  [cdkDropListConnectedTo]="['hold-action-list']"
-                  class="bubble combatant placeholder-bubble"
-                  (cdkDropListDropped)="choosePlacement('above')"
-                >
-                  <button
-                    type="button"
-                    class="placeholder-inner"
-                    (click)="choosePlacement('above')"
+                  <li
+                    cdkDropList
+                    id="hold-placeholder-above"
+                    [cdkDropListConnectedTo]="['hold-action-list']"
+                    class="bubble combatant placeholder-bubble"
+                    (cdkDropListDropped)="choosePlacement('above')"
                   >
-                    <span class="initiative-total">{{ activeTotal() + 1 }}</span>
-                  </button>
-                </li>
-              }
+                    <button
+                      type="button"
+                      class="placeholder-inner"
+                      (click)="choosePlacement('above')"
+                    >
+                      <span class="initiative-total">{{ activeTotal() + 1 }}</span>
+                    </button>
+                  </li>
+                }
 
-              <li
-                cdkDrag
-                [cdkDragData]="c"
-                [cdkDragDisabled]="isPlacing()"
-                class="bubble combatant main-combatant"
-                [attr.data-combatant-id]="c.id"
-                [class.pc-entry]="c.type === 'pc'"
-                [class.npc-entry]="c.type === 'npc'"
-                [class.active]="c.id === activeCombatantId()"
-                [class.incapacitated]="c.incapacitated"
-                [class.handle-revealed]="isHandleRevealed(c.id)"
-                [class.hp-adjusting]="isHpAdjusting(c.id)"
-                (click)="toggleHandleRevealed(c.id)"
-                (mouseleave)="collapseHandleRevealed(c.id)"
-              >
-                <app-combatant-bubble
-                  [combatant]="c"
-                  [displayName]="displayName(c.id)"
-                  [expanded]="isExpanded(c.id)"
-                  [isPlacing]="isPlacing()"
-                  [active]="c.id === activeCombatantId()"
-                  [hasLinkedTimer]="isLinkedToTimer(c.id)"
-                  (expandToggle)="toggleExpanded(c.id)"
-                  (holdActionChange)="toggleHoldAction(c.id)"
-                  (incapacitatedToggle)="toggleIncapacitated(c.id)"
-                  (removedToggle)="toggleRemoved(c.id)"
-                  (editRequested)="openEditDialog(c)"
-                  (createTimerRequested)="requestCreateTimer(c)"
-                  (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
-                  (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+                <li
+                  cdkDrag
+                  [cdkDragData]="c"
+                  [cdkDragDisabled]="isPlacing()"
+                  class="bubble combatant main-combatant"
+                  [attr.data-combatant-id]="c.id"
+                  [class.pc-entry]="c.type === 'pc'"
+                  [class.npc-entry]="c.type === 'npc'"
+                  [class.active]="c.id === activeCombatantId()"
+                  [class.incapacitated]="c.incapacitated"
+                  [class.handle-revealed]="isHandleRevealed(c.id)"
+                  [class.hp-adjusting]="isHpAdjusting(c.id)"
+                  (click)="toggleHandleRevealed(c.id)"
+                  (mouseleave)="collapseHandleRevealed(c.id)"
                 >
-                  <!-- cdkDragHandle restricts the drag gesture to this icon
+                  <app-combatant-bubble
+                    [combatant]="c"
+                    [displayName]="displayName(c.id)"
+                    [expanded]="isExpanded(c.id)"
+                    [isPlacing]="isPlacing()"
+                    [active]="c.id === activeCombatantId()"
+                    [hasLinkedTimer]="isLinkedToTimer(c.id)"
+                    (expandToggle)="toggleExpanded(c.id)"
+                    (holdActionChange)="toggleHoldAction(c.id)"
+                    (incapacitatedToggle)="toggleIncapacitated(c.id)"
+                    (removedToggle)="toggleRemoved(c.id)"
+                    (editRequested)="openEditDialog(c)"
+                    (createTimerRequested)="requestCreateTimer(c)"
+                    (viewStatBlockRequested)="openStatBlockDialog(c)"
+                    (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
+                    (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+                  >
+                    <!-- cdkDragHandle restricts the drag gesture to this icon
                        alone, so grabbing anywhere else on the bubble (the
                        expand chevron, the drawer's checkboxes) doesn't
                        accidentally start a reorder drag. Projected in via
@@ -479,230 +497,238 @@
                        reveal-on-hover styling below (.main-combatant:hover
                        .drag-handle) targets it directly by class and needs
                        it in this component's own style scope to do so. -->
-                  <button
-                    leading-control
-                    type="button"
-                    cdkDragHandle
-                    class="icon-btn drag-handle"
-                    [disabled]="isPlacing()"
-                    title="Drag to reorder"
-                  >
-                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path
-                        fill-rule="evenodd"
-                        d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81a.75.75 0 0 0 0 1.06l3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 15.94l-2.72-2.72a.75.75 0 0 0-1.06 0Z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    <span class="sr-only">Drag to reorder {{ displayName(c.id) }}</span>
-                  </button>
-                </app-combatant-bubble>
-              </li>
-
-              @if (c.id === activeCombatantId() && isPlacing()) {
-                <li
-                  cdkDropList
-                  id="hold-placeholder-below"
-                  [cdkDropListConnectedTo]="['hold-action-list']"
-                  class="bubble combatant placeholder-bubble"
-                  (cdkDropListDropped)="choosePlacement('below')"
-                >
-                  <button
-                    type="button"
-                    class="placeholder-inner"
-                    (click)="choosePlacement('below')"
-                  >
-                    <span class="initiative-total">{{ activeTotal() - 1 }}</span>
-                  </button>
+                    <button
+                      leading-control
+                      type="button"
+                      cdkDragHandle
+                      class="icon-btn drag-handle"
+                      [disabled]="isPlacing()"
+                      title="Drag to reorder"
+                    >
+                      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                          fill-rule="evenodd"
+                          d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81a.75.75 0 0 0 0 1.06l3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 15.94l-2.72-2.72a.75.75 0 0 0-1.06 0Z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      <span class="sr-only">Drag to reorder {{ displayName(c.id) }}</span>
+                    </button>
+                  </app-combatant-bubble>
                 </li>
-              }
-            }
-          </ol>
-        </div>
 
-        @if (heldCombatants().length > 0) {
-          <div class="hold-panel">
-            <h2 class="hold-heading">Hold Action</h2>
-            <!-- cdkDropList is required for the cdkDrag items inside it to
+                @if (c.id === activeCombatantId() && isPlacing()) {
+                  <li
+                    cdkDropList
+                    id="hold-placeholder-below"
+                    [cdkDropListConnectedTo]="['hold-action-list']"
+                    class="bubble combatant placeholder-bubble"
+                    (cdkDropListDropped)="choosePlacement('below')"
+                  >
+                    <button
+                      type="button"
+                      class="placeholder-inner"
+                      (click)="choosePlacement('below')"
+                    >
+                      <span class="initiative-total">{{ activeTotal() - 1 }}</span>
+                    </button>
+                  </li>
+                }
+              }
+            </ol>
+          </div>
+
+          @if (heldCombatants().length > 0) {
+            <div class="hold-panel">
+              <h2 class="hold-heading">Hold Action</h2>
+              <!-- cdkDropList is required for the cdkDrag items inside it to
                  work at all, even though nothing is ever dropped back here.
                  Connected (by id) to the two placeholders above/below Active
                  so the placing bubble can be dropped on either — kept
                  separate from the main list's own reordering cdkDropList. -->
-            <ol
-              cdkDropList
-              id="hold-action-list"
-              [cdkDropListConnectedTo]="['hold-placeholder-above', 'hold-placeholder-below']"
-              class="bubble-list hold-list"
-            >
-              @for (c of heldCombatants(); track c.id) {
-                <!-- No hold-icon badge here (unlike the main list): being in
+              <ol
+                cdkDropList
+                id="hold-action-list"
+                [cdkDropListConnectedTo]="['hold-placeholder-above', 'hold-placeholder-below']"
+                class="bubble-list hold-list"
+              >
+                @for (c of heldCombatants(); track c.id) {
+                  <!-- No hold-icon badge here (unlike the main list): being in
                      this panel already says "on hold," and the column is
                      narrow enough that the badge crowded out the name. -->
-                <li
-                  cdkDrag
-                  [cdkDragDisabled]="!isPlacing(c.id)"
-                  class="bubble combatant on-hold held-bubble"
-                  [class.placing]="isPlacing(c.id)"
-                  [class.popping-out]="isResolving(c.id)"
-                  [class.incapacitated]="c.incapacitated"
-                  [class.hp-adjusting]="isHpAdjusting(c.id)"
-                >
-                  <app-combatant-bubble
-                    [combatant]="c"
-                    [displayName]="displayName(c.id)"
-                    [expanded]="isExpanded(c.id)"
-                    [isPlacing]="isPlacing()"
-                    [compact]="true"
-                    [hasLinkedTimer]="isLinkedToTimer(c.id)"
-                    (expandToggle)="toggleExpanded(c.id)"
-                    (holdActionChange)="beginPlacement(c.id)"
-                    (incapacitatedToggle)="toggleIncapacitated(c.id)"
-                    (removedToggle)="toggleRemoved(c.id)"
-                    (editRequested)="openEditDialog(c)"
-                  (createTimerRequested)="requestCreateTimer(c)"
-                    (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
-                    (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+                  <li
+                    cdkDrag
+                    [cdkDragDisabled]="!isPlacing(c.id)"
+                    class="bubble combatant on-hold held-bubble"
+                    [class.placing]="isPlacing(c.id)"
+                    [class.popping-out]="isResolving(c.id)"
+                    [class.incapacitated]="c.incapacitated"
+                    [class.hp-adjusting]="isHpAdjusting(c.id)"
                   >
-                    <!-- Leftmost and pointing left (toward the main list): a
+                    <app-combatant-bubble
+                      [combatant]="c"
+                      [displayName]="displayName(c.id)"
+                      [expanded]="isExpanded(c.id)"
+                      [isPlacing]="isPlacing()"
+                      [compact]="true"
+                      [hasLinkedTimer]="isLinkedToTimer(c.id)"
+                      (expandToggle)="toggleExpanded(c.id)"
+                      (holdActionChange)="beginPlacement(c.id)"
+                      (incapacitatedToggle)="toggleIncapacitated(c.id)"
+                      (removedToggle)="toggleRemoved(c.id)"
+                      (editRequested)="openEditDialog(c)"
+                      (createTimerRequested)="requestCreateTimer(c)"
+                      (viewStatBlockRequested)="openStatBlockDialog(c)"
+                      (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
+                      (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+                    >
+                      <!-- Leftmost and pointing left (toward the main list): a
                          shortcut into placement mode without opening the
                          drawer — see beginPlacement. -->
-                    <button
-                      leading-control
-                      type="button"
-                      class="icon-btn return-btn"
-                      title="Return to the main list"
-                      [disabled]="isPlacing()"
-                      (click)="beginPlacement(c.id)"
-                    >
-                      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path
-                          d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z"
-                        />
-                      </svg>
-                      <span class="sr-only">Return {{ displayName(c.id) }} to the main list</span>
-                    </button>
-                  </app-combatant-bubble>
+                      <button
+                        leading-control
+                        type="button"
+                        class="icon-btn return-btn"
+                        title="Return to the main list"
+                        [disabled]="isPlacing()"
+                        (click)="beginPlacement(c.id)"
+                      >
+                        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path
+                            d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z"
+                          />
+                        </svg>
+                        <span class="sr-only">Return {{ displayName(c.id) }} to the main list</span>
+                      </button>
+                    </app-combatant-bubble>
 
-                  <!-- Overrides CDK's default drag preview (an exact clone
+                    <!-- Overrides CDK's default drag preview (an exact clone
                        of the whole bubble) with just the name — the
                        placeholders already show the target initiative, so
                        the moving piece only needs to say who it is. -->
-                  <div class="drag-preview" *cdkDragPreview>{{ displayName(c.id) }}</div>
-                </li>
-              }
-            </ol>
-          </div>
-        }
-      </div>
-
-      <div class="turn-controls">
-        <div class="add-menu-wrapper">
-          <button
-            type="button"
-            class="icon-btn add-btn"
-            title="Add a Timer or Combatant"
-            [disabled]="isPlacing()"
-            (click)="toggleAddMenu()"
-          >
-            +<span class="sr-only">Add a Timer or Combatant</span>
-          </button>
-          @if (addMenuMode() === 'menu') {
-            <div class="add-menu-popover">
-              <button type="button" (click)="chooseTimerMode()">Add Timer</button>
-              <button type="button" (click)="openAddCombatantDialog()">Add Combatant</button>
+                    <div class="drag-preview" *cdkDragPreview>{{ displayName(c.id) }}</div>
+                  </li>
+                }
+              </ol>
             </div>
           }
         </div>
-        <button
-          type="button"
-          (click)="advance('back')"
-          [disabled]="isFirstActiveCombatant() || isPlacing()"
-        >
-          ◀ Previous Turn
-        </button>
-        <button type="button" (click)="advance('forward')" [disabled]="isPlacing()">
-          @if (isFinalActiveCombatant()) {
-            <strong>Next Round ▶</strong>
-          } @else {
-            Next Turn ▶
-          }
-        </button>
-      </div>
 
-      @if (readyToJoinCombatants().length > 0) {
-        <div class="removed-panel">
-          <h2 class="removed-heading">Ready to Join</h2>
-          <ul class="bubble-list removed-list">
-            @for (c of readyToJoinCombatants(); track c.id) {
-              <li class="bubble entry">
-                <span
-                  class="type-dot"
-                  [class.pc]="c.type === 'pc'"
-                  [class.npc]="c.type === 'npc'"
-                ></span>
-                <span class="entry-title">{{ displayName(c.id) }}</span>
-                @if (!c.playerId && !c.npcId) {
-                  <button type="button" class="save-to-roster-btn" (click)="toggleSavingToRoster(c.id)">
-                    {{ isSavingToRoster(c.id) ? 'Cancel' : 'Save to Roster' }}
-                  </button>
-                }
-                <!-- Upward arrow: "bring this combatant up into the main
-                     list now." -->
-                <button
-                  type="button"
-                  class="icon-btn"
-                  title="Join combat"
-                  (click)="joinCombatant(c.id)"
-                >
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M10 4.5a.75.75 0 0 1 .53.22l5 5a.75.75 0 1 1-1.06 1.06L10.75 7.06V15a.75.75 0 0 1-1.5 0V7.06l-3.72 3.72a.75.75 0 1 1-1.06-1.06l5-5A.75.75 0 0 1 10 4.5Z"
-                    />
-                  </svg>
-                  <span class="sr-only">Join {{ displayName(c.id) }} into combat</span>
-                </button>
-              </li>
-              @if (isSavingToRoster(c.id)) {
-                <ng-container [ngTemplateOutlet]="saveToRosterPicker" [ngTemplateOutletContext]="{ $implicit: c }" />
-              }
+        <div class="turn-controls">
+          <div class="add-menu-wrapper">
+            <button
+              type="button"
+              class="icon-btn add-btn"
+              title="Add a Timer or Combatant"
+              [disabled]="isPlacing()"
+              (click)="toggleAddMenu()"
+            >
+              +<span class="sr-only">Add a Timer or Combatant</span>
+            </button>
+            @if (addMenuMode() === 'menu') {
+              <div class="add-menu-popover">
+                <button type="button" (click)="chooseTimerMode()">Add Timer</button>
+                <button type="button" (click)="openAddCombatantDialog()">Add Combatant</button>
+              </div>
             }
-          </ul>
+          </div>
+          <button
+            type="button"
+            (click)="advance('back')"
+            [disabled]="isFirstActiveCombatant() || isPlacing()"
+          >
+            ◀ Previous Turn
+          </button>
+          <button type="button" (click)="advance('forward')" [disabled]="isPlacing()">
+            @if (isFinalActiveCombatant()) {
+              <strong>Next Round ▶</strong>
+            } @else {
+              Next Turn ▶
+            }
+          </button>
         </div>
-      }
 
-      @if (removedCombatants().length > 0) {
-        <div class="removed-panel">
-          <h2 class="removed-heading">Removed From Combat</h2>
-          <ul class="bubble-list removed-list">
-            @for (c of removedCombatants(); track c.id) {
-              <li class="bubble entry entry-removed">
-                <span
-                  class="type-dot"
-                  [class.pc]="c.type === 'pc'"
-                  [class.npc]="c.type === 'npc'"
-                ></span>
-                <span class="entry-title">{{ displayName(c.id) }}</span>
-                <!-- Same shortcut as unchecking "Removed from Combat" would
+        @if (readyToJoinCombatants().length > 0) {
+          <div class="removed-panel">
+            <h2 class="removed-heading">Ready to Join</h2>
+            <ul class="bubble-list removed-list">
+              @for (c of readyToJoinCombatants(); track c.id) {
+                <li class="bubble entry">
+                  <span
+                    class="type-dot"
+                    [class.pc]="c.type === 'pc'"
+                    [class.npc]="c.type === 'npc'"
+                  ></span>
+                  <span class="entry-title">{{ displayName(c.id) }}</span>
+                  @if (!c.playerId && !c.npcId) {
+                    <button
+                      type="button"
+                      class="save-to-roster-btn"
+                      (click)="toggleSavingToRoster(c.id)"
+                    >
+                      {{ isSavingToRoster(c.id) ? 'Cancel' : 'Save to Roster' }}
+                    </button>
+                  }
+                  <!-- Upward arrow: "bring this combatant up into the main
+                     list now." -->
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    title="Join combat"
+                    (click)="joinCombatant(c.id)"
+                  >
+                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path
+                        d="M10 4.5a.75.75 0 0 1 .53.22l5 5a.75.75 0 1 1-1.06 1.06L10.75 7.06V15a.75.75 0 0 1-1.5 0V7.06l-3.72 3.72a.75.75 0 1 1-1.06-1.06l5-5A.75.75 0 0 1 10 4.5Z"
+                      />
+                    </svg>
+                    <span class="sr-only">Join {{ displayName(c.id) }} into combat</span>
+                  </button>
+                </li>
+                @if (isSavingToRoster(c.id)) {
+                  <ng-container
+                    [ngTemplateOutlet]="saveToRosterPicker"
+                    [ngTemplateOutletContext]="{ $implicit: c }"
+                  />
+                }
+              }
+            </ul>
+          </div>
+        }
+
+        @if (removedCombatants().length > 0) {
+          <div class="removed-panel">
+            <h2 class="removed-heading">Removed From Combat</h2>
+            <ul class="bubble-list removed-list">
+              @for (c of removedCombatants(); track c.id) {
+                <li class="bubble entry entry-removed">
+                  <span
+                    class="type-dot"
+                    [class.pc]="c.type === 'pc'"
+                    [class.npc]="c.type === 'npc'"
+                  ></span>
+                  <span class="entry-title">{{ displayName(c.id) }}</span>
+                  <!-- Same shortcut as unchecking "Removed from Combat" would
                      have offered back when this combatant was still shown in
                      the main list's drawer. -->
-                <button
-                  type="button"
-                  class="icon-btn"
-                  [title]="'Mark ' + displayName(c.id) + ' as present'"
-                  (click)="toggleRemoved(c.id)"
-                >
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
-                    />
-                  </svg>
-                  <span class="sr-only">Mark {{ displayName(c.id) }} as present</span>
-                </button>
-              </li>
-            }
-          </ul>
-        </div>
-      }
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    [title]="'Mark ' + displayName(c.id) + ' as present'"
+                    (click)="toggleRemoved(c.id)"
+                  >
+                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path
+                        d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
+                      />
+                    </svg>
+                    <span class="sr-only">Mark {{ displayName(c.id) }} as present</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        }
       </div>
     </div>
   }

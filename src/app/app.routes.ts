@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { EncounterDetail } from './pages/encounter-detail/encounter-detail';
+import { EncounterGenerator } from './pages/encounter-generator/encounter-generator';
 import { EncounterList } from './pages/encounter-list/encounter-list';
+import { GeneratorsShell } from './pages/generators-shell/generators-shell';
 import { NameGenerator } from './pages/name-generator/name-generator';
 import { NpcRoster } from './pages/npc-roster/npc-roster';
 import { NpcsShell } from './pages/npcs-shell/npcs-shell';
@@ -39,8 +41,12 @@ export const routes: Routes = [
   },
   { path: 'encounters', component: EncounterList },
   { path: 'encounters/:encounterId', component: EncounterDetail },
-  // Single page for now, no shell/sub-nav — that's introduced once the
-  // (planned, not yet built) Encounter Generator gives this section a
-  // second page to switch between.
-  { path: 'generators', component: NameGenerator },
+  {
+    path: 'generators',
+    component: GeneratorsShell,
+    children: [
+      { path: '', component: NameGenerator },
+      { path: 'encounter', component: EncounterGenerator },
+    ],
+  },
 ];

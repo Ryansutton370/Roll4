@@ -316,6 +316,8 @@ export class EncounterStore {
       ac: number | null;
       maxHp: number | null;
       notes: string;
+      monsterTemplateId?: string | null;
+      monsterName?: string | null;
     },
     readyToJoin = false,
   ): Combatant {
@@ -331,6 +333,8 @@ export class EncounterStore {
       maxHp: fields.maxHp,
       currentHp: fields.maxHp,
       notes: fields.notes,
+      monsterTemplateId: fields.monsterTemplateId ?? null,
+      monsterName: fields.monsterName ?? null,
       lastRoll: null,
       initiativeTotal: null,
       removedFromCombat: false,

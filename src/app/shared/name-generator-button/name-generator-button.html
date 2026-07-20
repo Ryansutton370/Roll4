@@ -1,0 +1,67 @@
+<button
+  type="button"
+  #triggerBtn
+  class="generate-name-btn"
+  title="Generate a name"
+  aria-label="Generate a name"
+  (click)="toggle()"
+>
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
+    <rect x="2.5" y="2.5" width="15" height="15" rx="3" />
+    <circle cx="6.75" cy="6.75" r="1" fill="currentColor" stroke="none" />
+    <circle cx="13.25" cy="6.75" r="1" fill="currentColor" stroke="none" />
+    <circle cx="10" cy="10" r="1" fill="currentColor" stroke="none" />
+    <circle cx="6.75" cy="13.25" r="1" fill="currentColor" stroke="none" />
+    <circle cx="13.25" cy="13.25" r="1" fill="currentColor" stroke="none" />
+  </svg>
+</button>
+
+<!-- #popover: read by the viewChild in name-generator-button.ts, so the
+     document-wide click listener can tell "inside the popover" apart from
+     "click away" (see collapseOnClickAway). -->
+@if (open()) {
+  <div
+    class="name-picker-popover"
+    #popover
+    [style.top.px]="popoverTop()"
+    [style.left.px]="popoverLeft()"
+  >
+    <div class="name-picker-selects">
+      <select
+        class="name-picker-set"
+        aria-label="Name set"
+        [ngModel]="selectedSetName()"
+        (ngModelChange)="selectSet($event)"
+      >
+        @for (setName of nameTableStore.setNames(); track setName) {
+          <option [value]="setName">{{ setName }}</option>
+        }
+      </select>
+      <select
+        class="name-picker-table"
+        aria-label="Name table"
+        [ngModel]="selectedTableId()"
+        (ngModelChange)="selectTable($event)"
+      >
+        @for (table of tablesForSelectedSet(); track table.id) {
+          <option [value]="table.id">
+            {{ table.tableName
+            }}{{ table.gender === 'male' ? ' (M)' : table.gender === 'female' ? ' (F)' : '' }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <button type="button" class="name-picker-roll" (click)="roll()">Roll names</button>
+
+    @if (rolledNames().length > 0) {
+      <ul class="name-picker-results">
+        @for (candidate of rolledNames(); track candidate) {
+          <li>
+            <button type="button" (click)="pick(candidate)">{{ candidate }}</button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+}

@@ -13,7 +13,9 @@
          existing/new toggle underneath it. -->
     <div class="choose-step">
       <button type="button" class="choose-btn" (click)="startExisting('npc')">Existing NPC</button>
-      <button type="button" class="choose-btn" (click)="startExisting('pc')">Existing Player</button>
+      <button type="button" class="choose-btn" (click)="startExisting('pc')">
+        Existing Player
+      </button>
       <button type="button" class="choose-btn" (click)="startNew()">Create New</button>
     </div>
   } @else if (step() === 'existing') {
@@ -29,9 +31,7 @@
         }
       </ul>
     } @else {
-      <p class="empty-state">
-        No saved {{ type() === 'pc' ? 'Players' : 'NPCs' }} to add yet.
-      </p>
+      <p class="empty-state">No saved {{ type() === 'pc' ? 'Players' : 'NPCs' }} to add yet.</p>
     }
     <button type="button" class="mode-toggle" (click)="backToChoose()">← Back</button>
   } @else {
@@ -39,11 +39,21 @@
          rather than up front, since it isn't relevant until this step. -->
     <fieldset class="ad-hoc-type">
       <label>
-        <input type="radio" name="addCombatantType" [checked]="type() === 'npc'" (change)="type.set('npc')" />
+        <input
+          type="radio"
+          name="addCombatantType"
+          [checked]="type() === 'npc'"
+          (change)="type.set('npc')"
+        />
         NPC
       </label>
       <label>
-        <input type="radio" name="addCombatantType" [checked]="type() === 'pc'" (change)="type.set('pc')" />
+        <input
+          type="radio"
+          name="addCombatantType"
+          [checked]="type() === 'pc'"
+          (change)="type.set('pc')"
+        />
         Player
       </label>
     </fieldset>

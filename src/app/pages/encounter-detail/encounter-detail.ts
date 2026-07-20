@@ -15,13 +15,18 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Combatant, Timer } from '../../models/encounter.model';
 import { EncounterStore, computeDisplayNames } from '../../services/encounter-store';
+import { MonsterStore } from '../../services/monster-store';
 import { NpcStore } from '../../services/npc-store';
 import { PartyStore } from '../../services/party-store';
-import { AddCombatantDialog, NewCombatantSubmitted } from '../../shared/add-combatant-dialog/add-combatant-dialog';
+import {
+  AddCombatantDialog,
+  NewCombatantSubmitted,
+} from '../../shared/add-combatant-dialog/add-combatant-dialog';
 import {
   CombatantDetailsChanges,
   EditCombatantDialog,
 } from '../../shared/edit-combatant-dialog/edit-combatant-dialog';
+import { MonsterStatBlockDialog } from '../../shared/monster-stat-block-dialog/monster-stat-block-dialog';
 import { CombatantBubble } from './combatant-bubble';
 
 @Component({
@@ -34,6 +39,7 @@ import { CombatantBubble } from './combatant-bubble';
     CombatantBubble,
     EditCombatantDialog,
     AddCombatantDialog,
+    MonsterStatBlockDialog,
   ],
   templateUrl: './encounter-detail.html',
   styleUrl: './encounter-detail.css',
@@ -42,12 +48,15 @@ export class EncounterDetail {
   protected readonly encounterStore = inject(EncounterStore);
   protected readonly partyStore = inject(PartyStore);
   protected readonly npcStore = inject(NpcStore);
+  protected readonly monsterStore = inject(MonsterStore);
 
   // Auto-populated from the ':encounterId' route segment — see
   // withComponentInputBinding() in app.config.ts.
   readonly encounterId = input.required<string>();
 
-  protected readonly encounter = computed(() => this.encounterStore.getEncounter(this.encounterId()));
+  protected readonly encounter = computed(() =>
+    this.encounterStore.getEncounter(this.encounterId()),
+  );
   protected readonly combatants = computed(() =>
     this.encounterStore.combatantsForEncounter(this.encounterId()),
   );
@@ -57,7 +66,9 @@ export class EncounterDetail {
   // combatants() above uses, so a re-roll/manual-reorder/hold-return never
   // relabels who's "A" vs "B" — see computeDisplayNames' own doc comment.
   protected readonly displayNames = computed(() =>
-    computeDisplayNames(this.encounterStore.combatantsForEncounterInCreationOrder(this.encounterId())),
+    computeDisplayNames(
+      this.encounterStore.combatantsForEncounterInCreationOrder(this.encounterId()),
+    ),
   );
 
   protected displayName(combatantId: string): string {
@@ -178,7 +189,12 @@ export class EncounterDetail {
   // used by both the setup-phase button and the run-phase "+" menu (see
   // openAddCombatantDialog below), instead of two separate always-visible
   // inline forms like this page used to have.
-  private readonly addCombatantDialog = viewChild.required<AddCombatantDialog>('addCombatantDialog');
+  private readonly addCombatantDialog =
+    viewChild.required<AddCombatantDialog>('addCombatantDialog');
+
+  // Same pattern again for the (read-only) stat-block popup — see
+  // openStatBlockDialog below.
+  private readonly statBlockDialog = viewChild.required<MonsterStatBlockDialog>('statBlockDialog');
 
   protected openAddCombatantDialog(): void {
     this.closeAddMenu();
@@ -198,7 +214,12 @@ export class EncounterDetail {
   }
 
   protected onNewCombatantSubmitted(event: NewCombatantSubmitted): void {
-    this.encounterStore.addAdHocCombatant(this.encounterId(), event.type, event.fields, this.hasStarted());
+    this.encounterStore.addAdHocCombatant(
+      this.encounterId(),
+      event.type,
+      event.fields,
+      this.hasStarted(),
+    );
   }
 
   // Which combatant bubbles currently have their Removed/Hold-Action
@@ -249,7 +270,9 @@ export class EncounterDetail {
   // Which Party/Troop checkboxes are currently checked in an open "Save to
   // Roster" picker, keyed by combatant id — cleared whenever that
   // combatant's picker closes (see toggleSavingToRoster).
-  private readonly saveToRosterSelections = signal<ReadonlyMap<string, ReadonlySet<string>>>(new Map());
+  private readonly saveToRosterSelections = signal<ReadonlyMap<string, ReadonlySet<string>>>(
+    new Map(),
+  );
 
   protected isSavingToRoster(combatantId: string): boolean {
     return this.savingToRosterIds().has(combatantId);
@@ -273,7 +296,11 @@ export class EncounterDetail {
     return this.saveToRosterSelections().get(combatantId)?.has(groupId) ?? false;
   }
 
-  protected toggleGroupSelectedForSave(combatantId: string, groupId: string, checked: boolean): void {
+  protected toggleGroupSelectedForSave(
+    combatantId: string,
+    groupId: string,
+    checked: boolean,
+  ): void {
     this.saveToRosterSelections.update((selections) => {
       const current = new Set(selections.get(combatantId) ?? []);
       checked ? current.add(groupId) : current.delete(groupId);
@@ -314,16 +341,38 @@ export class EncounterDetail {
     this.editDialog().openFor(combatant, this.displayName(combatant.id));
   }
 
+  // The drawer's "View Stat Block" button (CombatantBubble only shows it
+  // when monsterTemplateId is set — see that component). Looks the
+  // template up here rather than having CombatantBubble do it, so that
+  // component stays focused on the Combatant it's given, same "child
+  // reports, parent decides" split as every other drawer action.
+  protected openStatBlockDialog(combatant: Combatant): void {
+    const templateId = combatant.monsterTemplateId;
+    if (!templateId) return;
+    const template = this.monsterStore.getTemplate(templateId);
+    if (!template) return;
+    this.statBlockDialog().openFor(template);
+  }
+
   // The drawer's "Create Timer" button — instant creation with a default
   // name/value (same starting value as the regular Add Timer form's
   // newTimerValue below), rather than an inline sub-form. The drawer stays
   // open afterward so the GM sees the new card land in the rail right away.
   protected requestCreateTimer(combatant: Combatant): void {
-    this.encounterStore.createTimer(this.encounterId(), `${combatant.name}'s Timer`, 3, combatant.id);
+    this.encounterStore.createTimer(
+      this.encounterId(),
+      `${combatant.name}'s Timer`,
+      3,
+      combatant.id,
+    );
   }
 
   protected onEditSave(event: { combatantId: string; changes: CombatantDetailsChanges }): void {
-    this.encounterStore.updateCombatantDetails(this.encounterId(), event.combatantId, event.changes);
+    this.encounterStore.updateCombatantDetails(
+      this.encounterId(),
+      event.combatantId,
+      event.changes,
+    );
   }
 
   protected onHpAdjustSubmit(combatantId: string, delta: number): void {
@@ -599,7 +648,9 @@ export class EncounterDetail {
   // same-tick timers sharing a link adjacent to each other.
   protected readonly timers = computed(() =>
     [...this.encounterStore.timersForEncounter(this.encounterId())].sort(
-      (a, b) => a.remaining - b.remaining || (a.linkedCombatantId ?? '').localeCompare(b.linkedCombatantId ?? ''),
+      (a, b) =>
+        a.remaining - b.remaining ||
+        (a.linkedCombatantId ?? '').localeCompare(b.linkedCombatantId ?? ''),
     ),
   );
 
@@ -634,7 +685,12 @@ export class EncounterDetail {
   protected createTimer(): void {
     const name = this.newTimerName().trim();
     if (!name) return;
-    this.encounterStore.createTimer(this.encounterId(), name, this.newTimerValue(), this.newTimerLinkedId());
+    this.encounterStore.createTimer(
+      this.encounterId(),
+      name,
+      this.newTimerValue(),
+      this.newTimerLinkedId(),
+    );
     this.newTimerName.set('');
     this.newTimerValue.set(3);
     this.newTimerLinkedId.set(null);

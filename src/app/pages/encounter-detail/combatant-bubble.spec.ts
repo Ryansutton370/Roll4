@@ -14,6 +14,8 @@ const combatant: Combatant = {
   maxHp: 30,
   currentHp: 22,
   notes: 'Wields a longsword',
+  monsterTemplateId: null,
+  monsterName: null,
   lastRoll: 12,
   initiativeTotal: 15,
   removedFromCombat: false,
@@ -85,7 +87,8 @@ describe('CombatantBubble', () => {
     let emittedCount = 0;
     component.createTimerRequested.subscribe(() => emittedCount++);
 
-    const createTimerBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.create-timer-btn');
+    const createTimerBtn: HTMLButtonElement =
+      fixture.nativeElement.querySelector('.create-timer-btn');
     createTimerBtn.click();
 
     expect(emittedCount).toBe(1);
