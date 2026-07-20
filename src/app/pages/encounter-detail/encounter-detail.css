@@ -3,6 +3,41 @@
   font-weight: 600;
 }
 
+.save-to-roster-btn {
+  flex-shrink: 0;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.save-to-roster-btn:hover {
+  color: var(--color-text);
+  background: var(--color-removed-tint);
+}
+
+.save-to-roster-picker {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-top: -0.3rem;
+}
+
+.add-from-roster {
+  gap: 1rem;
+}
+
+.ad-hoc-type {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+}
+
 /* fieldset/legend border+spacing come from the global styles.css rule —
    this just lays out the two radio rows inside it. */
 .reroll-mode {

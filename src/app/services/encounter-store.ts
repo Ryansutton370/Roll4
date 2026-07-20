@@ -1,11 +1,13 @@
 import { Service, effect, inject, signal } from '@angular/core';
-import { Combatant, Encounter } from '../models/encounter.model';
+import { Combatant, CombatantType, Encounter } from '../models/encounter.model';
+import { NpcStore } from './npc-store';
 import { PartyStore } from './party-store';
 
-// Bumped from 'roll4.encounters' — Combatant's shape changed (added
-// ac/maxHp/currentHp/notes) and this app has no migration path yet (see
-// docs/ARCHITECTURE.md), so old-shaped data is simply left behind.
-const STORAGE_KEY = 'roll4.encounters.v2';
+// Bumped from 'roll4.encounters.v2' — Combatant.pcId was renamed to
+// playerId, Combatant gained npcId, and Encounter gained troopIds. This app
+// has no migration path yet (see docs/ARCHITECTURE.md), so old-shaped data
+// is simply left behind.
+const STORAGE_KEY = 'roll4.encounters.v3';
 
 /** Keeps Current HP within [0, maxHp] — null maxHp means "not tracked", so there's nothing to clamp. */
 function clampCurrentHp(currentHp: number, maxHp: number | null): number | null {
@@ -144,6 +146,7 @@ export class EncounterStore {
   // which is why it replaces constructor-parameter injection for @Service
   // classes rather than appearing inside a constructor body.
   private readonly partyStore = inject(PartyStore);
+  private readonly npcStore = inject(NpcStore);
 
   constructor() {
     this.load();
@@ -212,16 +215,17 @@ export class EncounterStore {
     });
   }
 
-  /** Creates an Encounter and pulls in every PC from the selected Parties as Combatants. */
-  createEncounter(name: string, partyIds: string[]): Encounter {
+  /** Creates an Encounter and pulls in every Player from the selected Parties, and every Npc from the selected Troops, as Combatants. */
+  createEncounter(name: string, partyIds: string[], troopIds: string[] = []): Encounter {
     const encounterId = crypto.randomUUID();
-    const newCombatants: Combatant[] = partyIds.flatMap((partyId) =>
+    const newPlayerCombatants: Combatant[] = partyIds.flatMap((partyId) =>
       this.partyStore.playersForParty(partyId).map(
         (pc): Combatant => ({
           id: crypto.randomUUID(),
           encounterId,
           type: 'pc',
-          pcId: pc.id,
+          playerId: pc.id,
+          npcId: null,
           name: pc.name,
           initiativeModifier: pc.initiativeModifier,
           ac: pc.ac,
@@ -238,11 +242,37 @@ export class EncounterStore {
         }),
       ),
     );
+    const newNpcCombatants: Combatant[] = troopIds.flatMap((troopId) =>
+      this.npcStore.npcsForTroop(troopId).map(
+        (npc): Combatant => ({
+          id: crypto.randomUUID(),
+          encounterId,
+          type: 'npc',
+          playerId: null,
+          npcId: npc.id,
+          name: npc.name,
+          initiativeModifier: npc.initiativeModifier,
+          ac: npc.ac,
+          maxHp: npc.maxHp,
+          currentHp: npc.maxHp,
+          notes: npc.notes,
+          lastRoll: null,
+          initiativeTotal: null,
+          removedFromCombat: false,
+          incapacitated: false,
+          onHold: false,
+          preHoldLastRoll: null,
+          preHoldInitiativeTotal: null,
+        }),
+      ),
+    );
+    const newCombatants = [...newPlayerCombatants, ...newNpcCombatants];
 
     const encounter: Encounter = {
       id: encounterId,
       name,
       partyIds,
+      troopIds,
       combatantIds: newCombatants.map((c) => c.id),
       activeCombatantIndex: null,
       holdOrder: [],
@@ -279,22 +309,23 @@ export class EncounterStore {
     const addedPartyIds = partyIds.filter((id) => !encounter.partyIds.includes(id));
     const removedPartyIds = encounter.partyIds.filter((id) => !partyIds.includes(id));
 
-    const existingPcIds = new Set(
+    const existingPlayerIds = new Set(
       this.combatantsForEncounter(encounterId)
         .filter((c) => c.type === 'pc')
-        .map((c) => c.pcId),
+        .map((c) => c.playerId),
     );
 
     const newCombatants: Combatant[] = addedPartyIds.flatMap((partyId) =>
       this.partyStore
         .playersForParty(partyId)
-        .filter((pc) => !existingPcIds.has(pc.id))
+        .filter((pc) => !existingPlayerIds.has(pc.id))
         .map(
           (pc): Combatant => ({
             id: crypto.randomUUID(),
             encounterId,
             type: 'pc',
-            pcId: pc.id,
+            playerId: pc.id,
+            npcId: null,
             name: pc.name,
             initiativeModifier: pc.initiativeModifier,
             ac: pc.ac,
@@ -312,7 +343,7 @@ export class EncounterStore {
         ),
     );
 
-    const removedPcIds = new Set(
+    const removedPlayerIds = new Set(
       encounter.activeCombatantIndex === null
         ? removedPartyIds.flatMap((partyId) => this.partyStore.playersForParty(partyId).map((pc) => pc.id))
         : [],
@@ -320,14 +351,14 @@ export class EncounterStore {
 
     this.combatantsSignal.update((combatants) => [
       ...combatants.filter(
-        (c) => !(c.encounterId === encounterId && c.pcId && removedPcIds.has(c.pcId)),
+        (c) => !(c.encounterId === encounterId && c.playerId && removedPlayerIds.has(c.playerId)),
       ),
       ...newCombatants,
     ]);
 
     const remainingCombatantIds = encounter.combatantIds.filter((id) => {
       const c = this.combatantsSignal().find((cc) => cc.id === id);
-      return !!c && !(c.pcId && removedPcIds.has(c.pcId));
+      return !!c && !(c.playerId && removedPlayerIds.has(c.playerId));
     });
 
     this.updateEncounter(encounterId, {
@@ -336,8 +367,157 @@ export class EncounterStore {
     });
   }
 
-  addNpc(
+  /**
+   * Troop-side mirror of setEncounterParties above — same "only drop before
+   * the first Roll" rule, same add/remove-by-diff shape, but reads
+   * npcStore.npcsForTroop() and sets npcId (not playerId) on the new
+   * Combatants.
+   */
+  setEncounterTroops(encounterId: string, troopIds: string[]): void {
+    const encounter = this.getEncounter(encounterId);
+    if (!encounter) return;
+
+    const addedTroopIds = troopIds.filter((id) => !encounter.troopIds.includes(id));
+    const removedTroopIds = encounter.troopIds.filter((id) => !troopIds.includes(id));
+
+    const existingNpcIds = new Set(
+      this.combatantsForEncounter(encounterId)
+        .filter((c) => c.type === 'npc')
+        .map((c) => c.npcId),
+    );
+
+    const newCombatants: Combatant[] = addedTroopIds.flatMap((troopId) =>
+      this.npcStore
+        .npcsForTroop(troopId)
+        .filter((npc) => !existingNpcIds.has(npc.id))
+        .map(
+          (npc): Combatant => ({
+            id: crypto.randomUUID(),
+            encounterId,
+            type: 'npc',
+            playerId: null,
+            npcId: npc.id,
+            name: npc.name,
+            initiativeModifier: npc.initiativeModifier,
+            ac: npc.ac,
+            maxHp: npc.maxHp,
+            currentHp: npc.maxHp,
+            notes: npc.notes,
+            lastRoll: null,
+            initiativeTotal: null,
+            removedFromCombat: false,
+            incapacitated: false,
+            onHold: false,
+            preHoldLastRoll: null,
+            preHoldInitiativeTotal: null,
+          }),
+        ),
+    );
+
+    const removedNpcIds = new Set(
+      encounter.activeCombatantIndex === null
+        ? removedTroopIds.flatMap((troopId) => this.npcStore.npcsForTroop(troopId).map((npc) => npc.id))
+        : [],
+    );
+
+    this.combatantsSignal.update((combatants) => [
+      ...combatants.filter(
+        (c) => !(c.encounterId === encounterId && c.npcId && removedNpcIds.has(c.npcId)),
+      ),
+      ...newCombatants,
+    ]);
+
+    const remainingCombatantIds = encounter.combatantIds.filter((id) => {
+      const c = this.combatantsSignal().find((cc) => cc.id === id);
+      return !!c && !(c.npcId && removedNpcIds.has(c.npcId));
+    });
+
+    this.updateEncounter(encounterId, {
+      troopIds,
+      combatantIds: [...remainingCombatantIds, ...newCombatants.map((c) => c.id)],
+    });
+  }
+
+  /**
+   * Pulls a single roster Player/Npc in as its own Combatant, without
+   * pulling its whole Party/Troop — a no-op if that Player/Npc is already
+   * present in this Encounter (same dedup spirit as setEncounterParties/
+   * setEncounterTroops above, just for one id instead of a diffed list).
+   */
+  addPlayerCombatant(encounterId: string, playerId: string): void {
+    const player = this.partyStore.getPlayer(playerId);
+    if (!player) return;
+    const alreadyPresent = this.combatantsForEncounter(encounterId).some(
+      (c) => c.playerId === playerId,
+    );
+    if (alreadyPresent) return;
+    const combatant: Combatant = {
+      id: crypto.randomUUID(),
+      encounterId,
+      type: 'pc',
+      playerId: player.id,
+      npcId: null,
+      name: player.name,
+      initiativeModifier: player.initiativeModifier,
+      ac: player.ac,
+      maxHp: player.maxHp,
+      currentHp: player.maxHp,
+      notes: player.notes,
+      lastRoll: null,
+      initiativeTotal: null,
+      removedFromCombat: false,
+      incapacitated: false,
+      onHold: false,
+      preHoldLastRoll: null,
+      preHoldInitiativeTotal: null,
+    };
+    this.combatantsSignal.update((combatants) => [...combatants, combatant]);
+    this.updateEncounter(encounterId, {
+      combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
+    });
+  }
+
+  /** Npc-side mirror of addPlayerCombatant above. */
+  addNpcCombatant(encounterId: string, npcId: string): void {
+    const npc = this.npcStore.getNpc(npcId);
+    if (!npc) return;
+    const alreadyPresent = this.combatantsForEncounter(encounterId).some((c) => c.npcId === npcId);
+    if (alreadyPresent) return;
+    const combatant: Combatant = {
+      id: crypto.randomUUID(),
+      encounterId,
+      type: 'npc',
+      playerId: null,
+      npcId: npc.id,
+      name: npc.name,
+      initiativeModifier: npc.initiativeModifier,
+      ac: npc.ac,
+      maxHp: npc.maxHp,
+      currentHp: npc.maxHp,
+      notes: npc.notes,
+      lastRoll: null,
+      initiativeTotal: null,
+      removedFromCombat: false,
+      incapacitated: false,
+      onHold: false,
+      preHoldLastRoll: null,
+      preHoldInitiativeTotal: null,
+    };
+    this.combatantsSignal.update((combatants) => [...combatants, combatant]);
+    this.updateEncounter(encounterId, {
+      combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
+    });
+  }
+
+  /**
+   * Adds a combatant that isn't backed by any library entry yet — today's
+   * only NPC-creation path (Phase 1), generalized to also allow an ad-hoc
+   * Player (e.g. a guest joining for one session). Replaces the old
+   * type-locked addNpc.
+   */
+  addAdHocCombatant(
     encounterId: string,
+    type: CombatantType,
     fields: {
       name: string;
       initiativeModifier: number;
@@ -346,11 +526,12 @@ export class EncounterStore {
       notes: string;
     },
   ): void {
-    const npc: Combatant = {
+    const combatant: Combatant = {
       id: crypto.randomUUID(),
       encounterId,
-      type: 'npc',
-      pcId: null,
+      type,
+      playerId: null,
+      npcId: null,
       name: fields.name,
       initiativeModifier: fields.initiativeModifier,
       ac: fields.ac,
@@ -365,10 +546,25 @@ export class EncounterStore {
       preHoldLastRoll: null,
       preHoldInitiativeTotal: null,
     };
-    this.combatantsSignal.update((combatants) => [...combatants, npc]);
+    this.combatantsSignal.update((combatants) => [...combatants, combatant]);
     this.updateEncounter(encounterId, {
-      combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), npc.id],
+      combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
     });
+  }
+
+  /**
+   * The "Save to Roster" action: links an already-existing ad-hoc Combatant
+   * to a library entry the page just created (or an existing one), without
+   * creating a second Combatant. Sets playerId or npcId depending on the
+   * combatant's existing type — a narrow, UI-driven id assignment, not
+   * aware of PartyStore/NpcStore itself (that orchestration — creating the
+   * library entry and assigning it to a Party/Troop — lives at the page
+   * level; see EncounterDetail/EncounterList's saveToRoster).
+   */
+  linkCombatantToLibraryEntry(encounterId: string, combatantId: string, linkedId: string): void {
+    const combatant = this.combatantsForEncounter(encounterId).find((c) => c.id === combatantId);
+    if (!combatant) return;
+    this.updateCombatant(combatantId, combatant.type === 'pc' ? { playerId: linkedId } : { npcId: linkedId });
   }
 
   /** Only allowed before the first Roll — same "setup mistake correction" rule as removeCombatant. */

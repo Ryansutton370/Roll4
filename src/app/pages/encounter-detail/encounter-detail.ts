@@ -1,9 +1,11 @@
-import { Component, computed, inject, input, signal, viewChild } from '@angular/core';
+import { Component, HostListener, computed, inject, input, signal, viewChild } from '@angular/core';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Combatant } from '../../models/encounter.model';
+import { Combatant, CombatantType } from '../../models/encounter.model';
 import { EncounterStore } from '../../services/encounter-store';
+import { NpcStore } from '../../services/npc-store';
+import { PartyStore } from '../../services/party-store';
 import { CombatantFields } from '../../shared/combatant-fields/combatant-fields';
 import {
   CombatantDetailsChanges,
@@ -19,6 +21,8 @@ import { CombatantBubble } from './combatant-bubble';
 })
 export class EncounterDetail {
   protected readonly encounterStore = inject(EncounterStore);
+  protected readonly partyStore = inject(PartyStore);
+  protected readonly npcStore = inject(NpcStore);
 
   // Auto-populated from the ':encounterId' route segment — see
   // withComponentInputBinding() in app.config.ts.
@@ -112,11 +116,24 @@ export class EncounterDetail {
     return indices[indices.length - 1] === e.activeCombatantIndex;
   });
 
+  protected readonly newAdHocType = signal<CombatantType>('npc');
   protected readonly newNpcName = signal('');
   protected readonly newNpcModifier = signal(0);
   protected readonly newNpcAc = signal<number | null>(null);
   protected readonly newNpcMaxHp = signal<number | null>(null);
   protected readonly newNpcNotes = signal('');
+
+  // Roster entries not yet in this Encounter — feeds the "Add from Roster"
+  // pickers below so they never offer a no-op add (the id is already
+  // filtered out once it's pulled in).
+  protected readonly availablePlayersToAdd = computed(() => {
+    const presentIds = new Set(this.combatants().map((c) => c.playerId));
+    return this.partyStore.players().filter((p) => !presentIds.has(p.id));
+  });
+  protected readonly availableNpcsToAdd = computed(() => {
+    const presentIds = new Set(this.combatants().map((c) => c.npcId));
+    return this.npcStore.npcs().filter((n) => !presentIds.has(n.id));
+  });
 
   // viewChild(): the signal-based handle on the <app-edit-combatant-dialog
   // #editDialog> instance in this component's own template — used to call
@@ -158,21 +175,101 @@ export class EncounterDetail {
     });
   }
 
-  protected addNpc(): void {
+  protected addAdHocCombatant(): void {
     const name = this.newNpcName().trim();
     if (!name) return;
-    this.encounterStore.addNpc(this.encounterId(), {
+    this.encounterStore.addAdHocCombatant(this.encounterId(), this.newAdHocType(), {
       name,
       initiativeModifier: this.newNpcModifier(),
       ac: this.newNpcAc(),
       maxHp: this.newNpcMaxHp(),
       notes: this.newNpcNotes(),
     });
+    this.newAdHocType.set('npc');
     this.newNpcName.set('');
     this.newNpcModifier.set(0);
     this.newNpcAc.set(null);
     this.newNpcMaxHp.set(null);
     this.newNpcNotes.set('');
+  }
+
+  protected addIndividualPlayer(playerId: string): void {
+    if (!playerId) return;
+    this.encounterStore.addPlayerCombatant(this.encounterId(), playerId);
+  }
+
+  protected addIndividualNpc(npcId: string): void {
+    if (!npcId) return;
+    this.encounterStore.addNpcCombatant(this.encounterId(), npcId);
+  }
+
+  // Which ad-hoc combatants currently have their "Save to Roster" picker
+  // open — same Set-of-ids pattern as expandedCombatantIds/revealedHandleIds
+  // above.
+  protected readonly savingToRosterIds = signal<ReadonlySet<string>>(new Set());
+
+  // Which Party/Troop checkboxes are currently checked in an open "Save to
+  // Roster" picker, keyed by combatant id — cleared whenever that
+  // combatant's picker closes (see toggleSavingToRoster).
+  private readonly saveToRosterSelections = signal<ReadonlyMap<string, ReadonlySet<string>>>(new Map());
+
+  protected isSavingToRoster(combatantId: string): boolean {
+    return this.savingToRosterIds().has(combatantId);
+  }
+
+  protected toggleSavingToRoster(combatantId: string): void {
+    this.savingToRosterIds.update((ids) => {
+      const next = new Set(ids);
+      next.has(combatantId) ? next.delete(combatantId) : next.add(combatantId);
+      return next;
+    });
+    this.saveToRosterSelections.update((selections) => {
+      if (!selections.has(combatantId)) return selections;
+      const next = new Map(selections);
+      next.delete(combatantId);
+      return next;
+    });
+  }
+
+  protected isGroupSelectedForSave(combatantId: string, groupId: string): boolean {
+    return this.saveToRosterSelections().get(combatantId)?.has(groupId) ?? false;
+  }
+
+  protected toggleGroupSelectedForSave(combatantId: string, groupId: string, checked: boolean): void {
+    this.saveToRosterSelections.update((selections) => {
+      const current = new Set(selections.get(combatantId) ?? []);
+      checked ? current.add(groupId) : current.delete(groupId);
+      const next = new Map(selections);
+      next.set(combatantId, current);
+      return next;
+    });
+  }
+
+  // Creates a library Player/Npc from an ad-hoc Combatant's own fields,
+  // assigns it to whichever Parties/Troops were checked (can save
+  // unattached), then links the *same* Combatant row to it — no second
+  // Combatant is ever created, satisfying "save without duplicating the
+  // entry in the encounter being built."
+  protected confirmSaveToRoster(combatant: Combatant): void {
+    const groupIds = [...(this.saveToRosterSelections().get(combatant.id) ?? [])];
+    const fields = {
+      name: combatant.name,
+      initiativeModifier: combatant.initiativeModifier,
+      ac: combatant.ac,
+      maxHp: combatant.maxHp,
+      notes: combatant.notes,
+    };
+    const linkedId =
+      combatant.type === 'pc'
+        ? this.partyStore.createPlayer(fields).id
+        : this.npcStore.createNpc(fields).id;
+    if (combatant.type === 'pc') {
+      groupIds.forEach((partyId) => this.partyStore.addPlayerToParty(partyId, linkedId));
+    } else {
+      groupIds.forEach((troopId) => this.npcStore.addNpcToTroop(troopId, linkedId));
+    }
+    this.encounterStore.linkCombatantToLibraryEntry(this.encounterId(), combatant.id, linkedId);
+    this.toggleSavingToRoster(combatant.id);
   }
 
   protected openEditDialog(combatant: Combatant): void {
@@ -195,11 +292,11 @@ export class EncounterDetail {
     this.encounterStore.setInitiativeModifier(this.encounterId(), combatantId, initiativeModifier);
   }
 
-  // Rolling implicitly commits whatever's still sitting in the Add NPC
-  // fields — addNpc() itself no-ops on a blank name, so this is a plain
-  // "press Add NPC first" rather than a special case.
+  // Rolling implicitly commits whatever's still sitting in the ad-hoc
+  // combatant fields — addAdHocCombatant() itself no-ops on a blank name,
+  // so this is a plain "press Add first" rather than a special case.
   protected rollInitiative(): void {
-    this.addNpc();
+    this.addAdHocCombatant();
     this.encounterStore.rollInitiative(this.encounterId());
   }
 
@@ -234,26 +331,51 @@ export class EncounterDetail {
     this.encounterStore.reorderCombatant(this.encounterId(), combatantId, event.currentIndex);
   }
 
-  // Which bubbles have had their drag handle revealed by a tap/click — the
+  // Which bubble has had its drag handle revealed by a tap/click — the
   // handle is hidden by default (see .drag-handle in encounter-detail.css)
   // and otherwise only shown on :hover/:focus-within, which have no touch
-  // equivalent. Same Set-of-ids pattern as expandedCombatantIds above.
-  protected readonly revealedHandleIds = signal<ReadonlySet<string>>(new Set());
+  // equivalent. A single nullable id (not a Set, unlike expandedCombatantIds
+  // above) — only one bubble's handle should ever be tap-revealed at once,
+  // and that makes "clicking a different bubble" naturally hide the
+  // previous one just by overwriting this signal, rather than needing to
+  // separately clear the old id every time a new one is set.
+  protected readonly revealedHandleId = signal<string | null>(null);
 
   protected isHandleRevealed(combatantId: string): boolean {
-    return this.revealedHandleIds().has(combatantId);
+    return this.revealedHandleId() === combatantId;
   }
 
   protected toggleHandleRevealed(combatantId: string): void {
-    this.revealedHandleIds.update((ids) => {
-      const next = new Set(ids);
-      if (next.has(combatantId)) {
-        next.delete(combatantId);
-      } else {
-        next.add(combatantId);
-      }
-      return next;
-    });
+    this.revealedHandleId.update((id) => (id === combatantId ? null : combatantId));
+  }
+
+  // Mirrors :hover's own natural behavior (gone as soon as the pointer
+  // leaves) for the tap/click-revealed case above, which — being a signal,
+  // not CSS — would otherwise keep the handle visible until something else
+  // cleared it. Only clears if this bubble is the one currently revealed,
+  // so a stray mouseleave from an unrelated bubble can't clobber it.
+  protected collapseHandleRevealed(combatantId: string): void {
+    if (this.revealedHandleId() === combatantId) {
+      this.revealedHandleId.set(null);
+    }
+  }
+
+  // @HostListener('document:click', ...): fires for a click ANYWHERE on the
+  // page (not just this component's own elements) — same pattern as
+  // CombatantBubble's collapseNotesOnClickAway. A click that lands inside
+  // the currently-revealed bubble is either the tap that just set
+  // revealedHandleId (toggleHandleRevealed above already ran, earlier in
+  // the same bubbling click) or a click on the drag handle itself — either
+  // way it shouldn't be collapsed out from under itself, hence the
+  // data-combatant-id lookup instead of unconditionally clearing.
+  @HostListener('document:click', ['$event'])
+  protected collapseHandleOnClickAway(event: MouseEvent): void {
+    const revealedId = this.revealedHandleId();
+    if (!revealedId) return;
+    const target = event.target as HTMLElement;
+    if (!target.closest(`[data-combatant-id="${revealedId}"]`)) {
+      this.revealedHandleId.set(null);
+    }
   }
 
   // Which combatant's HP delta popover is currently open — needed here (not

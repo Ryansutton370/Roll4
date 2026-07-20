@@ -72,6 +72,22 @@
     </fieldset>
   }
 
+  @if (npcStore.troops().length > 0) {
+    <fieldset>
+      <legend>Pull NPCs from:</legend>
+      @for (troop of npcStore.troops(); track troop.id) {
+        <label>
+          <input
+            type="checkbox"
+            [checked]="selectedTroopIds().includes(troop.id)"
+            (change)="toggleTroopSelected(troop.id, $any($event.target).checked)"
+          />
+          {{ troop.name }}
+        </label>
+      }
+    </fieldset>
+  }
+
   @if (editingEncounter()) {
     <!-- Edit mode only: NPCs (and the party PCs added above) apply straight
          to the store, the same as the setup screen on encounter-detail —
@@ -81,35 +97,33 @@
       @if (editingCombatants().length === 0) {
         <p class="empty-state">No combatants yet. Add an NPC below.</p>
       } @else {
-        <!-- Spacers mirror the row below (type-dot, name, remove button) so
-             "Initiative Modifier" lines up directly over the input column. -->
-        <div class="setup-list-header">
-          <span class="type-dot-spacer"></span>
-          <span class="entry-title-spacer"></span>
-          <span class="modifier-heading">Initiative Modifier</span>
-          <span class="remove-spacer"></span>
-        </div>
         <ul class="bubble-list">
           @for (c of editingCombatants(); track c.id) {
             <li
-              class="bubble entry"
+              class="bubble entry combatant-edit-entry"
               [class.pc-entry]="c.type === 'pc'"
               [class.npc-entry]="c.type === 'npc'"
               [class.entry-removed]="c.removedFromCombat"
             >
               <span class="type-dot" [class.pc]="c.type === 'pc'" [class.npc]="c.type === 'npc'"></span>
-              <span class="entry-title">{{ c.name }}</span>
-              <!-- standalone: true opts this control out of the enclosing
-                   <form>'s NgForm — without it, ngModel requires a unique
-                   name per control when nested in a form, which a dynamic
-                   @for can't give it. -->
-              <input
-                type="number"
-                class="modifier-input"
-                [ngModel]="c.initiativeModifier"
-                (ngModelChange)="setCombatantModifierInEditingEncounter(c.id, $event)"
-                [ngModelOptions]="{ standalone: true }"
-                [attr.aria-label]="'Initiative Modifier for ' + c.name"
+              <!-- Same shared 5-field set used by the ad-hoc form just below
+                   and by the run-phase Edit dialog — one line on desktop,
+                   name-then-stats on mobile (see combatant-fields.css),
+                   instead of this row's own bespoke inputs/breakpoints.
+                   updateCombatantFieldInEditingEncounter routes straight to
+                   EncounterStore.updateCombatantDetails per keystroke,
+                   rather than waiting for a separate save step. -->
+              <app-combatant-fields
+                [name]="c.name"
+                (nameChange)="updateCombatantFieldInEditingEncounter(c.id, { name: $event })"
+                [initiativeModifier]="c.initiativeModifier"
+                (initiativeModifierChange)="setCombatantModifierInEditingEncounter(c.id, $event)"
+                [ac]="c.ac"
+                (acChange)="updateCombatantFieldInEditingEncounter(c.id, { ac: $event })"
+                [maxHp]="c.maxHp"
+                (maxHpChange)="updateCombatantFieldInEditingEncounter(c.id, { maxHp: $event })"
+                [notes]="c.notes"
+                (notesChange)="updateCombatantFieldInEditingEncounter(c.id, { notes: $event })"
               />
               @if (c.type === 'pc') {
                 <!-- Party members can't be deleted here (see
@@ -154,12 +168,121 @@
                   <span class="sr-only">Remove {{ c.name }}</span>
                 </button>
               }
+              @if (!c.playerId && !c.npcId) {
+                <!-- Icon-only (not a text "Save to Roster" button) so this
+                     row — type-dot, 5 combatant-fields, remove, this — has
+                     a real chance of fitting on one line at desktop widths;
+                     [class.marked-removed] reuses the same "solid fill =
+                     currently on" treatment as the mark-absent button
+                     above, since this is the same kind of toggle (open/
+                     close the picker below) rather than a one-shot action. -->
+                <button
+                  type="button"
+                  class="icon-btn save-to-roster-btn"
+                  [class.marked-removed]="isSavingToRoster(c.id)"
+                  [attr.aria-pressed]="isSavingToRoster(c.id)"
+                  [title]="isSavingToRoster(c.id) ? 'Cancel saving to roster' : 'Save to Roster'"
+                  (click)="toggleSavingToRoster(c.id)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M5 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13.5a.5.5 0 0 1-.777.416L10 14.09l-4.223 2.826A.5.5 0 0 1 5 16.5V3Z"
+                    />
+                  </svg>
+                  <span class="sr-only">{{
+                    isSavingToRoster(c.id)
+                      ? 'Cancel saving ' + c.name + ' to roster'
+                      : 'Save ' + c.name + ' to roster'
+                  }}</span>
+                </button>
+              }
             </li>
+            @if (isSavingToRoster(c.id)) {
+              <li class="bubble entry save-to-roster-picker">
+                <p>
+                  Save "{{ c.name }}" to the {{ c.type === 'pc' ? 'Player' : 'NPC' }} roster
+                  @if (c.type === 'pc' ? partyStore.parties().length > 0 : npcStore.troops().length > 0) {
+                    and optionally add it to:
+                  }
+                </p>
+                @if (c.type === 'pc') {
+                  @for (party of partyStore.parties(); track party.id) {
+                    <label>
+                      <input
+                        type="checkbox"
+                        [checked]="isGroupSelectedForSave(c.id, party.id)"
+                        (change)="toggleGroupSelectedForSave(c.id, party.id, $any($event.target).checked)"
+                      />
+                      {{ party.name }}
+                    </label>
+                  }
+                } @else {
+                  @for (troop of npcStore.troops(); track troop.id) {
+                    <label>
+                      <input
+                        type="checkbox"
+                        [checked]="isGroupSelectedForSave(c.id, troop.id)"
+                        (change)="toggleGroupSelectedForSave(c.id, troop.id, $any($event.target).checked)"
+                      />
+                      {{ troop.name }}
+                    </label>
+                  }
+                }
+                <button type="button" (click)="confirmSaveToRoster(c)">Confirm</button>
+              </li>
+            }
           }
         </ul>
       }
 
+      @if (availablePlayersToAdd().length > 0 || availableNpcsToAdd().length > 0) {
+        <div class="entry-form add-from-roster">
+          @if (availablePlayersToAdd().length > 0) {
+            <label>
+              Add Player:
+              <select #playerPick (change)="addIndividualPlayerToEditingEncounter(playerPick.value); playerPick.value = ''">
+                <option value=""></option>
+                @for (player of availablePlayersToAdd(); track player.id) {
+                  <option [value]="player.id">{{ player.name }}</option>
+                }
+              </select>
+            </label>
+          }
+          @if (availableNpcsToAdd().length > 0) {
+            <label>
+              Add NPC:
+              <select #npcPick (change)="addIndividualNpcToEditingEncounter(npcPick.value); npcPick.value = ''">
+                <option value=""></option>
+                @for (npc of availableNpcsToAdd(); track npc.id) {
+                  <option [value]="npc.id">{{ npc.name }}</option>
+                }
+              </select>
+            </label>
+          }
+        </div>
+      }
+
       <div class="entry-form">
+        <fieldset class="ad-hoc-type">
+          <label>
+            <input
+              type="radio"
+              name="adHocTypeEdit"
+              [checked]="newAdHocType() === 'npc'"
+              (change)="newAdHocType.set('npc')"
+            />
+            NPC
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="adHocTypeEdit"
+              [checked]="newAdHocType() === 'pc'"
+              (change)="newAdHocType.set('pc')"
+            />
+            Player
+          </label>
+        </fieldset>
         <app-combatant-fields
           [name]="newNpcName()"
           (nameChange)="newNpcName.set($event)"
@@ -172,7 +295,7 @@
           [notes]="newNpcNotes()"
           (notesChange)="newNpcNotes.set($event)"
         />
-        <button type="button" (click)="addNpcToEditingEncounter()">Add NPC</button>
+        <button type="button" (click)="addAdHocCombatantToEditingEncounter()">Add</button>
       </div>
     </fieldset>
   }

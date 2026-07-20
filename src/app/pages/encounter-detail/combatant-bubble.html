@@ -24,17 +24,110 @@
     }
   </span>
 
-  <!-- Invisible — on mobile (see combatant-bubble.css) this forces every
-       bubble to wrap at this exact point, name alone on its own line and
-       every stat column together on the next, rather than each bubble
-       wrapping wherever its own content happens to run out of room.
-       Without it, two bubbles with different AC/HP/Notes combinations
-       would each wrap onto a different word, landing Initiative/the
-       expand button at a different position per bubble — exactly the
-       misalignment the fixed stat widths above already fixed for a single
-       line, but not by themselves across a wrapped one. -->
-  <span class="row-break" aria-hidden="true"></span>
+  <!-- Compact (Hold Action panel) bubbles skip AC/HP/Notes/status/Initiative
+       entirely here — the panel is too narrow for their fixed stat widths
+       to fit on one line without wrapping ugly, so #statsBlock (defined at
+       the bottom of this file) renders inside the drawer instead (see
+       below), one expand-click away. Non-compact (main list) bubbles render
+       it right here, same as before. -->
+  @if (!compact()) {
+    <!-- Invisible — on mobile (see combatant-bubble.css) this forces every
+         bubble to wrap at this exact point, name alone on its own line and
+         every stat column together on the next, rather than each bubble
+         wrapping wherever its own content happens to run out of room.
+         Without it, two bubbles with different AC/HP/Notes combinations
+         would each wrap onto a different word, landing Initiative/the
+         expand button at a different position per bubble — exactly the
+         misalignment the fixed stat widths above already fixed for a single
+         line, but not by themselves across a wrapped one. -->
+    <span class="row-break" aria-hidden="true"></span>
+    <!-- ngTemplateOutlet: renders the #statsBlock template (declared once,
+         at the bottom of this file) in place here — the alternative would
+         be duplicating the whole AC/HP/Notes/status/Initiative markup
+         verbatim a second time below, for the compact/drawer case. -->
+    <ng-container [ngTemplateOutlet]="statsBlock"></ng-container>
+  }
 
+  <button
+    type="button"
+    class="icon-btn expand-btn"
+    [class.compact]="compact()"
+    [class.rotated]="expanded()"
+    [attr.aria-expanded]="expanded()"
+    [disabled]="isPlacing()"
+    (click)="expandToggle.emit()"
+  >
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path
+        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.25a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+      />
+    </svg>
+    <span class="sr-only">Toggle options for {{ combatant().name }}</span>
+  </button>
+</div>
+
+<!-- The CSS grid-rows expand trick (see combatant-bubble.css) animates
+     open/closed without needing a hardcoded max-height. -->
+<div class="drawer" [class.expanded]="expanded()">
+  <div class="drawer-clip">
+    <div class="drawer-content">
+      @if (compact()) {
+        <!-- Compact bubbles never show #statsBlock in the row above — it
+             renders here instead, so the Hold Action panel's AC/HP/Notes/
+             status/Initiative are one expand-click away rather than gone. -->
+        <div class="drawer-stats">
+          <ng-container [ngTemplateOutlet]="statsBlock"></ng-container>
+        </div>
+      }
+      <label>
+        <input
+          type="checkbox"
+          [checked]="combatant().onHold"
+          [disabled]="combatant().removedFromCombat || isPlacing()"
+          (change)="holdActionChange.emit()"
+        />
+        Hold Action
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="combatant().incapacitated"
+          [disabled]="isPlacing()"
+          (change)="incapacitatedToggle.emit()"
+        />
+        Incapacitated
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="combatant().removedFromCombat"
+          [disabled]="isPlacing()"
+          (change)="removedToggle.emit()"
+        />
+        Removed from Combat
+      </label>
+      <button
+        type="button"
+        class="drawer-edit-btn"
+        [disabled]="isPlacing()"
+        (click)="editRequested.emit()"
+      >
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path
+            d="M13.59 2.59a2 2 0 0 1 2.83 2.83l-8.83 8.83-3.54.71.71-3.54 8.83-8.83Z"
+          />
+        </svg>
+        Edit
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ng-template: markup that doesn't render anywhere on its own — only
+     wherever an <ng-container [ngTemplateOutlet]> above points at it (by
+     #statsBlock, its template reference variable). Declared once here and
+     reused in the two spots above instead of being duplicated. -->
+<ng-template #statsBlock>
   <!-- AC/HP/Notes are always rendered at a fixed width — populated or
        blank — rather than removed from the row when unset. That's what
        makes every bubble's columns line up with every other bubble's,
@@ -94,7 +187,7 @@
       </button>
       @if (hpAdjustOpen()) {
         <!-- Damage/Healing switch sets the sign; the input only ever holds
-             the digits the GM types (see onHpDeltaInput()) — the -/+ shown
+             the digits the GM typed (see onHpDeltaInput()) — the -/+ shown
              in the box comes from hpDeltaDisplay(), which is recomputed
              (and thus re-rendered into the input) on every change, so
              there's no way to type over it. See EncounterStore.adjustCurrentHp
@@ -216,70 +309,4 @@
     </svg>
     {{ combatant().initiativeTotal ?? 'N/A' }}
   </span>
-
-  <button
-    type="button"
-    class="icon-btn expand-btn"
-    [class.compact]="compact()"
-    [class.rotated]="expanded()"
-    [attr.aria-expanded]="expanded()"
-    [disabled]="isPlacing()"
-    (click)="expandToggle.emit()"
-  >
-    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-      <path
-        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.25a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
-      />
-    </svg>
-    <span class="sr-only">Toggle options for {{ combatant().name }}</span>
-  </button>
-</div>
-
-<!-- The CSS grid-rows expand trick (see combatant-bubble.css) animates
-     open/closed without needing a hardcoded max-height. -->
-<div class="drawer" [class.expanded]="expanded()">
-  <div class="drawer-clip">
-    <div class="drawer-content">
-      <label>
-        <input
-          type="checkbox"
-          [checked]="combatant().onHold"
-          [disabled]="combatant().removedFromCombat || isPlacing()"
-          (change)="holdActionChange.emit()"
-        />
-        Hold Action
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          [checked]="combatant().incapacitated"
-          [disabled]="isPlacing()"
-          (change)="incapacitatedToggle.emit()"
-        />
-        Incapacitated
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          [checked]="combatant().removedFromCombat"
-          [disabled]="isPlacing()"
-          (change)="removedToggle.emit()"
-        />
-        Removed from Combat
-      </label>
-      <button
-        type="button"
-        class="drawer-edit-btn"
-        [disabled]="isPlacing()"
-        (click)="editRequested.emit()"
-      >
-        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path
-            d="M13.59 2.59a2 2 0 0 1 2.83 2.83l-8.83 8.83-3.54.71.71-3.54 8.83-8.83Z"
-          />
-        </svg>
-        Edit
-      </button>
-    </div>
-  </div>
-</div>
+</ng-template>

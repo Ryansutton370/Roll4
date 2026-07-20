@@ -78,12 +78,101 @@
                   <span class="sr-only">Remove {{ c.name }}</span>
                 </button>
               }
+              <!-- Only ad-hoc combatants (no library link yet) can be saved
+                   to the roster — a Party/Troop-pulled or already-linked
+                   combatant has nothing new to save. -->
+              @if (!c.playerId && !c.npcId) {
+                <button type="button" class="save-to-roster-btn" (click)="toggleSavingToRoster(c.id)">
+                  {{ isSavingToRoster(c.id) ? 'Cancel' : 'Save to Roster' }}
+                </button>
+              }
             </li>
+            @if (isSavingToRoster(c.id)) {
+              <li class="bubble entry save-to-roster-picker">
+                <p>
+                  Save "{{ c.name }}" to the {{ c.type === 'pc' ? 'Player' : 'NPC' }} roster
+                  @if (c.type === 'pc' ? partyStore.parties().length > 0 : npcStore.troops().length > 0) {
+                    and optionally add it to:
+                  }
+                </p>
+                @if (c.type === 'pc') {
+                  @for (party of partyStore.parties(); track party.id) {
+                    <label>
+                      <input
+                        type="checkbox"
+                        [checked]="isGroupSelectedForSave(c.id, party.id)"
+                        (change)="toggleGroupSelectedForSave(c.id, party.id, $any($event.target).checked)"
+                      />
+                      {{ party.name }}
+                    </label>
+                  }
+                } @else {
+                  @for (troop of npcStore.troops(); track troop.id) {
+                    <label>
+                      <input
+                        type="checkbox"
+                        [checked]="isGroupSelectedForSave(c.id, troop.id)"
+                        (change)="toggleGroupSelectedForSave(c.id, troop.id, $any($event.target).checked)"
+                      />
+                      {{ troop.name }}
+                    </label>
+                  }
+                }
+                <button type="button" (click)="confirmSaveToRoster(c)">Confirm</button>
+              </li>
+            }
           }
         </ul>
       }
 
-      <form class="entry-form" (ngSubmit)="addNpc()">
+      @if (availablePlayersToAdd().length > 0 || availableNpcsToAdd().length > 0) {
+        <div class="entry-form add-from-roster">
+          @if (availablePlayersToAdd().length > 0) {
+            <label>
+              Add Player:
+              <select #playerPick (change)="addIndividualPlayer(playerPick.value); playerPick.value = ''">
+                <option value=""></option>
+                @for (player of availablePlayersToAdd(); track player.id) {
+                  <option [value]="player.id">{{ player.name }}</option>
+                }
+              </select>
+            </label>
+          }
+          @if (availableNpcsToAdd().length > 0) {
+            <label>
+              Add NPC:
+              <select #npcPick (change)="addIndividualNpc(npcPick.value); npcPick.value = ''">
+                <option value=""></option>
+                @for (npc of availableNpcsToAdd(); track npc.id) {
+                  <option [value]="npc.id">{{ npc.name }}</option>
+                }
+              </select>
+            </label>
+          }
+        </div>
+      }
+
+      <form class="entry-form" (ngSubmit)="addAdHocCombatant()">
+        <fieldset class="ad-hoc-type">
+          <label>
+            <input
+              type="radio"
+              name="adHocType"
+              [checked]="newAdHocType() === 'npc'"
+              (change)="newAdHocType.set('npc')"
+            />
+            NPC
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="adHocType"
+              [checked]="newAdHocType() === 'pc'"
+              (change)="newAdHocType.set('pc')"
+            />
+            Player
+          </label>
+        </fieldset>
         <app-combatant-fields
           [name]="newNpcName()"
           (nameChange)="newNpcName.set($event)"
@@ -96,7 +185,7 @@
           [notes]="newNpcNotes()"
           (notesChange)="newNpcNotes.set($event)"
         />
-        <button type="submit">Add NPC</button>
+        <button type="submit">Add</button>
       </form>
 
       <!-- Plain [checked]/(change) bindings, not [(ngModel)]: these are
@@ -212,6 +301,7 @@
                 [cdkDragData]="c"
                 [cdkDragDisabled]="isPlacing()"
                 class="bubble combatant main-combatant"
+                [attr.data-combatant-id]="c.id"
                 [class.pc-entry]="c.type === 'pc'"
                 [class.npc-entry]="c.type === 'npc'"
                 [class.active]="c.id === activeCombatantId()"
@@ -219,6 +309,7 @@
                 [class.handle-revealed]="isHandleRevealed(c.id)"
                 [class.hp-adjusting]="isHpAdjusting(c.id)"
                 (click)="toggleHandleRevealed(c.id)"
+                (mouseleave)="collapseHandleRevealed(c.id)"
               >
                 <app-combatant-bubble
                   [combatant]="c"

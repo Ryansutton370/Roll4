@@ -4,43 +4,19 @@ fieldset {
   flex-basis: 100%;
 }
 
-/* Column heading above the editing-encounter combatant list — spacer widths
-   match the row below (type-dot, name, remove button) so "Initiative
-   Modifier" lines up over the input column. */
-.setup-list-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0 1rem 0.35rem;
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.setup-list-header .type-dot-spacer {
-  width: 0.65rem;
-}
-
-.setup-list-header .entry-title-spacer {
-  flex: 1;
-  min-width: 0;
-}
-
-.setup-list-header .modifier-heading {
-  width: 5rem;
-  flex-shrink: 0;
-}
-
-.setup-list-header .remove-spacer {
-  width: 2.75rem;
-  flex-shrink: 0;
-}
-
-.modifier-input {
-  width: 5rem;
-  flex-shrink: 0;
+/* Combatant rows in edit mode: type-dot + <app-combatant-fields> (its own
+   :host { display: contents }, see combatant-fields.css, makes its 5 fields
+   direct flex items here) + remove/mark-absent + optional Save-to-Roster.
+   flex-wrap is the fallback for the buttons/type-dot alongside
+   combatant-fields' own internal wrapping (its Name field goes full-width
+   below ~480px) — everything fits on one line at normal desktop widths. */
+.combatant-edit-entry {
+  flex-wrap: wrap;
+  /* Tighter than .entry's default 0.75rem gap — type-dot + 5
+     combatant-fields + remove + Save-to-Roster is right at the edge of
+     fitting on one line at this page's 700px content width, and every
+     column-gap saved here is what keeps it from tipping into a wrap. */
+  gap: 0.5rem;
 }
 
 /* Party members are tinted blue (same --color-pc used by the type-dot) so
@@ -75,4 +51,15 @@ fieldset {
   border-color: var(--color-removed);
   background: var(--color-removed-tint);
   opacity: 0.65;
+}
+
+.save-to-roster-picker {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-top: -0.3rem;
+}
+
+.add-from-roster {
+  gap: 1rem;
 }
