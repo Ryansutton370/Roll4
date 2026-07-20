@@ -54,7 +54,7 @@ considerations).
 - [x] Combatant bubble expansion drawer for Removed from Combat / Hold
       Action, with status icons on the collapsed bubble.
 
-## Phase 2 — Combatant Data + Players/NPCs Library (current phase)
+## Phase 2 — Combatant Data + Players/NPCs Library (complete)
 
 Still local-storage only, no backend yet — a feature pass that deepens what
 a combatant *is*, and turns Players/NPCs into a reusable, many-to-many
@@ -85,8 +85,12 @@ see [PRODUCT.md](./PRODUCT.md) for the resulting nav/data-model shape.
       without pulling its whole group; from an ad-hoc entry created during
       Encounter setup, opt in to saving it to the roster (and optionally a
       Party/Troop) without duplicating it in the encounter being built.
-- [ ] Duplicate-name lettering: within a single Encounter, combatants
-      sharing a name (case-insensitive) get " A"/" B" suffixes.
+- [x] Duplicate-name lettering: within a single Encounter, combatants
+      sharing a name (trimmed, case-insensitive) get " A"/" B" suffixes,
+      lettered in creation order — not initiative order, which re-sorts on
+      every re-roll/manual-reorder/hold-return and would relabel far more
+      often. See [DATA_MODEL.md](./DATA_MODEL.md) for
+      `computeDisplayNames`.
 - [x] Timers + mid-encounter "Ready to Join" combatants: a "+" menu next
       to the Previous/Next Turn buttons (run phase only) adds a Timer
       Card (optionally linked to a combatant, so it ticks on their turn

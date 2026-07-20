@@ -147,8 +147,8 @@
                   [attr.aria-pressed]="c.removedFromCombat"
                   [title]="
                     c.removedFromCombat
-                      ? 'Mark ' + c.name + ' as present'
-                      : 'Mark ' + c.name + ' as absent (Removed from Combat)'
+                      ? 'Mark ' + displayName(c.id) + ' as present'
+                      : 'Mark ' + displayName(c.id) + ' as absent (Removed from Combat)'
                   "
                   (click)="toggleCombatantRemovedInEditingEncounter(c.id)"
                 >
@@ -159,8 +159,8 @@
                   </svg>
                   <span class="sr-only">{{
                     c.removedFromCombat
-                      ? 'Mark ' + c.name + ' as present'
-                      : 'Mark ' + c.name + ' as absent'
+                      ? 'Mark ' + displayName(c.id) + ' as present'
+                      : 'Mark ' + displayName(c.id) + ' as absent'
                   }}</span>
                 </button>
               } @else {
@@ -174,7 +174,7 @@
                       d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
                     />
                   </svg>
-                  <span class="sr-only">Remove {{ c.name }}</span>
+                  <span class="sr-only">Remove {{ displayName(c.id) }}</span>
                 </button>
               }
               @if (!c.playerId && !c.npcId) {

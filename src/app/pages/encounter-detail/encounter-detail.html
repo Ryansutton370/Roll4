@@ -91,7 +91,7 @@
                 [class.pc]="c.type === 'pc'"
                 [class.npc]="c.type === 'npc'"
               ></span>
-              <span class="entry-title">{{ c.name }}</span>
+              <span class="entry-title">{{ displayName(c.id) }}</span>
 
               <!-- AC/HP/Notes/Incapacitated — same icon markup as
                    CombatantBubble's #statsBlock (combatant-bubble.html),
@@ -157,7 +157,7 @@
                   <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path d="M17.5 10.66A7.5 7.5 0 1 1 9.34 2.5a5.83 5.83 0 0 0 8.16 8.16Z" />
                   </svg>
-                  <span class="sr-only">{{ c.name }} is Incapacitated</span>
+                  <span class="sr-only">{{ displayName(c.id) }} is Incapacitated</span>
                 </span>
               }
 
@@ -166,7 +166,7 @@
                 class="modifier-input"
                 [ngModel]="c.initiativeModifier"
                 (ngModelChange)="setCombatantModifier(c.id, $event)"
-                [attr.aria-label]="'Initiative Modifier for ' + c.name"
+                [attr.aria-label]="'Initiative Modifier for ' + displayName(c.id)"
               />
               @if (c.type === 'pc') {
                 <!-- Party members can't be deleted here — this marks them
@@ -180,8 +180,8 @@
                   [attr.aria-pressed]="c.removedFromCombat"
                   [title]="
                     c.removedFromCombat
-                      ? 'Mark ' + c.name + ' as present'
-                      : 'Mark ' + c.name + ' as absent (Removed from Combat)'
+                      ? 'Mark ' + displayName(c.id) + ' as present'
+                      : 'Mark ' + displayName(c.id) + ' as absent (Removed from Combat)'
                   "
                   (click)="toggleRemoved(c.id)"
                 >
@@ -192,8 +192,8 @@
                   </svg>
                   <span class="sr-only">{{
                     c.removedFromCombat
-                      ? 'Mark ' + c.name + ' as present'
-                      : 'Mark ' + c.name + ' as absent'
+                      ? 'Mark ' + displayName(c.id) + ' as present'
+                      : 'Mark ' + displayName(c.id) + ' as absent'
                   }}</span>
                 </button>
               } @else {
@@ -203,7 +203,7 @@
                       d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
                     />
                   </svg>
-                  <span class="sr-only">Remove {{ c.name }}</span>
+                  <span class="sr-only">Remove {{ displayName(c.id) }}</span>
                 </button>
               }
               <!-- Only ad-hoc combatants (no library link yet) can be saved
@@ -371,7 +371,7 @@
                     <select name="timerLink" [ngModel]="newTimerLinkedId()" (ngModelChange)="newTimerLinkedId.set($event)">
                       <option [ngValue]="null">Not linked</option>
                       @for (c of linkableCombatants(); track c.id) {
-                        <option [ngValue]="c.id">{{ c.name }}</option>
+                        <option [ngValue]="c.id">{{ displayName(c.id) }}</option>
                       }
                     </select>
                   </label>
@@ -456,6 +456,7 @@
               >
                 <app-combatant-bubble
                   [combatant]="c"
+                  [displayName]="displayName(c.id)"
                   [expanded]="isExpanded(c.id)"
                   [isPlacing]="isPlacing()"
                   [active]="c.id === activeCombatantId()"
@@ -493,7 +494,7 @@
                         clip-rule="evenodd"
                       />
                     </svg>
-                    <span class="sr-only">Drag to reorder {{ c.name }}</span>
+                    <span class="sr-only">Drag to reorder {{ displayName(c.id) }}</span>
                   </button>
                 </app-combatant-bubble>
               </li>
@@ -548,6 +549,7 @@
                 >
                   <app-combatant-bubble
                     [combatant]="c"
+                    [displayName]="displayName(c.id)"
                     [expanded]="isExpanded(c.id)"
                     [isPlacing]="isPlacing()"
                     [compact]="true"
@@ -577,7 +579,7 @@
                           d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z"
                         />
                       </svg>
-                      <span class="sr-only">Return {{ c.name }} to the main list</span>
+                      <span class="sr-only">Return {{ displayName(c.id) }} to the main list</span>
                     </button>
                   </app-combatant-bubble>
 
@@ -585,7 +587,7 @@
                        of the whole bubble) with just the name — the
                        placeholders already show the target initiative, so
                        the moving piece only needs to say who it is. -->
-                  <div class="drag-preview" *cdkDragPreview>{{ c.name }}</div>
+                  <div class="drag-preview" *cdkDragPreview>{{ displayName(c.id) }}</div>
                 </li>
               }
             </ol>
@@ -638,7 +640,7 @@
                   [class.pc]="c.type === 'pc'"
                   [class.npc]="c.type === 'npc'"
                 ></span>
-                <span class="entry-title">{{ c.name }}</span>
+                <span class="entry-title">{{ displayName(c.id) }}</span>
                 @if (!c.playerId && !c.npcId) {
                   <button type="button" class="save-to-roster-btn" (click)="toggleSavingToRoster(c.id)">
                     {{ isSavingToRoster(c.id) ? 'Cancel' : 'Save to Roster' }}
@@ -657,7 +659,7 @@
                       d="M10 4.5a.75.75 0 0 1 .53.22l5 5a.75.75 0 1 1-1.06 1.06L10.75 7.06V15a.75.75 0 0 1-1.5 0V7.06l-3.72 3.72a.75.75 0 1 1-1.06-1.06l5-5A.75.75 0 0 1 10 4.5Z"
                     />
                   </svg>
-                  <span class="sr-only">Join {{ c.name }} into combat</span>
+                  <span class="sr-only">Join {{ displayName(c.id) }} into combat</span>
                 </button>
               </li>
               @if (isSavingToRoster(c.id)) {
@@ -679,14 +681,14 @@
                   [class.pc]="c.type === 'pc'"
                   [class.npc]="c.type === 'npc'"
                 ></span>
-                <span class="entry-title">{{ c.name }}</span>
+                <span class="entry-title">{{ displayName(c.id) }}</span>
                 <!-- Same shortcut as unchecking "Removed from Combat" would
                      have offered back when this combatant was still shown in
                      the main list's drawer. -->
                 <button
                   type="button"
                   class="icon-btn"
-                  [title]="'Mark ' + c.name + ' as present'"
+                  [title]="'Mark ' + displayName(c.id) + ' as present'"
                   (click)="toggleRemoved(c.id)"
                 >
                   <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -694,7 +696,7 @@
                       d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
                     />
                   </svg>
-                  <span class="sr-only">Mark {{ c.name }} as present</span>
+                  <span class="sr-only">Mark {{ displayName(c.id) }} as present</span>
                 </button>
               </li>
             }

@@ -3,7 +3,7 @@
      from the browser, so there's no hand-rolled overlay/focus-trap here. -->
 <dialog #dialog class="edit-dialog">
   <form class="entry-form" (ngSubmit)="save()">
-    <h2>Edit Combatant</h2>
+    <h2>{{ dialogTitle() }}</h2>
     <app-combatant-fields
       [name]="name()"
       (nameChange)="name.set($event)"
