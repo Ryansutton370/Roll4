@@ -72,3 +72,18 @@ main {
     padding: 1rem 0.75rem 2rem;
   }
 }
+
+/* The Hold Action panel (encounter-detail.css's .hold-panel) sits beside
+   the main combatant list at desktop widths, taking a fixed 17rem — inside
+   main's normal 700px cap that leaves the list too little room for a
+   combatant row's fixed-width AC/HP/Notes/Initiative columns, forcing an
+   ugly wrap even though the browser window has plenty of space to spare.
+   :has() widens main only while a Hold Action panel is actually present
+   (and only once the viewport is wide enough to make use of it — below
+   that, encounter-detail.css's own breakpoint stacks the two columns
+   instead, where this wouldn't help anyway). */
+@media (min-width: 900px) {
+  main:has(.hold-panel) {
+    max-width: 1000px;
+  }
+}

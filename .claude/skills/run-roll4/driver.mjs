@@ -109,6 +109,11 @@ async function main() {
         case 'eval':
           console.log('  =>', await page.evaluate(rest));
           break;
+        case 'viewport': {
+          const [width, height] = rest.split(' ').map(Number);
+          await page.setViewportSize({ width, height });
+          break;
+        }
         case 'console':
           console.log('  errors:', JSON.stringify(errors));
           break;

@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -36,7 +37,11 @@ import { Combatant } from '../../models/encounter.model';
  */
 @Component({
   selector: 'app-combatant-bubble',
-  imports: [FormsModule],
+  // NgTemplateOutlet backs the [ngTemplateOutlet] binding in the template —
+  // it's what renders the #statsBlock <ng-template> in place at each of its
+  // two <ng-container [ngTemplateOutlet]> spots (row vs. drawer, depending
+  // on compact()).
+  imports: [FormsModule, NgTemplateOutlet],
   templateUrl: './combatant-bubble.html',
   styleUrl: './combatant-bubble.css',
 })

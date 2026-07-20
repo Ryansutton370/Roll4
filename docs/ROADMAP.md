@@ -80,7 +80,7 @@ see [PRODUCT.md](./PRODUCT.md) for the resulting nav/data-model shape.
       question in [PRODUCT.md](./PRODUCT.md) — NPCs can still be created
       ad-hoc within an Encounter exactly as in Phase 1, unchanged; the
       roster is additive, not a replacement for that.
-- [ ] Encounter-builder rework: pull a whole Troop into an Encounter the
+- [x] Encounter-builder rework: pull a whole Troop into an Encounter the
       same way a Party is pulled in today; add a single roster Player/NPC
       without pulling its whole group; from an ad-hoc entry created during
       Encounter setup, opt in to saving it to the roster (and optionally a

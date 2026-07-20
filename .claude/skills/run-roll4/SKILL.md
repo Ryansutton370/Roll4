@@ -75,6 +75,7 @@ Screenshots land in `.claude/skills/run-roll4/screenshots/<name>.png`
 | `screenshot [name]` | full-page PNG, default name `shot-N` |
 | `eval <js>` | `page.evaluate(js)`, prints the result — e.g. `localStorage.clear()` to reset fixture state partway through *one* script |
 | `console` | print collected `console.error`/`pageerror` output so far |
+| `viewport <width> <height>` | resize the page (default 1000x700) — use a narrow width (e.g. `375 700`) to check a mobile breakpoint mid-script |
 
 ### One full worked example
 

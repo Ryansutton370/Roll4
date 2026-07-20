@@ -205,6 +205,21 @@
   gap: 0.5rem;
 }
 
+/* Compact (Hold Action panel) bubbles only: #statsBlock (AC/HP/Notes/
+   status/Initiative — normally the main list's one-line row) renders here
+   instead, wrapping onto as many lines as it needs rather than trying to
+   fit the panel's ~17rem width on one line. Its own fixed stat widths (see
+   .stat below) are unchanged — this just gives them room to wrap instead
+   of squeezing/deforming. */
+.drawer-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
 .drawer-edit-btn {
   display: inline-flex;
   align-items: center;

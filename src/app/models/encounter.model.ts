@@ -1,15 +1,21 @@
 export type CombatantType = 'pc' | 'npc';
 
 /**
- * An Encounter-scoped participant. Wraps a PC (via pcId) or is a
- * standalone NPC — see docs/DATA_MODEL.md for why this is a separate
- * entity from PlayerCharacter rather than reusing it directly.
+ * An Encounter-scoped participant. Wraps a Player (via playerId) or an Npc
+ * (via npcId, when pulled from the library or later saved to it) — see
+ * docs/DATA_MODEL.md for why this is a separate entity from Player/Npc
+ * rather than reusing either directly.
  */
 export interface Combatant {
   id: string;
   encounterId: string;
   type: CombatantType;
-  pcId: string | null;
+  playerId: string | null;
+  /** Set when this NPC combatant is linked to a library Npc (pulled in via
+   *  a Troop, an individual add, or saved to the roster after the fact).
+   *  null for an ad-hoc/unsaved NPC — today's only NPC behavior, still
+   *  fully supported. Always null when type === 'pc'. */
+  npcId: string | null;
   name: string;
   initiativeModifier: number;
   /** Optional combat stats, copied from the source PC (or set directly for
@@ -47,6 +53,7 @@ export interface Encounter {
   id: string;
   name: string;
   partyIds: string[];
+  troopIds: string[];
   /** Ordered by initiative descending; this order IS the turn order. */
   combatantIds: string[];
   /** Index into combatantIds; null before the first Roll. */

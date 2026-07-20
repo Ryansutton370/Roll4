@@ -121,6 +121,7 @@ planned but not built.
 | `ownerId`          | string    | References `User.id` (the GM)                    |
 | `name`             | string    | e.g. "Goblin Ambush"                              |
 | `partyIds`         | string[]  | Which Parties' Players were pulled in            |
+| `troopIds`         | string[]  | Which Troops' NPCs were pulled in                |
 | `combatantIds`     | string[]  | **Ordered** by initiative (descending); this order IS the initiative order |
 | `activeCombatantIndex` | number \| null | Index into `combatantIds`; null before first Roll |
 | `holdOrder`        | string[]  | Ids of Combatants currently on Hold Action, oldest-first. Drives the secondary Hold Action list; cleared every round boundary |
@@ -128,27 +129,30 @@ planned but not built.
 | `reRollEachRound`  | boolean   | Default `true` (the homebrew rule)               |
 
 ### Combatant
-An Encounter-scoped participant. Either backed by a Player or defined
-inline as an NPC — never both.
+An Encounter-scoped participant. Wraps a Player (via `playerId`) or an Npc
+(via `npcId`) — or, for an ad-hoc entry not yet saved to either library,
+neither.
 
-**Naming note:** `type`/`pcId` below still say "pc," matching the actual
-field names in code today — `PlayerCharacter` was renamed to `Player` this
-phase, but the `Combatant` side (`pcId` → `playerId`, plus a new `npcId`
-for library-backed NPCs) hasn't been renamed to match yet. Read `pcId` as
-"references `Player.id`."
+**Naming note:** `type` still says "pc"/"npc," matching the actual literal
+values in code today — `PlayerCharacter` was renamed to `Player` back in
+the library-rework phase, but the `type` union itself wasn't renamed to
+match (it drives `.pc-entry`/`.npc-entry` styling across several templates,
+and renaming it was out of scope). Read `type: "pc"` as "this Combatant is
+a Player, ad-hoc or otherwise."
 
 | Field                | Type                   | Notes                                        |
 |----------------------|------------------------|-----------------------------------------------|
 | `id`                 | string                 | Unique identifier                             |
 | `encounterId`        | string                 | References `Encounter.id`                     |
 | `type`               | `"pc"` \| `"npc"`      | Drives the color shown in the initiative list |
-| `pcId`                | string \| null        | Set when `type === "pc"`; references `Player.id` |
-| `name`               | string                 | Copied from Player, or set directly for an NPC |
+| `playerId`           | string \| null         | Set when this Combatant is linked to a library `Player` — pulled in from a Party, added individually, or saved to the roster after the fact. `null` for an ad-hoc, unsaved Player. Always `null` when `type === "npc"` |
+| `npcId`              | string \| null         | Npc-side mirror of `playerId` above — set when linked to a library `Npc` (pulled from a Troop, added individually, or saved after the fact). `null` for an ad-hoc, unsaved NPC — Phase 1's only NPC behavior, still fully supported. Always `null` when `type === "pc"` |
+| `name`               | string                 | Copied from Player/Npc, or set directly for an ad-hoc entry |
 | `initiativeModifier` | number                 | Copied from Player, or set directly for an NPC |
-| `ac`                 | number \| null         | Copied from PC, or set directly for an NPC. `null` = not set |
-| `maxHp`              | number \| null         | Copied from PC, or set directly for an NPC. `null` = not set |
-| `currentHp`          | number \| null         | Combatant-only — no PC/NPC equivalent. Starts equal to `maxHp`, then clamped to `[0, maxHp]` on every change. `null` whenever `maxHp` is `null` |
-| `notes`              | string                 | Copied from PC, or set directly for an NPC. `''` = not set |
+| `ac`                 | number \| null         | Copied from Player/Npc, or set directly for an ad-hoc entry. `null` = not set |
+| `maxHp`              | number \| null         | Copied from Player/Npc, or set directly for an ad-hoc entry. `null` = not set |
+| `currentHp`          | number \| null         | Combatant-only — no Player/Npc equivalent. Starts equal to `maxHp`, then clamped to `[0, maxHp]` on every change. `null` whenever `maxHp` is `null` |
+| `notes`              | string                 | Copied from Player/Npc, or set directly for an ad-hoc entry. `''` = not set |
 | `lastRoll`           | number \| null         | The 1–20 die result from the most recent roll |
 | `initiativeTotal`    | number \| null         | `lastRoll + initiativeModifier`; this is what sorts the list. `null` renders as "N/A" and sorts/counts as `0` |
 | `removedFromCombat`  | boolean                | Default `false`. See below.                   |
@@ -158,17 +162,41 @@ for library-backed NPCs) hasn't been renamed to match yet. Read `pcId` as
 | `preHoldInitiativeTotal` | number \| null     | Snapshot of `initiativeTotal` taken when Hold Action was turned on. Default `null`. See below. |
 
 **Why copy `name`/`initiativeModifier` onto the Combatant instead of always
-reading through to the PC?** An NPC has no separate source to read from, so
-the Combatant needs its own copy regardless. Giving PCs the same shape keeps
-`Combatant` a single, consistent type the initiative-list UI can render
-without a `type` branch on every field — it only needs to branch on `type`
-for things that actually differ (like whether `pcId` is set).
+reading through to the Player/Npc?** An ad-hoc entry has no library source
+to read from, so the Combatant needs its own copy regardless. Giving
+library-linked entries the same shape keeps `Combatant` a single, consistent
+type the initiative-list UI can render without a `type` branch on every
+field — it only needs to branch on `type`/`playerId`/`npcId` for things that
+actually differ.
 
 **Editing AC/Max HP/Notes on a Combatant (the drawer's Edit button) only
 changes that Combatant's own copy** — it never writes back to the source
-PC, the same as `setInitiativeModifier` already does for the initiative
-modifier. There's no "sync back to the library" concept yet; correcting a
-PC's permanent data means editing the PC itself on the Party screen.
+Player/Npc, the same as `setInitiativeModifier` already does for the
+initiative modifier. There's no "sync back to the library" concept yet;
+correcting a Player/Npc's permanent data means editing it directly on the
+Players/NPCs roster screen.
+
+**Pulling Parties/Troops, individual roster entries, and ad-hoc combatants
+into an Encounter:** `EncounterStore.setEncounterParties`/`setEncounterTroops`
+reconcile an Encounter's Party/Troop selection with its Combatants the same
+way (add newly-selected members, drop de-selected ones before the first
+Roll, never duplicate a member already pulled in via another selected
+group). `addPlayerCombatant`/`addNpcCombatant` pull in one roster entry
+without its whole group, no-op if that entry is already present.
+`addAdHocCombatant(encounterId, type, fields)` creates a Combatant with no
+library link at all (`playerId`/`npcId` both `null`) — today's only
+NPC-creation path, generalized to also allow an ad-hoc Player.
+
+**Saving an ad-hoc combatant to the roster** ("Save to Roster," available
+on any Combatant with `playerId`/`npcId` both `null`): the GM optionally
+checks which Party/Troop to also add it to, then
+`EncounterStore.linkCombatantToLibraryEntry(encounterId, combatantId, linkedId)`
+sets `playerId` or `npcId` (matching the Combatant's `type`) on that *same*
+Combatant record. No second Combatant is ever created — creating the
+library entry and assigning it to a group happens first, at the page level
+(`PartyStore.createPlayer`/`NpcStore.createNpc` +
+`addPlayerToParty`/`addNpcToTroop`), and `linkCombatantToLibraryEntry` only
+does the final id assignment.
 
 **Current HP and Max HP edits:** clicking the heart icon or the health bar
 opens a small input for a signed delta (e.g. `-15`, `+10`), applied via

@@ -6,7 +6,8 @@ const combatant: Combatant = {
   id: 'c1',
   encounterId: 'e1',
   type: 'pc',
-  pcId: 'pc1',
+  playerId: 'pc1',
+  npcId: null,
   name: 'Aria Windmere',
   initiativeModifier: 3,
   ac: 16,
@@ -147,5 +148,22 @@ describe('CombatantBubble', () => {
     confirmBtn.click();
 
     expect(emitted).toBe(10);
+  });
+
+  it('hides AC/HP/Notes/Initiative from the row in compact mode, moving them into the drawer instead', async () => {
+    fixture.componentRef.setInput('compact', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const row: HTMLElement = fixture.nativeElement.querySelector('.combatant-row');
+    expect(row.querySelector('.init-stat')).toBeNull();
+    expect(row.querySelector('.hp-stat-wrapper')).toBeNull();
+
+    // #statsBlock instead renders inside .drawer-stats — collapsed via the
+    // drawer's own grid-rows trick (combatant-bubble.css) rather than being
+    // absent from the DOM, same as the drawer's checkboxes always are.
+    const drawer: HTMLElement = fixture.nativeElement.querySelector('.drawer-stats');
+    expect(drawer.querySelector('.init-stat')).not.toBeNull();
+    expect(drawer.querySelector('.init-stat')?.textContent).toContain('15');
   });
 });

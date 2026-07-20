@@ -30,10 +30,10 @@ needing a fast, clear way to track turn order across multiple rounds.
   grouping of NPCs. Same many-to-many membership rules as Party/Player.
 - **Initiative Modifier** — a signed integer (e.g. `+3`, `0`, `-1`) added to a
   d20 roll to produce a combatant's initiative result.
-- **Encounter** — one combat session. Combines Players (via Party or,
-  today, only via Party — see the open decision below) with
-  encounter-specific NPCs, tracks initiative order, whose turn it is, and how
-  many rounds have passed.
+- **Encounter** — one combat session. Combines Players and NPCs pulled in
+  via Party/Troop, added individually from the roster, or defined ad-hoc
+  (see "2. Create an Encounter" below), tracks initiative order, whose turn
+  it is, and how many rounds have passed.
 
 ## Navigation
 
@@ -60,14 +60,27 @@ reused across many Encounters. NPCs/Troops work identically, under the
 **NPCs** tab.
 
 ### 2. Create an Encounter
-The GM picks a Party (or Parties) to pull Players from, then adds NPCs
-specific to this fight (e.g. "Goblin 1", "Goblin 2", "Bandit Captain") —
-today this is still always ad-hoc, typed directly into the Encounter; pulling
-from the NPC roster/Troops the same way Parties are pulled in is designed
-(see Core Concepts) but not wired up to Encounter creation yet. A saved
-Encounter can be edited later from the Encounters list — rename it, change
-which Parties are pulled in, or add/remove combatants (e.g. reinforcements)
-— using that same form.
+The GM builds up the combatant list from four sources, any combination of
+which can be used together:
+- **Pull a Party (or Parties)** in as a unit — every Player in the Party
+  joins as a Combatant.
+- **Pull a Troop (or Troops)** in the same way — every NPC in the Troop
+  joins as a Combatant.
+- **Add a single roster entry** — a Player or NPC from the library, without
+  pulling in its whole Party/Troop (e.g. one NPC that isn't part of any
+  Troop, or a Player joining without their usual group).
+- **Add an ad-hoc entry** — typed directly into the Encounter, with no
+  library entry at all. A type toggle (NPC/Player) picks which; NPC is the
+  default, matching Phase 1's only behavior.
+
+An ad-hoc entry isn't stuck ad-hoc forever: **Save to Roster** creates a
+library Player/NPC from its current fields, optionally adds it to a
+Party/Troop the GM checks off, and links it to the *same* Combatant — it
+never appears twice in the Encounter being built.
+
+A saved Encounter can be edited later from the Encounters list — rename it,
+change which Parties/Troops are pulled in, or add/remove combatants (e.g.
+reinforcements) — using that same form.
 
 ### 3. Roll Initiative
 The GM presses **Roll**. Every combatant gets a random value from 1–20, plus
@@ -271,17 +284,9 @@ live/realtime backend of some kind) — see [ARCHITECTURE.md](./ARCHITECTURE.md)
 
 ## Open decisions
 
-Known gaps not yet resolved:
-
-- **Pulling Troops/individual roster entries into an Encounter** — Parties
-  can be pulled into an Encounter as a unit today; NPCs can be added
-  ad-hoc; but pulling a whole Troop, or a single roster Player/NPC without
-  its whole group, the way a Party already can be, isn't wired up to
-  Encounter creation yet.
-- **Registering an ad-hoc Encounter entry into the roster** — a GM who
-  types a new NPC directly into an Encounter has no way yet to also save
-  it to the NPC roster (and optionally a Troop) without creating a
-  duplicate entry.
+No open decisions remain from this phase's original scope — see "Resolved
+this phase" below. Future phases (see [ROADMAP.md](./ROADMAP.md)) will
+likely surface new ones.
 
 **Resolved this phase:**
 - Combat-relevant data beyond name + Initiative Modifier is AC, Max HP
@@ -290,3 +295,11 @@ Known gaps not yet resolved:
   data: AC / HP / Notes" above.
 - NPC reuse: yes, via the new NPC roster and Troops (mirroring
   Players/Parties) — see "Core concepts" and "Navigation" above.
+- Pulling Troops/individual roster entries into an Encounter: yes — a Troop
+  can be pulled in as a unit (mirroring a Party), and a single roster
+  Player/NPC can be added without its whole group. See "2. Create an
+  Encounter" above.
+- Registering an ad-hoc Encounter entry into the roster: yes, via "Save to
+  Roster" — creates a library Player/NPC from the ad-hoc entry's fields,
+  optionally assigns it to a Party/Troop, and links it to the same
+  Combatant rather than duplicating it. See "2. Create an Encounter" above.
