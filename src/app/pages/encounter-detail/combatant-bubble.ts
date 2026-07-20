@@ -56,6 +56,8 @@ export class CombatantBubble {
   readonly compact = input(false);
   /** True when this is the encounter's Active combatant — bumps the name's font-size. */
   readonly active = input(false);
+  /** True when a Timer is currently linked to this combatant — shows a small clock icon next to their name (see EncounterDetail.isLinkedToTimer). */
+  readonly hasLinkedTimer = input(false);
 
   // output(): the signal-based replacement for @Output()/EventEmitter — it
   // exposes an emitter that the parent's template listens to with a normal
@@ -68,8 +70,10 @@ export class CombatantBubble {
   readonly holdActionChange = output<void>();
   readonly incapacitatedToggle = output<void>();
   readonly removedToggle = output<void>();
-  /** Drawer's Edit button — EncounterDetail owns opening the shared EditCombatantDialog for this combatant. */
+  /** Drawer's Edit Info button — EncounterDetail owns opening the shared EditCombatantDialog for this combatant. */
   readonly editRequested = output<void>();
+  /** Drawer's Create Timer button — EncounterDetail creates a Timer linked to this combatant with a default name/value. */
+  readonly createTimerRequested = output<void>();
   /** A signed HP delta typed into the popover below (damage negative, healing positive) — EncounterDetail applies it via EncounterStore.adjustCurrentHp. */
   readonly hpAdjustSubmit = output<number>();
   /** Mirrors hpAdjustOpen() below — EncounterDetail needs to know so it can raise the open bubble's <li> above its siblings (see the comment on the effect() below for why). */
@@ -222,6 +226,27 @@ export class CombatantBubble {
     const notesEl = this.notesToggle()?.nativeElement;
     if (notesEl && !notesEl.contains(event.target as Node)) {
       this.notesRevealed.set(false);
+    }
+  }
+
+  // Click/tap-to-expand the full name — same pattern as notesRevealed
+  // above, for when the container-query truncation ladder in
+  // combatant-bubble.css has tightened the name's flex-basis. Hover is
+  // covered separately, for free, by a plain `title` attribute in the
+  // template (no JS needed for that half).
+  protected readonly nameExpanded = signal(false);
+  private readonly nameToggle = viewChild<ElementRef<HTMLElement>>('nameToggle');
+
+  protected toggleNameExpanded(): void {
+    this.nameExpanded.update((expanded) => !expanded);
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected collapseNameOnClickAway(event: MouseEvent): void {
+    if (!this.nameExpanded()) return;
+    const nameEl = this.nameToggle()?.nativeElement;
+    if (nameEl && !nameEl.contains(event.target as Node)) {
+      this.nameExpanded.set(false);
     }
   }
 }

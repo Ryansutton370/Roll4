@@ -1,15 +1,16 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { Combatant, CombatantType, Encounter } from '../../models/encounter.model';
+import { Combatant, Encounter } from '../../models/encounter.model';
 import { EncounterStore } from '../../services/encounter-store';
 import { NpcStore } from '../../services/npc-store';
 import { PartyStore } from '../../services/party-store';
+import { AddCombatantDialog, NewCombatantSubmitted } from '../../shared/add-combatant-dialog/add-combatant-dialog';
 import { CombatantFields } from '../../shared/combatant-fields/combatant-fields';
 
 @Component({
   selector: 'app-encounter-list',
-  imports: [FormsModule, RouterLink, CombatantFields],
+  imports: [FormsModule, RouterLink, CombatantFields, AddCombatantDialog],
   templateUrl: './encounter-list.html',
   styleUrl: './encounter-list.css',
 })
@@ -46,15 +47,9 @@ export class EncounterList {
     );
   });
 
-  protected readonly newAdHocType = signal<CombatantType>('npc');
-  protected readonly newNpcName = signal('');
-  protected readonly newNpcModifier = signal(0);
-  protected readonly newNpcAc = signal<number | null>(null);
-  protected readonly newNpcMaxHp = signal<number | null>(null);
-  protected readonly newNpcNotes = signal('');
-
   // Roster entries not yet in the Encounter being edited — same "never
-  // offer a no-op add" filtering as EncounterDetail's pickers.
+  // offer a no-op add" filtering as EncounterDetail's pickers, fed into
+  // AddCombatantDialog below.
   protected readonly availablePlayersToAdd = computed(() => {
     const presentIds = new Set(this.editingCombatants().map((c) => c.playerId));
     return this.partyStore.players().filter((p) => !presentIds.has(p.id));
@@ -63,6 +58,28 @@ export class EncounterList {
     const presentIds = new Set(this.editingCombatants().map((c) => c.npcId));
     return this.npcStore.npcs().filter((n) => !presentIds.has(n.id));
   });
+
+  // Same shared dialog/viewChild pattern as EncounterDetail — see that
+  // component for the full rationale.
+  private readonly addCombatantDialog = viewChild.required<AddCombatantDialog>('addCombatantDialog');
+
+  protected openAddCombatantDialog(): void {
+    this.addCombatantDialog().open();
+  }
+
+  protected onExistingPlayerChosen(playerId: string): void {
+    this.addIndividualPlayerToEditingEncounter(playerId);
+  }
+
+  protected onExistingNpcChosen(npcId: string): void {
+    this.addIndividualNpcToEditingEncounter(npcId);
+  }
+
+  protected onNewCombatantSubmitted(event: NewCombatantSubmitted): void {
+    const encounterId = this.editingEncounterId();
+    if (!encounterId) return;
+    this.encounterStore.addAdHocCombatant(encounterId, event.type, event.fields);
+  }
 
   protected togglePartySelected(partyId: string, checked: boolean): void {
     this.selectedPartyIds.update((ids) =>
@@ -91,12 +108,6 @@ export class EncounterList {
     this.newEncounterName.set('');
     this.selectedPartyIds.set([]);
     this.selectedTroopIds.set([]);
-    this.newAdHocType.set('npc');
-    this.newNpcName.set('');
-    this.newNpcModifier.set(0);
-    this.newNpcAc.set(null);
-    this.newNpcMaxHp.set(null);
-    this.newNpcNotes.set('');
   }
 
   protected submitEncounterForm(): void {
@@ -127,32 +138,13 @@ export class EncounterList {
   // Adding/removing combatants applies immediately (like the setup screen on
   // encounter-detail) rather than waiting for Update Encounter — only the
   // name and Party/Troop selection are staged until submit.
-  protected addAdHocCombatantToEditingEncounter(): void {
-    const encounterId = this.editingEncounterId();
-    const name = this.newNpcName().trim();
-    if (!encounterId || !name) return;
-    this.encounterStore.addAdHocCombatant(encounterId, this.newAdHocType(), {
-      name,
-      initiativeModifier: this.newNpcModifier(),
-      ac: this.newNpcAc(),
-      maxHp: this.newNpcMaxHp(),
-      notes: this.newNpcNotes(),
-    });
-    this.newAdHocType.set('npc');
-    this.newNpcName.set('');
-    this.newNpcModifier.set(0);
-    this.newNpcAc.set(null);
-    this.newNpcMaxHp.set(null);
-    this.newNpcNotes.set('');
-  }
-
-  protected addIndividualPlayerToEditingEncounter(playerId: string): void {
+  private addIndividualPlayerToEditingEncounter(playerId: string): void {
     const encounterId = this.editingEncounterId();
     if (!encounterId || !playerId) return;
     this.encounterStore.addPlayerCombatant(encounterId, playerId);
   }
 
-  protected addIndividualNpcToEditingEncounter(npcId: string): void {
+  private addIndividualNpcToEditingEncounter(npcId: string): void {
     const encounterId = this.editingEncounterId();
     if (!encounterId || !npcId) return;
     this.encounterStore.addNpcCombatant(encounterId, npcId);

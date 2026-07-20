@@ -17,10 +17,32 @@
   <ng-content select="[leading-control]"></ng-content>
 
   <span class="type-dot" [class.pc]="combatant().type === 'pc'" [class.npc]="combatant().type === 'npc'"></span>
-  <span class="combatant-name" [class.active]="active()"
+  <!-- title: free native hover tooltip showing the full name once the
+       container-query ladder (combatant-bubble.css) has truncated it.
+       (click): the same "expand on click, snap back on click-away" pattern
+       as the Notes icon/text just below — see nameExpanded/
+       toggleNameExpanded/collapseNameOnClickAway in combatant-bubble.ts. -->
+  <span
+    #nameToggle
+    class="combatant-name"
+    [class.active]="active()"
+    [class.name-expanded]="nameExpanded()"
+    [title]="combatant().name"
+    tabindex="0"
+    (click)="toggleNameExpanded()"
     >{{ combatant().name }}
     @if (combatant().incapacitated) {
       <span class="incapacitated-label">Incapacitated</span>
+    }
+    @if (hasLinkedTimer()) {
+      <span class="linked-timer-icon" title="A Timer is linked to this combatant">
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path
+            d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm.75 2.25a.75.75 0 0 0-1.5 0V10c0 .2.08.39.22.53l3 3a.75.75 0 1 0 1.06-1.06l-2.78-2.78V6.25Z"
+          />
+        </svg>
+        <span class="sr-only">A Timer is linked to {{ combatant().name }}</span>
+      </span>
     }
   </span>
 
@@ -79,46 +101,70 @@
           <ng-container [ngTemplateOutlet]="statsBlock"></ng-container>
         </div>
       }
-      <label>
-        <input
-          type="checkbox"
-          [checked]="combatant().onHold"
-          [disabled]="combatant().removedFromCombat || isPlacing()"
-          (change)="holdActionChange.emit()"
-        />
-        Hold Action
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          [checked]="combatant().incapacitated"
-          [disabled]="isPlacing()"
-          (change)="incapacitatedToggle.emit()"
-        />
-        Incapacitated
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          [checked]="combatant().removedFromCombat"
-          [disabled]="isPlacing()"
-          (change)="removedToggle.emit()"
-        />
-        Removed from Combat
-      </label>
-      <button
-        type="button"
-        class="drawer-edit-btn"
-        [disabled]="isPlacing()"
-        (click)="editRequested.emit()"
-      >
-        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path
-            d="M13.59 2.59a2 2 0 0 1 2.83 2.83l-8.83 8.83-3.54.71.71-3.54 8.83-8.83Z"
+      <!-- Two columns: the three status checkboxes on the left, and a
+           stack of one-shot action buttons (Create Timer, Edit Info) on
+           the right — see .drawer-content in combatant-bubble.css. -->
+      <div class="drawer-checkboxes">
+        <label>
+          <input
+            type="checkbox"
+            [checked]="combatant().onHold"
+            [disabled]="combatant().removedFromCombat || isPlacing()"
+            (change)="holdActionChange.emit()"
           />
-        </svg>
-        Edit
-      </button>
+          Hold Action
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            [checked]="combatant().incapacitated"
+            [disabled]="isPlacing()"
+            (change)="incapacitatedToggle.emit()"
+          />
+          Incapacitated
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            [checked]="combatant().removedFromCombat"
+            [disabled]="isPlacing()"
+            (change)="removedToggle.emit()"
+          />
+          Removed from Combat
+        </label>
+      </div>
+      <div class="drawer-actions">
+        <!-- One-shot action, not a persisted toggle (unlike the three
+             checkboxes) — creates a Timer linked to this combatant with a
+             default name/value immediately on click; EncounterDetail owns
+             the actual EncounterStore.createTimer call. -->
+        <button
+          type="button"
+          class="drawer-action-btn create-timer-btn"
+          [disabled]="isPlacing()"
+          (click)="createTimerRequested.emit()"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path
+              d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm.75 2.25a.75.75 0 0 0-1.5 0V10c0 .2.08.39.22.53l3 3a.75.75 0 1 0 1.06-1.06l-2.78-2.78V6.25Z"
+            />
+          </svg>
+          Create Timer
+        </button>
+        <button
+          type="button"
+          class="drawer-action-btn edit-info-btn"
+          [disabled]="isPlacing()"
+          (click)="editRequested.emit()"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path
+              d="M13.59 2.59a2 2 0 0 1 2.83 2.83l-8.83 8.83-3.54.71.71-3.54 8.83-8.83Z"
+            />
+          </svg>
+          Edit Info
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -133,14 +179,20 @@
        makes every bubble's columns line up with every other bubble's,
        table-style, regardless of which optional fields any one combatant
        happens to have set. -->
-  <span class="stat ac-stat" [title]="combatant().ac !== null ? 'Armor Class' : null">
+  <!-- Badge: a solid-black icon with the value reversed (white) and
+       centered inside it, rather than icon-then-text side by side — reads
+       faster at a glance and costs less row width (see .badge-icon/
+       .badge-value in combatant-bubble.css). -->
+  <span class="stat ac-stat" [title]="combatant().ac !== null ? 'Armor Class: ' + combatant().ac : null">
     @if (combatant().ac !== null) {
-      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-        <path
-          d="M10 2.25 3.75 4.5v4.75c0 4.86 2.98 7.9 6.25 8.75 3.27-.85 6.25-3.89 6.25-8.75V4.5L10 2.25Z"
-        />
-      </svg>
-      {{ combatant().ac }}
+      <span class="badge-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path
+            d="M10 2.25 3.75 4.5v4.75c0 4.86 2.98 7.9 6.25 8.75 3.27-.85 6.25-3.89 6.25-8.75V4.5L10 2.25Z"
+          />
+        </svg>
+        <span class="badge-value">{{ combatant().ac }}</span>
+      </span>
     }
   </span>
 
@@ -288,25 +340,18 @@
     }
   </span>
 
-  <span class="stat init-stat" title="Initiative">
-    <!-- Same hexagonal-gem d20 used on the Roll Initiative button
-         (encounter-detail.html) — stroke-based rather than filled, since a
-         filled path can't show the facet lines. -->
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.3"
-      stroke-linejoin="round"
-      stroke-linecap="round"
-      aria-hidden="true"
-    >
-      <path d="M10 1.5 17.5 6v8L10 18.5 2.5 14V6Z" />
-      <path
-        d="M10 1.5V10M17.5 6 10 10M2.5 6 10 10M10 10v8.5M2.5 14 10 10M17.5 14 10 10"
-        stroke-width="1"
-      />
-    </svg>
-    {{ combatant().initiativeTotal ?? 'N/A' }}
+  <span class="stat init-stat" [title]="'Initiative: ' + (combatant().initiativeTotal ?? 'N/A')">
+    <!-- Same badge treatment as AC above — the d20's facet-line detail
+         (kept on the Roll Initiative button, encounter-detail.html) is
+         dropped here so the filled shape stays a solid, legible backdrop
+         for the reversed-white number. -->
+    <span class="badge-icon">
+      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M10 1.5 17.5 6v8L10 18.5 2.5 14V6Z" />
+      </svg>
+      <span class="badge-value" [class.na]="combatant().initiativeTotal === null">{{
+        combatant().initiativeTotal ?? 'N/A'
+      }}</span>
+    </span>
   </span>
 </ng-template>

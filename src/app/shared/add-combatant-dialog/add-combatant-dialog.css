@@ -1,0 +1,87 @@
+.add-dialog {
+  width: min(24rem, calc(100vw - 2rem));
+  padding: 1.25rem;
+  border: none;
+  border-radius: var(--radius-bubble);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-md);
+}
+
+.add-dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.add-dialog h2 {
+  margin: 0 0 0.75rem;
+}
+
+.ad-hoc-type {
+  margin-bottom: 0.75rem;
+}
+
+.choose-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.choose-btn {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.choose-btn:hover {
+  background: var(--color-removed-tint);
+}
+
+.roster-pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 14rem;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+}
+
+.roster-pick-list button {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.roster-pick-list button:hover {
+  background: var(--color-removed-tint);
+}
+
+.mode-toggle {
+  display: block;
+  padding: 0.4rem 0;
+  border: none;
+  background: none;
+  color: var(--color-focus);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}

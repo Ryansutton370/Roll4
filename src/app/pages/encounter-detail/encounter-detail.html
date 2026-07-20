@@ -4,6 +4,60 @@
 
   <app-edit-combatant-dialog #editDialog (saveRequested)="onEditSave($event)" />
 
+  <!-- One shared instance for both the setup-phase button and the run-phase
+       "+" menu (see openAddCombatantDialog in encounter-detail.ts) — it
+       manages its own open/closed state, defaulting to "pick an existing
+       roster entry" with a toggle to create a new one, and a Cancel button
+       (plus native Escape) to back out entirely. -->
+  <app-add-combatant-dialog
+    #addCombatantDialog
+    [availablePlayers]="availablePlayersToAdd()"
+    [availableNpcs]="availableNpcsToAdd()"
+    (existingPlayerChosen)="onExistingPlayerChosen($event)"
+    (existingNpcChosen)="onExistingNpcChosen($event)"
+    (newCombatantSubmitted)="onNewCombatantSubmitted($event)"
+  />
+
+  <!-- Shared "Save to Roster" picker — declared once, referenced via
+       ngTemplateOutlet from both the setup-phase list below and the
+       run-phase Ready to Join list, same #statsBlock precedent as
+       combatant-bubble.html. let-c binds the outlet's context.$implicit
+       (the combatant passed in below) to a local `c` for this template. -->
+  <ng-template #saveToRosterPicker let-c>
+    <li class="bubble entry save-to-roster-picker">
+      <p>
+        Save "{{ c.name }}" to the {{ c.type === 'pc' ? 'Player' : 'NPC' }} roster
+        @if (c.type === 'pc' ? partyStore.parties().length > 0 : npcStore.troops().length > 0) {
+          and optionally add it to:
+        }
+      </p>
+      @if (c.type === 'pc') {
+        @for (party of partyStore.parties(); track party.id) {
+          <label>
+            <input
+              type="checkbox"
+              [checked]="isGroupSelectedForSave(c.id, party.id)"
+              (change)="toggleGroupSelectedForSave(c.id, party.id, $any($event.target).checked)"
+            />
+            {{ party.name }}
+          </label>
+        }
+      } @else {
+        @for (troop of npcStore.troops(); track troop.id) {
+          <label>
+            <input
+              type="checkbox"
+              [checked]="isGroupSelectedForSave(c.id, troop.id)"
+              (change)="toggleGroupSelectedForSave(c.id, troop.id, $any($event.target).checked)"
+            />
+            {{ troop.name }}
+          </label>
+        }
+      }
+      <button type="button" (click)="confirmSaveToRoster(c)">Confirm</button>
+    </li>
+  </ng-template>
+
   @if (!hasStarted()) {
     <!-- Setup phase: review pulled-in PCs, add ad-hoc NPCs, then Roll. -->
     <section>
@@ -16,13 +70,18 @@
         <div class="setup-list-header">
           <span class="type-dot-spacer"></span>
           <span class="entry-title-spacer"></span>
+          <span class="ac-heading-spacer"></span>
+          <span class="hp-heading-spacer"></span>
+          <span class="notes-heading-spacer"></span>
+          <span class="incapacitated-heading-spacer"></span>
           <span class="modifier-heading">Initiative Modifier</span>
           <span class="remove-spacer"></span>
         </div>
         <ul class="bubble-list">
           @for (c of setupCombatants(); track c.id) {
             <li
-              class="bubble entry"
+              class="bubble entry setup-combatant-entry"
+              [attr.data-combatant-id]="c.id"
               [class.pc-entry]="c.type === 'pc'"
               [class.npc-entry]="c.type === 'npc'"
               [class.entry-removed]="c.removedFromCombat"
@@ -33,6 +92,75 @@
                 [class.npc]="c.type === 'npc'"
               ></span>
               <span class="entry-title">{{ c.name }}</span>
+
+              <!-- AC/HP/Notes/Incapacitated — same icon markup as
+                   CombatantBubble's #statsBlock (combatant-bubble.html),
+                   duplicated rather than shared (Angular view encapsulation
+                   means this component's own template can't reach into a
+                   child component's styles/template — same reasoning as
+                   .initiative-total further down this file). Read-only here
+                   (no HP-adjust popover, no Incapacitated toggle) — those
+                   stay exclusive to the run phase, where turn order/Active
+                   combatant semantics actually apply. -->
+              <span class="stat ac-stat" [title]="c.ac !== null ? 'Armor Class: ' + c.ac : null">
+                @if (c.ac !== null) {
+                  <span class="badge-icon">
+                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path
+                        d="M10 2.25 3.75 4.5v4.75c0 4.86 2.98 7.9 6.25 8.75 3.27-.85 6.25-3.89 6.25-8.75V4.5L10 2.25Z"
+                      />
+                    </svg>
+                    <span class="badge-value">{{ c.ac }}</span>
+                  </span>
+                }
+              </span>
+
+              @if (c.maxHp !== null) {
+                <span class="stat setup-hp-stat" title="Current / Max HP">
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 17.35 8.55 16.03C4 11.9 1 9.19 1 5.86 1 3.17 3.12 1 5.75 1c1.47 0 2.89.68 3.8 1.76A5.07 5.07 0 0 1 13.35 1 4.7 4.7 0 0 1 18 5.86c0 3.33-3 6.04-7.55 10.17L10 17.35Z"
+                    />
+                  </svg>
+                  <span class="hp-numbers">{{ c.currentHp }}/{{ c.maxHp }}</span>
+                  <span class="hp-bar"
+                    ><span
+                      class="hp-bar-fill"
+                      [style.width.%]="setupHpPercent(c)"
+                      [style.--hp-hue]="setupHpHue(c)"
+                    ></span
+                  ></span>
+                </span>
+              } @else {
+                <span class="stat setup-hp-stat" aria-hidden="true"></span>
+              }
+
+              <span
+                class="stat notes-stat"
+                [class.revealed]="isSetupNotesRevealed(c.id)"
+                [attr.tabindex]="c.notes ? 0 : null"
+                [title]="c.notes ? 'Notes — click to expand' : null"
+                (click)="c.notes && toggleSetupNotesRevealed(c.id)"
+              >
+                @if (c.notes) {
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M5 2.5A1.5 1.5 0 0 0 3.5 4v12A1.5 1.5 0 0 0 5 17.5h10a1.5 1.5 0 0 0 1.5-1.5V4A1.5 1.5 0 0 0 15 2.5H5Zm1 4h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h5a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Z"
+                    />
+                  </svg>
+                  <span class="notes-text">{{ c.notes }}</span>
+                }
+              </span>
+
+              @if (c.incapacitated) {
+                <span class="status-icon incapacitated-icon" title="Incapacitated">
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M17.5 10.66A7.5 7.5 0 1 1 9.34 2.5a5.83 5.83 0 0 0 8.16 8.16Z" />
+                  </svg>
+                  <span class="sr-only">{{ c.name }} is Incapacitated</span>
+                </span>
+              }
+
               <input
                 type="number"
                 class="modifier-input"
@@ -88,105 +216,15 @@
               }
             </li>
             @if (isSavingToRoster(c.id)) {
-              <li class="bubble entry save-to-roster-picker">
-                <p>
-                  Save "{{ c.name }}" to the {{ c.type === 'pc' ? 'Player' : 'NPC' }} roster
-                  @if (c.type === 'pc' ? partyStore.parties().length > 0 : npcStore.troops().length > 0) {
-                    and optionally add it to:
-                  }
-                </p>
-                @if (c.type === 'pc') {
-                  @for (party of partyStore.parties(); track party.id) {
-                    <label>
-                      <input
-                        type="checkbox"
-                        [checked]="isGroupSelectedForSave(c.id, party.id)"
-                        (change)="toggleGroupSelectedForSave(c.id, party.id, $any($event.target).checked)"
-                      />
-                      {{ party.name }}
-                    </label>
-                  }
-                } @else {
-                  @for (troop of npcStore.troops(); track troop.id) {
-                    <label>
-                      <input
-                        type="checkbox"
-                        [checked]="isGroupSelectedForSave(c.id, troop.id)"
-                        (change)="toggleGroupSelectedForSave(c.id, troop.id, $any($event.target).checked)"
-                      />
-                      {{ troop.name }}
-                    </label>
-                  }
-                }
-                <button type="button" (click)="confirmSaveToRoster(c)">Confirm</button>
-              </li>
+              <ng-container [ngTemplateOutlet]="saveToRosterPicker" [ngTemplateOutletContext]="{ $implicit: c }" />
             }
           }
         </ul>
       }
 
-      @if (availablePlayersToAdd().length > 0 || availableNpcsToAdd().length > 0) {
-        <div class="entry-form add-from-roster">
-          @if (availablePlayersToAdd().length > 0) {
-            <label>
-              Add Player:
-              <select #playerPick (change)="addIndividualPlayer(playerPick.value); playerPick.value = ''">
-                <option value=""></option>
-                @for (player of availablePlayersToAdd(); track player.id) {
-                  <option [value]="player.id">{{ player.name }}</option>
-                }
-              </select>
-            </label>
-          }
-          @if (availableNpcsToAdd().length > 0) {
-            <label>
-              Add NPC:
-              <select #npcPick (change)="addIndividualNpc(npcPick.value); npcPick.value = ''">
-                <option value=""></option>
-                @for (npc of availableNpcsToAdd(); track npc.id) {
-                  <option [value]="npc.id">{{ npc.name }}</option>
-                }
-              </select>
-            </label>
-          }
-        </div>
-      }
-
-      <form class="entry-form" (ngSubmit)="addAdHocCombatant()">
-        <fieldset class="ad-hoc-type">
-          <label>
-            <input
-              type="radio"
-              name="adHocType"
-              [checked]="newAdHocType() === 'npc'"
-              (change)="newAdHocType.set('npc')"
-            />
-            NPC
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="adHocType"
-              [checked]="newAdHocType() === 'pc'"
-              (change)="newAdHocType.set('pc')"
-            />
-            Player
-          </label>
-        </fieldset>
-        <app-combatant-fields
-          [name]="newNpcName()"
-          (nameChange)="newNpcName.set($event)"
-          [initiativeModifier]="newNpcModifier()"
-          (initiativeModifierChange)="newNpcModifier.set($event)"
-          [ac]="newNpcAc()"
-          (acChange)="newNpcAc.set($event)"
-          [maxHp]="newNpcMaxHp()"
-          (maxHpChange)="newNpcMaxHp.set($event)"
-          [notes]="newNpcNotes()"
-          (notesChange)="newNpcNotes.set($event)"
-        />
-        <button type="submit">Add</button>
-      </form>
+      <button type="button" class="add-combatant-btn" (click)="openAddCombatantDialog()">
+        + Add Combatant
+      </button>
 
       <!-- Plain [checked]/(change) bindings, not [(ngModel)]: these are
            native radio inputs with no form validation/submission need, so
@@ -244,8 +282,113 @@
     </section>
   } @else {
     <!-- Run phase: initiative order, Active-turn highlight, round tracking. -->
-    <section>
-      <p class="round-indicator">Round {{ e.round }}</p>
+    <!--
+      run-layout puts the Timers rail first in the DOM, so mobile's default
+      top-to-bottom stacking (flex-direction: column) naturally puts it
+      above everything else with zero extra CSS — desktop CSS flips this to
+      a row instead, turning it into a left sidebar. Same "sidebar-first"
+      trick .combatant-columns already uses for the Hold Action panel, one
+      level up.
+    -->
+    <div class="run-layout">
+      @if (timers().length > 0 || addMenuMode() === 'timer') {
+        <!-- --main-column-height: measured off .combatant-columns below (see
+             mainColumnHeight()/the ResizeObserver in encounter-detail.ts) so
+             the rail (encounter-detail.css) knows exactly how tall it can
+             grow before it would extend past where the Previous/Next Turn
+             buttons sit — beyond that, it scrolls internally instead of
+             pushing the rest of the page down. -->
+        <aside class="timers-rail" [style.--main-column-height.px]="mainColumnHeight()">
+          <ul class="timer-list">
+            @for (t of timers(); track t.id) {
+              <li
+                class="timer-card"
+                [class.expired]="t.remaining <= 0"
+                [class.light]="timerIsLight(t)"
+                [class.shaking]="isShaking(t.id)"
+                [style.--timer-lightness.%]="timerLightness(t)"
+              >
+                <button type="button" class="timer-dismiss" title="Dismiss timer" (click)="dismissTimer(t.id)">
+                  ×
+                  <span class="sr-only">Dismiss {{ t.name }}</span>
+                </button>
+                <!-- Plain <div>, not a <button> — nothing left to click-to-
+                     toggle here now that the +/- controls below are always
+                     visible instead of click-to-reveal. -->
+                <div class="timer-body">
+                  <!-- A plain text input styled to look like the old <span>
+                       until hovered/focused (see .timer-name-input in
+                       encounter-detail.css) — editable in place, no
+                       separate "rename" mode or button, same live-binding
+                       pattern as the setup-phase list's modifier-input. -->
+                  <input
+                    type="text"
+                    class="timer-name-input"
+                    aria-label="Timer name"
+                    [ngModel]="t.name"
+                    (ngModelChange)="renameTimer(t.id, $event)"
+                  />
+                  @if (t.linkedCombatantId) {
+                    <span class="timer-link">Linked: {{ linkedCombatantName(t) }}</span>
+                  }
+                  <div class="timer-controls">
+                    <button type="button" (click)="adjustTimer(t.id, -1)">
+                      −<span class="sr-only">Decrease {{ t.name }}</span>
+                    </button>
+                    <span class="timer-value">{{ t.remaining }}</span>
+                    <button type="button" (click)="adjustTimer(t.id, 1)">
+                      +<span class="sr-only">Increase {{ t.name }}</span>
+                    </button>
+                  </div>
+                </div>
+              </li>
+            }
+
+            @if (addMenuMode() === 'timer') {
+              <!-- Styled and placed as just another item in the same list —
+                   the "create" step reads as a card of its own, not a
+                   separate form bolted on below. Vanishes the moment
+                   createTimer() succeeds (see its closeAddMenu() call). -->
+              <li class="timer-card timer-create-card">
+                <form (ngSubmit)="createTimer()">
+                  <input
+                    #timerNameInput
+                    type="text"
+                    name="timerName"
+                    placeholder="Timer name"
+                    required
+                    [ngModel]="newTimerName()"
+                    (ngModelChange)="newTimerName.set($event)"
+                  />
+                  <input
+                    type="number"
+                    name="timerValue"
+                    [ngModel]="newTimerValue()"
+                    (ngModelChange)="newTimerValue.set($event)"
+                  />
+                  <label>
+                    Link to:
+                    <select name="timerLink" [ngModel]="newTimerLinkedId()" (ngModelChange)="newTimerLinkedId.set($event)">
+                      <option [ngValue]="null">Not linked</option>
+                      @for (c of linkableCombatants(); track c.id) {
+                        <option [ngValue]="c.id">{{ c.name }}</option>
+                      }
+                    </select>
+                  </label>
+                  <button type="submit">Add Timer</button>
+                  <button type="button" (click)="closeAddMenu()">Cancel</button>
+                </form>
+              </li>
+            }
+          </ul>
+        </aside>
+      }
+
+      <div class="run-main">
+      <!-- <h2>, not <p> — this is the heading for everything below it
+           (combatant list, turn controls), one level under the encounter
+           name's <h1> above. -->
+      <h2 class="round-indicator">Round {{ e.round }}</h2>
 
       <!--
         combatant-columns lays the main list and the Hold Action panel side
@@ -260,7 +403,7 @@
         versa. The panel's own drop lists (hold-list + the two placeholders)
         are wired to each other separately, by id, further down.
       -->
-      <div class="combatant-columns">
+      <div class="combatant-columns" #combatantColumns>
         <div class="combatant-list-column">
           <ol
             cdkDropList
@@ -316,11 +459,13 @@
                   [expanded]="isExpanded(c.id)"
                   [isPlacing]="isPlacing()"
                   [active]="c.id === activeCombatantId()"
+                  [hasLinkedTimer]="isLinkedToTimer(c.id)"
                   (expandToggle)="toggleExpanded(c.id)"
                   (holdActionChange)="toggleHoldAction(c.id)"
                   (incapacitatedToggle)="toggleIncapacitated(c.id)"
                   (removedToggle)="toggleRemoved(c.id)"
                   (editRequested)="openEditDialog(c)"
+                  (createTimerRequested)="requestCreateTimer(c)"
                   (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
                   (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
                 >
@@ -406,11 +551,13 @@
                     [expanded]="isExpanded(c.id)"
                     [isPlacing]="isPlacing()"
                     [compact]="true"
+                    [hasLinkedTimer]="isLinkedToTimer(c.id)"
                     (expandToggle)="toggleExpanded(c.id)"
                     (holdActionChange)="beginPlacement(c.id)"
                     (incapacitatedToggle)="toggleIncapacitated(c.id)"
                     (removedToggle)="toggleRemoved(c.id)"
                     (editRequested)="openEditDialog(c)"
+                  (createTimerRequested)="requestCreateTimer(c)"
                     (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
                     (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
                   >
@@ -447,6 +594,23 @@
       </div>
 
       <div class="turn-controls">
+        <div class="add-menu-wrapper">
+          <button
+            type="button"
+            class="icon-btn add-btn"
+            title="Add a Timer or Combatant"
+            [disabled]="isPlacing()"
+            (click)="toggleAddMenu()"
+          >
+            +<span class="sr-only">Add a Timer or Combatant</span>
+          </button>
+          @if (addMenuMode() === 'menu') {
+            <div class="add-menu-popover">
+              <button type="button" (click)="chooseTimerMode()">Add Timer</button>
+              <button type="button" (click)="openAddCombatantDialog()">Add Combatant</button>
+            </div>
+          }
+        </div>
         <button
           type="button"
           (click)="advance('back')"
@@ -462,6 +626,47 @@
           }
         </button>
       </div>
+
+      @if (readyToJoinCombatants().length > 0) {
+        <div class="removed-panel">
+          <h2 class="removed-heading">Ready to Join</h2>
+          <ul class="bubble-list removed-list">
+            @for (c of readyToJoinCombatants(); track c.id) {
+              <li class="bubble entry">
+                <span
+                  class="type-dot"
+                  [class.pc]="c.type === 'pc'"
+                  [class.npc]="c.type === 'npc'"
+                ></span>
+                <span class="entry-title">{{ c.name }}</span>
+                @if (!c.playerId && !c.npcId) {
+                  <button type="button" class="save-to-roster-btn" (click)="toggleSavingToRoster(c.id)">
+                    {{ isSavingToRoster(c.id) ? 'Cancel' : 'Save to Roster' }}
+                  </button>
+                }
+                <!-- Upward arrow: "bring this combatant up into the main
+                     list now." -->
+                <button
+                  type="button"
+                  class="icon-btn"
+                  title="Join combat"
+                  (click)="joinCombatant(c.id)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 4.5a.75.75 0 0 1 .53.22l5 5a.75.75 0 1 1-1.06 1.06L10.75 7.06V15a.75.75 0 0 1-1.5 0V7.06l-3.72 3.72a.75.75 0 1 1-1.06-1.06l5-5A.75.75 0 0 1 10 4.5Z"
+                    />
+                  </svg>
+                  <span class="sr-only">Join {{ c.name }} into combat</span>
+                </button>
+              </li>
+              @if (isSavingToRoster(c.id)) {
+                <ng-container [ngTemplateOutlet]="saveToRosterPicker" [ngTemplateOutletContext]="{ $implicit: c }" />
+              }
+            }
+          </ul>
+        </div>
+      }
 
       @if (removedCombatants().length > 0) {
         <div class="removed-panel">
@@ -496,7 +701,8 @@
           </ul>
         </div>
       }
-    </section>
+      </div>
+    </div>
   }
 } @else {
   <p>Encounter not found. <a routerLink="/encounters">Back to Encounters</a></p>

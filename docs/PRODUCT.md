@@ -66,12 +66,17 @@ which can be used together:
   joins as a Combatant.
 - **Pull a Troop (or Troops)** in the same way — every NPC in the Troop
   joins as a Combatant.
-- **Add a single roster entry** — a Player or NPC from the library, without
-  pulling in its whole Party/Troop (e.g. one NPC that isn't part of any
-  Troop, or a Player joining without their usual group).
-- **Add an ad-hoc entry** — typed directly into the Encounter, with no
-  library entry at all. A type toggle (NPC/Player) picks which; NPC is the
-  default, matching Phase 1's only behavior.
+- **Add a single roster entry, or an ad-hoc one** — an **Add Combatant**
+  button opens a modal (the same one used in the Encounters list's Edit
+  form and the run-phase "+" menu — see section 9 below). It always opens
+  on a three-way choice — **Existing NPC**, **Existing Player**, or
+  **Create New** — as peers, not a toggle buried under one of them.
+  Picking Existing NPC/Player shows that type's roster entries to pick
+  from, one click each; picking Create New asks the type (NPC/Player) and
+  then shows the ad-hoc create form. A **← Back** link on either path
+  returns to the three-way choice. Any step, or Cancel (or Escape), closes
+  the modal back out — nothing is added until the GM actually picks or
+  submits one.
 
 An ad-hoc entry isn't stuck ad-hoc forever: **Save to Roster** creates a
 library Player/NPC from its current fields, optionally adds it to a
@@ -105,8 +110,12 @@ return to.
 ### 4a. Combat data: AC / HP / Notes
 AC, Max HP, and Notes are optional fields a GM can set when creating a
 Player or NPC, and can also add or change later via the combatant bubble's
-**Edit** button (in the expansion drawer) — a pop-up that reuses the same
-input fields as creation, pre-filled with the combatant's current values.
+**Edit Info** button (in the expansion drawer) — a pop-up that reuses the
+same input fields as creation, pre-filled with the combatant's current
+values. The same drawer also has a **Create Timer** button, which
+immediately creates a Timer linked to that combatant with a default name
+and starting value — a shortcut for the common case, alongside the full
+**+** → **Add Timer** flow (see section 10) for a custom name/value.
 Every create/edit form for a Player/NPC uses the same layout: one field
 per row-item (Name, then an icon-labeled field per stat — a d20 for
 Initiative Modifier, shield for AC, heart for Max HP, notepad for Notes),
@@ -116,17 +125,27 @@ the one shared form used everywhere a Player/NPC's data is entered
 it applies everywhere at once.
 
 AC, HP, Notes, and Initiative each occupy the same fixed-width spot on
-every bubble, in that fixed order, each with the same icon used on the
-input form — populated or blank, never removed from the row — so a whole
-list of combatants lines up column-by-column like a table (AC under AC, HP
-under HP, and so on) regardless of which combatants happen to have which
-fields set. Initiative gets the same icon+value treatment (a d20) rather
-than standing out as a differently-styled bold number. The whole bubble is
-meant to read as one compact line; on narrow (mobile) screens every bubble
-wraps at the same point — name alone, then every stat column together — so
-the columns stay aligned across bubbles even after wrapping, and the HP bar
-itself drops away below a phone-width breakpoint, leaving just the
-current/max numbers, to help everything fit.
+every bubble, in that fixed order — populated or blank, never removed from
+the row — so a whole list of combatants lines up column-by-column like a
+table (AC under AC, HP under HP, and so on) regardless of which combatants
+happen to have which fields set. AC and Initiative each show as a solid
+icon badge (a shield, a d20) with the value reversed in white and centered
+inside it, rather than icon-then-text side by side — compact, and easy to
+scan at a glance.
+
+The whole bubble is meant to read as one compact line, and is designed to
+never wrap onto a second line while there's still a way to reclaim width
+instead. Wrapping is a *viewport*-width concern on a phone, but a bubble can
+also end up just as narrow on a wide desktop screen once the Timers rail
+and the Hold Action panel both crowd the combatant list — so the bubble
+watches its own rendered width (not the page's) and truncates in this
+order, each step only kicking in once the previous one's savings weren't
+enough: **Notes** first (down to just its icon — the full text was always
+one click away regardless, see below), then the **HP bar** (redundant with
+the current/max numbers right next to it), then the **name** itself
+(hover, or click/tap, to see it in full — the same "temporary growth that
+snaps back" as Notes). Only once all three still aren't enough does a
+bubble finally wrap onto two lines, as a last resort.
 
 In an Encounter, HP displays as **Current / Max**, drawn as a health bar
 showing the percentage remaining, its color easing from green through
@@ -258,6 +277,69 @@ whichever neighbor it landed next to — not a recalculated roll, just enough
 to hold that position in the sorted order. Removed combatants and anyone
 currently on Hold Action aren't draggable this way (Hold Action has its own
 placement flow, above).
+
+### 9. Adding mid-encounter: the "+" menu
+Once combat is running (after the first Roll), a **+** button sits to the
+left of the Previous/Next Turn buttons. Clicking it offers a choice: **Add
+Timer** or **Add Combatant**.
+
+**Add Combatant** opens the same modal used everywhere else a combatant is
+added (see section 2) — the same three-way Existing NPC / Existing Player /
+Create New choice, with the same optional "Save to Roster" afterward for an
+ad-hoc entry. The new combatant doesn't join the fight immediately — it
+appears in a **Ready to Join** list, shown between the turn controls and
+Removed From Combat, each with an upward-arrow icon. Clicking a Ready to
+Join combatant rolls them into the main list right away, using the same
+logic as un-marking Removed From Combat: a fresh roll capped below the
+current Active combatant's total, so they slot in without interrupting
+whoever's turn it is. If the GM never clicks it, the combatant is
+automatically rolled into the main list once the round ends — the same
+"everyone still waiting gets folded back in" moment Hold Action combatants
+already get at every round boundary.
+
+### 10. Timers
+**Add Timer** (same "+" menu) opens a "new timer" card right in the
+Timers rail — a GM-written name, a starting countdown value, and an
+optional **link** to one specific combatant (chosen from whoever's
+currently in the main list or Hold Action panel). Submitting it replaces
+that card with the real Timer Card; Cancel just removes it. A combatant's
+expansion drawer also has a **Create Timer** shortcut (see section 4a)
+that skips this card entirely, creating an already-linked timer with a
+default name/value in one click.
+
+Cards sit in a compact, center-aligned rail to the left of the combatant
+list on desktop (narrow enough that it never crowds the combatant list's
+own AC/HP/Notes columns), and as a wrapping row of compact cards at the
+top of the whole encounter view on mobile. Cards are sorted lowest-ticks-
+remaining first (so an expired timer always sorts to the front), with
+timers sharing the same remaining value and the same linked combatant kept
+adjacent to each other. If there are enough cards that the rail would run
+past where the Previous/Next Turn buttons sit, it caps its own height there
+and scrolls internally instead of pushing the rest of the page down. A
+linked combatant's name shows a small clock icon so it's clear at a glance
+which combatant a Timer is tracking.
+
+- **Unlinked** ("The room floods in 3 rounds"): counts down by 1 every
+  round.
+- **Linked** ("The wizard's illusion spell ends in 3 rounds"): counts down
+  by 1 only once that combatant's turn ends for the round — not at the
+  literal round boundary. Pressing Previous to move back onto that
+  combatant un-ticks the timer, since their turn hasn't concluded again
+  yet. A timer linked to someone on Hold Action still ticks once if the
+  round ends before they ever return to take a turn.
+
+A card starts light grey and darkens toward black as it nears its own
+zero (relative to the value the GM set, so a timer that started at 3 and
+one that started at 20 both read as "urgent" near the end). The remaining
+count always shows inside a circle on the card, with **+**/**-** controls
+permanently visible on either side of it — no click needed to reveal them
+— to manually nudge the value in either direction, including back above 0,
+unlike the automatic countdown, which never dips below it on its own. The
+moment a timer first reaches 0, the card gives a quick shake so the
+transition is hard to miss, the countdown stops moving on its own, and the
+card shows the name in bold white text on a red background (the count
+stays visible, now reading 0). An **×** button on every card dismisses it
+at any time.
 
 ## Persistence
 

@@ -21,6 +21,7 @@ const combatant: Combatant = {
   onHold: false,
   preHoldLastRoll: null,
   preHoldInitiativeTotal: null,
+  readyToJoin: false,
 };
 
 describe('CombatantBubble', () => {
@@ -69,12 +70,22 @@ describe('CombatantBubble', () => {
     expect(emittedCount).toBe(1);
   });
 
-  it('emits editRequested when the drawer Edit button is clicked', () => {
+  it('emits editRequested when the drawer Edit Info button is clicked', () => {
     let emittedCount = 0;
     component.editRequested.subscribe(() => emittedCount++);
 
-    const editBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.drawer-edit-btn');
+    const editBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.edit-info-btn');
     editBtn.click();
+
+    expect(emittedCount).toBe(1);
+  });
+
+  it('emits createTimerRequested when the drawer Create Timer button is clicked', () => {
+    let emittedCount = 0;
+    component.createTimerRequested.subscribe(() => emittedCount++);
+
+    const createTimerBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.create-timer-btn');
+    createTimerBtn.click();
 
     expect(emittedCount).toBe(1);
   });

@@ -47,6 +47,15 @@
   <h2>Editing "{{ editing.name }}"</h2>
 }
 
+<app-add-combatant-dialog
+  #addCombatantDialog
+  [availablePlayers]="availablePlayersToAdd()"
+  [availableNpcs]="availableNpcsToAdd()"
+  (existingPlayerChosen)="onExistingPlayerChosen($event)"
+  (existingNpcChosen)="onExistingNpcChosen($event)"
+  (newCombatantSubmitted)="onNewCombatantSubmitted($event)"
+/>
+
 <form class="entry-form" (ngSubmit)="submitEncounterForm()">
   <input
     type="text"
@@ -235,68 +244,9 @@
         </ul>
       }
 
-      @if (availablePlayersToAdd().length > 0 || availableNpcsToAdd().length > 0) {
-        <div class="entry-form add-from-roster">
-          @if (availablePlayersToAdd().length > 0) {
-            <label>
-              Add Player:
-              <select #playerPick (change)="addIndividualPlayerToEditingEncounter(playerPick.value); playerPick.value = ''">
-                <option value=""></option>
-                @for (player of availablePlayersToAdd(); track player.id) {
-                  <option [value]="player.id">{{ player.name }}</option>
-                }
-              </select>
-            </label>
-          }
-          @if (availableNpcsToAdd().length > 0) {
-            <label>
-              Add NPC:
-              <select #npcPick (change)="addIndividualNpcToEditingEncounter(npcPick.value); npcPick.value = ''">
-                <option value=""></option>
-                @for (npc of availableNpcsToAdd(); track npc.id) {
-                  <option [value]="npc.id">{{ npc.name }}</option>
-                }
-              </select>
-            </label>
-          }
-        </div>
-      }
-
-      <div class="entry-form">
-        <fieldset class="ad-hoc-type">
-          <label>
-            <input
-              type="radio"
-              name="adHocTypeEdit"
-              [checked]="newAdHocType() === 'npc'"
-              (change)="newAdHocType.set('npc')"
-            />
-            NPC
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="adHocTypeEdit"
-              [checked]="newAdHocType() === 'pc'"
-              (change)="newAdHocType.set('pc')"
-            />
-            Player
-          </label>
-        </fieldset>
-        <app-combatant-fields
-          [name]="newNpcName()"
-          (nameChange)="newNpcName.set($event)"
-          [initiativeModifier]="newNpcModifier()"
-          (initiativeModifierChange)="newNpcModifier.set($event)"
-          [ac]="newNpcAc()"
-          (acChange)="newNpcAc.set($event)"
-          [maxHp]="newNpcMaxHp()"
-          (maxHpChange)="newNpcMaxHp.set($event)"
-          [notes]="newNpcNotes()"
-          (notesChange)="newNpcNotes.set($event)"
-        />
-        <button type="button" (click)="addAdHocCombatantToEditingEncounter()">Add</button>
-      </div>
+      <button type="button" class="add-combatant-btn" (click)="openAddCombatantDialog()">
+        + Add Combatant
+      </button>
     </fieldset>
   }
 

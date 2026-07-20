@@ -21,6 +21,7 @@ const combatant: Combatant = {
   onHold: false,
   preHoldLastRoll: null,
   preHoldInitiativeTotal: null,
+  readyToJoin: false,
 };
 
 describe('EditCombatantDialog', () => {

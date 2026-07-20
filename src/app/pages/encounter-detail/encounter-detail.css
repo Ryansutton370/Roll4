@@ -1,6 +1,350 @@
 .round-indicator {
+  margin: 0 0 0.75rem;
   color: var(--color-text-muted);
+  font-size: 1.4rem;
   font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------
+   Run-phase top-level layout: Timers rail + everything else. The rail is
+   written FIRST in the template so mobile's default column stacking puts
+   it above the combatant list with zero extra CSS; row-direction here is
+   what turns it into a left sidebar on wider screens. Same breakpoint as
+   .combatant-columns below, for one consistent "when do side-by-side
+   columns stack" threshold across the run-phase page.
+   --------------------------------------------------------------------- */
+.run-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.run-main {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .run-layout {
+    flex-direction: column;
+    align-items: stretch;
+    /* Tighter than the row-layout default (1rem) — the Timers rail is the
+       first thing in run-main once stacked (see .round-indicator right
+       after it), and the row layout's gap was leaving more space there
+       than a heading needs. */
+    gap: 0.5rem;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Timer cards — deliberately narrow (see .timers-rail) and compact so the
+   rail never eats into the combatant list's own room; every card centers
+   its content rather than left-aligning it, which reads better at this
+   width than a left-aligned column of short lines would.
+   --------------------------------------------------------------------- */
+.timers-rail {
+  flex: 0 0 9.5rem;
+  min-width: 0;
+}
+
+/* Once the rail's own natural height (--main-column-height, set inline from
+   EncounterDetail.mainColumnHeight() — see encounter-detail.html) is
+   reached, it becomes a scroll container capped at exactly that height
+   instead of continuing to grow downward past where the Previous/Next Turn
+   buttons sit. (Two earlier attempts here — CSS Grid's `grid-auto-flow:
+   column` with `repeat(auto-fill, ...)`, then CSS multi-column layout —
+   both tried to lay the overflow out as visible extra columns instead of
+   scrolling. Both broke in different ways once a card's content didn't fit
+   the numbers the browser had to guess with: Grid's auto-fill fragmented
+   into a huge number of degenerate slivers, and multi-column silently
+   exceeded its own declared column-count and width, landing an overflowed
+   card's controls on top of the turn-control buttons in .run-main
+   entirely off to the side of the rail. A plain scrollbar can't do either
+   of those — it's a hard, unbreakable clip, so this is correct instead of
+   merely "usually right." Mobile, see the 560px query below, doesn't need
+   this at all: it wraps into a row of chips instead of growing tall enough
+   to need scrolling in the first place.) */
+@media (min-width: 561px) {
+  .timers-rail {
+    max-height: var(--main-column-height, none);
+    overflow-y: auto;
+  }
+}
+
+.timer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Deliberately placed AFTER the base .timer-list/.timer-card rules just
+   above (not up near .timers-rail, where an earlier version of this
+   lived) — a media query doesn't automatically outrank a plain rule of
+   equal specificity; when both match, the LATER one in source order wins
+   regardless. Putting this before the base rules meant the base
+   flex-direction: column was silently winning back over the mobile
+   chip-wrap below. */
+@media (max-width: 560px) {
+  /* align-items: stretch on .run-layout (above) would otherwise stretch
+     .timers-rail (and its width: 100% .timer-body) to the full page width
+     once stacked — wrap the cards into a row of compact chips instead of
+     one full-width stacked column. */
+  .timer-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .timer-card {
+    flex: 0 1 auto;
+    width: auto;
+  }
+}
+
+/* Background eases from light grey to near-black as --timer-lightness
+   drops (set inline per-card from EncounterDetail.timerLightness(), a
+   percentage of the timer's own starting value — see the component for
+   why it's relative rather than an absolute scale). .light switches text
+   back to dark once the background is pale enough to need it; .expired
+   overrides the gradient entirely once remaining hits 0. */
+.timer-card {
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-bubble);
+  background: hsl(0 0% var(--timer-lightness, 92%));
+  color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition-standard);
+}
+
+.timer-card.light {
+  color: var(--color-text);
+}
+
+.timer-card.expired {
+  background: var(--color-danger);
+  color: var(--color-surface);
+}
+
+.timer-dismiss {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.timer-dismiss:hover {
+  opacity: 1;
+  background: rgb(0 0 0 / 0.15);
+}
+
+.timer-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0.65rem 0.6rem;
+}
+
+/* Looks like the plain text it replaced until hovered/focused — a real
+   <input> (see encounter-detail.html), not a click-to-open-an-editor
+   affordance, so renaming is just "click in and type" with no separate
+   mode. `input[type='text']` (styles.css) is more specific than a bare
+   class, hence the repeated element+attribute selector here rather than
+   just `.timer-name-input` — otherwise the global border/background/
+   padding would win over this card-specific look. */
+input[type='text'].timer-name-input {
+  width: 100%;
+  /* Extra right padding — unlike the plain text it replaced, this is a
+     single-line input (no wrapping), so a name long enough to reach the
+     card's right edge would otherwise run right under the × dismiss
+     button (.timer-dismiss, position: absolute in that corner). */
+  padding: 0.1rem 1.6rem 0.1rem 0.3rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+
+input[type='text'].timer-name-input:hover,
+input[type='text'].timer-name-input:focus {
+  border-color: currentColor;
+}
+
+.timer-card.expired .timer-name-input {
+  color: var(--color-surface);
+}
+
+.timer-link {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+/* A circle around the value, with the −/+ controls always visible on
+   either side — no click-to-expand needed any more (see .timer-body's
+   plain <div>, above). */
+.timer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.timer-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex-shrink: 0;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-controls button {
+  flex-shrink: 0;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* The "new timer" card — styled and placed as just another <li> in
+   .timer-list (see encounter-detail.html) rather than a separate form
+   below it, so creating a Timer visually happens in a card of its own. */
+/* This card never gets --timer-lightness bound (see .timer-create-card in
+   encounter-detail.html — only real timer <li>s do), so its background
+   always stays the pale default — but it still inherits .timer-card's base
+   `color: var(--color-surface)` (white) meant for the dark end of that
+   gradient. Override to black for now so "Link to:" and friends stay
+   readable against the light background. */
+.timer-create-card {
+  padding: 0.65rem 0.6rem;
+  color: var(--color-text);
+}
+
+.timer-create-card form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+/* Once a Timer's remaining first crosses to <= 0 (see isShaking() in
+   encounter-detail.ts, driven by an effect() that detects the exact
+   moment it happens rather than "is currently expired") — a quick,
+   self-terminating horizontal shake. animation-fill-mode isn't needed
+   here since the .shaking class itself is removed by the component right
+   as the animation ends, matching EncounterDetail.SHAKE_DURATION_MS. */
+@keyframes timer-shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+.timer-card.shaking {
+  animation: timer-shake 400ms ease;
+}
+
+/* ---------------------------------------------------------------------
+   "+" menu — Timer/Combatant choice popover next to Previous/Next Turn
+   --------------------------------------------------------------------- */
+.add-menu-wrapper {
+  position: relative;
+}
+
+/* Black/white by default (not the global .icon-btn's transparent/muted
+   look) so it reads as a clear call-to-action next to Previous/Next Turn —
+   reuses the same near-black/white tokens as .roll-btn instead of new
+   literal colors. Selector is `.add-menu-wrapper .add-btn` (two classes),
+   not just `.add-btn` — this button is a descendant of `.turn-controls`
+   too, and `.turn-controls button` (below) has higher specificity than a
+   single class would (a class+element selector beats a lone class), so it
+   would otherwise win and paint this white like Previous/Next Turn. :hover
+   is restated for the same reason, on top of beating the global
+   .icon-btn:hover tint. */
+.add-menu-wrapper .add-btn {
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.add-menu-wrapper .add-btn:hover {
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  opacity: 0.85;
+}
+
+.add-menu-popover {
+  position: absolute;
+  bottom: calc(100% + 0.4rem);
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+}
+
+.add-menu-popover button {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.add-menu-popover button:hover {
+  background: var(--color-removed-tint);
 }
 
 .save-to-roster-btn {
@@ -26,16 +370,20 @@
   margin-top: -0.3rem;
 }
 
-.add-from-roster {
-  gap: 1rem;
+.add-combatant-btn {
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1.25rem;
+  transition: background-color var(--transition-fast);
 }
 
-.ad-hoc-type {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 0.75rem;
+.add-combatant-btn:hover {
+  background: var(--color-removed-tint);
 }
 
 /* fieldset/legend border+spacing come from the global styles.css rule —
@@ -115,6 +463,26 @@
   min-width: 0;
 }
 
+.setup-list-header .ac-heading-spacer {
+  width: 2.4rem;
+  flex-shrink: 0;
+}
+
+.setup-list-header .hp-heading-spacer {
+  width: 8.75rem;
+  flex-shrink: 0;
+}
+
+.setup-list-header .notes-heading-spacer {
+  width: 8rem;
+  flex-shrink: 0;
+}
+
+.setup-list-header .incapacitated-heading-spacer {
+  width: 1.4rem;
+  flex-shrink: 0;
+}
+
 .setup-list-header .modifier-heading {
   width: 5rem;
   flex-shrink: 0;
@@ -128,6 +496,170 @@
 .modifier-input {
   width: 5rem;
   flex-shrink: 0;
+}
+
+/* The global .entry (styles.css) is a non-wrapping flex row — fine for its
+   other, sparser uses (party-list, npc-list), but this row now has enough
+   fixed-width columns (AC badge, HP, Notes, Incapacitated, the modifier
+   input, remove/save buttons) that forcing them all onto one line would
+   squeeze .entry-title's flex-basis down to near-zero instead, wrapping the
+   name vertically letter-by-letter. Scoped to this row specifically (not a
+   change to .entry-title itself) since that class is shared by other pages
+   that don't have this problem. */
+.setup-combatant-entry {
+  flex-wrap: wrap;
+}
+
+.setup-combatant-entry .entry-title {
+  flex: 1 1 8rem;
+}
+
+/* ---------------------------------------------------------------------
+   Setup-phase list's AC/HP/Notes/Incapacitated icons — duplicated from
+   combatant-bubble.css/.html rather than shared: Angular's view
+   encapsulation means this page's own template can't reuse a child
+   component's styles (same reasoning already documented on
+   .initiative-total further below). Read-only here (no HP-adjust popover,
+   no Incapacitated toggle target) since turn order/Active-combatant
+   semantics don't apply before Roll.
+   --------------------------------------------------------------------- */
+.stat {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+}
+
+.ac-stat {
+  width: 2.4rem;
+}
+
+/* Same AC badge treatment as combatant-bubble.css: a solid black icon with
+   the value reversed (white) and centered on top of it. Sizes match
+   combatant-bubble.css's own badge (bumped from an initial smaller pass —
+   AC/HP were still hard to read at a glance). */
+.badge-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex-shrink: 0;
+}
+
+.badge-icon svg {
+  width: 100%;
+  height: 100%;
+  color: #000;
+}
+
+.badge-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.setup-hp-stat {
+  width: 8.75rem;
+}
+
+.setup-hp-stat svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.hp-numbers {
+  min-width: 3ch;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.hp-bar {
+  display: inline-block;
+  width: 4.5rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: var(--color-panel-bg);
+  overflow: hidden;
+}
+
+.hp-bar-fill {
+  display: block;
+  height: 100%;
+  background: hsl(var(--hp-hue, 120) 70% 45%);
+  transition:
+    width var(--transition-standard),
+    background-color var(--transition-standard);
+}
+
+.notes-stat {
+  width: 8rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.notes-stat:hover {
+  background: var(--color-removed-tint);
+}
+
+.notes-text {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Same click-to-expand precedent as combatant-bubble.css's
+   .notes-stat.revealed — temporary growth while the GM is looking at it,
+   collapsed back via EncounterDetail.collapseSetupNotesOnClickAway. */
+.notes-stat.revealed {
+  width: auto;
+  max-width: 20rem;
+  background: var(--color-removed-tint);
+}
+
+.notes-stat.revealed .notes-text {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.status-icon {
+  display: inline-flex;
+  width: 1.4rem;
+  height: 1.4rem;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.status-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.incapacitated-icon {
+  background: var(--color-removed-tint);
+  color: var(--color-removed);
 }
 
 /* Party members are tinted blue (same --color-pc used by the type-dot) so
@@ -256,6 +788,24 @@
   z-index: 10;
 }
 
+/* container-type: inline-size — establishes these <li>s as query containers
+   for combatant-bubble.css's @container rules (see the truncation ladder
+   there). This is a *viewport* width's replacement: on desktop the
+   viewport itself is plenty wide, but these bubbles can still end up
+   effectively mobile-narrow once the Timers rail and the Hold Action panel
+   both eat into the row's width — a @media query keyed to the viewport
+   would never fire in that case, but @container is keyed to this element's
+   own rendered width, so it fires whenever the bubble itself is actually
+   tight, regardless of the viewport. Angular's view-encapsulation
+   attributes don't block this — @container just walks the real DOM
+   ancestor chain for the nearest container, so combatant-bubble.css (a
+   different component's stylesheet) can still see a container declared
+   here. */
+.main-combatant,
+.held-bubble {
+  container-type: inline-size;
+}
+
 /* Smaller than the standard 44px icon-btn touch target — the held bubble is
    already tight for width, and this button sits right next to the equally
    small type-dot rather than standing alone. */
@@ -309,6 +859,28 @@
 .drag-handle svg {
   width: 1rem;
   height: 1rem;
+}
+
+/* Mobile (or any other time the bubble itself is this narrow — see the
+   matching @container in combatant-bubble.css, which is what establishes
+   .main-combatant as a query container): the handle stops reserving its
+   own ~1.75rem of inline space in the row (letting the type-dot/name
+   shift left to use it) and instead overlays the left edge, vertically
+   centered, appearing on top of whatever's underneath only while actually
+   revealed (hover/tap/focus, same triggers as above — this only changes
+   *where* it renders, not *when*). .combatant-row's own
+   `position: relative` (combatant-bubble.css) is what this anchors
+   against. */
+@container (max-width: 22rem) {
+  .drag-handle {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    background: var(--color-surface);
+    border-radius: var(--radius-control);
+  }
 }
 
 /* CDK's default sortable-list placeholder — the gap left behind at the spot
