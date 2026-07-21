@@ -89,12 +89,31 @@ input[type='text'].field-name {
   appearance: textfield;
 }
 
+/* A <button>, not a <label> wrapping an input like Init/AC/HP above — see
+   combatant-fields.html. Resets the browser's default button chrome so it
+   still reads as the same "icon + label" pill as its siblings. */
 .field-icon-notes {
   flex: 1 1 4rem;
   min-width: 3.5rem;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
 }
 
-.field-icon-notes input {
-  width: auto;
-  min-width: 0;
+/* Dark-when-set / muted-when-empty — same state language as the combatant
+   bubble's Notes icon (combatant-bubble.css's .notes-badge-btn). */
+.field-icon-notes.has-notes {
+  color: var(--color-text);
+}
+
+/* The toolbar+editor doesn't fit alongside the small Name/Init/AC/HP
+   fields on one line, so expanding Notes (notesExpanded in
+   combatant-fields.ts) always forces its own full-width row underneath
+   them, the same "flex-basis: 100% pushes everything after it onto the
+   next line" trick already used for .name-field-wrapper on mobile above. */
+.notes-editor-wrapper {
+  flex-basis: 100%;
+  margin-top: 0.25rem;
 }

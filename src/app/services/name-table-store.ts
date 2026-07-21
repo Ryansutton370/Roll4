@@ -11,8 +11,12 @@ import { NameTable } from '../models/name-table.model';
  * meets or exceeds the table's size, rather than looping with replacement.
  * Exported for direct unit testing, same "pure logic, no DI" convention as
  * compareByInitiative/computeDisplayNames in encounter-store.ts.
+ *
+ * Generic over the entry type (not just `string`) so WildMagicStore and
+ * TreasureStore can reuse this same shuffle instead of each duplicating it
+ * — TreasureStore's entries are `TreasureEntry` objects, not strings.
  */
-export function pickRandomEntries(entries: string[], count: number): string[] {
+export function pickRandomEntries<T>(entries: T[], count: number): T[] {
   const shuffled = [...entries];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

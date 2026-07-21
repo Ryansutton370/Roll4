@@ -1,0 +1,13 @@
+<!-- Native <dialog>, opened imperatively via showModal() (see openFor() in
+     notes-dialog.ts) — gets a free ::backdrop and Escape-to-close from the
+     browser, so there's no hand-rolled overlay/focus-trap here. Escape
+     discards unsaved changes, same as Cancel — there's no "unsaved changes"
+     prompt, consistent with EditCombatantDialog's own Cancel/Escape. -->
+<dialog #dialog class="notes-dialog">
+  <h2>{{ dialogTitle() }}</h2>
+  <app-rich-text-editor [value]="notes()" (valueChange)="notes.set($event)" />
+  <div class="dialog-actions">
+    <button type="button" (click)="cancel()">Cancel</button>
+    <button type="button" (click)="save()">Save</button>
+  </div>
+</dialog>

@@ -1,202 +1,22 @@
 <h1>Encounter Generator</h1>
 
-<div class="source-toggle" role="group" aria-label="Sourcebook">
-  <button type="button" [class.active]="source() === '5e-srd'" (click)="selectSource('5e-srd')">
-    D&amp;D 5e SRD
-  </button>
-  <button
-    type="button"
-    [class.active]="source() === 'shadowdark'"
-    (click)="selectSource('shadowdark')"
-  >
-    Shadowdark
-  </button>
-</div>
-
-@if (source() === '5e-srd') {
-  <p class="section-note">
-    Generates a candidate list whose total adjusted XP targets the chosen difficulty, using the
-    DMG's XP-threshold and encounter-multiplier tables.
-  </p>
-  <div class="generate-row">
-    <label>
-      Party Level
-      <input
-        type="number"
-        min="1"
-        max="20"
-        [ngModel]="partyLevel()"
-        (ngModelChange)="partyLevel.set($event)"
-      />
-    </label>
-    <label>
-      Party Size
-      <input
-        type="number"
-        min="1"
-        max="10"
-        [ngModel]="partySize()"
-        (ngModelChange)="partySize.set($event)"
-      />
-    </label>
-    <label>
-      Difficulty
-      <select [ngModel]="difficulty()" (ngModelChange)="difficulty.set($event)">
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-        <option value="deadly">Deadly</option>
-      </select>
-    </label>
-    <button type="button" (click)="generate()">Generate</button>
-  </div>
-} @else {
-  <p class="section-note">
-    Shadowdark has no XP-budget system to target — this draws randomly from monsters within the
-    Level range you set, the same spirit as an official random-encounter table.
-  </p>
-  <div class="generate-row">
-    <label>
-      Min Level
-      <input
-        type="number"
-        min="0"
-        max="30"
-        [ngModel]="minLevel()"
-        (ngModelChange)="minLevel.set($event)"
-      />
-    </label>
-    <label>
-      Max Level
-      <input
-        type="number"
-        min="0"
-        max="30"
-        [ngModel]="maxLevel()"
-        (ngModelChange)="maxLevel.set($event)"
-      />
-    </label>
-    <label>
-      Monster Count
-      <input
-        type="number"
-        min="1"
-        max="20"
-        [ngModel]="monsterCount()"
-        (ngModelChange)="monsterCount.set($event)"
-      />
-    </label>
-    <button type="button" (click)="generate()">Generate</button>
-  </div>
-}
+<app-monster-generator-panel
+  [draft]="draft()"
+  (draftChange)="draft.set($event)"
+  (draftEdited)="savedTroopId.set(null)"
+/>
 
 @if (draft().length > 0) {
-  <section class="candidates">
-    <h2>Candidates</h2>
-    <ul class="group-list">
-      @for (group of draftGroups(); track group.template.id) {
-        <li class="group-row">
-          <span class="group-name">{{ group.template.name }}</span>
-          <span class="group-difficulty">{{
-            source() === '5e-srd'
-              ? 'CR ' + group.template.difficulty
-              : 'LV ' + group.template.difficulty
-          }}</span>
-          <div class="group-count">
-            <button
-              type="button"
-              (click)="decrementGroup(group.template.id)"
-              aria-label="Remove one"
-            >
-              −
-            </button>
-            <span>{{ group.count }}</span>
-            <button type="button" (click)="incrementGroup(group.template.id)" aria-label="Add one">
-              +
-            </button>
-          </div>
-        </li>
-      }
-    </ul>
-
-    <label class="add-template">
-      Add a monster
-      <select (ngModelChange)="addTemplate($event)" [ngModel]="''">
-        <option value="" disabled>Choose one…</option>
-        @for (template of allTemplatesForSource(); track template.id) {
-          <option [value]="template.id">{{ template.name }}</option>
-        }
-      </select>
-    </label>
-
-    <h2>Apply Names</h2>
-    <p class="section-note">
-      Rolls a name for every monster below that doesn't already have one — same tables as the Random
-      Generators tab. Unnamed monsters just display as their creature type (e.g. "Goblin").
-    </p>
-    <div class="generate-row">
-      <label>
-        Set
-        <select [ngModel]="nameSetName()" (ngModelChange)="selectNameSet($event)">
-          @for (setName of nameTableStore.setNames(); track setName) {
-            <option [value]="setName">{{ setName }}</option>
-          }
-        </select>
-      </label>
-      <label>
-        Table
-        <select [ngModel]="nameTableId()" (ngModelChange)="nameTableId.set($event)">
-          @for (table of tablesForSelectedSet(); track table.id) {
-            <option [value]="table.id">
-              {{ table.tableName
-              }}{{ table.gender === 'male' ? ' (M)' : table.gender === 'female' ? ' (F)' : '' }}
-            </option>
-          }
-        </select>
-      </label>
-      <button type="button" (click)="generateNames()">Generate Names</button>
-    </div>
-
-    <h2>Roster</h2>
-    <ul class="roster-list">
-      @for (d of draft(); track d.localId) {
-        <li class="roster-row">
-          <span class="roster-type">{{ d.template.name }}</span>
-          <input
-            type="text"
-            class="roster-name"
-            placeholder="(no personal name)"
-            [ngModel]="d.personalName"
-            (ngModelChange)="setPersonalName(d.localId, $event)"
-          />
-          <!-- Per-entry alternative to the bulk "Generate Names" pass above
-               — lets the GM roll this one monster from a different
-               set/table than the rest of the roster, e.g. mixing a Fantasy
-               name onto one monster and a European one onto another. -->
-          <app-name-generator-button (nameSelected)="setPersonalName(d.localId, $event)" />
-          <button
-            type="button"
-            class="remove-btn"
-            (click)="removeInstance(d.localId)"
-            aria-label="Remove {{ d.template.name }}"
-          >
-            ×
-          </button>
-        </li>
-      }
-    </ul>
-
-    <div class="save-row">
-      <input
-        type="text"
-        name="troopName"
-        placeholder="Troop name"
-        [ngModel]="troopName()"
-        (ngModelChange)="troopName.set($event)"
-      />
-      <button type="button" (click)="saveAsTroop()">Save as Troop</button>
-    </div>
-  </section>
+  <div class="save-row">
+    <input
+      type="text"
+      name="troopName"
+      placeholder="Troop name"
+      [ngModel]="troopName()"
+      (ngModelChange)="troopName.set($event)"
+    />
+    <button type="button" (click)="saveAsTroop()">Save as Troop</button>
+  </div>
 }
 
 @if (savedTroopId()) {
@@ -205,3 +25,5 @@
     <button type="button" class="link-btn" (click)="goToSavedTroop()">View the new Troop →</button>
   </p>
 }
+
+<app-monster-credits />

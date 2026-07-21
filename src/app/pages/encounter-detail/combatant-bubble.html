@@ -24,8 +24,8 @@
   <!-- title: free native hover tooltip showing the full name once the
        container-query ladder (combatant-bubble.css) has truncated it.
        (click): the same "expand on click, snap back on click-away" pattern
-       as the Notes icon/text just below — see nameExpanded/
-       toggleNameExpanded/collapseNameOnClickAway in combatant-bubble.ts. -->
+       used elsewhere in this file — see nameExpanded/toggleNameExpanded/
+       collapseNameOnClickAway in combatant-bubble.ts. -->
   <span
     #nameToggle
     class="combatant-name"
@@ -314,31 +314,58 @@
     <span class="stat hp-stat-wrapper" aria-hidden="true"></span>
   }
 
-  <!-- Fixed width regardless of the note's length (see .notes-stat in
-       combatant-bubble.css) — a long note used to make this column wider
-       than everyone else's, throwing off the AC/HP/Initiative columns
-       after it. Clipped to that width normally; hover just highlights it
-       (see combatant-bubble.css) as a hint that it's clickable — actually
-       expanding to the full text only happens on click/tap, which also
-       collapses it again, same as clicking away (see the document click
-       listener in combatant-bubble.ts). Expanding on hover used to make
-       the mouse passing over the list stutter, since it forced a layout
-       reflow on every pointer move instead of only on an explicit click. -->
-  <span
-    #notesToggle
-    class="stat notes-stat"
-    [class.revealed]="notesRevealed()"
-    [attr.tabindex]="combatant().notes ? 0 : null"
-    [title]="combatant().notes ? 'Notes — click to expand' : null"
-    (click)="combatant().notes && toggleNotesRevealed()"
-  >
-    @if (combatant().notes) {
+  <!-- Fixed width, always rendered (same "every bubble reserves the same
+       space" convention as AC/HP/Initiative above) — a badge button now,
+       not an inline text preview: clicking it opens NotesDialog (see
+       notesRequested in combatant-bubble.ts) rather than expanding text in
+       place. Sized to match the AC/Initiative badges (combatant-bubble.css's
+       .icon-badge-btn) per the same "just as big as the shield/heart icons"
+       request that resized this whole column. Dark when this combatant has
+       notes, muted when it doesn't — same state language as
+       CombatantFields' own Notes toggle (combatant-fields.html). -->
+  <span class="stat notes-stat">
+    <button
+      type="button"
+      class="icon-badge-btn notes-badge-btn"
+      [class.has-notes]="hasNotes()"
+      [title]="hasNotes() ? 'See Notes' : 'Add Notes'"
+      [disabled]="isPlacing()"
+      (click)="notesRequested.emit()"
+    >
       <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path
           d="M5 2.5A1.5 1.5 0 0 0 3.5 4v12A1.5 1.5 0 0 0 5 17.5h10a1.5 1.5 0 0 0 1.5-1.5V4A1.5 1.5 0 0 0 15 2.5H5Zm1 4h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h5a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Z"
         />
       </svg>
-      <span class="notes-text">{{ combatant().notes }}</span>
+      <span class="sr-only">{{ hasNotes() ? 'See' : 'Add' }} Notes for {{ displayName() }}</span>
+    </button>
+  </span>
+
+  <!-- Fixed width, always rendered — same "every bubble reserves the same
+       space" convention as AC/HP/Notes/Initiative above, so a combatant with
+       no linked monster template (no monsterTemplateId) leaves a blank gap
+       here instead of shifting Initiative/status-icons left to fill the
+       space (that was a real bug: only combatants generated from a monster
+       stat block rendered this button at all, so any row without one didn't
+       reserve its column and everything after it drifted out of line with
+       rows that did). Same action as the drawer's View Stat Block button
+       (both emit viewStatBlockRequested). -->
+  <span class="stat stat-block-stat">
+    @if (combatant().monsterTemplateId) {
+      <button
+        type="button"
+        class="icon-badge-btn stat-block-badge-btn"
+        title="View {{ displayName() }}'s stat block"
+        [disabled]="isPlacing()"
+        (click)="viewStatBlockRequested.emit()"
+      >
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path
+            d="M10 4.5c-4.2 0-7.75 2.9-9 5.5 1.25 2.6 4.8 5.5 9 5.5s7.75-2.9 9-5.5c-1.25-2.6-4.8-5.5-9-5.5Zm0 9.17A3.67 3.67 0 1 1 10 6.33a3.67 3.67 0 0 1 0 7.34Zm0-1.5a2.17 2.17 0 1 0 0-4.34 2.17 2.17 0 0 0 0 4.34Z"
+          />
+        </svg>
+        <span class="sr-only">View {{ displayName() }}'s stat block</span>
+      </button>
     }
   </span>
 

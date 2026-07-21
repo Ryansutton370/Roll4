@@ -5,6 +5,12 @@
 // reads only, no re-typing of any name by hand) so a 100-entry column can't
 // pick up a transcription error.
 //
+// DO NOT RE-RUN this against the current name-tables.json without checking
+// first — that file is now the GM-editable source directly (see
+// ARCHITECTURE.md), and re-running this would silently discard anything
+// added/edited in it since this script last ran (including the "Places"
+// tables, added straight to the JSON, that this script never produced).
+//
 // Usage: node scripts/import-names.cjs [path-to-xlsx] [path-to-output-json]
 
 const path = require('node:path');

@@ -1,0 +1,79 @@
+<!-- role="toolbar" + each button's mousedown preventDefault (see exec() in
+     rich-text-editor.ts for why) — Bold/Italic/Underline stay plain text
+     glyphs (styled with the same weight/slant/decoration they apply,
+     doubling as a live preview), but the list buttons use small SVG icons
+     instead: a "•"/"1." character alone read as decoration rather than as
+     a recognizable "bulleted/numbered list" icon at this size. -->
+<div class="toolbar" role="toolbar" aria-label="Formatting">
+  <button
+    type="button"
+    class="toolbar-btn bold-btn"
+    title="Bold"
+    (mousedown)="$event.preventDefault()"
+    (click)="exec('bold')"
+  >
+    B
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn italic-btn"
+    title="Italic"
+    (mousedown)="$event.preventDefault()"
+    (click)="exec('italic')"
+  >
+    I
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn underline-btn"
+    title="Underline"
+    (mousedown)="$event.preventDefault()"
+    (click)="exec('underline')"
+  >
+    U
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn list-btn"
+    title="Bullet list"
+    (mousedown)="$event.preventDefault()"
+    (click)="exec('insertUnorderedList')"
+  >
+    <!-- Three rows of dot + line, i.e. an unordered list in miniature. -->
+    <svg viewBox="0 0 20 16" fill="currentColor" aria-hidden="true">
+      <circle cx="2" cy="2.5" r="1.4" />
+      <circle cx="2" cy="8" r="1.4" />
+      <circle cx="2" cy="13.5" r="1.4" />
+      <rect x="6.5" y="1.6" width="12" height="1.8" rx="0.9" />
+      <rect x="6.5" y="7.1" width="12" height="1.8" rx="0.9" />
+      <rect x="6.5" y="12.6" width="12" height="1.8" rx="0.9" />
+    </svg>
+    <span class="sr-only">Bullet list</span>
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn list-btn"
+    title="Numbered list"
+    (mousedown)="$event.preventDefault()"
+    (click)="exec('insertOrderedList')"
+  >
+    <!-- Same three-row layout as the bullet list icon, with "1 2 3" in
+         place of the dots so the two toolbar buttons read as a matched
+         pair. -->
+    <svg viewBox="0 0 20 16" fill="currentColor" aria-hidden="true">
+      <text x="0.2" y="4" font-size="4.4" font-family="sans-serif">1</text>
+      <text x="0.2" y="9.5" font-size="4.4" font-family="sans-serif">2</text>
+      <text x="0.2" y="15" font-size="4.4" font-family="sans-serif">3</text>
+      <rect x="6.5" y="1.6" width="12" height="1.8" rx="0.9" />
+      <rect x="6.5" y="7.1" width="12" height="1.8" rx="0.9" />
+      <rect x="6.5" y="12.6" width="12" height="1.8" rx="0.9" />
+    </svg>
+    <span class="sr-only">Numbered list</span>
+  </button>
+</div>
+<!-- contenteditable, not an <input>/<textarea> — there's no native form
+     element that holds rich HTML content. Its content is set imperatively
+     (see the effect() in rich-text-editor.ts), not via an Angular
+     [innerHTML] binding, so there's nothing to bind here beyond the (input)
+     listener that reads it back out on every edit. -->
+<div #editable class="editable" contenteditable="true" (input)="onInput()"></div>

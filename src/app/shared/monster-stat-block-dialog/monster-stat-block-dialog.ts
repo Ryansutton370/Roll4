@@ -19,9 +19,15 @@ export class MonsterStatBlockDialog {
 
   protected readonly template = signal<MonsterTemplate | null>(null);
 
-  protected readonly sourceLabel = computed(() =>
-    this.template()?.source === '5e-srd' ? 'D&D 5e SRD' : 'Shadowdark',
-  );
+  // Appends "(Homebrew)" for a GM-added entry — see MonsterTemplate.homebrew
+  // — so it's visually clear on the one screen that shows a monster's full
+  // details that this isn't covered by the Credits page's OGL/CC BY-SA
+  // notices, without needing a GM to go check source data for that.
+  protected readonly sourceLabel = computed(() => {
+    const t = this.template();
+    const base = t?.source === '5e-srd' ? 'D&D 5e SRD' : 'Shadowdark';
+    return t?.homebrew ? `${base} (Homebrew)` : base;
+  });
   /** 5e's difficulty is a Challenge Rating, Shadowdark's is a Level — see docs/DATA_MODEL.md's Encounter Generator algorithm note for why these aren't a shared concept. */
   protected readonly difficultyLabel = computed(() =>
     this.template()?.source === '5e-srd' ? 'CR' : 'LV',

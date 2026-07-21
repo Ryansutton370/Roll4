@@ -10,8 +10,10 @@ import { PartyDetail } from './pages/party-detail/party-detail';
 import { PartyList } from './pages/party-list/party-list';
 import { PlayerRoster } from './pages/player-roster/player-roster';
 import { PlayersShell } from './pages/players-shell/players-shell';
+import { TreasureGenerator } from './pages/treasure-generator/treasure-generator';
 import { TroopDetail } from './pages/troop-detail/troop-detail';
 import { TroopList } from './pages/troop-list/troop-list';
+import { WildMagicGenerator } from './pages/wild-magic-generator/wild-magic-generator';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'players', pathMatch: 'full' },
@@ -47,6 +49,8 @@ export const routes: Routes = [
     children: [
       { path: '', component: NameGenerator },
       { path: 'encounter', component: EncounterGenerator },
+      { path: 'wild-magic', component: WildMagicGenerator },
+      { path: 'treasure', component: TreasureGenerator },
     ],
   },
 ];

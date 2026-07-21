@@ -11,6 +11,7 @@ function monster(overrides: Partial<MonsterTemplate>): MonsterTemplate {
   return {
     id: 'test',
     source: '5e-srd',
+    homebrew: false,
     name: 'Test Monster',
     difficulty: 1,
     ac: 10,

@@ -5,6 +5,7 @@ import { MonsterStatBlockDialog } from './monster-stat-block-dialog';
 const goblin: MonsterTemplate = {
   id: '5e-srd-goblin',
   source: '5e-srd',
+  homebrew: false,
   name: 'Goblin',
   difficulty: 0.25,
   ac: 15,
@@ -51,6 +52,18 @@ describe('MonsterStatBlockDialog', () => {
     const entries = fixture.nativeElement.querySelectorAll('.stat-block-entries dt');
     expect(entries.length).toBe(2);
     expect(entries[1].textContent).toBe('Nimble Escape');
+  });
+
+  it('labels a homebrew entry as such, distinct from the licensed import', () => {
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    dialog.showModal = vi.fn();
+    const homebrewGoblin: MonsterTemplate = { ...goblin, id: 'homebrew-goblin', homebrew: true };
+
+    component.openFor(homebrewGoblin);
+    fixture.detectChanges();
+
+    const meta: HTMLElement = fixture.nativeElement.querySelector('.stat-block-meta');
+    expect(meta.textContent).toContain('D&D 5e SRD (Homebrew)');
   });
 
   it('closes the dialog on Close', () => {

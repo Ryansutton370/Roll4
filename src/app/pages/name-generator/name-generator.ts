@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NameTableStore } from '../../services/name-table-store';
+import { GeneratorDisclaimer } from '../../shared/generator-disclaimer/generator-disclaimer';
 
 /**
  * The Random Generators tab's own page — a dedicated, browsable version of
@@ -14,7 +15,7 @@ import { NameTableStore } from '../../services/name-table-store';
  */
 @Component({
   selector: 'app-name-generator',
-  imports: [FormsModule],
+  imports: [FormsModule, GeneratorDisclaimer],
   templateUrl: './name-generator.html',
   styleUrl: './name-generator.css',
 })

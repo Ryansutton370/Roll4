@@ -12,6 +12,7 @@ describe('MonsterStore', () => {
     {
       id: '5e-srd-goblin',
       source: '5e-srd',
+      homebrew: false,
       name: 'Goblin',
       difficulty: 0.25,
       ac: 15,
@@ -22,6 +23,7 @@ describe('MonsterStore', () => {
     {
       id: '5e-srd-aboleth',
       source: '5e-srd',
+      homebrew: false,
       name: 'Aboleth',
       difficulty: 10,
       ac: 17,
@@ -35,6 +37,7 @@ describe('MonsterStore', () => {
     {
       id: 'shadowdark-goblin',
       source: 'shadowdark',
+      homebrew: false,
       name: 'Goblin',
       difficulty: 1,
       ac: 11,
@@ -45,6 +48,7 @@ describe('MonsterStore', () => {
     {
       id: 'shadowdark-hydra',
       source: 'shadowdark',
+      homebrew: false,
       name: 'Hydra',
       difficulty: null,
       ac: 15,

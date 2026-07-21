@@ -2,6 +2,7 @@
   {
     "id": "5e-srd-aboleth",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Aboleth",
     "difficulty": 10,
     "ac": 17,
@@ -101,6 +102,7 @@
   {
     "id": "5e-srd-acolyte",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Acolyte",
     "difficulty": 0.25,
     "ac": 10,
@@ -160,6 +162,7 @@
   {
     "id": "5e-srd-adult-black-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult Black Dragon",
     "difficulty": 14,
     "ac": 19,
@@ -267,6 +270,7 @@
   {
     "id": "5e-srd-adult-blue-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult Blue Dragon",
     "difficulty": 16,
     "ac": 19,
@@ -370,6 +374,7 @@
   {
     "id": "5e-srd-adult-brass-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult Brass Dragon",
     "difficulty": 13,
     "ac": 18,
@@ -473,6 +478,7 @@
   {
     "id": "5e-srd-adult-bronze-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult Bronze Dragon",
     "difficulty": 15,
     "ac": 19,
@@ -584,6 +590,7 @@
   {
     "id": "5e-srd-adult-copper-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult Copper Dragon",
     "difficulty": 14,
     "ac": 18,
@@ -687,6 +694,7 @@
   {
     "id": "5e-srd-adult-gold-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult Gold Dragon",
     "difficulty": 17,
     "ac": 19,
@@ -798,6 +806,7 @@
   {
     "id": "5e-srd-adult-green-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult Green Dragon",
     "difficulty": 15,
     "ac": 19,
@@ -909,6 +918,7 @@
   {
     "id": "5e-srd-adult-red-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult Red Dragon",
     "difficulty": 17,
     "ac": 19,
@@ -1012,6 +1022,7 @@
   {
     "id": "5e-srd-adult-silver-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult Silver Dragon",
     "difficulty": 16,
     "ac": 19,
@@ -1119,6 +1130,7 @@
   {
     "id": "5e-srd-adult-white-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Adult White Dragon",
     "difficulty": 13,
     "ac": 18,
@@ -1226,6 +1238,7 @@
   {
     "id": "5e-srd-air-elemental",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Air Elemental",
     "difficulty": 5,
     "ac": 15,
@@ -1301,6 +1314,7 @@
   {
     "id": "5e-srd-ancient-black-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient Black Dragon",
     "difficulty": 21,
     "ac": 22,
@@ -1408,6 +1422,7 @@
   {
     "id": "5e-srd-ancient-blue-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient Blue Dragon",
     "difficulty": 23,
     "ac": 22,
@@ -1511,6 +1526,7 @@
   {
     "id": "5e-srd-ancient-brass-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient Brass Dragon",
     "difficulty": 20,
     "ac": 20,
@@ -1618,6 +1634,7 @@
   {
     "id": "5e-srd-ancient-bronze-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient Bronze Dragon",
     "difficulty": 22,
     "ac": 22,
@@ -1729,6 +1746,7 @@
   {
     "id": "5e-srd-ancient-copper-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient Copper Dragon",
     "difficulty": 21,
     "ac": 21,
@@ -1836,6 +1854,7 @@
   {
     "id": "5e-srd-ancient-gold-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient Gold Dragon",
     "difficulty": 24,
     "ac": 22,
@@ -1947,6 +1966,7 @@
   {
     "id": "5e-srd-ancient-green-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient Green Dragon",
     "difficulty": 22,
     "ac": 21,
@@ -2058,6 +2078,7 @@
   {
     "id": "5e-srd-ancient-red-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient Red Dragon",
     "difficulty": 24,
     "ac": 22,
@@ -2161,6 +2182,7 @@
   {
     "id": "5e-srd-ancient-silver-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient Silver Dragon",
     "difficulty": 23,
     "ac": 22,
@@ -2268,6 +2290,7 @@
   {
     "id": "5e-srd-ancient-white-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ancient White Dragon",
     "difficulty": 20,
     "ac": 20,
@@ -2375,6 +2398,7 @@
   {
     "id": "5e-srd-androsphinx",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Androsphinx",
     "difficulty": 17,
     "ac": 17,
@@ -2478,6 +2502,7 @@
   {
     "id": "5e-srd-animated-armor",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Animated Armor",
     "difficulty": 1,
     "ac": 18,
@@ -2545,6 +2570,7 @@
   {
     "id": "5e-srd-ankheg",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ankheg",
     "difficulty": 2,
     "ac": 14,
@@ -2596,6 +2622,7 @@
   {
     "id": "5e-srd-ape",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ape",
     "difficulty": 0.5,
     "ac": 12,
@@ -2655,6 +2682,7 @@
   {
     "id": "5e-srd-archmage",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Archmage",
     "difficulty": 12,
     "ac": 12,
@@ -2726,6 +2754,7 @@
   {
     "id": "5e-srd-assassin",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Assassin",
     "difficulty": 8,
     "ac": 15,
@@ -2809,6 +2838,7 @@
   {
     "id": "5e-srd-awakened-shrub",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Awakened Shrub",
     "difficulty": 0,
     "ac": 9,
@@ -2872,6 +2902,7 @@
   {
     "id": "5e-srd-awakened-tree",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Awakened Tree",
     "difficulty": 2,
     "ac": 13,
@@ -2935,6 +2966,7 @@
   {
     "id": "5e-srd-axe-beak",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Axe Beak",
     "difficulty": 0.25,
     "ac": 11,
@@ -2982,6 +3014,7 @@
   {
     "id": "5e-srd-azer",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Azer",
     "difficulty": 2,
     "ac": 17,
@@ -3057,6 +3090,7 @@
   {
     "id": "5e-srd-baboon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Baboon",
     "difficulty": 0,
     "ac": 12,
@@ -3108,6 +3142,7 @@
   {
     "id": "5e-srd-badger",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Badger",
     "difficulty": 0,
     "ac": 10,
@@ -3159,6 +3194,7 @@
   {
     "id": "5e-srd-balor",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Balor",
     "difficulty": 19,
     "ac": 19,
@@ -3258,6 +3294,7 @@
   {
     "id": "5e-srd-bandit",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Bandit",
     "difficulty": 0.125,
     "ac": 12,
@@ -3313,6 +3350,7 @@
   {
     "id": "5e-srd-bandit-captain",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Bandit Captain",
     "difficulty": 2,
     "ac": 15,
@@ -3384,6 +3422,7 @@
   {
     "id": "5e-srd-barbed-devil",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Barbed Devil",
     "difficulty": 5,
     "ac": 15,
@@ -3479,6 +3518,7 @@
   {
     "id": "5e-srd-basilisk",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Basilisk",
     "difficulty": 3,
     "ac": 12,
@@ -3530,6 +3570,7 @@
   {
     "id": "5e-srd-bat",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Bat",
     "difficulty": 0,
     "ac": 12,
@@ -3585,6 +3626,7 @@
   {
     "id": "5e-srd-bearded-devil",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Bearded Devil",
     "difficulty": 3,
     "ac": 13,
@@ -3672,6 +3714,7 @@
   {
     "id": "5e-srd-behir",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Behir",
     "difficulty": 11,
     "ac": 17,
@@ -3747,6 +3790,7 @@
   {
     "id": "5e-srd-berserker",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Berserker",
     "difficulty": 2,
     "ac": 13,
@@ -3802,6 +3846,7 @@
   {
     "id": "5e-srd-black-bear",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Black Bear",
     "difficulty": 0.5,
     "ac": 11,
@@ -3861,6 +3906,7 @@
   {
     "id": "5e-srd-black-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Black Dragon Wyrmling",
     "difficulty": 2,
     "ac": 17,
@@ -3932,6 +3978,7 @@
   {
     "id": "5e-srd-black-pudding",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Black Pudding",
     "difficulty": 4,
     "ac": 7,
@@ -4003,6 +4050,7 @@
   {
     "id": "5e-srd-blink-dog",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Blink Dog",
     "difficulty": 0.25,
     "ac": 13,
@@ -4066,6 +4114,7 @@
   {
     "id": "5e-srd-blood-hawk",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Blood Hawk",
     "difficulty": 0.125,
     "ac": 12,
@@ -4125,6 +4174,7 @@
   {
     "id": "5e-srd-blue-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Blue Dragon Wyrmling",
     "difficulty": 3,
     "ac": 17,
@@ -4192,6 +4242,7 @@
   {
     "id": "5e-srd-boar",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Boar",
     "difficulty": 0.25,
     "ac": 11,
@@ -4247,6 +4298,7 @@
   {
     "id": "5e-srd-bone-devil",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Bone Devil",
     "difficulty": 9,
     "ac": 19,
@@ -4334,6 +4386,7 @@
   {
     "id": "5e-srd-brass-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Brass Dragon Wyrmling",
     "difficulty": 1,
     "ac": 16,
@@ -4401,6 +4454,7 @@
   {
     "id": "5e-srd-bronze-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Bronze Dragon Wyrmling",
     "difficulty": 2,
     "ac": 17,
@@ -4472,6 +4526,7 @@
   {
     "id": "5e-srd-brown-bear",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Brown Bear",
     "difficulty": 1,
     "ac": 11,
@@ -4535,6 +4590,7 @@
   {
     "id": "5e-srd-bugbear",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Bugbear",
     "difficulty": 1,
     "ac": 16,
@@ -4602,6 +4658,7 @@
   {
     "id": "5e-srd-bulette",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Bulette",
     "difficulty": 5,
     "ac": 17,
@@ -4661,6 +4718,7 @@
   {
     "id": "5e-srd-camel",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Camel",
     "difficulty": 0.125,
     "ac": 9,
@@ -4708,6 +4766,7 @@
   {
     "id": "5e-srd-cat",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Cat",
     "difficulty": 0,
     "ac": 12,
@@ -4763,6 +4822,7 @@
   {
     "id": "5e-srd-centaur",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Centaur",
     "difficulty": 2,
     "ac": 12,
@@ -4834,6 +4894,7 @@
   {
     "id": "5e-srd-chain-devil",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Chain Devil",
     "difficulty": 11,
     "ac": 16,
@@ -4917,6 +4978,7 @@
   {
     "id": "5e-srd-chimera",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Chimera",
     "difficulty": 6,
     "ac": 14,
@@ -4988,6 +5050,7 @@
   {
     "id": "5e-srd-chuul",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Chuul",
     "difficulty": 4,
     "ac": 16,
@@ -5067,6 +5130,7 @@
   {
     "id": "5e-srd-clay-golem",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Clay Golem",
     "difficulty": 9,
     "ac": 14,
@@ -5154,6 +5218,7 @@
   {
     "id": "5e-srd-cloaker",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Cloaker",
     "difficulty": 8,
     "ac": 14,
@@ -5237,6 +5302,7 @@
   {
     "id": "5e-srd-cloud-giant",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Cloud Giant",
     "difficulty": 9,
     "ac": 14,
@@ -5312,6 +5378,7 @@
   {
     "id": "5e-srd-cockatrice",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Cockatrice",
     "difficulty": 0.5,
     "ac": 11,
@@ -5359,6 +5426,7 @@
   {
     "id": "5e-srd-commoner",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Commoner",
     "difficulty": 0,
     "ac": 10,
@@ -5410,6 +5478,7 @@
   {
     "id": "5e-srd-constrictor-snake",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Constrictor Snake",
     "difficulty": 0.25,
     "ac": 12,
@@ -5461,6 +5530,7 @@
   {
     "id": "5e-srd-copper-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Copper Dragon Wyrmling",
     "difficulty": 1,
     "ac": 16,
@@ -5528,6 +5598,7 @@
   {
     "id": "5e-srd-couatl",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Couatl",
     "difficulty": 4,
     "ac": 19,
@@ -5611,6 +5682,7 @@
   {
     "id": "5e-srd-crab",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Crab",
     "difficulty": 0,
     "ac": 11,
@@ -5666,6 +5738,7 @@
   {
     "id": "5e-srd-crocodile",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Crocodile",
     "difficulty": 0.5,
     "ac": 12,
@@ -5721,6 +5794,7 @@
   {
     "id": "5e-srd-cult-fanatic",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Cult Fanatic",
     "difficulty": 2,
     "ac": 13,
@@ -5788,6 +5862,7 @@
   {
     "id": "5e-srd-cultist",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Cultist",
     "difficulty": 0.125,
     "ac": 12,
@@ -5847,6 +5922,7 @@
   {
     "id": "5e-srd-darkmantle",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Darkmantle",
     "difficulty": 0.5,
     "ac": 11,
@@ -5910,6 +5986,7 @@
   {
     "id": "5e-srd-death-dog",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Death Dog",
     "difficulty": 1,
     "ac": 12,
@@ -5969,6 +6046,7 @@
   {
     "id": "5e-srd-deep-gnome-svirfneblin",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Deep Gnome (Svirfneblin)",
     "difficulty": 0.5,
     "ac": 15,
@@ -6040,6 +6118,7 @@
   {
     "id": "5e-srd-deer",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Deer",
     "difficulty": 0,
     "ac": 13,
@@ -6087,6 +6166,7 @@
   {
     "id": "5e-srd-deva",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Deva",
     "difficulty": 10,
     "ac": 17,
@@ -6178,6 +6258,7 @@
   {
     "id": "5e-srd-dire-wolf",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Dire Wolf",
     "difficulty": 1,
     "ac": 14,
@@ -6237,6 +6318,7 @@
   {
     "id": "5e-srd-djinni",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Djinni",
     "difficulty": 11,
     "ac": 17,
@@ -6316,6 +6398,7 @@
   {
     "id": "5e-srd-doppelganger",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Doppelganger",
     "difficulty": 3,
     "ac": 14,
@@ -6395,6 +6478,7 @@
   {
     "id": "5e-srd-draft-horse",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Draft Horse",
     "difficulty": 0.25,
     "ac": 10,
@@ -6442,6 +6526,7 @@
   {
     "id": "5e-srd-dragon-turtle",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Dragon Turtle",
     "difficulty": 17,
     "ac": 20,
@@ -6521,6 +6606,7 @@
   {
     "id": "5e-srd-dretch",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Dretch",
     "difficulty": 0.25,
     "ac": 11,
@@ -6596,6 +6682,7 @@
   {
     "id": "5e-srd-drider",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Drider",
     "difficulty": 6,
     "ac": 19,
@@ -6683,6 +6770,7 @@
   {
     "id": "5e-srd-drow",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Drow",
     "difficulty": 0.25,
     "ac": 15,
@@ -6754,6 +6842,7 @@
   {
     "id": "5e-srd-druid",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Druid",
     "difficulty": 2,
     "ac": 11,
@@ -6813,6 +6902,7 @@
   {
     "id": "5e-srd-dryad",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Dryad",
     "difficulty": 1,
     "ac": 11,
@@ -6888,6 +6978,7 @@
   {
     "id": "5e-srd-duergar",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Duergar",
     "difficulty": 1,
     "ac": 16,
@@ -6963,6 +7054,7 @@
   {
     "id": "5e-srd-dust-mephit",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Dust Mephit",
     "difficulty": 0.5,
     "ac": 12,
@@ -7046,6 +7138,7 @@
   {
     "id": "5e-srd-eagle",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Eagle",
     "difficulty": 0,
     "ac": 12,
@@ -7101,6 +7194,7 @@
   {
     "id": "5e-srd-earth-elemental",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Earth Elemental",
     "difficulty": 5,
     "ac": 17,
@@ -7180,6 +7274,7 @@
   {
     "id": "5e-srd-efreeti",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Efreeti",
     "difficulty": 11,
     "ac": 17,
@@ -7259,6 +7354,7 @@
   {
     "id": "5e-srd-elephant",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Elephant",
     "difficulty": 4,
     "ac": 12,
@@ -7314,6 +7410,7 @@
   {
     "id": "5e-srd-elk",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Elk",
     "difficulty": 0.25,
     "ac": 10,
@@ -7369,6 +7466,7 @@
   {
     "id": "5e-srd-erinyes",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Erinyes",
     "difficulty": 12,
     "ac": 18,
@@ -7460,6 +7558,7 @@
   {
     "id": "5e-srd-ettercap",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ettercap",
     "difficulty": 2,
     "ac": 13,
@@ -7539,6 +7638,7 @@
   {
     "id": "5e-srd-ettin",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ettin",
     "difficulty": 4,
     "ac": 12,
@@ -7610,6 +7710,7 @@
   {
     "id": "5e-srd-fire-elemental",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Fire Elemental",
     "difficulty": 5,
     "ac": 13,
@@ -7689,6 +7790,7 @@
   {
     "id": "5e-srd-fire-giant",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Fire Giant",
     "difficulty": 9,
     "ac": 18,
@@ -7760,6 +7862,7 @@
   {
     "id": "5e-srd-flesh-golem",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Flesh Golem",
     "difficulty": 5,
     "ac": 9,
@@ -7847,6 +7950,7 @@
   {
     "id": "5e-srd-flying-snake",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Flying Snake",
     "difficulty": 0.125,
     "ac": 14,
@@ -7898,6 +8002,7 @@
   {
     "id": "5e-srd-flying-sword",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Flying Sword",
     "difficulty": 0.25,
     "ac": 17,
@@ -7965,6 +8070,7 @@
   {
     "id": "5e-srd-frog",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Frog",
     "difficulty": 0,
     "ac": 11,
@@ -8020,6 +8126,7 @@
   {
     "id": "5e-srd-frost-giant",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Frost Giant",
     "difficulty": 8,
     "ac": 15,
@@ -8091,6 +8198,7 @@
   {
     "id": "5e-srd-gargoyle",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Gargoyle",
     "difficulty": 2,
     "ac": 15,
@@ -8166,6 +8274,7 @@
   {
     "id": "5e-srd-gelatinous-cube",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Gelatinous Cube",
     "difficulty": 2,
     "ac": 6,
@@ -8229,6 +8338,7 @@
   {
     "id": "5e-srd-ghast",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ghast",
     "difficulty": 2,
     "ac": 13,
@@ -8304,6 +8414,7 @@
   {
     "id": "5e-srd-ghost",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ghost",
     "difficulty": 4,
     "ac": 11,
@@ -8387,6 +8498,7 @@
   {
     "id": "5e-srd-ghoul",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ghoul",
     "difficulty": 1,
     "ac": 12,
@@ -8450,6 +8562,7 @@
   {
     "id": "5e-srd-giant-ape",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Ape",
     "difficulty": 7,
     "ac": 12,
@@ -8509,6 +8622,7 @@
   {
     "id": "5e-srd-giant-badger",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Badger",
     "difficulty": 0.25,
     "ac": 10,
@@ -8568,6 +8682,7 @@
   {
     "id": "5e-srd-giant-bat",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Bat",
     "difficulty": 0.25,
     "ac": 13,
@@ -8623,6 +8738,7 @@
   {
     "id": "5e-srd-giant-boar",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Boar",
     "difficulty": 2,
     "ac": 12,
@@ -8678,6 +8794,7 @@
   {
     "id": "5e-srd-giant-centipede",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Centipede",
     "difficulty": 0.25,
     "ac": 13,
@@ -8725,6 +8842,7 @@
   {
     "id": "5e-srd-giant-constrictor-snake",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Constrictor Snake",
     "difficulty": 2,
     "ac": 12,
@@ -8780,6 +8898,7 @@
   {
     "id": "5e-srd-giant-crab",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Crab",
     "difficulty": 0.125,
     "ac": 15,
@@ -8835,6 +8954,7 @@
   {
     "id": "5e-srd-giant-crocodile",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Crocodile",
     "difficulty": 5,
     "ac": 14,
@@ -8898,6 +9018,7 @@
   {
     "id": "5e-srd-giant-eagle",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Eagle",
     "difficulty": 1,
     "ac": 13,
@@ -8965,6 +9086,7 @@
   {
     "id": "5e-srd-giant-elk",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Elk",
     "difficulty": 2,
     "ac": 15,
@@ -9028,6 +9150,7 @@
   {
     "id": "5e-srd-giant-fire-beetle",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Fire Beetle",
     "difficulty": 0,
     "ac": 13,
@@ -9079,6 +9202,7 @@
   {
     "id": "5e-srd-giant-frog",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Frog",
     "difficulty": 0.25,
     "ac": 11,
@@ -9142,6 +9266,7 @@
   {
     "id": "5e-srd-giant-goat",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Goat",
     "difficulty": 0.5,
     "ac": 11,
@@ -9197,6 +9322,7 @@
   {
     "id": "5e-srd-giant-hyena",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Hyena",
     "difficulty": 1,
     "ac": 12,
@@ -9252,6 +9378,7 @@
   {
     "id": "5e-srd-giant-lizard",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Lizard",
     "difficulty": 0.25,
     "ac": 12,
@@ -9307,6 +9434,7 @@
   {
     "id": "5e-srd-giant-octopus",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Octopus",
     "difficulty": 1,
     "ac": 11,
@@ -9374,6 +9502,7 @@
   {
     "id": "5e-srd-giant-owl",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Owl",
     "difficulty": 0.25,
     "ac": 12,
@@ -9437,6 +9566,7 @@
   {
     "id": "5e-srd-giant-poisonous-snake",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Poisonous Snake",
     "difficulty": 0.25,
     "ac": 14,
@@ -9488,6 +9618,7 @@
   {
     "id": "5e-srd-giant-rat",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Rat",
     "difficulty": 0.125,
     "ac": 12,
@@ -9543,6 +9674,7 @@
   {
     "id": "5e-srd-giant-rat-diseased",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Rat (Diseased)",
     "difficulty": 0.125,
     "ac": 12,
@@ -9590,6 +9722,7 @@
   {
     "id": "5e-srd-giant-scorpion",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Scorpion",
     "difficulty": 3,
     "ac": 15,
@@ -9645,6 +9778,7 @@
   {
     "id": "5e-srd-giant-sea-horse",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Sea Horse",
     "difficulty": 0.5,
     "ac": 13,
@@ -9700,6 +9834,7 @@
   {
     "id": "5e-srd-giant-shark",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Shark",
     "difficulty": 5,
     "ac": 13,
@@ -9759,6 +9894,7 @@
   {
     "id": "5e-srd-giant-spider",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Spider",
     "difficulty": 1,
     "ac": 14,
@@ -9826,6 +9962,7 @@
   {
     "id": "5e-srd-giant-toad",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Toad",
     "difficulty": 1,
     "ac": 11,
@@ -9885,6 +10022,7 @@
   {
     "id": "5e-srd-giant-vulture",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Vulture",
     "difficulty": 1,
     "ac": 10,
@@ -9956,6 +10094,7 @@
   {
     "id": "5e-srd-giant-wasp",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Wasp",
     "difficulty": 0.5,
     "ac": 12,
@@ -10003,6 +10142,7 @@
   {
     "id": "5e-srd-giant-weasel",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Weasel",
     "difficulty": 0.125,
     "ac": 13,
@@ -10058,6 +10198,7 @@
   {
     "id": "5e-srd-giant-wolf-spider",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Giant Wolf Spider",
     "difficulty": 0.25,
     "ac": 13,
@@ -10121,6 +10262,7 @@
   {
     "id": "5e-srd-gibbering-mouther",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Gibbering Mouther",
     "difficulty": 2,
     "ac": 9,
@@ -10188,6 +10330,7 @@
   {
     "id": "5e-srd-glabrezu",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Glabrezu",
     "difficulty": 9,
     "ac": 17,
@@ -10275,6 +10418,7 @@
   {
     "id": "5e-srd-gladiator",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Gladiator",
     "difficulty": 5,
     "ac": 16,
@@ -10354,6 +10498,7 @@
   {
     "id": "5e-srd-gnoll",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Gnoll",
     "difficulty": 0.5,
     "ac": 15,
@@ -10417,6 +10562,7 @@
   {
     "id": "5e-srd-goat",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Goat",
     "difficulty": 0,
     "ac": 10,
@@ -10472,6 +10618,7 @@
   {
     "id": "5e-srd-goblin",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Goblin",
     "difficulty": 0.25,
     "ac": 15,
@@ -10535,6 +10682,7 @@
   {
     "id": "5e-srd-gold-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Gold Dragon Wyrmling",
     "difficulty": 3,
     "ac": 17,
@@ -10606,6 +10754,7 @@
   {
     "id": "5e-srd-gorgon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Gorgon",
     "difficulty": 5,
     "ac": 19,
@@ -10673,6 +10822,7 @@
   {
     "id": "5e-srd-gray-ooze",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Gray Ooze",
     "difficulty": 0.5,
     "ac": 8,
@@ -10744,6 +10894,7 @@
   {
     "id": "5e-srd-green-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Green Dragon Wyrmling",
     "difficulty": 2,
     "ac": 17,
@@ -10819,6 +10970,7 @@
   {
     "id": "5e-srd-green-hag",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Green Hag",
     "difficulty": 3,
     "ac": 17,
@@ -10906,6 +11058,7 @@
   {
     "id": "5e-srd-grick",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Grick",
     "difficulty": 2,
     "ac": 14,
@@ -10969,6 +11122,7 @@
   {
     "id": "5e-srd-griffon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Griffon",
     "difficulty": 2,
     "ac": 12,
@@ -11032,6 +11186,7 @@
   {
     "id": "5e-srd-grimlock",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Grimlock",
     "difficulty": 0.25,
     "ac": 11,
@@ -11103,6 +11258,7 @@
   {
     "id": "5e-srd-guard",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Guard",
     "difficulty": 0.125,
     "ac": 16,
@@ -11158,6 +11314,7 @@
   {
     "id": "5e-srd-guardian-naga",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Guardian Naga",
     "difficulty": 10,
     "ac": 18,
@@ -11233,6 +11390,7 @@
   {
     "id": "5e-srd-gynosphinx",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Gynosphinx",
     "difficulty": 11,
     "ac": 17,
@@ -11332,6 +11490,7 @@
   {
     "id": "5e-srd-half-red-dragon-veteran",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Half-Red Dragon Veteran",
     "difficulty": 5,
     "ac": 18,
@@ -11403,6 +11562,7 @@
   {
     "id": "5e-srd-harpy",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Harpy",
     "difficulty": 1,
     "ac": 11,
@@ -11466,6 +11626,7 @@
   {
     "id": "5e-srd-hawk",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Hawk",
     "difficulty": 0,
     "ac": 13,
@@ -11521,6 +11682,7 @@
   {
     "id": "5e-srd-hell-hound",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Hell Hound",
     "difficulty": 3,
     "ac": 15,
@@ -11592,6 +11754,7 @@
   {
     "id": "5e-srd-hezrou",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Hezrou",
     "difficulty": 8,
     "ac": 16,
@@ -11679,6 +11842,7 @@
   {
     "id": "5e-srd-hill-giant",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Hill Giant",
     "difficulty": 5,
     "ac": 13,
@@ -11742,6 +11906,7 @@
   {
     "id": "5e-srd-hippogriff",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Hippogriff",
     "difficulty": 1,
     "ac": 11,
@@ -11805,6 +11970,7 @@
   {
     "id": "5e-srd-hobgoblin",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Hobgoblin",
     "difficulty": 0.5,
     "ac": 18,
@@ -11864,6 +12030,7 @@
   {
     "id": "5e-srd-homunculus",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Homunculus",
     "difficulty": 0,
     "ac": 13,
@@ -11927,6 +12094,7 @@
   {
     "id": "5e-srd-horned-devil",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Horned Devil",
     "difficulty": 11,
     "ac": 18,
@@ -12014,6 +12182,7 @@
   {
     "id": "5e-srd-hunter-shark",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Hunter Shark",
     "difficulty": 2,
     "ac": 12,
@@ -12073,6 +12242,7 @@
   {
     "id": "5e-srd-hydra",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Hydra",
     "difficulty": 8,
     "ac": 15,
@@ -12144,6 +12314,7 @@
   {
     "id": "5e-srd-hyena",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Hyena",
     "difficulty": 0,
     "ac": 11,
@@ -12199,6 +12370,7 @@
   {
     "id": "5e-srd-ice-devil",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ice Devil",
     "difficulty": 14,
     "ac": 18,
@@ -12290,6 +12462,7 @@
   {
     "id": "5e-srd-ice-mephit",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ice Mephit",
     "difficulty": 0.5,
     "ac": 11,
@@ -12377,6 +12550,7 @@
   {
     "id": "5e-srd-imp",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Imp",
     "difficulty": 1,
     "ac": 13,
@@ -12464,6 +12638,7 @@
   {
     "id": "5e-srd-invisible-stalker",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Invisible Stalker",
     "difficulty": 6,
     "ac": 14,
@@ -12543,6 +12718,7 @@
   {
     "id": "5e-srd-iron-golem",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Iron Golem",
     "difficulty": 16,
     "ac": 20,
@@ -12630,6 +12806,7 @@
   {
     "id": "5e-srd-jackal",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Jackal",
     "difficulty": 0,
     "ac": 12,
@@ -12689,6 +12866,7 @@
   {
     "id": "5e-srd-killer-whale",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Killer Whale",
     "difficulty": 3,
     "ac": 12,
@@ -12752,6 +12930,7 @@
   {
     "id": "5e-srd-knight",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Knight",
     "difficulty": 3,
     "ac": 18,
@@ -12827,6 +13006,7 @@
   {
     "id": "5e-srd-kobold",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Kobold",
     "difficulty": 0.125,
     "ac": 12,
@@ -12890,6 +13070,7 @@
   {
     "id": "5e-srd-kraken",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Kraken",
     "difficulty": 23,
     "ac": 18,
@@ -12997,6 +13178,7 @@
   {
     "id": "5e-srd-lamia",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Lamia",
     "difficulty": 4,
     "ac": 13,
@@ -13068,6 +13250,7 @@
   {
     "id": "5e-srd-lemure",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Lemure",
     "difficulty": 0,
     "ac": 7,
@@ -13139,6 +13322,7 @@
   {
     "id": "5e-srd-lich",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Lich",
     "difficulty": 21,
     "ac": 17,
@@ -13246,6 +13430,7 @@
   {
     "id": "5e-srd-lion",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Lion",
     "difficulty": 1,
     "ac": 12,
@@ -13317,6 +13502,7 @@
   {
     "id": "5e-srd-lizard",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Lizard",
     "difficulty": 0,
     "ac": 10,
@@ -13364,6 +13550,7 @@
   {
     "id": "5e-srd-lizardfolk",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Lizardfolk",
     "difficulty": 0.5,
     "ac": 15,
@@ -13439,6 +13626,7 @@
   {
     "id": "5e-srd-mage",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Mage",
     "difficulty": 6,
     "ac": 12,
@@ -13502,6 +13690,7 @@
   {
     "id": "5e-srd-magma-mephit",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Magma Mephit",
     "difficulty": 0.5,
     "ac": 11,
@@ -13589,6 +13778,7 @@
   {
     "id": "5e-srd-magmin",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Magmin",
     "difficulty": 0.5,
     "ac": 14,
@@ -13656,6 +13846,7 @@
   {
     "id": "5e-srd-mammoth",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Mammoth",
     "difficulty": 6,
     "ac": 13,
@@ -13711,6 +13902,7 @@
   {
     "id": "5e-srd-manticore",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Manticore",
     "difficulty": 3,
     "ac": 14,
@@ -13774,6 +13966,7 @@
   {
     "id": "5e-srd-marilith",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Marilith",
     "difficulty": 16,
     "ac": 18,
@@ -13873,6 +14066,7 @@
   {
     "id": "5e-srd-mastiff",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Mastiff",
     "difficulty": 0.125,
     "ac": 12,
@@ -13928,6 +14122,7 @@
   {
     "id": "5e-srd-medusa",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Medusa",
     "difficulty": 6,
     "ac": 15,
@@ -13999,6 +14194,7 @@
   {
     "id": "5e-srd-merfolk",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Merfolk",
     "difficulty": 0.125,
     "ac": 11,
@@ -14058,6 +14254,7 @@
   {
     "id": "5e-srd-merrow",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Merrow",
     "difficulty": 2,
     "ac": 13,
@@ -14125,6 +14322,7 @@
   {
     "id": "5e-srd-mimic",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Mimic",
     "difficulty": 2,
     "ac": 12,
@@ -14204,6 +14402,7 @@
   {
     "id": "5e-srd-minotaur",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Minotaur",
     "difficulty": 3,
     "ac": 14,
@@ -14275,6 +14474,7 @@
   {
     "id": "5e-srd-minotaur-skeleton",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Minotaur Skeleton",
     "difficulty": 2,
     "ac": 12,
@@ -14346,6 +14546,7 @@
   {
     "id": "5e-srd-mule",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Mule",
     "difficulty": 0.125,
     "ac": 10,
@@ -14401,6 +14602,7 @@
   {
     "id": "5e-srd-mummy",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Mummy",
     "difficulty": 3,
     "ac": 11,
@@ -14480,6 +14682,7 @@
   {
     "id": "5e-srd-mummy-lord",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Mummy Lord",
     "difficulty": 15,
     "ac": 17,
@@ -14595,6 +14798,7 @@
   {
     "id": "5e-srd-nalfeshnee",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Nalfeshnee",
     "difficulty": 13,
     "ac": 18,
@@ -14686,6 +14890,7 @@
   {
     "id": "5e-srd-night-hag",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Night Hag",
     "difficulty": 5,
     "ac": 17,
@@ -14785,6 +14990,7 @@
   {
     "id": "5e-srd-nightmare",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Nightmare",
     "difficulty": 3,
     "ac": 13,
@@ -14852,6 +15058,7 @@
   {
     "id": "5e-srd-noble",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Noble",
     "difficulty": 0.125,
     "ac": 15,
@@ -14911,6 +15118,7 @@
   {
     "id": "5e-srd-ochre-jelly",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ochre Jelly",
     "difficulty": 2,
     "ac": 8,
@@ -14982,6 +15190,7 @@
   {
     "id": "5e-srd-octopus",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Octopus",
     "difficulty": 0,
     "ac": 12,
@@ -15049,6 +15258,7 @@
   {
     "id": "5e-srd-ogre",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ogre",
     "difficulty": 2,
     "ac": 11,
@@ -15104,6 +15314,7 @@
   {
     "id": "5e-srd-ogre-zombie",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Ogre Zombie",
     "difficulty": 2,
     "ac": 8,
@@ -15171,6 +15382,7 @@
   {
     "id": "5e-srd-oni",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Oni",
     "difficulty": 7,
     "ac": 16,
@@ -15254,6 +15466,7 @@
   {
     "id": "5e-srd-orc",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Orc",
     "difficulty": 0.5,
     "ac": 13,
@@ -15317,6 +15530,7 @@
   {
     "id": "5e-srd-otyugh",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Otyugh",
     "difficulty": 5,
     "ac": 14,
@@ -15388,6 +15602,7 @@
   {
     "id": "5e-srd-owl",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Owl",
     "difficulty": 0,
     "ac": 11,
@@ -15447,6 +15662,7 @@
   {
     "id": "5e-srd-owlbear",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Owlbear",
     "difficulty": 3,
     "ac": 13,
@@ -15510,6 +15726,7 @@
   {
     "id": "5e-srd-panther",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Panther",
     "difficulty": 0.25,
     "ac": 12,
@@ -15573,6 +15790,7 @@
   {
     "id": "5e-srd-pegasus",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Pegasus",
     "difficulty": 2,
     "ac": 12,
@@ -15632,6 +15850,7 @@
   {
     "id": "5e-srd-phase-spider",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Phase Spider",
     "difficulty": 3,
     "ac": 13,
@@ -15695,6 +15914,7 @@
   {
     "id": "5e-srd-pit-fiend",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Pit Fiend",
     "difficulty": 20,
     "ac": 19,
@@ -15794,6 +16014,7 @@
   {
     "id": "5e-srd-planetar",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Planetar",
     "difficulty": 16,
     "ac": 19,
@@ -15885,6 +16106,7 @@
   {
     "id": "5e-srd-plesiosaurus",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Plesiosaurus",
     "difficulty": 2,
     "ac": 13,
@@ -15940,6 +16162,7 @@
   {
     "id": "5e-srd-poisonous-snake",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Poisonous Snake",
     "difficulty": 0.125,
     "ac": 13,
@@ -15987,6 +16210,7 @@
   {
     "id": "5e-srd-polar-bear",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Polar Bear",
     "difficulty": 2,
     "ac": 12,
@@ -16050,6 +16274,7 @@
   {
     "id": "5e-srd-pony",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Pony",
     "difficulty": 0.125,
     "ac": 10,
@@ -16097,6 +16322,7 @@
   {
     "id": "5e-srd-priest",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Priest",
     "difficulty": 2,
     "ac": 13,
@@ -16160,6 +16386,7 @@
   {
     "id": "5e-srd-pseudodragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Pseudodragon",
     "difficulty": 0.25,
     "ac": 13,
@@ -16235,6 +16462,7 @@
   {
     "id": "5e-srd-purple-worm",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Purple Worm",
     "difficulty": 15,
     "ac": 18,
@@ -16298,6 +16526,7 @@
   {
     "id": "5e-srd-quasit",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Quasit",
     "difficulty": 1,
     "ac": 13,
@@ -16385,6 +16614,7 @@
   {
     "id": "5e-srd-quipper",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Quipper",
     "difficulty": 0,
     "ac": 13,
@@ -16440,6 +16670,7 @@
   {
     "id": "5e-srd-rakshasa",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Rakshasa",
     "difficulty": 13,
     "ac": 16,
@@ -16515,6 +16746,7 @@
   {
     "id": "5e-srd-rat",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Rat",
     "difficulty": 0,
     "ac": 10,
@@ -16566,6 +16798,7 @@
   {
     "id": "5e-srd-raven",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Raven",
     "difficulty": 0,
     "ac": 12,
@@ -16621,6 +16854,7 @@
   {
     "id": "5e-srd-red-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Red Dragon Wyrmling",
     "difficulty": 4,
     "ac": 17,
@@ -16688,6 +16922,7 @@
   {
     "id": "5e-srd-reef-shark",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Reef Shark",
     "difficulty": 0.5,
     "ac": 12,
@@ -16747,6 +16982,7 @@
   {
     "id": "5e-srd-remorhaz",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Remorhaz",
     "difficulty": 11,
     "ac": 17,
@@ -16806,6 +17042,7 @@
   {
     "id": "5e-srd-rhinoceros",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Rhinoceros",
     "difficulty": 2,
     "ac": 11,
@@ -16857,6 +17094,7 @@
   {
     "id": "5e-srd-riding-horse",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Riding Horse",
     "difficulty": 0.25,
     "ac": 10,
@@ -16904,6 +17142,7 @@
   {
     "id": "5e-srd-roc",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Roc",
     "difficulty": 11,
     "ac": 15,
@@ -16971,6 +17210,7 @@
   {
     "id": "5e-srd-roper",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Roper",
     "difficulty": 5,
     "ac": 20,
@@ -17046,6 +17286,7 @@
   {
     "id": "5e-srd-rug-of-smothering",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Rug of Smothering",
     "difficulty": 2,
     "ac": 12,
@@ -17113,6 +17354,7 @@
   {
     "id": "5e-srd-rust-monster",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Rust Monster",
     "difficulty": 0.5,
     "ac": 14,
@@ -17172,6 +17414,7 @@
   {
     "id": "5e-srd-saber-toothed-tiger",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Saber-Toothed Tiger",
     "difficulty": 2,
     "ac": 12,
@@ -17235,6 +17478,7 @@
   {
     "id": "5e-srd-sahuagin",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Sahuagin",
     "difficulty": 0.5,
     "ac": 12,
@@ -17314,6 +17558,7 @@
   {
     "id": "5e-srd-salamander",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Salamander",
     "difficulty": 5,
     "ac": 15,
@@ -17393,6 +17638,7 @@
   {
     "id": "5e-srd-satyr",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Satyr",
     "difficulty": 0.5,
     "ac": 14,
@@ -17464,6 +17710,7 @@
   {
     "id": "5e-srd-scorpion",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Scorpion",
     "difficulty": 0,
     "ac": 11,
@@ -17511,6 +17758,7 @@
   {
     "id": "5e-srd-scout",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Scout",
     "difficulty": 0.5,
     "ac": 13,
@@ -17578,6 +17826,7 @@
   {
     "id": "5e-srd-sea-hag",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Sea Hag",
     "difficulty": 2,
     "ac": 14,
@@ -17657,6 +17906,7 @@
   {
     "id": "5e-srd-sea-horse",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Sea Horse",
     "difficulty": 0,
     "ac": 11,
@@ -17704,6 +17954,7 @@
   {
     "id": "5e-srd-shadow",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Shadow",
     "difficulty": 0.5,
     "ac": 12,
@@ -17783,6 +18034,7 @@
   {
     "id": "5e-srd-shambling-mound",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Shambling Mound",
     "difficulty": 5,
     "ac": 15,
@@ -17858,6 +18110,7 @@
   {
     "id": "5e-srd-shield-guardian",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Shield Guardian",
     "difficulty": 7,
     "ac": 17,
@@ -17937,6 +18190,7 @@
   {
     "id": "5e-srd-shrieker",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Shrieker",
     "difficulty": 0,
     "ac": 5,
@@ -17992,6 +18246,7 @@
   {
     "id": "5e-srd-silver-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Silver Dragon Wyrmling",
     "difficulty": 2,
     "ac": 17,
@@ -18059,6 +18314,7 @@
   {
     "id": "5e-srd-skeleton",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Skeleton",
     "difficulty": 0.25,
     "ac": 13,
@@ -18126,6 +18382,7 @@
   {
     "id": "5e-srd-solar",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Solar",
     "difficulty": 21,
     "ac": 21,
@@ -18245,6 +18502,7 @@
   {
     "id": "5e-srd-specter",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Specter",
     "difficulty": 1,
     "ac": 12,
@@ -18316,6 +18574,7 @@
   {
     "id": "5e-srd-spider",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Spider",
     "difficulty": 0,
     "ac": 12,
@@ -18379,6 +18638,7 @@
   {
     "id": "5e-srd-spirit-naga",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Spirit Naga",
     "difficulty": 8,
     "ac": 15,
@@ -18450,6 +18710,7 @@
   {
     "id": "5e-srd-sprite",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Sprite",
     "difficulty": 0.25,
     "ac": 15,
@@ -18517,6 +18778,7 @@
   {
     "id": "5e-srd-spy",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Spy",
     "difficulty": 1,
     "ac": 12,
@@ -18588,6 +18850,7 @@
   {
     "id": "5e-srd-steam-mephit",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Steam Mephit",
     "difficulty": 0.25,
     "ac": 10,
@@ -18663,6 +18926,7 @@
   {
     "id": "5e-srd-stirge",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Stirge",
     "difficulty": 0.125,
     "ac": 14,
@@ -18710,6 +18974,7 @@
   {
     "id": "5e-srd-stone-giant",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Stone Giant",
     "difficulty": 7,
     "ac": 17,
@@ -18785,6 +19050,7 @@
   {
     "id": "5e-srd-stone-golem",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Stone Golem",
     "difficulty": 10,
     "ac": 17,
@@ -18864,6 +19130,7 @@
   {
     "id": "5e-srd-storm-giant",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Storm Giant",
     "difficulty": 13,
     "ac": 16,
@@ -18951,6 +19218,7 @@
   {
     "id": "5e-srd-succubusincubus",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Succubus/Incubus",
     "difficulty": 4,
     "ac": 15,
@@ -19030,6 +19298,7 @@
   {
     "id": "5e-srd-swarm-of-bats",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Bats",
     "difficulty": 0.25,
     "ac": 12,
@@ -19097,6 +19366,7 @@
   {
     "id": "5e-srd-swarm-of-beetles",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Beetles",
     "difficulty": 0.5,
     "ac": 12,
@@ -19156,6 +19426,7 @@
   {
     "id": "5e-srd-swarm-of-centipedes",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Centipedes",
     "difficulty": 0.5,
     "ac": 12,
@@ -19215,6 +19486,7 @@
   {
     "id": "5e-srd-swarm-of-insects",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Insects",
     "difficulty": 0.5,
     "ac": 12,
@@ -19274,6 +19546,7 @@
   {
     "id": "5e-srd-swarm-of-poisonous-snakes",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Poisonous Snakes",
     "difficulty": 2,
     "ac": 14,
@@ -19333,6 +19606,7 @@
   {
     "id": "5e-srd-swarm-of-quippers",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Quippers",
     "difficulty": 1,
     "ac": 13,
@@ -19400,6 +19674,7 @@
   {
     "id": "5e-srd-swarm-of-rats",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Rats",
     "difficulty": 0.25,
     "ac": 10,
@@ -19463,6 +19738,7 @@
   {
     "id": "5e-srd-swarm-of-ravens",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Ravens",
     "difficulty": 0.25,
     "ac": 12,
@@ -19522,6 +19798,7 @@
   {
     "id": "5e-srd-swarm-of-spiders",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Spiders",
     "difficulty": 0.5,
     "ac": 12,
@@ -19593,6 +19870,7 @@
   {
     "id": "5e-srd-swarm-of-wasps",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Swarm of Wasps",
     "difficulty": 0.5,
     "ac": 12,
@@ -19652,6 +19930,7 @@
   {
     "id": "5e-srd-tarrasque",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Tarrasque",
     "difficulty": 30,
     "ac": 25,
@@ -19767,6 +20046,7 @@
   {
     "id": "5e-srd-thug",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Thug",
     "difficulty": 0.5,
     "ac": 11,
@@ -19834,6 +20114,7 @@
   {
     "id": "5e-srd-tiger",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Tiger",
     "difficulty": 1,
     "ac": 12,
@@ -19897,6 +20178,7 @@
   {
     "id": "5e-srd-treant",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Treant",
     "difficulty": 9,
     "ac": 16,
@@ -19976,6 +20258,7 @@
   {
     "id": "5e-srd-tribal-warrior",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Tribal Warrior",
     "difficulty": 0.125,
     "ac": 12,
@@ -20031,6 +20314,7 @@
   {
     "id": "5e-srd-triceratops",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Triceratops",
     "difficulty": 5,
     "ac": 13,
@@ -20086,6 +20370,7 @@
   {
     "id": "5e-srd-troll",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Troll",
     "difficulty": 5,
     "ac": 15,
@@ -20161,6 +20446,7 @@
   {
     "id": "5e-srd-tyrannosaurus-rex",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Tyrannosaurus Rex",
     "difficulty": 8,
     "ac": 13,
@@ -20220,6 +20506,7 @@
   {
     "id": "5e-srd-unicorn",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Unicorn",
     "difficulty": 5,
     "ac": 12,
@@ -20327,6 +20614,7 @@
   {
     "id": "5e-srd-vampire",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Vampire",
     "difficulty": 13,
     "ac": 16,
@@ -20446,6 +20734,7 @@
   {
     "id": "5e-srd-vampire-spawn",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Vampire Spawn",
     "difficulty": 5,
     "ac": 15,
@@ -20529,6 +20818,7 @@
   {
     "id": "5e-srd-veteran",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Veteran",
     "difficulty": 3,
     "ac": 17,
@@ -20596,6 +20886,7 @@
   {
     "id": "5e-srd-violet-fungus",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Violet Fungus",
     "difficulty": 0.25,
     "ac": 5,
@@ -20655,6 +20946,7 @@
   {
     "id": "5e-srd-vrock",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Vrock",
     "difficulty": 6,
     "ac": 15,
@@ -20746,6 +21038,7 @@
   {
     "id": "5e-srd-vulture",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Vulture",
     "difficulty": 0,
     "ac": 10,
@@ -20805,6 +21098,7 @@
   {
     "id": "5e-srd-warhorse",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Warhorse",
     "difficulty": 0.5,
     "ac": 11,
@@ -20856,6 +21150,7 @@
   {
     "id": "5e-srd-warhorse-skeleton",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Warhorse Skeleton",
     "difficulty": 0.5,
     "ac": 13,
@@ -20915,6 +21210,7 @@
   {
     "id": "5e-srd-water-elemental",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Water Elemental",
     "difficulty": 5,
     "ac": 14,
@@ -20994,6 +21290,7 @@
   {
     "id": "5e-srd-weasel",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Weasel",
     "difficulty": 0,
     "ac": 13,
@@ -21049,6 +21346,7 @@
   {
     "id": "5e-srd-werebear",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Werebear",
     "difficulty": 5,
     "ac": 10,
@@ -21128,6 +21426,7 @@
   {
     "id": "5e-srd-wereboar",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Wereboar",
     "difficulty": 4,
     "ac": 10,
@@ -21207,6 +21506,7 @@
   {
     "id": "5e-srd-wererat",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Wererat",
     "difficulty": 2,
     "ac": 12,
@@ -21286,6 +21586,7 @@
   {
     "id": "5e-srd-weretiger",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Weretiger",
     "difficulty": 4,
     "ac": 12,
@@ -21373,6 +21674,7 @@
   {
     "id": "5e-srd-werewolf",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Werewolf",
     "difficulty": 3,
     "ac": 11,
@@ -21452,6 +21754,7 @@
   {
     "id": "5e-srd-white-dragon-wyrmling",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "White Dragon Wyrmling",
     "difficulty": 2,
     "ac": 16,
@@ -21519,6 +21822,7 @@
   {
     "id": "5e-srd-wight",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Wight",
     "difficulty": 3,
     "ac": 14,
@@ -21598,6 +21902,7 @@
   {
     "id": "5e-srd-will-o-wisp",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Will-o'-Wisp",
     "difficulty": 2,
     "ac": 19,
@@ -21681,6 +21986,7 @@
   {
     "id": "5e-srd-winter-wolf",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Winter Wolf",
     "difficulty": 3,
     "ac": 13,
@@ -21756,6 +22062,7 @@
   {
     "id": "5e-srd-wolf",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Wolf",
     "difficulty": 0.25,
     "ac": 13,
@@ -21815,6 +22122,7 @@
   {
     "id": "5e-srd-worg",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Worg",
     "difficulty": 0.5,
     "ac": 13,
@@ -21874,6 +22182,7 @@
   {
     "id": "5e-srd-wraith",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Wraith",
     "difficulty": 5,
     "ac": 13,
@@ -21949,6 +22258,7 @@
   {
     "id": "5e-srd-wyvern",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Wyvern",
     "difficulty": 6,
     "ac": 13,
@@ -22012,6 +22322,7 @@
   {
     "id": "5e-srd-xorn",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Xorn",
     "difficulty": 5,
     "ac": 19,
@@ -22091,6 +22402,7 @@
   {
     "id": "5e-srd-young-black-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young Black Dragon",
     "difficulty": 7,
     "ac": 18,
@@ -22170,6 +22482,7 @@
   {
     "id": "5e-srd-young-blue-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young Blue Dragon",
     "difficulty": 9,
     "ac": 18,
@@ -22245,6 +22558,7 @@
   {
     "id": "5e-srd-young-brass-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young Brass Dragon",
     "difficulty": 6,
     "ac": 17,
@@ -22320,6 +22634,7 @@
   {
     "id": "5e-srd-young-bronze-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young Bronze Dragon",
     "difficulty": 8,
     "ac": 18,
@@ -22399,6 +22714,7 @@
   {
     "id": "5e-srd-young-copper-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young Copper Dragon",
     "difficulty": 7,
     "ac": 17,
@@ -22474,6 +22790,7 @@
   {
     "id": "5e-srd-young-gold-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young Gold Dragon",
     "difficulty": 10,
     "ac": 18,
@@ -22553,6 +22870,7 @@
   {
     "id": "5e-srd-young-green-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young Green Dragon",
     "difficulty": 8,
     "ac": 18,
@@ -22636,6 +22954,7 @@
   {
     "id": "5e-srd-young-red-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young Red Dragon",
     "difficulty": 10,
     "ac": 18,
@@ -22711,6 +23030,7 @@
   {
     "id": "5e-srd-young-silver-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young Silver Dragon",
     "difficulty": 9,
     "ac": 18,
@@ -22786,6 +23106,7 @@
   {
     "id": "5e-srd-young-white-dragon",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Young White Dragon",
     "difficulty": 6,
     "ac": 17,
@@ -22865,6 +23186,7 @@
   {
     "id": "5e-srd-zombie",
     "source": "5e-srd",
+    "homebrew": false,
     "name": "Zombie",
     "difficulty": 0.25,
     "ac": 8,

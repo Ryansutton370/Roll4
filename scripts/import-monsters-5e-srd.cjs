@@ -5,6 +5,13 @@
 // into every MonsterTemplate's own attribution, and the same text surfaced
 // in the app's Credits section (see name-generator.html).
 //
+// DO NOT RE-RUN this against the current monsters-5e-srd.json without
+// checking first — that file is now the GM-editable source directly (see
+// ARCHITECTURE.md), and re-running this would silently discard anything
+// added/edited in it since (including any `homebrew: true` monster —
+// see MonsterTemplate in DATA_MODEL.md), on top of re-fetching a live API
+// whose contents aren't guaranteed to match what was originally imported.
+//
 // Usage: node scripts/import-monsters-5e-srd.cjs [output-path]
 
 const path = require('node:path');

@@ -315,6 +315,22 @@ button[type='submit']:disabled {
   }
 }
 
+/* The Add Combatant dialog (add-combatant-dialog.css) is capped at 24rem
+   wide regardless of viewport size, so it's just as cramped on a wide
+   desktop window as combatant-fields.css's own max-width:480px case — the
+   Name field needs its own line there too, not only on phone-width
+   viewports. Plain global CSS so it reaches into CombatantFields' template
+   past its view-encapsulation boundary, same reasoning as the .entry-form
+   rules above. Three simple selectors (not two) so this outweighs
+   combatant-fields.css's own `.name-field-wrapper` rule — Angular's
+   emulated encapsulation adds a hidden attribute selector to every rule in
+   that scoped stylesheet, quietly making its specificity match a plain
+   two-class override like this would be. */
+.add-dialog form.entry-form .name-field-wrapper {
+  flex-basis: 100%;
+  min-width: 0;
+}
+
 fieldset {
   margin: 0;
   padding: 0.75rem 1rem;

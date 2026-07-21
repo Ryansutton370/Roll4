@@ -290,6 +290,14 @@
   width: 2.4rem;
 }
 
+.notes-stat {
+  width: 2.4rem;
+}
+
+.stat-block-stat {
+  width: 2.4rem;
+}
+
 /* AC/Initiative badge: a solid icon with the value reversed (white) and
    centered on top of it, rather than icon-then-text side by side. Sized to
    comfortably fit two-digit values (AC 18, Initiative 23) — bigger than the
@@ -330,6 +338,61 @@
    so it still fits inside the same badge instead of overflowing it. */
 .badge-value.na {
   font-size: 0.5rem;
+}
+
+/* Notes and View Stat Block: same footprint as .badge-icon above (AC/
+   Initiative) — "just as big as the shield icon, heart icon" — but as a
+   real <button> (they're actions, not read-only values) and with no
+   .badge-value overlay, since neither has a number to reverse-print on
+   top of the icon. */
+.icon-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.icon-badge-btn svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.icon-badge-btn:hover:not(:disabled) {
+  background: var(--color-removed-tint);
+}
+
+.icon-badge-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Muted (no notes yet, "Add Notes") vs. dark (has notes, "See Notes") —
+   same has-notes-driven state CombatantFields' own Notes toggle uses (see
+   .field-icon-notes.has-notes in combatant-fields.css), so the two forms
+   of the same field read consistently wherever a GM encounters them. */
+.notes-badge-btn {
+  color: var(--color-text-muted);
+}
+
+.notes-badge-btn.has-notes {
+  color: var(--color-text);
+}
+
+.stat-block-badge-btn {
+  color: var(--color-text-muted);
+}
+
+.stat-block-badge-btn:hover:not(:disabled) {
+  color: var(--color-text);
 }
 
 /* The fixed-width flex item + position: relative containing block both
@@ -497,51 +560,6 @@
   width: 6rem;
 }
 
-.notes-stat {
-  width: 8rem;
-  padding: 0.1rem 0.3rem;
-  border-radius: var(--radius-control);
-  cursor: pointer;
-  /* Only color/background transition now — animating width here (the old
-     hover-to-expand behavior) forced a layout reflow on every pointer
-     move across the list, which is what caused the stutter this replaced. */
-  transition: background-color var(--transition-fast);
-}
-
-/* Hover no longer expands the note — it's just an affordance hinting that
-   the icon/text is clickable. Actual reveal only happens via .revealed
-   (click/tap, toggled in combatant-bubble.ts), which is cheap because it
-   only ever fires on an explicit click, not on every pointer move. */
-.notes-stat:hover {
-  background: var(--color-removed-tint);
-}
-
-.notes-text {
-  overflow: hidden;
-  min-width: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Expanding (click/tap, toggled via notesRevealed() in combatant-bubble.ts)
-   lifts the fixed width and lets the text wrap onto as many lines as it
-   needs — this is the "temporary" growth PRODUCT.md describes: the bubble
-   is compact by default and only grows while the GM is actually looking at
-   the note, snapping back to the same fixed width as every other bubble's
-   Notes column once they click away or click the icon/text again. Capped
-   at 20rem so one very long note can't blow the bubble out indefinitely. */
-.notes-stat.revealed {
-  width: auto;
-  max-width: 20rem;
-  background: var(--color-removed-tint);
-}
-
-.notes-stat.revealed .notes-text {
-  overflow: visible;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
 /* ---------------------------------------------------------------------
    Responsive truncation ladder — @container, not @media. A viewport media
    query only fires based on the whole page's width, but this bubble can
@@ -550,36 +568,24 @@
    `container-type: inline-size` on .main-combatant/.held-bubble in
    encounter-detail.css) — @container measures the bubble's own rendered
    width instead, so it fires whenever the row is actually tight, desktop
-   or mobile alike. Each tier below only spends its width savings once the
-   previous tier's wasn't enough — Notes first (least essential, and
-   already click-to-reveal so nothing is lost), then the HP bar (redundant
-   with the numbers next to it), then the Name, and only as an absolute
-   last resort reordering onto two lines. The bubble should never wrap
-   while any of these are still available to reclaim space instead.
+   or mobile alike. Notes and View Stat Block no longer have a tier here —
+   both are now fixed-size icon buttons rather than variable-width inline
+   content (see .notes-stat/.icon-badge-btn above), so there's nothing left
+   about them to collapse; only the HP bar and Name still have anything to
+   give up. Each tier below only spends its width savings once the previous
+   tier's wasn't enough — the HP bar first (redundant with the numbers next
+   to it), then the Name, and only as an absolute last resort reordering
+   onto two lines. The bubble should never wrap while either is still
+   available to reclaim space instead.
 
    Deliberately placed at the END of the file, after every base rule it
-   overrides (.notes-stat, .hp-bar, .combatant-name, etc.) — a @container
-   rule doesn't automatically outrank a plain rule of equal specificity;
-   when both match, the LATER one in source order wins, container query or
-   not. Putting this block first (as it originally was, right after
-   .row-break) meant the plain .hp-bar/.notes-stat rules further down the
-   file were silently winning back everything this was supposed to hide.
+   overrides (.hp-bar, .combatant-name, etc.) — a @container rule doesn't
+   automatically outrank a plain rule of equal specificity; when both
+   match, the LATER one in source order wins, container query or not.
+   Putting this block first (as it originally was, right after .row-break)
+   meant the plain rules further down the file were silently winning back
+   everything this was supposed to hide.
    --------------------------------------------------------------------- */
-
-/* Notes: icon-only, full text only reachable via the existing
-   click-to-reveal (.revealed, see toggleNotesRevealed() in
-   combatant-bubble.ts) — :not(.revealed) so a note the GM already has open
-   stays open even if the container is this narrow. */
-@container (max-width: 36rem) {
-  .notes-stat:not(.revealed) {
-    width: 1.6rem;
-    padding: 0.1rem;
-  }
-
-  .notes-stat:not(.revealed) .notes-text {
-    display: none;
-  }
-}
 
 /* HP bar: purely redundant with the numbers right next to it (same
    information, just visual) — the first real pixels to give up once Notes
@@ -602,6 +608,43 @@
 @container (max-width: 24rem) {
   .combatant-name:not(.name-expanded) {
     flex-basis: 3.5rem;
+  }
+}
+
+/* AC/HP/Notes/View-Stat-Block/Initiative badges: shrunk from 2.15rem to
+   1.7rem. Verified live that a genuinely narrow phone (375px) still
+   2-line-wraps even with every tier above already applied — four
+   full-size 2.15rem badges (AC, Notes, View Stat Block, Initiative) plus
+   HP plus Name simply don't fit in ~350px of real container width. This
+   keeps the "just as big as the shield/heart icons" sizing at every width
+   down to this tier, and only trades it away for single-line-ness once
+   the alternative is genuinely wrapping onto two lines regardless. Has to
+   sit at a WIDER max-width than the two-line-wrap tier below (23rem vs.
+   22rem) — @container tiers don't try narrower ones only after wider ones
+   fail, every matching tier applies at once, so shrinking has to already
+   be in effect *before* the wrap threshold is reached for it to ever have
+   a chance to prevent that wrap. */
+@container (max-width: 23rem) {
+  .badge-icon,
+  .icon-badge-btn {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .icon-badge-btn svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .badge-value {
+    font-size: 0.65rem;
+  }
+
+  .ac-stat,
+  .init-stat,
+  .notes-stat,
+  .stat-block-stat {
+    width: 1.9rem;
   }
 }
 

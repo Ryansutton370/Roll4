@@ -474,7 +474,7 @@ input[type='text'].timer-name-input:focus {
 }
 
 .setup-list-header .notes-heading-spacer {
-  width: 8rem;
+  width: 2.4rem;
   flex-shrink: 0;
 }
 
@@ -609,37 +609,53 @@ input[type='text'].timer-name-input:focus {
 }
 
 .notes-stat {
-  width: 8rem;
-  padding: 0.1rem 0.3rem;
+  width: 2.4rem;
+}
+
+/* Notes and View Stat Block: same .icon-badge-btn/.notes-badge-btn/
+   .stat-block-badge-btn treatment as combatant-bubble.css's own badges —
+   duplicated here for the same view-encapsulation reason as the rest of
+   this row (see the comment above the setup list's stat icons in
+   encounter-detail.html). */
+.icon-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex-shrink: 0;
+  border: none;
   border-radius: var(--radius-control);
+  background: transparent;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
-.notes-stat:hover {
+.icon-badge-btn svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.icon-badge-btn:hover {
   background: var(--color-removed-tint);
 }
 
-.notes-text {
-  overflow: hidden;
-  min-width: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.notes-badge-btn {
+  color: var(--color-text-muted);
 }
 
-/* Same click-to-expand precedent as combatant-bubble.css's
-   .notes-stat.revealed — temporary growth while the GM is looking at it,
-   collapsed back via EncounterDetail.collapseSetupNotesOnClickAway. */
-.notes-stat.revealed {
-  width: auto;
-  max-width: 20rem;
-  background: var(--color-removed-tint);
+.notes-badge-btn.has-notes {
+  color: var(--color-text);
 }
 
-.notes-stat.revealed .notes-text {
-  overflow: visible;
-  white-space: normal;
-  overflow-wrap: anywhere;
+.stat-block-badge-btn {
+  color: var(--color-text-muted);
+}
+
+.stat-block-badge-btn:hover {
+  color: var(--color-text);
 }
 
 .status-icon {
@@ -1093,12 +1109,46 @@ input[type='text'].timer-name-input:focus {
 }
 
 .removed-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   margin: 0 0 0.6rem;
   color: var(--color-text-muted);
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+/* "?" info icon next to the Ready to Join heading — hover/focus shows the
+   native `title` tooltip explaining the join-now-vs-next-round behavior
+   (same free-native-tooltip approach as combatant-bubble's name truncation,
+   rather than a custom tooltip component). Un-does the heading's uppercase/
+   letter-spacing since those are inherited and would otherwise stretch a
+   single "?" glyph. */
+.info-tooltip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid var(--color-text-muted);
+  border-radius: 50%;
+  padding: 0;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1;
+  cursor: help;
+}
+
+.info-tooltip-btn:hover,
+.info-tooltip-btn:focus-visible {
+  border-color: var(--color-text);
+  color: var(--color-text);
 }
 
 .removed-list {

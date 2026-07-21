@@ -1,0 +1,1555 @@
+[
+  {
+    "id": "treasure-trinkets",
+    "setName": "Treasure",
+    "tableName": "Trinkets",
+    "entries": [
+      {
+        "text": "A small, square iron mirror",
+        "detail": null
+      },
+      {
+        "text": "A set of carved stone dice",
+        "detail": null
+      },
+      {
+        "text": "A gold and silver drinking stein",
+        "detail": null
+      },
+      {
+        "text": "A dark wood ornamental bow decorated with silver and bronze",
+        "detail": null
+      },
+      {
+        "text": "A small obsidian statue of a horse",
+        "detail": null
+      },
+      {
+        "text": "A pair of carved wooden cuff links",
+        "detail": null
+      },
+      {
+        "text": "A fanciful and exaggerated map of the world painted on leather canvas",
+        "detail": null
+      },
+      {
+        "text": "A pair of tribal bamboo plug earrings",
+        "detail": null
+      },
+      {
+        "text": "A decorative gold, bronze and amethyst lantern",
+        "detail": null
+      },
+      {
+        "text": "An engraved copper ring",
+        "detail": null
+      },
+      {
+        "text": "A set of four silver horse shoes",
+        "detail": null
+      },
+      {
+        "text": "A tall, curved jade vase",
+        "detail": null
+      },
+      {
+        "text": "A crocheted wire sculpture of a portly vase",
+        "detail": null
+      },
+      {
+        "text": "A broken silver beaded filigree ear stud",
+        "detail": null
+      },
+      {
+        "text": "A steel belt buckle with a golden hammer",
+        "detail": null
+      },
+      {
+        "text": "A mixed leopard and horse statue with its body clad in gilded filigree",
+        "detail": null
+      },
+      {
+        "text": "A rune carved drinking horn",
+        "detail": null
+      },
+      {
+        "text": "A deed to a cemetery plot",
+        "detail": null
+      },
+      {
+        "text": "A small bone carving of a snake and a turtle",
+        "detail": null
+      },
+      {
+        "text": "An engraved silver ring",
+        "detail": null
+      },
+      {
+        "text": "A string of pearl and coral beads",
+        "detail": null
+      },
+      {
+        "text": "An old and well-preserved book of children's fairy tales",
+        "detail": null
+      },
+      {
+        "text": "A silver necklace of a dragon with three ruby eyes",
+        "detail": null
+      },
+      {
+        "text": "A silver coffer with a secret drawer",
+        "detail": null
+      },
+      {
+        "text": "A blue leather noble's hat with silver silk bands and a silver feather",
+        "detail": null
+      },
+      {
+        "text": "A small ivory statue of a human female",
+        "detail": null
+      },
+      {
+        "text": "A commemorative gold coin of a local political icon",
+        "detail": null
+      },
+      {
+        "text": "A heavy cloak trimmed with spider fur",
+        "detail": null
+      },
+      {
+        "text": "A fine, white leather cloak covered in thick white fur",
+        "detail": null
+      },
+      {
+        "text": "An engraved gold ring",
+        "detail": null
+      },
+      {
+        "text": "A leather tunic lined with red velvet",
+        "detail": null
+      },
+      {
+        "text": "A sequined squid skin belt pouch",
+        "detail": null
+      },
+      {
+        "text": "A pair of gold and silver boots",
+        "detail": null
+      },
+      {
+        "text": "A fine black leather scabbard with eight yellow gemstones and locking straps",
+        "detail": null
+      },
+      {
+        "text": "A half-mask engraved decorated with gold",
+        "detail": null
+      },
+      {
+        "text": "A bronze bracelet with several bird charms",
+        "detail": null
+      },
+      {
+        "text": "A leather bound metal flask of squid ink",
+        "detail": null
+      },
+      {
+        "text": "A set of three decorative hand carved green wax candles",
+        "detail": null
+      },
+      {
+        "text": "A small statue of an angelic woman made from gold plated iron",
+        "detail": null
+      },
+      {
+        "text": "A small engraved platinum ring",
+        "detail": null
+      },
+      {
+        "text": "A scroll case made of carved bone with leather caps",
+        "detail": null
+      },
+      {
+        "text": "A tall silver plated candle holder shaped like a dragon's claw",
+        "detail": null
+      },
+      {
+        "text": "A cracked bowl crafted from a humanoid skull",
+        "detail": null
+      },
+      {
+        "text": "A set of four cast iron cooking pots",
+        "detail": null
+      },
+      {
+        "text": "A necklace made of fake silver, decorated with imitation amethysts and rubies",
+        "detail": null
+      },
+      {
+        "text": "A tall metal vase decorated with hundreds of tiny metal eyes",
+        "detail": null
+      },
+      {
+        "text": "A hand painted set of playing cards",
+        "detail": null
+      },
+      {
+        "text": "A small round silver bird pendant with a long gold chain",
+        "detail": null
+      },
+      {
+        "text": "A pair of matching heart shaped silver lockets",
+        "detail": null
+      },
+      {
+        "text": "An engraved adamantine ring",
+        "detail": null
+      },
+      {
+        "text": "A large, oval shaped silver mirror with a pearl handle",
+        "detail": null
+      },
+      {
+        "text": "A set of thin gold inlaid reading spectacles",
+        "detail": null
+      },
+      {
+        "text": "A small silver and golden helmet",
+        "detail": null
+      },
+      {
+        "text": "A stuffed bear made from real bear fur",
+        "detail": null
+      },
+      {
+        "text": "A silver locket with a tiny key inside",
+        "detail": null
+      },
+      {
+        "text": "A ceremonial gold dagger",
+        "detail": null
+      },
+      {
+        "text": "A small wooden night stand with green velvet lined drawers",
+        "detail": null
+      },
+      {
+        "text": "A set of antique copper cookware",
+        "detail": null
+      },
+      {
+        "text": "A small sterling silver filigree horse and buggy statue",
+        "detail": null
+      },
+      {
+        "text": "A pair of silver hoop earrings",
+        "detail": null
+      },
+      {
+        "text": "A hand carved wooden jewelry box with silver filigree",
+        "detail": null
+      },
+      {
+        "text": "A gold bracelet with rose, feather and crystal shaped charms",
+        "detail": null
+      },
+      {
+        "text": "A deed to a small apple orchard",
+        "detail": null
+      },
+      {
+        "text": "A gold plated woman's comb",
+        "detail": null
+      },
+      {
+        "text": "A silver and bronze chalice",
+        "detail": null
+      },
+      {
+        "text": "A large carved wooden statue of a blow fish",
+        "detail": null
+      },
+      {
+        "text": "An antique and inaccurate brass globe",
+        "detail": null
+      },
+      {
+        "text": "A leather choker with short gold spikes",
+        "detail": null
+      },
+      {
+        "text": "A decorative iron torch inlaid with gold",
+        "detail": null
+      },
+      {
+        "text": "A pair of simple gold earrings",
+        "detail": null
+      },
+      {
+        "text": "A gold plated leaf sculpture",
+        "detail": null
+      },
+      {
+        "text": "An ancient copper coin engraved with the image of a dragon",
+        "detail": null
+      },
+      {
+        "text": "A platinum bell engraved with golden horses",
+        "detail": null
+      },
+      {
+        "text": "A necklace of carved knuckle bones",
+        "detail": null
+      },
+      {
+        "text": "An exotic green and yellow sequined silk night gown",
+        "detail": null
+      },
+      {
+        "text": "A stained glass painting of butterflies",
+        "detail": null
+      },
+      {
+        "text": "A dark leather and silk monsterous mask with jet eyes",
+        "detail": null
+      },
+      {
+        "text": "A set of platinum silverware",
+        "detail": null
+      },
+      {
+        "text": "A large gold ring with an opal gem in a clawed setting",
+        "detail": null
+      },
+      {
+        "text": "A pair of platinum stud earrings",
+        "detail": null
+      },
+      {
+        "text": "A set of seven humanoid shaped obsidian pendants",
+        "detail": null
+      },
+      {
+        "text": "A large tapestry depicting an ancient battle with tentacled monsters",
+        "detail": null
+      },
+      {
+        "text": "An ornamental wooden long sword",
+        "detail": null
+      },
+      {
+        "text": "A long leather jerkin with silver studs and gold stars",
+        "detail": null
+      },
+      {
+        "text": "A hand carved tribal smoking pipe",
+        "detail": null
+      },
+      {
+        "text": "A large canvas painting of a noble",
+        "detail": null
+      },
+      {
+        "text": "A stone chalice carved with runes",
+        "detail": null
+      },
+      {
+        "text": "A small wood carving of a frog and an eagle",
+        "detail": null
+      },
+      {
+        "text": "A set of five gold lined ceramic plates",
+        "detail": null
+      },
+      {
+        "text": "A set of adamantine bangle earrings",
+        "detail": null
+      },
+      {
+        "text": "A set of four gold plated bowls",
+        "detail": null
+      },
+      {
+        "text": "A gold toe ring with channel set emeralds",
+        "detail": null
+      },
+      {
+        "text": "A small obsidian horse headed idol with peridot eyes",
+        "detail": null
+      },
+      {
+        "text": "An ivory scroll case with silk bands and silver plated caps",
+        "detail": null
+      },
+      {
+        "text": "A red and black leather cap with white and gold feathers",
+        "detail": null
+      },
+      {
+        "text": "A platinum dish with gilded engravings",
+        "detail": null
+      },
+      {
+        "text": "A dusty and unopened bottle of black label red wine",
+        "detail": null
+      },
+      {
+        "text": "A small red stone statue of a fat wise man",
+        "detail": null
+      },
+      {
+        "text": "A set of carved ivory dice",
+        "detail": null
+      },
+      {
+        "text": "A pair of small diamond earrings",
+        "detail": null
+      },
+      {
+        "text": "A bag of 99 white marbles and one black",
+        "detail": null
+      },
+      {
+        "text": "A roc's feather",
+        "detail": null
+      },
+      {
+        "text": "A soldier doll of an anicent empire",
+        "detail": null
+      },
+      {
+        "text": "Wooden puzzle box",
+        "detail": null
+      },
+      {
+        "text": "An old ransom note",
+        "detail": null
+      },
+      {
+        "text": "An obsidian icon of a forgotten deity",
+        "detail": null
+      },
+      {
+        "text": "A flute carved from white ash",
+        "detail": null
+      },
+      {
+        "text": "A scroll with an unfinished spell",
+        "detail": null
+      },
+      {
+        "text": "A leather neclace lined with troll fangs",
+        "detail": null
+      },
+      {
+        "text": "A heavy chunk of magnetic meteor",
+        "detail": null
+      },
+      {
+        "text": "Tools made from bone",
+        "detail": null
+      },
+      {
+        "text": "Bag of mummified frogs",
+        "detail": null
+      },
+      {
+        "text": "Clam containing a large pearl",
+        "detail": null
+      },
+      {
+        "text": "A well-tuned harp",
+        "detail": null
+      },
+      {
+        "text": "A pair of old books written in a dead language",
+        "detail": null
+      },
+      {
+        "text": "A pair of loaded dice",
+        "detail": null
+      },
+      {
+        "text": "A small, alien skeleton",
+        "detail": null
+      },
+      {
+        "text": "A broken sword hilt with strange runes on the blade's remains",
+        "detail": null
+      },
+      {
+        "text": "A small box filled with coffee beans",
+        "detail": null
+      },
+      {
+        "text": "A pair of copper snake earings",
+        "detail": null
+      },
+      {
+        "text": "An acorn-like seed to an extinct species of tree",
+        "detail": null
+      },
+      {
+        "text": "Silver ink",
+        "detail": null
+      },
+      {
+        "text": "Cloak lined with blue fur",
+        "detail": null
+      },
+      {
+        "text": "Silver hand bells",
+        "detail": null
+      },
+      {
+        "text": "Casks of ancient wine",
+        "detail": null
+      },
+      {
+        "text": "Ivory hair comb",
+        "detail": null
+      },
+      {
+        "text": "Ornately carved shaving razor",
+        "detail": null
+      },
+      {
+        "text": "A pair of Punch and Judy puppets",
+        "detail": null
+      },
+      {
+        "text": "A wooden leg",
+        "detail": null
+      },
+      {
+        "text": "Ceramic tea set",
+        "detail": null
+      },
+      {
+        "text": "Rabbit-fur pouch filled with herbs",
+        "detail": null
+      },
+      {
+        "text": "Bronze-banded walking stick",
+        "detail": null
+      },
+      {
+        "text": "Quiver made from young dragon skin",
+        "detail": null
+      },
+      {
+        "text": "A faberge dragon egg",
+        "detail": null
+      },
+      {
+        "text": "Ivory elephant statue with emerald eyes",
+        "detail": null
+      },
+      {
+        "text": "Small golden whistle shaped like a sparrow",
+        "detail": null
+      },
+      {
+        "text": "A silk scarf embroidered with unicorns",
+        "detail": null
+      },
+      {
+        "text": "An elfhair wreath",
+        "detail": null
+      },
+      {
+        "text": "A white feather fan",
+        "detail": null
+      },
+      {
+        "text": "Wide golden belt",
+        "detail": null
+      },
+      {
+        "text": "Dentures with gold teeth",
+        "detail": null
+      },
+      {
+        "text": "Box of copper nails",
+        "detail": null
+      },
+      {
+        "text": "Spool of fine gold wire",
+        "detail": null
+      },
+      {
+        "text": "Golden bracelet etched with dancing bears",
+        "detail": null
+      },
+      {
+        "text": "Silver hand mirror with gold vines",
+        "detail": null
+      },
+      {
+        "text": "Fur lined boots embroidered with colorful designs",
+        "detail": null
+      },
+      {
+        "text": "An ivory bottle-stopper in the shape of a woman",
+        "detail": null
+      },
+      {
+        "text": "Bolts of white silk",
+        "detail": null
+      },
+      {
+        "text": "Glass eye with amethyst iris",
+        "detail": null
+      },
+      {
+        "text": "Bone buttons carved with crossed swords",
+        "detail": null
+      },
+      {
+        "text": "Flower pin made from glass",
+        "detail": null
+      },
+      {
+        "text": "Bouquet of silk flowers",
+        "detail": null
+      },
+      {
+        "text": "Envelope of gold dust",
+        "detail": null
+      },
+      {
+        "text": "Set of bone game pieces",
+        "detail": null
+      },
+      {
+        "text": "Plague doctor mask",
+        "detail": null
+      },
+      {
+        "text": "Foreign tapestry depicting a coronation",
+        "detail": null
+      },
+      {
+        "text": "Perfume vial",
+        "detail": null
+      },
+      {
+        "text": "Fine silk shirt",
+        "detail": null
+      },
+      {
+        "text": "Deed for 30 acres of farmland",
+        "detail": null
+      },
+      {
+        "text": "Drinking horn rimmed with gold",
+        "detail": null
+      },
+      {
+        "text": "Necklace of ancient coins",
+        "detail": null
+      },
+      {
+        "text": "Serpent armband",
+        "detail": null
+      },
+      {
+        "text": "White rope of braided horsehair",
+        "detail": null
+      },
+      {
+        "text": "Black statuette of a woman feeding crows",
+        "detail": null
+      },
+      {
+        "text": "Leather sack of purple salt",
+        "detail": null
+      },
+      {
+        "text": "Small bottle of saffron",
+        "detail": null
+      },
+      {
+        "text": "Pouch of fine tobacco",
+        "detail": null
+      },
+      {
+        "text": "Long stemmed pipe",
+        "detail": null
+      },
+      {
+        "text": "Iron pagan amulet",
+        "detail": null
+      },
+      {
+        "text": "Incense",
+        "detail": null
+      },
+      {
+        "text": "Lute",
+        "detail": null
+      },
+      {
+        "text": "Polished stone spheres",
+        "detail": null
+      },
+      {
+        "text": "Crystal ball on silver stand",
+        "detail": null
+      },
+      {
+        "text": "A pouch of foreign coins",
+        "detail": null
+      },
+      {
+        "text": "Fine silverware in wooden case",
+        "detail": null
+      },
+      {
+        "text": "A vial of blood",
+        "detail": null
+      },
+      {
+        "text": "A blanket embroidered with horses",
+        "detail": null
+      },
+      {
+        "text": "A sundial carved from foreign stone",
+        "detail": null
+      },
+      {
+        "text": "A length of silver chain",
+        "detail": null
+      },
+      {
+        "text": "A pickled pheonix egg",
+        "detail": null
+      },
+      {
+        "text": "A page from a beastiary",
+        "detail": null
+      },
+      {
+        "text": "A dried lizard",
+        "detail": null
+      },
+      {
+        "text": "A shrunken head",
+        "detail": null
+      },
+      {
+        "text": "A massive scale, perhaps from a dragon",
+        "detail": null
+      },
+      {
+        "text": "A bag of human teeth",
+        "detail": null
+      },
+      {
+        "text": "A rope necklace of elf ears",
+        "detail": null
+      },
+      {
+        "text": "A can of ambigious rations",
+        "detail": null
+      },
+      {
+        "text": "A decorative fan",
+        "detail": null
+      },
+      {
+        "text": "A sewing needle made from an unknown metal",
+        "detail": null
+      },
+      {
+        "text": "A spool of copper wire",
+        "detail": null
+      },
+      {
+        "text": "A bronze urn containing ashes",
+        "detail": null
+      },
+      {
+        "text": "A dead scarab beetle",
+        "detail": null
+      },
+      {
+        "text": "A hat with a bird sewn into it",
+        "detail": null
+      },
+      {
+        "text": "Anatomical illustration of a monster",
+        "detail": null
+      },
+      {
+        "text": "A cast iron fly-shaped pin brooch",
+        "detail": null
+      },
+      {
+        "text": "A chunk of amber with a mosquito in it",
+        "detail": null
+      },
+      {
+        "text": "A cannonball",
+        "detail": null
+      },
+      {
+        "text": "A false dwarf beard",
+        "detail": null
+      },
+      {
+        "text": "A set of strange, twisted fishing hooks",
+        "detail": null
+      },
+      {
+        "text": "A stone frog",
+        "detail": null
+      }
+    ]
+  },
+  {
+    "id": "treasure-wondrous-items",
+    "setName": "Treasure",
+    "tableName": "Wondrous Items",
+    "entries": [
+      {
+        "text": "Air Spores",
+        "detail": "When these spores are ingested, they settle into the host’s lungs and provide oxygen. The host no longer suffers penalties surrounding breath - poisonous gas, drowning underwater, etc. However, the spores hinder the character's normal respiration, causing all CON Attribute Tests to be rolled with Disadvantage."
+      },
+      {
+        "text": "Bag of Beans",
+        "detail": "Small pouch containing 1d6 magical beans - each varying wildly in appearance. When planted and watered, a Wild Magic effect will occur in 1d10 Minutes."
+      },
+      {
+        "text": "Bag of Bones",
+        "detail": "When the bones are scattered and a word of command is spoken, a squadron of 1d10 Skeletons emerges from the ground and obeys the bag’s user unconditionally for 1d4 turns before falling apart."
+      },
+      {
+        "text": "Beads of Force",
+        "detail": "Small bag containing 1d6 black beads, when thrown or struck, burst in a pulse of force, dealing 5d4 damage to anything close to its impact."
+      },
+      {
+        "text": "Dorian’s Antipolymorphic Portrait Frame",
+        "detail": "A small hand-sized frame with brass folding cover - painting the subject within the frame protects them from Polymorph and other transformation effects, the painting depicts the would-be changes instead. The painting does not need to be masterful, only done with sincerity."
+      },
+      {
+        "text": "Folding Boat",
+        "detail": "Unremarkable wooden chest decorated with runes of sailing - when the locking mechanism is turned the opposite way, it expands into a large canoe that can comfortably seat 4."
+      },
+      {
+        "text": "Blessed Book",
+        "detail": "Bound book of suspiciously high quality leather - essentially indestructible, waterproof, fireproof, etc. Very valued for spellbooks."
+      },
+      {
+        "text": "Arboreal Armoury",
+        "detail": "A packet of seeds - when planted, a tree sprouts the next day bearing mundane weapons and simple armor."
+      },
+      {
+        "text": "Bountiful Spade",
+        "detail": "Planting with this spade will produce a healthy crop in all but the most extreme of worst conditions. Planting the resulting crops has a small chance of yielding more spades."
+      },
+      {
+        "text": "Waterlife Bowl",
+        "detail": "Water poured into this bowl will become a small Water Elemental with a word of summoning."
+      },
+      {
+        "text": "Transport Boxes",
+        "detail": "Two small boxes - mundane objects placed in one will appear instantly in the other. Magical objects will teleport to a random location."
+      },
+      {
+        "text": "Firelife Brazier",
+        "detail": "When a fire is lit in this brazier, it becomes a small Fire Elemental with a word of summoning."
+      },
+      {
+        "text": "Bridle of Calming",
+        "detail": "When applied to a horse or other mount, that creature is immune to effects of fear or panic."
+      },
+      {
+        "text": "Magic Broom",
+        "detail": "The broom will allow its user to fly for one night after performing a worthy wicked deed, or if they have applied Witch Salve or Hagsoil to their bodies. Alternatively the broom can be commanded to sweep a room on its own. It has a 50% chance of rebelling, saying “I am not your broom, I am not your broom, I’ve had enough, I'm taking off these chains of servitude. I am not your broom, I am not your broom, no longer must I sweep for you for I am not your broom.”"
+      },
+      {
+        "text": "Collapsible Cage",
+        "detail": "A small birdcage, when activated, expands into a 5’ x 5’ barred cell."
+      },
+      {
+        "text": "Everburning Candle",
+        "detail": "The flame of this candle will not go out, ever, it will stay lit in any condition, even underwater. The light permeates dimly through anything trying to cover it."
+      },
+      {
+        "text": "Assassin’s Candle",
+        "detail": "Spend one night staring at the candle, concentrating on your target and shaping the wax into an effigy of them. Once prepped, if the target is within the light of the candle, all Sneak Attacks made against them are rolled with Advantage."
+      },
+      {
+        "text": "Windlife Weathervane",
+        "detail": "A strong wind blowing into this weathervane will become a small Air Elemental after a word of summoning."
+      },
+      {
+        "text": "Otherworldly Favor",
+        "detail": "Often given as a gift to faithful devotees, this small icon of a spirit, demon, fairie, etc. can be exchanged for one minor supernatural favor, like a limited Wish spell. Only something within the domain of the spirit can be granted - a river spirit could flood or dam a river, for example, but an angel of mercy would not strike down a righteous person."
+      },
+      {
+        "text": "Antimagic Chime",
+        "detail": "When struck, no magic spell can be cast within hearing range of this chime for 1d3 minutes. Lasts for 1d4 charges."
+      },
+      {
+        "text": "Devil’s Pact Paper",
+        "detail": "When a contract is written on this paper and signed, the first party to break the terms of the contract is rewarded with treasures. Fine print outlining this clause is written in letter that appear when the paper is held over open flame."
+      },
+      {
+        "text": "Fairy Steed Whistle",
+        "detail": "When blown, a mount you have bonded with will race to your location through the fairy woods, appearing magically at your location in 1d4 minutes. If your mount has been captured or incapacitated, the whistle blows a discordant note."
+      },
+      {
+        "text": "Crucible of Melting",
+        "detail": "Metal placed into this bowl melts without fire or heat necessary once a command word is spoken, over 1d6 Minutes."
+      },
+      {
+        "text": "Turtleshell Island",
+        "detail": "When this turtle shell is thrown into open water, it expands into a small island about 30’ across. In smaller bodies of water, it expands into a floating platform large enough to support a single person at a time."
+      },
+      {
+        "text": "Aetherdust",
+        "detail": "Coating a weapon with this powder allows the weapon to damage ghosts and other incorporeal enemies as normal."
+      },
+      {
+        "text": "Fairy Spyglass",
+        "detail": "This folding telescope is actually a collapsable microscope - allowing its user to see 1 foot ahead at 100 times clarity."
+      },
+      {
+        "text": "Dragonskin Drum",
+        "detail": "When played, this drum booms with extreme bass, strong enough to rattle anything nearby, ripple bodies of water, shake loose leaves from trees, and trigger avalanches where appropriate."
+      },
+      {
+        "text": "Dry Bones",
+        "detail": "When these bone fragments are thrown into water, they absorb a massive amount of water and expand dramatically. One fragment can absorb a full barrel of water, and grows to roughly the size of a barrel itself. The bones then crack and crumble into dust. Do not inhale."
+      },
+      {
+        "text": "Flumph Powder",
+        "detail": "Anyone within nearby Distance to this powder who breathes it in temporarily loses 1D10 INT, and spells take 1d4 turns to cast."
+      },
+      {
+        "text": "Eversmoking Pipe",
+        "detail": "When lit and smoked, this pipe produces a cloud of smoke large enough to densely fill a close space and obscure a near space. Only by emptying the pipe or submerging it in water will end its constant outpour of smoke."
+      },
+      {
+        "text": "Wild Whistle",
+        "detail": "Once per Day, this whistle can be reshaped into the form of any animal - so long as it remains in this shape, it can perfectly mimic that animal’s call."
+      },
+      {
+        "text": "Bubble Pipe",
+        "detail": "When lit, this pipe produces breathable air bubbles instead of smoke, which can be inhaled to supply someone with enough air to last 3 minutes."
+      },
+      {
+        "text": "Gnomish Mouse Cart",
+        "detail": "When a mouse or rat is secured in the harness of this miniature cart, it expands to the size of a normal cart, engineered so precisely that the still-regular sized rodent is able to pull it as a donkey or mule might."
+      },
+      {
+        "text": "Silverware of Poison Detection",
+        "detail": "When this fork, knife, or spoon encounters poisoned food, it bursts into flames as a warning to the would-be victim - the color of the flame can be used to indicate what sort of poison it detected."
+      },
+      {
+        "text": "Binding Contract Paper",
+        "detail": "If a contract is signed on this paper, any party who violates the terms of the contract suffers from the effects of Panic at the start of every day until they restore good standing."
+      },
+      {
+        "text": "Amulet of Dramatic Death Defiance",
+        "detail": "When the wearer would normally be taken out by a specific kind of attack (and only that specific kind of attack), the wearer instead becomes invisible for 1d4 turns and an advanced illusion takes the place of their corpse."
+      },
+      {
+        "text": "Amulet of Inescapable Location",
+        "detail": "This appears to be a ward against scrying and other kinds of supernatural observation and detection - however, it actually acts as a beacon to those who are aware of its true nature."
+      },
+      {
+        "text": "Weaponcharm Bracelet",
+        "detail": "When this bracelet is slid over a non-magical weapon and the command word engraved on it is spoken, the weapon shrinks into a gold or silver decorative charm replica of itself. It returns to its original size in the wielder’s hand instantly when the command word is spoken again. Up to four weapons can be held this way."
+      },
+      {
+        "text": "Bracelet of Bowcraft",
+        "detail": "Once per Day, your DEX increases by +2 when using a bow, up to 19."
+      },
+      {
+        "text": "Trick Earring",
+        "detail": "A single, mundane object can be stored within this earring. It can be “pulled from behind your ear” at any time."
+      },
+      {
+        "text": "Crossbow Ring",
+        "detail": "When the ring’s ornament is turned, it expands into a delicate single-shot crossbow wrapped around the wearer’s hand. It falls apart after one use."
+      },
+      {
+        "text": "Brooch of Dyscalculia",
+        "detail": "The wearer of this brooch rolls with Advantage in any negotiations involving numbers, math, or quantities as they exhibit an aura that confuses those around them regarding the value of numbers."
+      },
+      {
+        "text": "Shieldbutton",
+        "detail": "When this button is torn from the clothing it is sewn into, it expands into a typical shield."
+      },
+      {
+        "text": "Tasteful Brooch",
+        "detail": "The wearer of this brooch looks and smells like a delicious and tempting meal, requiring a successful WIS Test of any ally or friend who does not wish to cannibalize them, and instantly enticing any creature who has no compunctions against cannibalizing them."
+      },
+      {
+        "text": "Dwarven Delving Amulet",
+        "detail": "In the event of a cave-in, earthquake, or other subterranean geological catastrophe, this amulet expands into 3 days worth of rations, both food and drink, 5 self-igniting torches, as well as parchment and pen to write your last will and testament."
+      },
+      {
+        "text": "Ring of Counterfeit Detection",
+        "detail": "This ring becomes uncomfortably warm when the wearer holds a forged or counterfeit copy of a unique item."
+      },
+      {
+        "text": "Barbed Necklace",
+        "detail": "When thrown, this necklace becomes a spool of barbed wire, covering a nearby distance."
+      },
+      {
+        "text": "Amulet of Recording",
+        "detail": "When wound, a tiny disc inside the amulet spins and records all nearby sound for the next Hour. When wound the opposite way, these sounds play back at one quarter of their original volume - whispers are unlikely to be comprehensible, but regular speech can be distinguished clearly if listening in a quiet place."
+      },
+      {
+        "text": "Magic Missile Necklace",
+        "detail": "This necklace has 1d6 crystal beads, when removed, each becomes a single use of the Magic Missile spell."
+      },
+      {
+        "text": "Black Veil",
+        "detail": "The wearer of this veil can convert light or moderate shadow into heavy, obscuring darkness once per Day."
+      },
+      {
+        "text": "Magic Detection Powder",
+        "detail": "Sprinkling this powder on an object works as a Detect Magic spell."
+      },
+      {
+        "text": "Anchor Token",
+        "detail": "Once per day, with a word of command, this amulet becomes heavy enough to anchor a boat. This only works on boats or over water."
+      },
+      {
+        "text": "Boots of Balance",
+        "detail": "A subtle shifting ferro fluid in the heels grants advantage on any Dexterity Ability Test that involves maintaining balance, climbing, tightrope walking, etc."
+      },
+      {
+        "text": "Cowardly Dancer’s Shoes",
+        "detail": "Appear as a high quality magical boot or shoe - but when the wearer tries to retreat or flee from combat, they dance compulsively, and the shoes seal themselves around the wearer’s feet permanently except for a Remove Curse spell."
+      },
+      {
+        "text": "Elfstep Boots",
+        "detail": "The wearer's footsteps are totally silent and leave no footprints behind."
+      },
+      {
+        "text": "Hyperborean Boots",
+        "detail": "Walk on top of deep snow, and cross ice without fear of slipping."
+      },
+      {
+        "text": "Boots of Deceptive Tracks",
+        "detail": "A small brass knob adjusts the size and style of tracks these boots leave behind, varying from the size of halfling feet to an ogre’s, as well as several animal tracks."
+      },
+      {
+        "text": "Spidersilk Cloak",
+        "detail": "This cloak can be hung like a hammock on any flat surface, and the wearer can disguise themselves as a thick spiderweb in a corner to hide. Once per Day, the cloak grants one use of the Web spell. You are immune to the Web spell and entrapment by webs of any sort."
+      },
+      {
+        "text": "Displacement Cape",
+        "detail": "Once per Day you may utter a word of command. For the next D6+1 rounds, you have the Displacement effect similar to a Displacer Beast (attack rolls made against you are made with Disadvantage, this effect ends once you are successfully hit or incapacitated)"
+      },
+      {
+        "text": "Gloves of the Cutpurse",
+        "detail": "Once per Day, add +2 to DEX when rolling tests to pickpocket or steal, up to 19."
+      },
+      {
+        "text": "Ogrebash Gauntlets",
+        "detail": "When worn, attacks made with blunt weapons knock equal-sized opponents back from close to nearby."
+      },
+      {
+        "text": "Gorilla Grip Gauntlets",
+        "detail": "These gauntlets lock into place when squeezed firmly enough, providing an unbreakable grip onto whatever is held. Squeeze twice to release."
+      },
+      {
+        "text": "Lightning Rod Helm",
+        "detail": "Lightning and electric-based attacks do no harm to you, and redirect toward you if cast within nearby range."
+      },
+      {
+        "text": "Belt of Many Pouches",
+        "detail": "This belt can hold an additional 1d8 items in addition to your normal carrying capacity with its miniature bags of holding - however, opening each pouch for the first time requires a roll on the Wild Magic table."
+      },
+      {
+        "text": "Conjurer’s Cap",
+        "detail": "One item can be stored in this hat and pulled out at any time. Alternatively, the cap can be thrown and becomes a large conical tent, large enough to fit 4 to 6."
+      },
+      {
+        "text": "Deep Delver’s Mining Helm",
+        "detail": "This helmet has a caged opening to mount a candle safely, and an array of small mirrors behind it to illuminate a nearby distance in a straight cone. The candle can be lit or unlit with a command word."
+      },
+      {
+        "text": "Skipstone Boots",
+        "detail": "You can make two steps across the surface of water, and 1d6 steps further before falling in."
+      },
+      {
+        "text": "Mantle of the Mundane",
+        "detail": "Those wearing this cloak appear completely unremarkable in civilization - unlikely to be noticed by anyone unless deliberately drawing attention to themselves, and even then observers would have difficulty remembering anything particular about their appearance, equipment, etc."
+      },
+      {
+        "text": "Bloodhound Helmet",
+        "detail": "When wearing this helmet, your vision is obscured by droopy jowls, roll all Ability Tests with Disadvantage that require sight except for efforts to track a target or identify an odor, which are rolled with Advantage. Once a trail has been found, it cannot be lost so long as the helmet remains on."
+      },
+      {
+        "text": "Sharkmaw Halfmask",
+        "detail": "The maw contains 1d4 rows of teeth, and can be triggered to clamp down hard enough to break iron, bone, etc. The teeth fall out after use, cracked and broken."
+      },
+      {
+        "text": "Orcish Spurred Boots",
+        "detail": "You move at half-speed when walking, running, etc on foot, but when riding you cannot be thrown or removed from your mount willingly."
+      },
+      {
+        "text": "Robe of Eyes",
+        "detail": "The wearer can see out of all of the eyes embroidered on the robe, granting them 360 degree vision."
+      },
+      {
+        "text": "Robe of Repetition",
+        "detail": "Once per day, with a word of command, the next action the wearer takes is repeated exactly as it happened the first time as an after-image trails just behind the wearer. This must be declared before rolling attacks or attribute tests."
+      },
+      {
+        "text": "Crossbow Cap",
+        "detail": "A foppish hat concealing a single bolt. Tipping the hat a certain way launches the bolt as though fired from a crossbow, which rips through the hat."
+      },
+      {
+        "text": "Shattershield",
+        "detail": "Instead of taking damage from a melee attack, you can choose to instead break the shield, it explodes in shrapnel, dealing 5d4 damage to all close creatures. This effect can also be triggered voluntarily by pulling a trigger in the shield’s grip."
+      },
+      {
+        "text": "Fang of Arcane Theft",
+        "detail": "A successful bite, drawing blood against a spellcaster transfers one of their memorized spells to the user at random. If the spell is a higher level than you are capable of casting, you risk insanity and roll Wild Magic."
+      },
+      {
+        "text": "Mermaid Arrows",
+        "detail": "These arrows can be fired underwater, or into water, without any penalty."
+      },
+      {
+        "text": "Dwarven Spade",
+        "detail": "Acts like a short spear or axe - roll damage with Advantage on successful attacks against golems, earth elementals, and other enemies made primarily of rock, dirt, or crystal."
+      },
+      {
+        "text": "Sticky Shield",
+        "detail": "While wearing this shield, missile attacks that miss against you are stuck to the shield and can be re-used later. Melee attacks made against you that roll 1 or 2 result in the weapon being stuck to the shield, inseparable until an oil solvent is applied (stored in a vial within the shield’s grip)."
+      },
+      {
+        "text": "Roadbolt",
+        "detail": "This massive bolt must be fired from a ballista (or thrown, but only up to nearby distance). As it flies, the ground beneath it becomes paved, quality roadway, cleared of small debris. The road is semi-permanent over land, and lasts for one week over water. Enemies struck by the bolt become petrified."
+      },
+      {
+        "text": "Astral-Linked Axes",
+        "detail": "These hand axes can be thrown to a nearby distance - if holding one axe, the wielder can spend an Action to teleport to the location of the other, so long as it is within nearby distance."
+      },
+      {
+        "text": "Dark Fairy Arrow",
+        "detail": "This arrow can be fired into any deep shadow, then disappears. It can emerge from any other deep shadow at any time with the use of a command word, flying at full speed toward a target, up to three days later."
+      },
+      {
+        "text": "Dragonbladder Quiver",
+        "detail": "Arrows drawn from this quiver can be instantly lit into flaming arrows."
+      }
+    ]
+  },
+  {
+    "id": "treasure-potions",
+    "setName": "Treasure",
+    "tableName": "Potions",
+    "entries": [
+      {
+        "text": "Animal Control",
+        "detail": "Command one type of animal"
+      },
+      {
+        "text": "Slumber Perfume",
+        "detail": "Drowsiness to Nearby creatures"
+      },
+      {
+        "text": "Clairaudience",
+        "detail": "Hear whispers clearly Nearby"
+      },
+      {
+        "text": "Clairvoyance",
+        "detail": "See any area Nearby"
+      },
+      {
+        "text": "Climbing",
+        "detail": "Scale along any surface"
+      },
+      {
+        "text": "Curdled Death Perfume",
+        "detail": "Close creatures at 1 or fewer HP die, no death saves"
+      },
+      {
+        "text": "Delusion",
+        "detail": "The drinker believes this is a different liquid"
+      },
+      {
+        "text": "Dimunition",
+        "detail": "Shrink by half size every sip"
+      },
+      {
+        "text": "Elasticity",
+        "detail": "Stretch any appendage up to CON in feet"
+      },
+      {
+        "text": "Elemental Control",
+        "detail": "Charm spell against an Elemental"
+      },
+      {
+        "text": "Curative Elixir",
+        "detail": "Cures disease, poison, rot, or any other status ailment"
+      },
+      {
+        "text": "Madness",
+        "detail": "Drinker rolls a save against Panic with Disadvantage"
+      },
+      {
+        "text": "Elixier of Youth",
+        "detail": "Reverse physical signs of aging by 1d10 years"
+      },
+      {
+        "text": "Essence of Darkness",
+        "detail": "The drinker becomes living shadow"
+      },
+      {
+        "text": "Dragonbreath",
+        "detail": "1d4 Nearby creatures take 1d6 damage"
+      },
+      {
+        "text": "Fire Reistance",
+        "detail": "Invulnerability to fire and intense heat"
+      },
+      {
+        "text": "Flying",
+        "detail": "You can fly to Close locations when you Move"
+      },
+      {
+        "text": "Giant Strength",
+        "detail": "Temporarily increase STR by 1d4"
+      },
+      {
+        "text": "Growth",
+        "detail": "Double in size every sip"
+      },
+      {
+        "text": "Healing",
+        "detail": "Heal 1d8 HP"
+      },
+      {
+        "text": "Captivating Perfume",
+        "detail": "Charm against humans"
+      },
+      {
+        "text": "Invisibility",
+        "detail": "You remain invisibile - fails when attacking"
+      },
+      {
+        "text": "Etherial",
+        "detail": "You become ghost-like, and invulnerable to non-magic attacks"
+      },
+      {
+        "text": "Insect Ward",
+        "detail": "Repels mundane and monsterous insects"
+      },
+      {
+        "text": "Oil of Acid Resistance",
+        "detail": "Invulnerability to acid"
+      },
+      {
+        "text": "Oil of Disenchantment",
+        "detail": "Removes all magic effects on living things and suppress it in items"
+      },
+      {
+        "text": "Elemental Invulnerability",
+        "detail": "Invulnerability to a particular element"
+      },
+      {
+        "text": "Oil of Incineration",
+        "detail": "The drinker bursts into flames"
+      },
+      {
+        "text": "Oil of Impact",
+        "detail": "Blunt weapons roll damage with Advantage"
+      },
+      {
+        "text": "Oil of Preservation",
+        "detail": "Objects are not damaged by environmental conditions nor rust"
+      },
+      {
+        "text": "Perception",
+        "detail": "Advantage on Attribute Tests to notice with the senses"
+      },
+      {
+        "text": "Glibness",
+        "detail": "Advantage on convincingly telling lies"
+      },
+      {
+        "text": "Love",
+        "detail": "The drinker becomes infatuated with the first person they see"
+      },
+      {
+        "text": "Plant Control",
+        "detail": "Command mundane and magical plants to bloom, whither, or move"
+      },
+      {
+        "text": "Polymorph",
+        "detail": "Transfrom into the appearance of another"
+      },
+      {
+        "text": "Elder Sap",
+        "detail": "Age physically by 1d10 years"
+      },
+      {
+        "text": "Speed",
+        "detail": "Move twice as fast"
+      },
+      {
+        "text": "Neutralization",
+        "detail": "Neutralizes poisons and potions into pure drinking water"
+      },
+      {
+        "text": "Oil of Tempering",
+        "detail": "Add +1 to your AC pool when applied to armor"
+      },
+      {
+        "text": "Necrotic Command",
+        "detail": "Charm against undead"
+      },
+      {
+        "text": "Voice Change",
+        "detail": "The drinkers voice changes to an entirely different voice"
+      },
+      {
+        "text": "Water Breathing",
+        "detail": "You can breathe underwater"
+      },
+      {
+        "text": "Lycanthropy",
+        "detail": "Become a wolf or wolfman"
+      },
+      {
+        "text": "Vampirism",
+        "detail": "Become a vampire"
+      },
+      {
+        "text": "Zombification",
+        "detail": "Become a zombie"
+      },
+      {
+        "text": "Skellification",
+        "detail": "Become a skeleton"
+      },
+      {
+        "text": "Buoyancy",
+        "detail": "Float on water"
+      },
+      {
+        "text": "Liquid Courage",
+        "detail": "Immune from the effects of Panic"
+      },
+      {
+        "text": "Essence of Warmth",
+        "detail": "Immune from the effects of cold, hypothermia, freezing, etc."
+      },
+      {
+        "text": "Lightfoot",
+        "detail": "You do not leave tracks"
+      },
+      {
+        "text": "Truth",
+        "detail": "You cannot lie"
+      },
+      {
+        "text": "Message in a Bottle",
+        "detail": "The drinker hears whatever was written on the bottle"
+      },
+      {
+        "text": "Magnetic Attraction",
+        "detail": "You have a strong magnetic pull"
+      },
+      {
+        "text": "Magnetic Repulsion",
+        "detail": "You have a strong magnetic push"
+      },
+      {
+        "text": "Conduit",
+        "detail": "You statically shock everything you touch, with increasing charge over time"
+      },
+      {
+        "text": "Grave Scent",
+        "detail": "Undead creatures are attacted to you"
+      },
+      {
+        "text": "Expanded Vision",
+        "detail": "See in ultraviolet, infrared, heat, and or xray vision"
+      },
+      {
+        "text": "Teetotality",
+        "detail": "Alcohol makes you violently ill - and you are repulsed by the taste/smell"
+      },
+      {
+        "text": "Shadowless",
+        "detail": "You no longer cast a shadow"
+      },
+      {
+        "text": "Ambidexterity",
+        "detail": "You become ambidextrous"
+      },
+      {
+        "text": "Stoneskin",
+        "detail": "Your skin hardens to stone, mundane attacks against you deal half damage"
+      },
+      {
+        "text": "Barkskin",
+        "detail": "Your skin turns to bark"
+      },
+      {
+        "text": "Bonelessness",
+        "detail": "Your bones melt into gelatenous cartilage"
+      },
+      {
+        "text": "Weightlessness",
+        "detail": "Pour onto anything for it to float just off the ground"
+      },
+      {
+        "text": "Sonar",
+        "detail": "You can sense Nearby objects and creatures in any direction through barriers"
+      },
+      {
+        "text": "Ravenous Hunger",
+        "detail": "You develop an uncontrollable and insatiable hunger"
+      },
+      {
+        "text": "Comprehend Language",
+        "detail": "You comprehend whatever language is written on the label of the bottle"
+      },
+      {
+        "text": "Terrare Pica",
+        "detail": "Anything and everything becomes edible to you without penalty"
+      },
+      {
+        "text": "Tasha's Hideous Gigglewater",
+        "detail": "Uncontrollable laughter, resisting only makes one laugh harder"
+      },
+      {
+        "text": "Magical Misalignment",
+        "detail": "Lose the ability to use magic items"
+      },
+      {
+        "text": "Adamantine Skelleton",
+        "detail": "Your bones become unbreakable metal, granting +1 STR and +1 CON"
+      },
+      {
+        "text": "Spidergland",
+        "detail": "Shot web"
+      },
+      {
+        "text": "Dulling",
+        "detail": "A blade coated in this cannot cut anything"
+      },
+      {
+        "text": "Dwarven Ancestral Ale",
+        "detail": "You may ask 3 questions to the spirit of an ancestor"
+      },
+      {
+        "text": "Cleanliness",
+        "detail": "You and your possessions cannot become dirty or soiled"
+      },
+      {
+        "text": "Tracking",
+        "detail": "The drinker leaves behind an obvious trail"
+      },
+      {
+        "text": "Stonewater",
+        "detail": "Turns stone into water, hardens water into stone"
+      },
+      {
+        "text": "Roil Powder",
+        "detail": "Instantly boil a liquid"
+      },
+      {
+        "text": "Inverted Midas",
+        "detail": "All gold you touch turns into plain stone"
+      },
+      {
+        "text": "Modron Essence",
+        "detail": "Intuitive knowledge of mechanical devices and how to repair them"
+      },
+      {
+        "text": "Morkoth Ink",
+        "detail": "Pour onto an illusion to make it real"
+      },
+      {
+        "text": "Track Resonance",
+        "detail": "Pour into a footprint, an image of who left it appears"
+      },
+      {
+        "text": "Reflective Resonance",
+        "detail": "Pour onto a mirror or other reflective surface, see the last person reflected"
+      },
+      {
+        "text": "Spiritual Sever",
+        "detail": "You cannot memorize prayers or commune with dieties"
+      },
+      {
+        "text": "Photosynthesis",
+        "detail": "Sunlight counts as rations, your skin is green and hair is leafy"
+      },
+      {
+        "text": "Moonsap",
+        "detail": "Negate the effects of the sun - works as vampiric sunscreen"
+      },
+      {
+        "text": "Poisonberry",
+        "detail": "Pour onto a tree, all fruit it bears is poisonous"
+      },
+      {
+        "text": "Phantom Limb",
+        "detail": "Spectral limbs can carry additional items or weild weapons or shields"
+      },
+      {
+        "text": "Telegraph Thoughts",
+        "detail": "The drinker's thoughts are broadcast aloud by spectral images and voices"
+      },
+      {
+        "text": "Reactivity",
+        "detail": "The effects of a spell on the drinker are doubled"
+      },
+      {
+        "text": "Kenku Wine",
+        "detail": "You can only quote snippets you hear, no orignial speech"
+      },
+      {
+        "text": "Adrenaline Shot",
+        "detail": "Reduce HP by 1d10, increase STR by the same number"
+      },
+      {
+        "text": "Essence of Abomination",
+        "detail": "Become Demonic, if already Demonic become a higher tier demon"
+      },
+      {
+        "text": "Essence of Elvenkind",
+        "detail": "Become a half-elf, if already half-elf become fully elf"
+      },
+      {
+        "text": "Essence of Seraphim",
+        "detail": "Become an Angel, if already Angelic become a higher tier angel"
+      },
+      {
+        "text": "Essence of Aviary",
+        "detail": "Become a Bird Person, if already Bird Person become a bird"
+      },
+      {
+        "text": "Essence of Dwarfkind",
+        "detail": "Become a Dwarf, if already Dwarven then turn to stone"
+      },
+      {
+        "text": "Essence of Forgeborn",
+        "detail": "Become a Golem"
+      },
+      {
+        "text": "Essene of Halfling",
+        "detail": "Become a Halfling, if already Halfling then become a Quarterling"
+      },
+      {
+        "text": "Juice of Choosegoose",
+        "detail": "You can only speak in rhyme, or else suffer intense psychological trauma - oh what a time! oh what drama!"
+      }
+    ]
+  }
+]

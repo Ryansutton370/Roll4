@@ -27,6 +27,8 @@ import {
   EditCombatantDialog,
 } from '../../shared/edit-combatant-dialog/edit-combatant-dialog';
 import { MonsterStatBlockDialog } from '../../shared/monster-stat-block-dialog/monster-stat-block-dialog';
+import { NotesDialog } from '../../shared/notes-dialog/notes-dialog';
+import { hasRichTextContent } from '../../shared/rich-text-editor/rich-text-editor';
 import { CombatantBubble } from './combatant-bubble';
 
 @Component({
@@ -40,6 +42,7 @@ import { CombatantBubble } from './combatant-bubble';
     EditCombatantDialog,
     AddCombatantDialog,
     MonsterStatBlockDialog,
+    NotesDialog,
   ],
   templateUrl: './encounter-detail.html',
   styleUrl: './encounter-detail.css',
@@ -196,6 +199,10 @@ export class EncounterDetail {
   // openStatBlockDialog below.
   private readonly statBlockDialog = viewChild.required<MonsterStatBlockDialog>('statBlockDialog');
 
+  // Same pattern again for the combatant bubble's Notes icon — see
+  // openNotesDialog below.
+  private readonly notesDialog = viewChild.required<NotesDialog>('notesDialog');
+
   protected openAddCombatantDialog(): void {
     this.closeAddMenu();
     this.addCombatantDialog().open();
@@ -324,10 +331,17 @@ export class EncounterDetail {
       maxHp: combatant.maxHp,
       notes: combatant.notes,
     };
+    // A monster-templated combatant (type 'npc' only — see AddCombatantDialog's
+    // From Book flow) keeps its stat-block link when saved to the roster,
+    // rather than that being silently dropped.
     const linkedId =
       combatant.type === 'pc'
         ? this.partyStore.createPlayer(fields).id
-        : this.npcStore.createNpc(fields).id;
+        : this.npcStore.createNpc({
+            ...fields,
+            monsterTemplateId: combatant.monsterTemplateId,
+            monsterName: combatant.monsterName,
+          }).id;
     if (combatant.type === 'pc') {
       groupIds.forEach((partyId) => this.partyStore.addPlayerToParty(partyId, linkedId));
     } else {
@@ -375,6 +389,19 @@ export class EncounterDetail {
     );
   }
 
+  // The row's Notes badge (CombatantBubble.notesRequested) — a single-
+  // purpose "just the notes" shortcut, same "child reports, parent
+  // decides" split as openStatBlockDialog above.
+  protected openNotesDialog(combatant: Combatant): void {
+    this.notesDialog().openFor(combatant, this.displayName(combatant.id));
+  }
+
+  protected onNotesSaved(event: { combatantId: string; notes: string }): void {
+    this.encounterStore.updateCombatantDetails(this.encounterId(), event.combatantId, {
+      notes: event.notes,
+    });
+  }
+
   protected onHpAdjustSubmit(combatantId: string, delta: number): void {
     this.encounterStore.adjustCurrentHp(this.encounterId(), combatantId, delta);
   }
@@ -400,18 +427,9 @@ export class EncounterDetail {
     return Math.round(this.setupHpPercent(c) * 1.2);
   }
 
-  // Which setup-list combatant currently has its Notes expanded — a single
-  // nullable id (not a Set), same "only one at a time" pattern as
-  // revealedHandleId above, collapsed via the same click-away listener
-  // (see collapseHandleOnClickAway) rather than a second one.
-  protected readonly revealedSetupNotesId = signal<string | null>(null);
-
-  protected isSetupNotesRevealed(combatantId: string): boolean {
-    return this.revealedSetupNotesId() === combatantId;
-  }
-
-  protected toggleSetupNotesRevealed(combatantId: string): void {
-    this.revealedSetupNotesId.update((id) => (id === combatantId ? null : combatantId));
+  /** Drives the setup-list Notes badge's dark-vs-muted color and hint text — same helper CombatantBubble uses for the run-phase list's own Notes badge. */
+  protected hasNotes(notes: string): boolean {
+    return hasRichTextContent(notes);
   }
 
   protected rollInitiative(): void {
@@ -493,20 +511,6 @@ export class EncounterDetail {
     const target = event.target as HTMLElement;
     if (!target.closest(`[data-combatant-id="${revealedId}"]`)) {
       this.revealedHandleId.set(null);
-    }
-  }
-
-  // Same click-away pattern as collapseHandleOnClickAway just above, for
-  // the setup-phase list's Notes reveal (revealedSetupNotesId) — a separate
-  // method (rather than folding into the one above) since the two features
-  // are unrelated and each stays simpler read on its own.
-  @HostListener('document:click', ['$event'])
-  protected collapseSetupNotesOnClickAway(event: MouseEvent): void {
-    const revealedId = this.revealedSetupNotesId();
-    if (!revealedId) return;
-    const target = event.target as HTMLElement;
-    if (!target.closest(`[data-combatant-id="${revealedId}"]`)) {
-      this.revealedSetupNotesId.set(null);
     }
   }
 

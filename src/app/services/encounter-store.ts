@@ -128,7 +128,14 @@ export function clearHoldWithoutReroll(order: Combatant[]): Combatant[] {
         }
       : c,
   );
-  return heldIds.reduce((acc, id) => insertBySortedPosition(acc, acc.find((c) => c.id === id)!), restored);
+  return heldIds.reduce(
+    (acc, id) =>
+      insertBySortedPosition(
+        acc,
+        acc.find((c) => c.id === id)!,
+      ),
+    restored,
+  );
 }
 
 /**
@@ -147,7 +154,14 @@ export function foldInReadyToJoin(order: Combatant[]): Combatant[] {
   const rolled = order.map((c) =>
     c.readyToJoin ? rollInitiativeFor({ ...c, readyToJoin: false }) : c,
   );
-  return pendingIds.reduce((acc, id) => insertBySortedPosition(acc, acc.find((c) => c.id === id)!), rolled);
+  return pendingIds.reduce(
+    (acc, id) =>
+      insertBySortedPosition(
+        acc,
+        acc.find((c) => c.id === id)!,
+      ),
+    rolled,
+  );
 }
 
 /** The first combatant eligible to act — skips Removed, on-hold, and Ready to Join entries. */
@@ -291,7 +305,8 @@ export class EncounterStore {
       const byId = new Map(order.map((c) => [c.id, c]));
       return combatants.map((c) => byId.get(c.id) ?? c);
     });
-    const activeCombatantIndex = activeId === null ? null : order.findIndex((c) => c.id === activeId);
+    const activeCombatantIndex =
+      activeId === null ? null : order.findIndex((c) => c.id === activeId);
     this.updateEncounter(encounterId, {
       combatantIds: order.map((c) => c.id),
       activeCombatantIndex: activeCombatantIndex === -1 ? null : activeCombatantIndex,
@@ -357,7 +372,9 @@ export class EncounterStore {
     const newNpcCombatants: Combatant[] = troopIds.flatMap((troopId) =>
       this.npcStore
         .npcsForTroop(troopId)
-        .map((npc) => this.buildCombatant(encounterId, 'npc', { playerId: null, npcId: npc.id }, npc)),
+        .map((npc) =>
+          this.buildCombatant(encounterId, 'npc', { playerId: null, npcId: npc.id }, npc),
+        ),
     );
     const newCombatants = [...newPlayerCombatants, ...newNpcCombatants];
 
@@ -417,7 +434,9 @@ export class EncounterStore {
 
     const removedPlayerIds = new Set(
       encounter.activeCombatantIndex === null
-        ? removedPartyIds.flatMap((partyId) => this.partyStore.playersForParty(partyId).map((pc) => pc.id))
+        ? removedPartyIds.flatMap((partyId) =>
+            this.partyStore.playersForParty(partyId).map((pc) => pc.id),
+          )
         : [],
     );
 
@@ -462,12 +481,16 @@ export class EncounterStore {
       this.npcStore
         .npcsForTroop(troopId)
         .filter((npc) => !existingNpcIds.has(npc.id))
-        .map((npc) => this.buildCombatant(encounterId, 'npc', { playerId: null, npcId: npc.id }, npc)),
+        .map((npc) =>
+          this.buildCombatant(encounterId, 'npc', { playerId: null, npcId: npc.id }, npc),
+        ),
     );
 
     const removedNpcIds = new Set(
       encounter.activeCombatantIndex === null
-        ? removedTroopIds.flatMap((troopId) => this.npcStore.npcsForTroop(troopId).map((npc) => npc.id))
+        ? removedTroopIds.flatMap((troopId) =>
+            this.npcStore.npcsForTroop(troopId).map((npc) => npc.id),
+          )
         : [],
     );
 
@@ -542,7 +565,10 @@ export class EncounterStore {
    * Adds a combatant that isn't backed by any library entry yet — today's
    * only NPC-creation path (Phase 1), generalized to also allow an ad-hoc
    * Player (e.g. a guest joining for one session). Replaces the old
-   * type-locked addNpc. readyToJoin: see addPlayerCombatant above.
+   * type-locked addNpc. readyToJoin: see addPlayerCombatant above. Returns
+   * the created Combatant so a caller that needs to track/update/remove it
+   * again later (e.g. EncounterList's live-synced generator roster) has its
+   * id without a separate lookup.
    */
   addAdHocCombatant(
     encounterId: string,
@@ -553,9 +579,11 @@ export class EncounterStore {
       ac: number | null;
       maxHp: number | null;
       notes: string;
+      monsterTemplateId?: string | null;
+      monsterName?: string | null;
     },
     readyToJoin = false,
-  ): void {
+  ): Combatant {
     const combatant = this.buildCombatant(
       encounterId,
       type,
@@ -567,6 +595,7 @@ export class EncounterStore {
     this.updateEncounter(encounterId, {
       combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
     });
+    return combatant;
   }
 
   /**
@@ -581,11 +610,18 @@ export class EncounterStore {
   linkCombatantToLibraryEntry(encounterId: string, combatantId: string, linkedId: string): void {
     const combatant = this.combatantsForEncounter(encounterId).find((c) => c.id === combatantId);
     if (!combatant) return;
-    this.updateCombatant(combatantId, combatant.type === 'pc' ? { playerId: linkedId } : { npcId: linkedId });
+    this.updateCombatant(
+      combatantId,
+      combatant.type === 'pc' ? { playerId: linkedId } : { npcId: linkedId },
+    );
   }
 
   /** Only allowed before the first Roll — same "setup mistake correction" rule as removeCombatant. */
-  setInitiativeModifier(encounterId: string, combatantId: string, initiativeModifier: number): void {
+  setInitiativeModifier(
+    encounterId: string,
+    combatantId: string,
+    initiativeModifier: number,
+  ): void {
     const encounter = this.getEncounter(encounterId);
     if (!encounter || encounter.activeCombatantIndex !== null) return;
     this.updateCombatant(combatantId, { initiativeModifier });
@@ -621,7 +657,10 @@ export class EncounterStore {
       applied.initiativeModifier = initiativeModifier;
     }
     if ('maxHp' in applied) {
-      applied.currentHp = clampCurrentHp(combatant.currentHp ?? applied.maxHp ?? 0, applied.maxHp ?? null);
+      applied.currentHp = clampCurrentHp(
+        combatant.currentHp ?? applied.maxHp ?? 0,
+        applied.maxHp ?? null,
+      );
     }
     this.updateCombatant(combatantId, applied);
   }
@@ -630,7 +669,10 @@ export class EncounterStore {
   adjustCurrentHp(encounterId: string, combatantId: string, delta: number): void {
     const combatant = this.combatantsForEncounter(encounterId).find((c) => c.id === combatantId);
     if (!combatant || combatant.maxHp === null) return;
-    const currentHp = clampCurrentHp((combatant.currentHp ?? combatant.maxHp) + delta, combatant.maxHp);
+    const currentHp = clampCurrentHp(
+      (combatant.currentHp ?? combatant.maxHp) + delta,
+      combatant.maxHp,
+    );
     this.updateCombatant(combatantId, { currentHp });
   }
 
@@ -738,7 +780,10 @@ export class EncounterStore {
     // Un-removing: an already-removed combatant is never Active, so the
     // Active total we're capping against is unaffected by this toggle.
     const activeId = this.activeCombatantId(encounterId);
-    const updated: Combatant = { ...this.rollCombatantInBelowActive(encounterId, combatant), removedFromCombat: false };
+    const updated: Combatant = {
+      ...this.rollCombatantInBelowActive(encounterId, combatant),
+      removedFromCombat: false,
+    };
     const reordered = insertBySortedPosition(order, updated);
     this.commitOrder(encounterId, syncHoldPositions(reordered, activeId), activeId);
   }
@@ -756,7 +801,10 @@ export class EncounterStore {
     const combatant = order.find((c) => c.id === combatantId);
     if (!combatant || !combatant.readyToJoin) return;
     const activeId = this.activeCombatantId(encounterId);
-    const updated: Combatant = { ...this.rollCombatantInBelowActive(encounterId, combatant), readyToJoin: false };
+    const updated: Combatant = {
+      ...this.rollCombatantInBelowActive(encounterId, combatant),
+      readyToJoin: false,
+    };
     const reordered = insertBySortedPosition(order, updated);
     this.commitOrder(encounterId, syncHoldPositions(reordered, activeId), activeId);
   }
@@ -901,7 +949,8 @@ export class EncounterStore {
     if (!encounter) return;
     const order = this.combatantsForEncounter(encounterId);
     const combatant = order.find((c) => c.id === combatantId);
-    if (!combatant || combatant.removedFromCombat || combatant.onHold || combatant.readyToJoin) return;
+    if (!combatant || combatant.removedFromCombat || combatant.onHold || combatant.readyToJoin)
+      return;
 
     const rest = order.filter((c) => c.id !== combatantId);
     const above = rest[newIndex - 1] ?? null;
@@ -1011,7 +1060,11 @@ export class EncounterStore {
    * itself. Safe to call defensively from multiple sites for the same
    * combatant/round — redundant calls are no-ops.
    */
-  private creditLinkedTimerDeparture(encounterId: string, combatantId: string | null, round: number): void {
+  private creditLinkedTimerDeparture(
+    encounterId: string,
+    combatantId: string | null,
+    round: number,
+  ): void {
     if (!combatantId) return;
     this.timersSignal.update((timers) =>
       timers.map((t) =>
@@ -1033,7 +1086,11 @@ export class EncounterStore {
    * and unlike the automatic decrement, this undo is intentionally not
    * floored, so it exactly reverses whatever creditLinkedTimerDeparture did.
    */
-  private uncreditLinkedTimerOnBack(encounterId: string, combatantId: string | null, round: number): void {
+  private uncreditLinkedTimerOnBack(
+    encounterId: string,
+    combatantId: string | null,
+    round: number,
+  ): void {
     if (!combatantId) return;
     this.timersSignal.update((timers) =>
       timers.map((t) =>
@@ -1092,7 +1149,9 @@ export class EncounterStore {
   adjustTimerValue(encounterId: string, timerId: string, delta: number): void {
     this.timersSignal.update((timers) =>
       timers.map((t) =>
-        t.encounterId === encounterId && t.id === timerId ? { ...t, remaining: t.remaining + delta } : t,
+        t.encounterId === encounterId && t.id === timerId
+          ? { ...t, remaining: t.remaining + delta }
+          : t,
       ),
     );
   }

@@ -4,6 +4,40 @@ fieldset {
   flex-basis: 100%;
 }
 
+/* Two-column layout: the New Encounter panel on the left, Saved Encounters
+   on the right — mobile-first (stacked, builder above saved, matching
+   reading order) with a side-by-side row only once the viewport actually
+   has room for two real columns. app.css's main:has(.encounters-layout)
+   widens the page's own max-width at the same breakpoint, so neither
+   column is left cramped. */
+.encounters-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 900px) {
+  .encounters-layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.builder-column,
+.saved-column {
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .builder-column {
+    flex: 3;
+  }
+
+  .saved-column {
+    flex: 2;
+  }
+}
+
 /* Combatant rows in edit mode: type-dot + <app-combatant-fields> (its own
    :host { display: contents }, see combatant-fields.css, makes its 5 fields
    direct flex items here) + remove/mark-absent + optional Save-to-Roster.
@@ -73,4 +107,23 @@ fieldset {
 
 .add-combatant-btn:hover {
   background: var(--color-removed-tint);
+}
+
+/* The collapsed panel's trigger — same solid treatment as the global
+   button[type='submit'] (styles.css), since this is the page's primary
+   call-to-action while the panel is closed. */
+.create-encounter-btn {
+  padding: 0.6rem 1.1rem;
+  margin-bottom: 1.5rem;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.create-encounter-btn:hover {
+  opacity: 0.85;
 }

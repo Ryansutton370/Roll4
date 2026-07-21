@@ -1,0 +1,100 @@
+Animal Control	Command one type of animal
+Slumber Perfume	Drowsiness to Nearby creatures
+Clairaudience	Hear whispers clearly Nearby
+Clairvoyance	See any area Nearby
+Climbing	Scale along any surface
+Curdled Death Perfume	Close creatures at 1 or fewer HP die, no death saves
+Delusion	The drinker believes this is a different liquid
+Dimunition	Shrink by half size every sip
+Elasticity	Stretch any appendage up to CON in feet
+Elemental Control	Charm spell against an Elemental
+Curative Elixir	Cures disease, poison, rot, or any other status ailment
+Madness	Drinker rolls a save against Panic with Disadvantage
+Elixier of Youth	Reverse physical signs of aging by 1d10 years
+Essence of Darkness	The drinker becomes living shadow
+Dragonbreath	1d4 Nearby creatures take 1d6 damage
+Fire Reistance	Invulnerability to fire and intense heat
+Flying	You can fly to Close locations when you Move
+Giant Strength	Temporarily increase STR by 1d4
+Growth	Double in size every sip
+Healing	Heal 1d8 HP
+Captivating Perfume	Charm against humans
+Invisibility	You remain invisibile - fails when attacking
+Etherial	You become ghost-like, and invulnerable to non-magic attacks
+Insect Ward	Repels mundane and monsterous insects
+Oil of Acid Resistance	Invulnerability to acid
+Oil of Disenchantment	Removes all magic effects on living things and suppress it in items
+Elemental Invulnerability	Invulnerability to a particular element
+Oil of Incineration	The drinker bursts into flames
+Oil of Impact	Blunt weapons roll damage with Advantage
+Oil of Preservation	Objects are not damaged by environmental conditions nor rust
+Perception	Advantage on Attribute Tests to notice with the senses
+Glibness	Advantage on convincingly telling lies
+Love	The drinker becomes infatuated with the first person they see
+Plant Control	Command mundane and magical plants to bloom, whither, or move
+Polymorph	Transfrom into the appearance of another
+Elder Sap	Age physically by 1d10 years
+Speed	Move twice as fast
+Neutralization	Neutralizes poisons and potions into pure drinking water
+Oil of Tempering	Add +1 to your AC pool when applied to armor
+Necrotic Command	Charm against undead
+Voice Change	The drinkers voice changes to an entirely different voice
+Water Breathing	You can breathe underwater
+Lycanthropy	Become a wolf or wolfman
+Vampirism	Become a vampire
+Zombification	Become a zombie
+Skellification	Become a skeleton
+Buoyancy	Float on water
+Liquid Courage	Immune from the effects of Panic
+Essence of Warmth	Immune from the effects of cold, hypothermia, freezing, etc.
+Lightfoot	You do not leave tracks
+Truth	You cannot lie
+Message in a Bottle	The drinker hears whatever was written on the bottle
+Magnetic Attraction	You have a strong magnetic pull
+Magnetic Repulsion	You have a strong magnetic push
+Conduit	You statically shock everything you touch, with increasing charge over time
+Grave Scent	Undead creatures are attacted to you
+Expanded Vision	See in ultraviolet, infrared, heat, and or xray vision
+Teetotality	Alcohol makes you violently ill - and you are repulsed by the taste/smell
+Shadowless	You no longer cast a shadow
+Ambidexterity	You become ambidextrous
+Stoneskin	Your skin hardens to stone, mundane attacks against you deal half damage
+Barkskin	Your skin turns to bark
+Bonelessness	Your bones melt into gelatenous cartilage
+Weightlessness	Pour onto anything for it to float just off the ground
+Sonar	You can sense Nearby objects and creatures in any direction through barriers
+Ravenous Hunger	You develop an uncontrollable and insatiable hunger
+Comprehend Language	You comprehend whatever language is written on the label of the bottle
+Terrare Pica	Anything and everything becomes edible to you without penalty
+Tasha's Hideous Gigglewater	Uncontrollable laughter, resisting only makes one laugh harder
+Magical Misalignment	Lose the ability to use magic items
+Adamantine Skelleton	Your bones become unbreakable metal, granting +1 STR and +1 CON
+Spidergland	Shot web
+Dulling	A blade coated in this cannot cut anything
+Dwarven Ancestral Ale	You may ask 3 questions to the spirit of an ancestor
+Cleanliness	You and your possessions cannot become dirty or soiled
+Tracking	The drinker leaves behind an obvious trail
+Stonewater	Turns stone into water, hardens water into stone
+Roil Powder	Instantly boil a liquid
+Inverted Midas	All gold you touch turns into plain stone
+Modron Essence	Intuitive knowledge of mechanical devices and how to repair them
+Morkoth Ink	Pour onto an illusion to make it real
+Track Resonance	Pour into a footprint, an image of who left it appears
+Reflective Resonance	Pour onto a mirror or other reflective surface, see the last person reflected
+Spiritual Sever	You cannot memorize prayers or commune with dieties
+Photosynthesis	Sunlight counts as rations, your skin is green and hair is leafy
+Moonsap	Negate the effects of the sun - works as vampiric sunscreen
+Poisonberry	Pour onto a tree, all fruit it bears is poisonous
+Phantom Limb	Spectral limbs can carry additional items or weild weapons or shields
+Telegraph Thoughts	The drinker's thoughts are broadcast aloud by spectral images and voices
+Reactivity	The effects of a spell on the drinker are doubled
+Kenku Wine	You can only quote snippets you hear, no orignial speech
+Adrenaline Shot	Reduce HP by 1d10, increase STR by the same number
+Essence of Abomination	Become Demonic, if already Demonic become a higher tier demon
+Essence of Elvenkind	Become a half-elf, if already half-elf become fully elf
+Essence of Seraphim	Become an Angel, if already Angelic become a higher tier angel
+Essence of Aviary	Become a Bird Person, if already Bird Person become a bird
+Essence of Dwarfkind	Become a Dwarf, if already Dwarven then turn to stone
+Essence of Forgeborn	Become a Golem
+Essene of Halfling	Become a Halfling, if already Halfling then become a Quarterling
+Juice of Choosegoose	You can only speak in rhyme, or else suffer intense psychological trauma - oh what a time! oh what drama!

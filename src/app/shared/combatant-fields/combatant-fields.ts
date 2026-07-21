@@ -1,6 +1,7 @@
-import { Component, model } from '@angular/core';
+import { Component, computed, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NameGeneratorButton } from '../name-generator-button/name-generator-button';
+import { RichTextEditor, hasRichTextContent } from '../rich-text-editor/rich-text-editor';
 
 /**
  * The 5-field input set shared by every place a PC/NPC's data is entered or
@@ -13,7 +14,7 @@ import { NameGeneratorButton } from '../name-generator-button/name-generator-but
  */
 @Component({
   selector: 'app-combatant-fields',
-  imports: [FormsModule, NameGeneratorButton],
+  imports: [FormsModule, NameGeneratorButton, RichTextEditor],
   templateUrl: './combatant-fields.html',
   styleUrl: './combatant-fields.css',
 })
@@ -32,5 +33,16 @@ export class CombatantFields {
   readonly initiativeModifier = model.required<number>();
   readonly ac = model.required<number | null>();
   readonly maxHp = model.required<number | null>();
+  /** Rich-text HTML, edited via RichTextEditor — see that component for why (and how its sanitization works). */
   readonly notes = model.required<string>();
+
+  protected readonly hasNotes = computed(() => hasRichTextContent(this.notes()));
+
+  // Collapsed by default — a full rich-text toolbar+editor on every single
+  // create/edit form (this component is reused a lot; see the class doc
+  // comment) would be a lot of vertical space spent on a field most
+  // combatants don't need. Component-local UI state, not part of the
+  // model() fields above: it's purely "is this form control expanded right
+  // now," not data about the combatant itself.
+  protected readonly notesExpanded = signal(false);
 }

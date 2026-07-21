@@ -78,25 +78,3 @@
   background: var(--color-removed-tint);
   color: var(--color-text);
 }
-
-.credits {
-  max-width: 40rem;
-  margin-top: 2.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-}
-
-.credits summary {
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.credits p {
-  margin: 0.6rem 0 0;
-}
-
-.license-notice {
-  font-size: 0.8rem;
-}

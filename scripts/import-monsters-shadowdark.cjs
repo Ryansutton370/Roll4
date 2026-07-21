@@ -12,6 +12,12 @@
 //      its author — ShareAlike means the JSON this script produces carries
 //      that same license forward.
 //
+// DO NOT RE-RUN this against the current monsters-shadowdark.json without
+// checking first — that file is now the GM-editable source directly (see
+// ARCHITECTURE.md), and re-running this would silently discard anything
+// added/edited in it since (including any `homebrew: true` monster — see
+// MonsterTemplate in DATA_MODEL.md).
+//
 // Usage: node scripts/import-monsters-shadowdark.cjs [path-to-xlsx] [path-to-output-json]
 
 const path = require('node:path');
