@@ -1,7 +1,66 @@
 <h1>NPCs</h1>
 
+<!-- Explains how this roster relates to Troops (see the Troops tab) before
+     the GM starts adding NPCs — mirrors player-roster.html's intro. -->
+<p class="roster-intro">
+  NPCs are created here, in one shared roster. A
+  <a routerLink="/npcs/troops">Troop</a> is a subset of this roster that you
+  assemble by checking NPCs into it — a Troop is made of one or more NPCs, the same NPC (a recurring villain, a
+  monster stat block you reuse) can belong to more than one Troop.
+</p>
+
+<section class="browse-section">
+  <h2>Browse Monster List</h2>
+  <div class="source-toggle" role="group" aria-label="Sourcebook">
+    <button
+      type="button"
+      [class.active]="monsterSource() === '5e-srd'"
+      (click)="monsterSource.set('5e-srd')"
+    >
+      D&amp;D 5e SRD
+    </button>
+    <button
+      type="button"
+      [class.active]="monsterSource() === 'shadowdark'"
+      (click)="monsterSource.set('shadowdark')"
+    >
+      Shadowdark
+    </button>
+  </div>
+  <app-monster-picker-table
+    [source]="monsterSource()"
+    [templates]="templatesForSource()"
+    (addTemplate)="addMonsterAsNpc($event)"
+  />
+</section>
+
+<div class="player-form-headings" aria-hidden="true">
+  <span class="heading-name">Name</span>
+  <span class="heading-field">Initiative Modifier</span>
+  <span class="heading-field">AC</span>
+  <span class="heading-field">Max HP</span>
+  <span class="heading-notes">Notes</span>
+  <span class="heading-spacer"></span>
+</div>
+<form class="entry-form" (ngSubmit)="createNpc()">
+  <app-combatant-fields
+    [name]="newNpcName()"
+    (nameChange)="newNpcName.set($event)"
+    [initiativeModifier]="newNpcModifier()"
+    (initiativeModifierChange)="newNpcModifier.set($event)"
+    [ac]="newNpcAc()"
+    (acChange)="newNpcAc.set($event)"
+    [maxHp]="newNpcMaxHp()"
+    (maxHpChange)="newNpcMaxHp.set($event)"
+    [notes]="newNpcNotes()"
+    (notesChange)="newNpcNotes.set($event)"
+  />
+  <button type="submit">Save NPC</button>
+</form>
+
+<h2>Saved NPCs</h2>
 @if (npcStore.npcs().length === 0) {
-  <p class="empty-state">No NPCs yet. Add one below.</p>
+  <p class="empty-state">No NPCs yet. Add one above.</p>
 } @else {
   <div class="column-headings" aria-hidden="true">
     <span class="pc-name-heading">Name</span>
@@ -72,52 +131,3 @@
     }
   </ul>
 }
-
-<section class="browse-section">
-  <h2>Browse Monster List</h2>
-  <div class="source-toggle" role="group" aria-label="Sourcebook">
-    <button
-      type="button"
-      [class.active]="monsterSource() === '5e-srd'"
-      (click)="monsterSource.set('5e-srd')"
-    >
-      D&amp;D 5e SRD
-    </button>
-    <button
-      type="button"
-      [class.active]="monsterSource() === 'shadowdark'"
-      (click)="monsterSource.set('shadowdark')"
-    >
-      Shadowdark
-    </button>
-  </div>
-  <app-monster-picker-table
-    [source]="monsterSource()"
-    [templates]="templatesForSource()"
-    (addTemplate)="addMonsterAsNpc($event)"
-  />
-</section>
-
-<div class="player-form-headings" aria-hidden="true">
-  <span class="heading-name">Name</span>
-  <span class="heading-field">Initiative Modifier</span>
-  <span class="heading-field">AC</span>
-  <span class="heading-field">Max HP</span>
-  <span class="heading-notes">Notes</span>
-  <span class="heading-spacer"></span>
-</div>
-<form class="entry-form" (ngSubmit)="createNpc()">
-  <app-combatant-fields
-    [name]="newNpcName()"
-    (nameChange)="newNpcName.set($event)"
-    [initiativeModifier]="newNpcModifier()"
-    (initiativeModifierChange)="newNpcModifier.set($event)"
-    [ac]="newNpcAc()"
-    (acChange)="newNpcAc.set($event)"
-    [maxHp]="newNpcMaxHp()"
-    (maxHpChange)="newNpcMaxHp.set($event)"
-    [notes]="newNpcNotes()"
-    (notesChange)="newNpcNotes.set($event)"
-  />
-  <button type="submit">Save NPC</button>
-</form>

@@ -2,6 +2,12 @@
    view encapsulation scopes each copy to its own component, so there's no
    collision between the two despite the shared names. */
 
+.roster-intro {
+  max-width: 42rem;
+  margin: 0 0 1.25rem;
+  color: var(--color-text-muted);
+}
+
 .player-entry {
   display: flex;
   flex-direction: column;

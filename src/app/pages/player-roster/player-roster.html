@@ -1,7 +1,45 @@
 <h1>Players</h1>
 
+<!-- Explains how this roster relates to Parties (see the Parties tab)
+     before the GM starts adding Players, since "why are there two tabs for
+     this" isn't obvious from the UI alone. -->
+<p class="roster-intro">
+  Players are created here, in one shared roster. A
+  <a routerLink="/players/parties">Party</a> is a subset of this roster that
+  you assemble by checking Players into it — a Party is made of one or more Players, the same Player can belong to
+  more than one Party (e.g. if they play in two different campaigns).
+</p>
+
+<!-- Same label text as the column headings below — sized to match this
+     form's own (narrower, icon-led) fields rather than the wider list-row
+     columns, since the two use different widths. -->
+<div class="player-form-headings" aria-hidden="true">
+  <span class="heading-name">Name</span>
+  <span class="heading-field">Initiative Modifier</span>
+  <span class="heading-field">AC</span>
+  <span class="heading-field">Max HP</span>
+  <span class="heading-notes">Notes</span>
+  <span class="heading-spacer"></span>
+</div>
+<form class="entry-form" (ngSubmit)="createPlayer()">
+  <app-combatant-fields
+    [name]="newPlayerName()"
+    (nameChange)="newPlayerName.set($event)"
+    [initiativeModifier]="newPlayerModifier()"
+    (initiativeModifierChange)="newPlayerModifier.set($event)"
+    [ac]="newPlayerAc()"
+    (acChange)="newPlayerAc.set($event)"
+    [maxHp]="newPlayerMaxHp()"
+    (maxHpChange)="newPlayerMaxHp.set($event)"
+    [notes]="newPlayerNotes()"
+    (notesChange)="newPlayerNotes.set($event)"
+  />
+  <button type="submit">Save Player</button>
+</form>
+
+<h2>Saved Players</h2>
 @if (partyStore.players().length === 0) {
-  <p class="empty-state">No Players yet. Add one below.</p>
+  <p class="empty-state">No Players yet. Add one above.</p>
 } @else {
   <div class="column-headings" aria-hidden="true">
     <span class="pc-name-heading">Name</span>
@@ -79,30 +117,3 @@
     }
   </ul>
 }
-
-<!-- Same label text as the column headings above — sized to match this
-     form's own (narrower, icon-led) fields rather than the wider list-row
-     columns, since the two use different widths. -->
-<div class="player-form-headings" aria-hidden="true">
-  <span class="heading-name">Name</span>
-  <span class="heading-field">Initiative Modifier</span>
-  <span class="heading-field">AC</span>
-  <span class="heading-field">Max HP</span>
-  <span class="heading-notes">Notes</span>
-  <span class="heading-spacer"></span>
-</div>
-<form class="entry-form" (ngSubmit)="createPlayer()">
-  <app-combatant-fields
-    [name]="newPlayerName()"
-    (nameChange)="newPlayerName.set($event)"
-    [initiativeModifier]="newPlayerModifier()"
-    (initiativeModifierChange)="newPlayerModifier.set($event)"
-    [ac]="newPlayerAc()"
-    (acChange)="newPlayerAc.set($event)"
-    [maxHp]="newPlayerMaxHp()"
-    (maxHpChange)="newPlayerMaxHp.set($event)"
-    [notes]="newPlayerNotes()"
-    (notesChange)="newPlayerNotes.set($event)"
-  />
-  <button type="submit">Save Player</button>
-</form>

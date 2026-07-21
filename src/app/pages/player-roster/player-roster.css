@@ -1,3 +1,11 @@
+/* Short explainer above the create form — muted like .empty-state and
+   capped in width so it reads as a line of prose, not a full-bleed banner. */
+.roster-intro {
+  max-width: 42rem;
+  margin: 0 0 1.25rem;
+  color: var(--color-text-muted);
+}
+
 /* .player-entry stacks two rows: the editable fields (.player-row) and,
    below it, any Party membership chips — unlike the old flat .entry row
    (still used elsewhere for a single-line bubble), a Player can have a
