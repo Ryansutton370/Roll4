@@ -73,6 +73,31 @@
   </ul>
 }
 
+<section class="browse-section">
+  <h2>Browse Monster List</h2>
+  <div class="source-toggle" role="group" aria-label="Sourcebook">
+    <button
+      type="button"
+      [class.active]="monsterSource() === '5e-srd'"
+      (click)="monsterSource.set('5e-srd')"
+    >
+      D&amp;D 5e SRD
+    </button>
+    <button
+      type="button"
+      [class.active]="monsterSource() === 'shadowdark'"
+      (click)="monsterSource.set('shadowdark')"
+    >
+      Shadowdark
+    </button>
+  </div>
+  <app-monster-picker-table
+    [source]="monsterSource()"
+    [templates]="templatesForSource()"
+    (addTemplate)="addMonsterAsNpc($event)"
+  />
+</section>
+
 <div class="player-form-headings" aria-hidden="true">
   <span class="heading-name">Name</span>
   <span class="heading-field">Initiative Modifier</span>

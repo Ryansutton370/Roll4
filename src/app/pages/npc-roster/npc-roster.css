@@ -124,3 +124,40 @@
     flex-basis: 100%;
   }
 }
+
+/* Browse Monster List — same shape as MonsterGeneratorPanel's own
+   browse-section (heading + source toggle + the picker table), sitting
+   between the roster and the hand-entry create form below: a second way
+   to add an NPC, not a replacement for typing one in by hand. */
+.browse-section {
+  margin: 1.5rem 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.browse-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.source-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.source-toggle button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.source-toggle button.active {
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  border-color: var(--color-header-bg);
+}

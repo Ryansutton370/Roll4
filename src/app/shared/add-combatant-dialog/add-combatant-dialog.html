@@ -7,13 +7,16 @@
   <h2>Add Combatant</h2>
 
   @if (step() === 'choose') {
-    <!-- Three peer choices, per the GM spec: Existing NPC / Existing
-         Player / Create New — not "existing" with "new" buried behind a
-         toggle link, and not a type radio that re-scopes a single
+    <!-- Four peer choices, per the GM spec: Existing NPC / Existing Player
+         / From Book / Create New — not "existing" with "new" buried behind
+         a toggle link, and not a type radio that re-scopes a single
          existing/new toggle underneath it. -->
     <div class="choose-step">
       <button type="button" class="choose-btn" (click)="startExisting('npc')">Existing NPC</button>
-      <button type="button" class="choose-btn" (click)="startExisting('pc')">Existing Player</button>
+      <button type="button" class="choose-btn" (click)="startExisting('pc')">
+        Existing Player
+      </button>
+      <button type="button" class="choose-btn" (click)="startBook()">From Book</button>
       <button type="button" class="choose-btn" (click)="startNew()">Create New</button>
     </div>
   } @else if (step() === 'existing') {
@@ -29,24 +32,67 @@
         }
       </ul>
     } @else {
-      <p class="empty-state">
-        No saved {{ type() === 'pc' ? 'Players' : 'NPCs' }} to add yet.
-      </p>
+      <p class="empty-state">No saved {{ type() === 'pc' ? 'Players' : 'NPCs' }} to add yet.</p>
     }
     <button type="button" class="mode-toggle" (click)="backToChoose()">← Back</button>
+  } @else if (step() === 'book') {
+    <!-- Source toggle + a sortable/searchable MonsterPickerTable of every
+         template for that source (see monster-picker-table.ts) — replaces
+         the old plain alphabetical <select>. Picking one jumps straight to
+         the 'new' step, prefilled (see pickTemplate()); there's no separate
+         confirm click, matching this dialog's existing "existing" step
+         (pick = done). Started expanded (nothing else competes for space on
+         this step). -->
+    <div class="source-toggle" role="group" aria-label="Sourcebook">
+      <button
+        type="button"
+        [class.active]="bookSource() === '5e-srd'"
+        (click)="bookSource.set('5e-srd')"
+      >
+        D&amp;D 5e SRD
+      </button>
+      <button
+        type="button"
+        [class.active]="bookSource() === 'shadowdark'"
+        (click)="bookSource.set('shadowdark')"
+      >
+        Shadowdark
+      </button>
+    </div>
+    <app-monster-picker-table
+      [source]="bookSource()"
+      [templates]="templatesForBookSource()"
+      [initiallyExpanded]="true"
+      (addTemplate)="pickTemplate($event.id)"
+    />
+    <button type="button" class="mode-toggle" (click)="backToChoose()">← Back</button>
   } @else {
-    <!-- A brand-new ad-hoc combatant still needs a type — asked here,
-         rather than up front, since it isn't relevant until this step. -->
-    <fieldset class="ad-hoc-type">
-      <label>
-        <input type="radio" name="addCombatantType" [checked]="type() === 'npc'" (change)="type.set('npc')" />
-        NPC
-      </label>
-      <label>
-        <input type="radio" name="addCombatantType" [checked]="type() === 'pc'" (change)="type.set('pc')" />
-        Player
-      </label>
-    </fieldset>
+    <!-- A hand-typed ad-hoc combatant still needs a type — asked here,
+         rather than up front, since it isn't relevant until this step. A
+         From Book pick skips this entirely (a monster template is always
+         an NPC — see pickTemplate()). -->
+    @if (monsterTemplateId() === null) {
+      <fieldset class="ad-hoc-type">
+        <label>
+          <input
+            type="radio"
+            name="addCombatantType"
+            [checked]="type() === 'npc'"
+            (change)="type.set('npc')"
+          />
+          NPC
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="addCombatantType"
+            [checked]="type() === 'pc'"
+            (change)="type.set('pc')"
+          />
+          Player
+        </label>
+      </fieldset>
+    }
     <form class="entry-form" (ngSubmit)="submitNew()">
       <app-combatant-fields
         [name]="name()"
@@ -62,7 +108,7 @@
       />
       <button type="submit">Add</button>
     </form>
-    <button type="button" class="mode-toggle" (click)="backToChoose()">← Back</button>
+    <button type="button" class="mode-toggle" (click)="backFromNew()">← Back</button>
   }
 
   <div class="dialog-actions">

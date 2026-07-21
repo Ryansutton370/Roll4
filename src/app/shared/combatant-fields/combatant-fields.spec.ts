@@ -47,4 +47,25 @@ describe('CombatantFields', () => {
     expect(component.name()).toBe('Goblin Boss');
     expect(emitted).toBe('Goblin Boss');
   });
+
+  it('marks the Notes toggle as having notes, and expands the rich-text editor on click', () => {
+    const toggle: HTMLButtonElement = fixture.nativeElement.querySelector('.field-icon-notes');
+    expect(toggle.classList.contains('has-notes')).toBe(true);
+    expect(toggle.title).toBe('See Notes');
+    expect(fixture.nativeElement.querySelector('app-rich-text-editor')).toBeNull();
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-rich-text-editor')).not.toBeNull();
+  });
+
+  it('shows the Notes toggle as empty when there are no notes', () => {
+    fixture.componentRef.setInput('notes', '');
+    fixture.detectChanges();
+
+    const toggle: HTMLButtonElement = fixture.nativeElement.querySelector('.field-icon-notes');
+    expect(toggle.classList.contains('has-notes')).toBe(false);
+    expect(toggle.title).toBe('Add Notes');
+  });
 });

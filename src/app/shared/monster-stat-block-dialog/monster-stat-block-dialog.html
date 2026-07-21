@@ -1,0 +1,22 @@
+<!-- Native <dialog>, opened imperatively via showModal() (see openFor() in
+     monster-stat-block-dialog.ts) — gets a free ::backdrop and Escape-to-close
+     from the browser, so there's no hand-rolled overlay/focus-trap here. -->
+<dialog #dialog class="stat-block-dialog">
+  @if (template(); as t) {
+    <h2>{{ t.name }}</h2>
+    <p class="stat-block-meta">
+      {{ sourceLabel() }} · {{ difficultyLabel() }} {{ t.difficulty ?? '—' }} · AC
+      {{ t.ac ?? '—' }} · HP {{ t.maxHp ?? '—' }} · Init
+      {{ t.initiativeModifier >= 0 ? '+' + t.initiativeModifier : t.initiativeModifier }}
+    </p>
+    <dl class="stat-block-entries">
+      @for (entry of t.statBlock; track $index) {
+        <dt>{{ entry.label }}</dt>
+        <dd>{{ entry.value }}</dd>
+      }
+    </dl>
+  }
+  <div class="dialog-actions">
+    <button type="button" (click)="close()">Close</button>
+  </div>
+</dialog>

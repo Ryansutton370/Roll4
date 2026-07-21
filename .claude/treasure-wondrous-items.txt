@@ -1,0 +1,248 @@
+Air Spores
+When these spores are ingested, they settle into the host’s lungs and provide oxygen. The host no longer suffers penalties surrounding breath - poisonous gas, drowning underwater, etc. However, the spores hinder the character's normal respiration, causing all CON Attribute Tests to be rolled with Disadvantage.
+
+Bag of Beans
+Small pouch containing 1d6 magical beans - each varying wildly in appearance. When planted and watered, a Wild Magic effect will occur in 1d10 Minutes.
+
+Bag of Bones
+When the bones are scattered and a word of command is spoken, a squadron of 1d10 Skeletons emerges from the ground and obeys the bag’s user unconditionally for 1d4 turns before falling apart.
+
+Beads of Force
+Small bag containing 1d6 black beads, when thrown or struck, burst in a pulse of force, dealing 5d4 damage to anything close to its impact.
+
+Dorian’s Antipolymorphic Portrait Frame
+A small hand-sized frame with brass folding cover - painting the subject within the frame protects them from Polymorph and other transformation effects, the painting depicts the would-be changes instead. The painting does not need to be masterful, only done with sincerity.
+
+Folding Boat
+Unremarkable wooden chest decorated with runes of sailing - when the locking mechanism is turned the opposite way, it expands into a large canoe that can comfortably seat 4.
+
+Blessed Book
+Bound book of suspiciously high quality leather - essentially indestructible, waterproof, fireproof, etc. Very valued for spellbooks.
+
+Arboreal Armoury
+A packet of seeds - when planted, a tree sprouts the next day bearing mundane weapons and simple armor.
+
+Bountiful Spade
+Planting with this spade will produce a healthy crop in all but the most extreme of worst conditions. Planting the resulting crops has a small chance of yielding more spades.
+
+Waterlife Bowl
+Water poured into this bowl will become a small Water Elemental with a word of summoning.
+
+Transport Boxes
+Two small boxes - mundane objects placed in one will appear instantly in the other. Magical objects will teleport to a random location.
+
+Firelife Brazier
+When a fire is lit in this brazier, it becomes a small Fire Elemental with a word of summoning.
+
+Bridle of Calming
+When applied to a horse or other mount, that creature is immune to effects of fear or panic.
+
+Magic Broom
+The broom will allow its user to fly for one night after performing a worthy wicked deed, or if they have applied Witch Salve or Hagsoil to their bodies. Alternatively the broom can be commanded to sweep a room on its own. It has a 50% chance of rebelling, saying “I am not your broom, I am not your broom, I’ve had enough, I'm taking off these chains of servitude. I am not your broom, I am not your broom, no longer must I sweep for you for I am not your broom.”
+
+Collapsible Cage
+A small birdcage, when activated, expands into a 5’ x 5’ barred cell.
+
+Everburning Candle
+The flame of this candle will not go out, ever, it will stay lit in any condition, even underwater. The light permeates dimly through anything trying to cover it.
+
+Assassin’s Candle
+Spend one night staring at the candle, concentrating on your target and shaping the wax into an effigy of them. Once prepped, if the target is within the light of the candle, all Sneak Attacks made against them are rolled with Advantage.
+
+Windlife Weathervane
+A strong wind blowing into this weathervane will become a small Air Elemental after a word of summoning.
+
+Otherworldly Favor
+Often given as a gift to faithful devotees, this small icon of a spirit, demon, fairie, etc. can be exchanged for one minor supernatural favor, like a limited Wish spell. Only something within the domain of the spirit can be granted - a river spirit could flood or dam a river, for example, but an angel of mercy would not strike down a righteous person.
+
+Antimagic Chime
+When struck, no magic spell can be cast within hearing range of this chime for 1d3 minutes. Lasts for 1d4 charges.
+
+Devil’s Pact Paper
+When a contract is written on this paper and signed, the first party to break the terms of the contract is rewarded with treasures. Fine print outlining this clause is written in letter that appear when the paper is held over open flame.
+
+Fairy Steed Whistle
+When blown, a mount you have bonded with will race to your location through the fairy woods, appearing magically at your location in 1d4 minutes. If your mount has been captured or incapacitated, the whistle blows a discordant note.
+
+Crucible of Melting
+Metal placed into this bowl melts without fire or heat necessary once a command word is spoken, over 1d6 Minutes.
+
+Turtleshell Island
+When this turtle shell is thrown into open water, it expands into a small island about 30’ across. In smaller bodies of water, it expands into a floating platform large enough to support a single person at a time.
+
+Aetherdust
+Coating a weapon with this powder allows the weapon to damage ghosts and other incorporeal enemies as normal.
+
+Fairy Spyglass
+This folding telescope is actually a collapsable microscope - allowing its user to see 1 foot ahead at 100 times clarity.
+
+Dragonskin Drum
+When played, this drum booms with extreme bass, strong enough to rattle anything nearby, ripple bodies of water, shake loose leaves from trees, and trigger avalanches where appropriate.
+
+Dry Bones
+When these bone fragments are thrown into water, they absorb a massive amount of water and expand dramatically. One fragment can absorb a full barrel of water, and grows to roughly the size of a barrel itself. The bones then crack and crumble into dust. Do not inhale.
+
+Flumph Powder
+Anyone within nearby Distance to this powder who breathes it in temporarily loses 1D10 INT, and spells take 1d4 turns to cast.
+
+Eversmoking Pipe
+When lit and smoked, this pipe produces a cloud of smoke large enough to densely fill a close space and obscure a near space. Only by emptying the pipe or submerging it in water will end its constant outpour of smoke.
+
+Wild Whistle
+Once per Day, this whistle can be reshaped into the form of any animal - so long as it remains in this shape, it can perfectly mimic that animal’s call.
+
+Bubble Pipe
+When lit, this pipe produces breathable air bubbles instead of smoke, which can be inhaled to supply someone with enough air to last 3 minutes.
+
+Gnomish Mouse Cart
+When a mouse or rat is secured in the harness of this miniature cart, it expands to the size of a normal cart, engineered so precisely that the still-regular sized rodent is able to pull it as a donkey or mule might.
+
+Silverware of Poison Detection
+When this fork, knife, or spoon encounters poisoned food, it bursts into flames as a warning to the would-be victim - the color of the flame can be used to indicate what sort of poison it detected.
+
+Binding Contract Paper
+If a contract is signed on this paper, any party who violates the terms of the contract suffers from the effects of Panic at the start of every day until they restore good standing.
+
+Amulet of Dramatic Death Defiance
+When the wearer would normally be taken out by a specific kind of attack (and only that specific kind of attack), the wearer instead becomes invisible for 1d4 turns and an advanced illusion takes the place of their corpse.
+
+Amulet of Inescapable Location
+This appears to be a ward against scrying and other kinds of supernatural observation and detection - however, it actually acts as a beacon to those who are aware of its true nature.
+
+Weaponcharm Bracelet
+When this bracelet is slid over a non-magical weapon and the command word engraved on it is spoken, the weapon shrinks into a gold or silver decorative charm replica of itself. It returns to its original size in the wielder’s hand instantly when the command word is spoken again. Up to four weapons can be held this way.
+
+Bracelet of Bowcraft
+Once per Day, your DEX increases by +2 when using a bow, up to 19.
+
+Trick Earring
+A single, mundane object can be stored within this earring. It can be “pulled from behind your ear” at any time.
+
+Crossbow Ring
+When the ring’s ornament is turned, it expands into a delicate single-shot crossbow wrapped around the wearer’s hand. It falls apart after one use.
+
+Brooch of Dyscalculia
+The wearer of this brooch rolls with Advantage in any negotiations involving numbers, math, or quantities as they exhibit an aura that confuses those around them regarding the value of numbers.
+
+Shieldbutton
+When this button is torn from the clothing it is sewn into, it expands into a typical shield.
+
+Tasteful Brooch
+The wearer of this brooch looks and smells like a delicious and tempting meal, requiring a successful WIS Test of any ally or friend who does not wish to cannibalize them, and instantly enticing any creature who has no compunctions against cannibalizing them.
+
+Dwarven Delving Amulet
+In the event of a cave-in, earthquake, or other subterranean geological catastrophe, this amulet expands into 3 days worth of rations, both food and drink, 5 self-igniting torches, as well as parchment and pen to write your last will and testament.
+
+Ring of Counterfeit Detection
+This ring becomes uncomfortably warm when the wearer holds a forged or counterfeit copy of a unique item.
+
+Barbed Necklace
+When thrown, this necklace becomes a spool of barbed wire, covering a nearby distance.
+
+Amulet of Recording
+When wound, a tiny disc inside the amulet spins and records all nearby sound for the next Hour. When wound the opposite way, these sounds play back at one quarter of their original volume - whispers are unlikely to be comprehensible, but regular speech can be distinguished clearly if listening in a quiet place.
+
+Magic Missile Necklace
+This necklace has 1d6 crystal beads, when removed, each becomes a single use of the Magic Missile spell.
+
+Black Veil
+The wearer of this veil can convert light or moderate shadow into heavy, obscuring darkness once per Day.
+
+Magic Detection Powder
+Sprinkling this powder on an object works as a Detect Magic spell.
+
+Anchor Token
+Once per day, with a word of command, this amulet becomes heavy enough to anchor a boat. This only works on boats or over water.
+
+Boots of Balance
+A subtle shifting ferro fluid in the heels grants advantage on any Dexterity Ability Test that involves maintaining balance, climbing, tightrope walking, etc.
+
+Cowardly Dancer’s Shoes
+Appear as a high quality magical boot or shoe - but when the wearer tries to retreat or flee from combat, they dance compulsively, and the shoes seal themselves around the wearer’s feet permanently except for a Remove Curse spell.
+
+Elfstep Boots
+The wearer's footsteps are totally silent and leave no footprints behind.
+
+Hyperborean Boots
+Walk on top of deep snow, and cross ice without fear of slipping.
+
+Boots of Deceptive Tracks
+A small brass knob adjusts the size and style of tracks these boots leave behind, varying from the size of halfling feet to an ogre’s, as well as several animal tracks.
+
+Spidersilk Cloak
+This cloak can be hung like a hammock on any flat surface, and the wearer can disguise themselves as a thick spiderweb in a corner to hide. Once per Day, the cloak grants one use of the Web spell. You are immune to the Web spell and entrapment by webs of any sort.
+
+Displacement Cape
+Once per Day you may utter a word of command. For the next D6+1 rounds, you have the Displacement effect similar to a Displacer Beast (attack rolls made against you are made with Disadvantage, this effect ends once you are successfully hit or incapacitated)
+
+Gloves of the Cutpurse
+Once per Day, add +2 to DEX when rolling tests to pickpocket or steal, up to 19.
+
+Ogrebash Gauntlets
+When worn, attacks made with blunt weapons knock equal-sized opponents back from close to nearby.
+
+Gorilla Grip Gauntlets
+These gauntlets lock into place when squeezed firmly enough, providing an unbreakable grip onto whatever is held. Squeeze twice to release.
+
+Lightning Rod Helm
+Lightning and electric-based attacks do no harm to you, and redirect toward you if cast within nearby range.
+
+Belt of Many Pouches
+This belt can hold an additional 1d8 items in addition to your normal carrying capacity with its miniature bags of holding - however, opening each pouch for the first time requires a roll on the Wild Magic table.
+
+Conjurer’s Cap
+One item can be stored in this hat and pulled out at any time. Alternatively, the cap can be thrown and becomes a large conical tent, large enough to fit 4 to 6.
+
+Deep Delver’s Mining Helm
+This helmet has a caged opening to mount a candle safely, and an array of small mirrors behind it to illuminate a nearby distance in a straight cone. The candle can be lit or unlit with a command word.
+
+Skipstone Boots
+You can make two steps across the surface of water, and 1d6 steps further before falling in.
+
+Mantle of the Mundane
+Those wearing this cloak appear completely unremarkable in civilization - unlikely to be noticed by anyone unless deliberately drawing attention to themselves, and even then observers would have difficulty remembering anything particular about their appearance, equipment, etc.
+
+Bloodhound Helmet
+When wearing this helmet, your vision is obscured by droopy jowls, roll all Ability Tests with Disadvantage that require sight except for efforts to track a target or identify an odor, which are rolled with Advantage. Once a trail has been found, it cannot be lost so long as the helmet remains on.
+
+Sharkmaw Halfmask
+The maw contains 1d4 rows of teeth, and can be triggered to clamp down hard enough to break iron, bone, etc. The teeth fall out after use, cracked and broken.
+
+Orcish Spurred Boots
+You move at half-speed when walking, running, etc on foot, but when riding you cannot be thrown or removed from your mount willingly.
+
+Robe of Eyes
+The wearer can see out of all of the eyes embroidered on the robe, granting them 360 degree vision.
+
+Robe of Repetition
+Once per day, with a word of command, the next action the wearer takes is repeated exactly as it happened the first time as an after-image trails just behind the wearer. This must be declared before rolling attacks or attribute tests.
+
+Crossbow Cap
+A foppish hat concealing a single bolt. Tipping the hat a certain way launches the bolt as though fired from a crossbow, which rips through the hat.
+
+Shattershield
+Instead of taking damage from a melee attack, you can choose to instead break the shield, it explodes in shrapnel, dealing 5d4 damage to all close creatures. This effect can also be triggered voluntarily by pulling a trigger in the shield’s grip.
+
+Fang of Arcane Theft
+A successful bite, drawing blood against a spellcaster transfers one of their memorized spells to the user at random. If the spell is a higher level than you are capable of casting, you risk insanity and roll Wild Magic.
+
+Mermaid Arrows
+These arrows can be fired underwater, or into water, without any penalty.
+
+Dwarven Spade
+Acts like a short spear or axe - roll damage with Advantage on successful attacks against golems, earth elementals, and other enemies made primarily of rock, dirt, or crystal.
+
+Sticky Shield
+While wearing this shield, missile attacks that miss against you are stuck to the shield and can be re-used later. Melee attacks made against you that roll 1 or 2 result in the weapon being stuck to the shield, inseparable until an oil solvent is applied (stored in a vial within the shield’s grip).
+
+Roadbolt
+This massive bolt must be fired from a ballista (or thrown, but only up to nearby distance). As it flies, the ground beneath it becomes paved, quality roadway, cleared of small debris. The road is semi-permanent over land, and lasts for one week over water. Enemies struck by the bolt become petrified.
+
+Astral-Linked Axes
+These hand axes can be thrown to a nearby distance - if holding one axe, the wielder can spend an Action to teleport to the location of the other, so long as it is within nearby distance.
+
+Dark Fairy Arrow
+This arrow can be fired into any deep shadow, then disappears. It can emerge from any other deep shadow at any time with the use of a command word, flying at full speed toward a target, up to three days later.
+
+Dragonbladder Quiver
+Arrows drawn from this quiver can be instantly lit into flaming arrows.

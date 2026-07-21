@@ -70,6 +70,32 @@
   background: var(--color-removed-tint);
 }
 
+/* Same visual pattern as the Encounter Generator's sourcebook toggle
+   (encounter-generator.css) — this dialog doesn't share a stylesheet with
+   that page, so it's repeated here rather than reached into. */
+.source-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.source-toggle button {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.source-toggle button.active {
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  border-color: var(--color-header-bg);
+}
+
 .mode-toggle {
   display: block;
   padding: 0.4rem 0;

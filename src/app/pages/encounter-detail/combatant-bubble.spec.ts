@@ -14,6 +14,8 @@ const combatant: Combatant = {
   maxHp: 30,
   currentHp: 22,
   notes: 'Wields a longsword',
+  monsterTemplateId: null,
+  monsterName: null,
   lastRoll: 12,
   initiativeTotal: 15,
   removedFromCombat: false,
@@ -85,7 +87,8 @@ describe('CombatantBubble', () => {
     let emittedCount = 0;
     component.createTimerRequested.subscribe(() => emittedCount++);
 
-    const createTimerBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.create-timer-btn');
+    const createTimerBtn: HTMLButtonElement =
+      fixture.nativeElement.querySelector('.create-timer-btn');
     createTimerBtn.click();
 
     expect(emittedCount).toBe(1);
@@ -160,6 +163,47 @@ describe('CombatantBubble', () => {
     confirmBtn.click();
 
     expect(emitted).toBe(10);
+  });
+
+  it('marks the Notes badge dark with a "See Notes" hint when the combatant has notes', () => {
+    const notesBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.notes-badge-btn');
+    expect(notesBtn.classList.contains('has-notes')).toBe(true);
+    expect(notesBtn.title).toBe('See Notes');
+
+    let emittedCount = 0;
+    component.notesRequested.subscribe(() => emittedCount++);
+    notesBtn.click();
+    expect(emittedCount).toBe(1);
+  });
+
+  it('marks the Notes badge muted with an "Add Notes" hint when the combatant has no notes', async () => {
+    fixture.componentRef.setInput('combatant', { ...combatant, notes: '<p><br></p>' });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const notesBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.notes-badge-btn');
+    expect(notesBtn.classList.contains('has-notes')).toBe(false);
+    expect(notesBtn.title).toBe('Add Notes');
+  });
+
+  it('only shows the View Stat Block badge for a monster-templated combatant, and emits viewStatBlockRequested when clicked', async () => {
+    expect(fixture.nativeElement.querySelector('.stat-block-badge-btn')).toBeNull();
+
+    fixture.componentRef.setInput('combatant', {
+      ...combatant,
+      monsterTemplateId: '5e-srd-goblin',
+      monsterName: 'Goblin',
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    let emittedCount = 0;
+    component.viewStatBlockRequested.subscribe(() => emittedCount++);
+    const statBlockBtn: HTMLButtonElement =
+      fixture.nativeElement.querySelector('.stat-block-badge-btn');
+    statBlockBtn.click();
+
+    expect(emittedCount).toBe(1);
   });
 
   it('hides AC/HP/Notes/Initiative from the row in compact mode, moving them into the drawer instead', async () => {

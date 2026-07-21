@@ -12,6 +12,16 @@ export interface Npc {
   maxHp: number | null;
   /** '' means "not set" — a plain string is enough here (no null variant needed). */
   notes: string;
+  /** Set when this Npc was generated from a MonsterTemplate (the Encounter
+   *  Generator's "Save as Troop" step) — references MonsterTemplate.id, for
+   *  the combatant bubble's Eye icon to look up the full stat block. `null`
+   *  for every hand-entered Npc. */
+  monsterTemplateId: string | null;
+  /** The creature type name from the template (e.g. "Goblin"), kept
+   *  separate from `name` (e.g. "Barry") so the combatant bubble can show
+   *  both — "Barry" prominently, "Goblin" as a smaller subtitle. `null`
+   *  unless monsterTemplateId is also set. */
+  monsterName: string | null;
 }
 
 /**

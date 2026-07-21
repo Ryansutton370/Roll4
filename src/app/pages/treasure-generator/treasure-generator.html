@@ -1,0 +1,60 @@
+<h1>Treasure</h1>
+<p class="page-intro">
+  Reward players with Trinkets, Potions, and Wondrous Items — hopefully more interesting than some gold or a +1 Sword.
+</p>
+<p class="range-note">
+  Distances called out in these entries are generally abstracted into range bands rather than exact
+  feet: <strong>close</strong> means within 5 feet, <strong>near</strong> means within about 30 feet,
+  and <strong>far</strong> means beyond 30 feet but still within sight.
+</p>
+
+@if (tables().length === 0) {
+  <p class="empty-state">No Treasure tables loaded.</p>
+} @else {
+  <div class="picker-row">
+    <label>
+      Table
+      <select [ngModel]="selectedTableId()" (ngModelChange)="selectTable($event)">
+        @for (table of tables(); track table.id) {
+          <option [value]="table.id">{{ table.tableName }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Count
+      <input
+        type="number"
+        min="1"
+        max="50"
+        [ngModel]="rollCount()"
+        (ngModelChange)="rollCount.set($event)"
+      />
+    </label>
+
+    <button type="button" (click)="roll()">Roll</button>
+  </div>
+
+  @if (rolledEntries().length > 0) {
+    <ul class="results-list">
+      @for (entry of rolledEntries(); track $index) {
+        <li>
+          <!-- Potions carry a `detail` (the effect) alongside `text` (the
+               name); Trinkets/Wondrous Items don't, so `detail` is null and
+               only the plain text line shows. -->
+          <span class="entry-text">
+            <span class="entry-name">{{ entry.text }}</span>
+            @if (entry.detail) {
+              <span class="entry-detail">{{ entry.detail }}</span>
+            }
+          </span>
+          <button type="button" class="copy-btn" (click)="copy(entry, $index)">
+            {{ copiedIndex() === $index ? 'Copied!' : 'Copy' }}
+          </button>
+        </li>
+      }
+    </ul>
+  }
+}
+
+<app-generator-disclaimer />

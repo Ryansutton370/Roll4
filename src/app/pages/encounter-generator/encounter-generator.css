@@ -1,0 +1,46 @@
+.save-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.save-row input {
+  flex: 1;
+  max-width: 20rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.save-row button {
+  padding: 0.6rem 1.1rem;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.saved-banner {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-control);
+  background: var(--color-heal-tint);
+  color: var(--color-heal);
+  font-weight: 600;
+}
+
+.link-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}

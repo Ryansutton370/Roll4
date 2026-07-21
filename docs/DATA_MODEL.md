@@ -30,8 +30,8 @@ User (GM)
 
 The key design decision here: a **Combatant** is not the same thing as a
 Player or an Npc. A Player/Npc is permanent library data reused across many
-Parties/Troops and Encounters. A Combatant is *that Player's or Npc's
-participation in this one Encounter* — its rolled initiative, whether it's
+Parties/Troops and Encounters. A Combatant is _that Player's or Npc's
+participation in this one Encounter_ — its rolled initiative, whether it's
 been removed from combat, etc. Mixing those together would mean a Player's
 "current initiative roll" leaks into the roster screen, which doesn't make
 sense once the same Player is used in a second encounter.
@@ -40,7 +40,7 @@ The second key decision (Phase 2): **Party/Troop membership is
 many-to-many**, not the Phase 1 shape where a PC belonged to exactly one
 Party. A Player can be in several Parties (a GM running more than one
 group who shares a player between them, e.g.), and an Npc can be in
-several Troops. `Party.playerIds`/`Troop.npcIds` are the *owning* side of
+several Troops. `Party.playerIds`/`Troop.npcIds` are the _owning_ side of
 that relationship — Player/Npc carry no back-reference field at all;
 "which Parties is this Player in" is always derived by scanning every
 Party's `playerIds` (see `PartyStore.partiesForPlayer` /
@@ -57,45 +57,50 @@ field yet. They'll be added when auth actually lands, instead of carrying
 an always-empty field until then.
 
 ### User
-| Field       | Type   | Notes                                   |
-|-------------|--------|------------------------------------------|
-| `id`        | string | Unique identifier                       |
-| `role`      | `"gm"` \| `"player"` | Player role is future work |
-| `displayName` | string | |
+
+| Field         | Type                 | Notes                      |
+| ------------- | -------------------- | -------------------------- |
+| `id`          | string               | Unique identifier          |
+| `role`        | `"gm"` \| `"player"` | Player role is future work |
+| `displayName` | string               |                            |
 
 ### Party
-| Field       | Type     | Notes                                    |
-|-------------|----------|--------------------------------------------|
-| `id`        | string   | Unique identifier                          |
-| `ownerId`   | string   | References `User.id` (the GM)              |
-| `name`      | string   | e.g. "The Thursday Night Group"            |
+
+| Field       | Type     | Notes                                                                                                                                      |
+| ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`        | string   | Unique identifier                                                                                                                          |
+| `ownerId`   | string   | References `User.id` (the GM)                                                                                                              |
+| `name`      | string   | e.g. "The Thursday Night Group"                                                                                                            |
 | `playerIds` | string[] | References `Player.id` — the owning side of a many-to-many; deleting a Party does **not** delete these Players, it just drops the grouping |
 
 ### Player
+
 A reusable library entry — not tied to any one Party (see `Party.playerIds`
 above). Renamed from Phase 1's `PlayerCharacter`, which was owned 1:1 by a
 single Party via a `partyId` field; that field is gone now that membership
 is many-to-many.
 
-| Field                | Type   | Notes                                  |
-|----------------------|--------|-------------------------------------------|
-| `id`                 | string | Unique identifier                         |
-| `name`               | string | e.g. "Aria Windmere"                      |
-| `initiativeModifier` | number | Signed integer, e.g. `3`, `0`, `-1`       |
-| `ac`                 | number \| null | Optional. `null` means "not set," not zero |
+| Field                | Type           | Notes                                                          |
+| -------------------- | -------------- | -------------------------------------------------------------- |
+| `id`                 | string         | Unique identifier                                              |
+| `name`               | string         | e.g. "Aria Windmere"                                           |
+| `initiativeModifier` | number         | Signed integer, e.g. `3`, `0`, `-1`                            |
+| `ac`                 | number \| null | Optional. `null` means "not set," not zero                     |
 | `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the Player |
-| `notes`              | string | Optional. `''` means "not set"            |
-| `ownerId`            | string \| null | Future: references a Player-role `User.id` |
+| `notes`              | string         | Optional. `''` means "not set"                                 |
+| `ownerId`            | string \| null | Future: references a Player-role `User.id`                     |
 
 ### Troop
-| Field     | Type     | Notes                                        |
-|-----------|----------|-------------------------------------------------|
-| `id`      | string   | Unique identifier                              |
-| `ownerId` | string   | References `User.id` (the GM)                  |
-| `name`    | string   | e.g. "Goblin Warband"                          |
+
+| Field     | Type     | Notes                                                                   |
+| --------- | -------- | ----------------------------------------------------------------------- |
+| `id`      | string   | Unique identifier                                                       |
+| `ownerId` | string   | References `User.id` (the GM)                                           |
+| `name`    | string   | e.g. "Goblin Warband"                                                   |
 | `npcIds`  | string[] | References `Npc.id` — same many-to-many convention as `Party.playerIds` |
 
 ### Npc
+
 The NPC-side mirror of Player — a reusable library entry, not tied to any
 one Troop. New this phase: NPCs had no persisted library at all before now
 (they were always created ad-hoc, inline in an Encounter). That ad-hoc path
@@ -104,31 +109,35 @@ this library and Troops exist alongside it, not in place of it yet; pulling
 a Troop into an Encounter (mirroring how a Party is pulled in today) is
 planned but not built.
 
-| Field                | Type   | Notes                                  |
-|----------------------|--------|-------------------------------------------|
-| `id`                 | string | Unique identifier                         |
-| `name`               | string | e.g. "Goblin Shaman"                      |
-| `initiativeModifier` | number | Signed integer, e.g. `3`, `0`, `-1`       |
-| `ac`                 | number \| null | Optional. `null` means "not set," not zero |
-| `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the NPC |
-| `notes`              | string | Optional. `''` means "not set"            |
-| `ownerId`            | string | References `User.id` (the GM)             |
+| Field                | Type           | Notes                                                                                                                                                      |
+| -------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                 | string         | Unique identifier                                                                                                                                          |
+| `name`               | string         | e.g. "Goblin Shaman"                                                                                                                                       |
+| `initiativeModifier` | number         | Signed integer, e.g. `3`, `0`, `-1`                                                                                                                        |
+| `ac`                 | number \| null | Optional. `null` means "not set," not zero                                                                                                                 |
+| `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the NPC                                                                                                |
+| `notes`              | string         | Optional. `''` means "not set"                                                                                                                             |
+| `ownerId`            | string         | References `User.id` (the GM)                                                                                                                              |
+| `monsterTemplateId`  | string \| null | Set when this Npc was generated by the Encounter Generator's "Save as Troop" step — references `MonsterTemplate.id`. `null` for every hand-entered Npc     |
+| `monsterName`        | string \| null | The creature type name from the template (e.g. "Goblin"), kept separate from `name` (e.g. "Barry") — see Combatant below for the display rule this enables |
 
 ### Encounter
-| Field              | Type      | Notes                                          |
-|--------------------|-----------|--------------------------------------------------|
-| `id`               | string    | Unique identifier                                |
-| `ownerId`          | string    | References `User.id` (the GM)                    |
-| `name`             | string    | e.g. "Goblin Ambush"                              |
-| `partyIds`         | string[]  | Which Parties' Players were pulled in            |
-| `troopIds`         | string[]  | Which Troops' NPCs were pulled in                |
-| `combatantIds`     | string[]  | **Ordered** by initiative (descending); this order IS the initiative order |
-| `activeCombatantIndex` | number \| null | Index into `combatantIds`; null before first Roll |
-| `holdOrder`        | string[]  | Ids of Combatants currently on Hold Action, oldest-first. Drives the secondary Hold Action list; cleared every round boundary |
-| `round`            | number    | `0` before the first Roll, then starts at `1`    |
-| `reRollEachRound`  | boolean   | Default `true` (the homebrew rule)               |
+
+| Field                  | Type           | Notes                                                                                                                         |
+| ---------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `id`                   | string         | Unique identifier                                                                                                             |
+| `ownerId`              | string         | References `User.id` (the GM)                                                                                                 |
+| `name`                 | string         | e.g. "Goblin Ambush"                                                                                                          |
+| `partyIds`             | string[]       | Which Parties' Players were pulled in                                                                                         |
+| `troopIds`             | string[]       | Which Troops' NPCs were pulled in                                                                                             |
+| `combatantIds`         | string[]       | **Ordered** by initiative (descending); this order IS the initiative order                                                    |
+| `activeCombatantIndex` | number \| null | Index into `combatantIds`; null before first Roll                                                                             |
+| `holdOrder`            | string[]       | Ids of Combatants currently on Hold Action, oldest-first. Drives the secondary Hold Action list; cleared every round boundary |
+| `round`                | number         | `0` before the first Roll, then starts at `1`                                                                                 |
+| `reRollEachRound`      | boolean        | Default `true` (the homebrew rule)                                                                                            |
 
 ### Combatant
+
 An Encounter-scoped participant. Wraps a Player (via `playerId`) or an Npc
 (via `npcId`) — or, for an ad-hoc entry not yet saved to either library,
 neither.
@@ -140,42 +149,266 @@ match (it drives `.pc-entry`/`.npc-entry` styling across several templates,
 and renaming it was out of scope). Read `type: "pc"` as "this Combatant is
 a Player, ad-hoc or otherwise."
 
-| Field                | Type                   | Notes                                        |
-|----------------------|------------------------|-----------------------------------------------|
-| `id`                 | string                 | Unique identifier                             |
-| `encounterId`        | string                 | References `Encounter.id`                     |
-| `type`               | `"pc"` \| `"npc"`      | Drives the color shown in the initiative list |
-| `playerId`           | string \| null         | Set when this Combatant is linked to a library `Player` — pulled in from a Party, added individually, or saved to the roster after the fact. `null` for an ad-hoc, unsaved Player. Always `null` when `type === "npc"` |
-| `npcId`              | string \| null         | Npc-side mirror of `playerId` above — set when linked to a library `Npc` (pulled from a Troop, added individually, or saved after the fact). `null` for an ad-hoc, unsaved NPC — Phase 1's only NPC behavior, still fully supported. Always `null` when `type === "pc"` |
-| `name`               | string                 | Copied from Player/Npc, or set directly for an ad-hoc entry |
-| `initiativeModifier` | number                 | Copied from Player, or set directly for an NPC |
-| `ac`                 | number \| null         | Copied from Player/Npc, or set directly for an ad-hoc entry. `null` = not set |
-| `maxHp`              | number \| null         | Copied from Player/Npc, or set directly for an ad-hoc entry. `null` = not set |
-| `currentHp`          | number \| null         | Combatant-only — no Player/Npc equivalent. Starts equal to `maxHp`, then clamped to `[0, maxHp]` on every change. `null` whenever `maxHp` is `null` |
-| `notes`              | string                 | Copied from Player/Npc, or set directly for an ad-hoc entry. `''` = not set |
-| `lastRoll`           | number \| null         | The 1–20 die result from the most recent roll |
-| `initiativeTotal`    | number \| null         | `lastRoll + initiativeModifier`; this is what sorts the list. `null` renders as "N/A" and sorts/counts as `0` |
-| `removedFromCombat`  | boolean                | Default `false`. See below.                   |
-| `incapacitated`      | boolean                | Default `false`. Purely cosmetic — see below. |
-| `onHold`             | boolean                | Default `false`. See below.                   |
-| `preHoldLastRoll`    | number \| null         | Snapshot of `lastRoll` taken when Hold Action was turned on. Default `null`. See below. |
-| `preHoldInitiativeTotal` | number \| null     | Snapshot of `initiativeTotal` taken when Hold Action was turned on. Default `null`. See below. |
-| `readyToJoin`        | boolean                | Default `false`. See "Ready to Join" below. |
+| Field                    | Type              | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------ | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                     | string            | Unique identifier                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `encounterId`            | string            | References `Encounter.id`                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `type`                   | `"pc"` \| `"npc"` | Drives the color shown in the initiative list                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `playerId`               | string \| null    | Set when this Combatant is linked to a library `Player` — pulled in from a Party, added individually, or saved to the roster after the fact. `null` for an ad-hoc, unsaved Player. Always `null` when `type === "npc"`                                                                                                                                                                                                                                                              |
+| `npcId`                  | string \| null    | Npc-side mirror of `playerId` above — set when linked to a library `Npc` (pulled from a Troop, added individually, or saved after the fact). `null` for an ad-hoc, unsaved NPC — Phase 1's only NPC behavior, still fully supported. Always `null` when `type === "pc"`                                                                                                                                                                                                             |
+| `name`                   | string            | Copied from Player/Npc, or set directly for an ad-hoc entry                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `initiativeModifier`     | number            | Copied from Player, or set directly for an NPC                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `ac`                     | number \| null    | Copied from Player/Npc, or set directly for an ad-hoc entry. `null` = not set                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `maxHp`                  | number \| null    | Copied from Player/Npc, or set directly for an ad-hoc entry. `null` = not set                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `currentHp`              | number \| null    | Combatant-only — no Player/Npc equivalent. Starts equal to `maxHp`, then clamped to `[0, maxHp]` on every change. `null` whenever `maxHp` is `null`                                                                                                                                                                                                                                                                                                                                 |
+| `notes`                  | string            | Copied from Player/Npc, or set directly for an ad-hoc entry. `''` = not set                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `monsterTemplateId`      | string \| null    | Copied from the source Npc — see Npc above. Powers the combatant bubble drawer's "View Stat Block" button (`CombatantBubble.viewStatBlockRequested` → `EncounterDetail.openStatBlockDialog` → `MonsterStatBlockDialog`) — only shown when this is set                                                                                                                                                                                                                               |
+| `monsterName`            | string \| null    | Copied from the source Npc. When set and different from the combatant's `name` (see `CombatantBubble.monsterSubtitle`), the bubble shows the personal name prominently with this as a smaller "- Goblin" subtitle. Two unnamed generated monsters still just read as "Goblin A"/"Goblin B" via the existing duplicate-name lettering below, unaffected by this field — `monsterSubtitle` compares against the raw `name`, not the lettered display name, specifically to avoid that |
+| `lastRoll`               | number \| null    | The 1–20 die result from the most recent roll                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `initiativeTotal`        | number \| null    | `lastRoll + initiativeModifier`; this is what sorts the list. `null` renders as "N/A" and sorts/counts as `0`                                                                                                                                                                                                                                                                                                                                                                       |
+| `removedFromCombat`      | boolean           | Default `false`. See below.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `incapacitated`          | boolean           | Default `false`. Purely cosmetic — see below.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `onHold`                 | boolean           | Default `false`. See below.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `preHoldLastRoll`        | number \| null    | Snapshot of `lastRoll` taken when Hold Action was turned on. Default `null`. See below.                                                                                                                                                                                                                                                                                                                                                                                             |
+| `preHoldInitiativeTotal` | number \| null    | Snapshot of `initiativeTotal` taken when Hold Action was turned on. Default `null`. See below.                                                                                                                                                                                                                                                                                                                                                                                      |
+| `readyToJoin`            | boolean           | Default `false`. See "Ready to Join" below.                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+
+### NameTable
+
+Loaded read-only via `NameTableStore` from `public/data/name-tables.json`.
+Originally converted once from the GM's Random Generators spreadsheet by
+`scripts/import-names.cjs` — that script and the spreadsheet
+(`.claude/Names.xlsx`) are now a historical record of that first batch, not
+something to re-run: `name-tables.json` is the GM-editable source directly
+(add/edit entries or whole tables in it freely; already the practice for
+the five "Places" tables added straight to the JSON outside the script).
+Despite the name, not every table holds _person_ names — the original
+spreadsheet also had place-name, plant/alchemy-substance-name, and
+byname/epithet tabs, so the shape is kept generic (a labeled list of
+strings) rather than modeling "name" specially.
+
+| Field       | Type                             | Notes                                                                                                                                                          |
+| ----------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`        | string                           | Slug of setName+tableName+gender, e.g. `european-german-male`                                                                                                  |
+| `setName`   | string                           | The source spreadsheet tab, e.g. `"European"`, `"Fantasy"`, `"Places"`                                                                                         |
+| `tableName` | string                           | The column, gender suffix stripped, e.g. `"German"`, `"Goblin"`, `"Forest"`                                                                                    |
+| `gender`    | `'male'` \| `'female'` \| `null` | Parsed from a `"(M)"`/`"(F)"` suffix on the column header; `null` for ungendered columns (most of them)                                                        |
+| `entries`   | string[]                         | The column's values. Usually 100 (a d100 table), but a handful of source columns are still partially filled in — imported as-is rather than padded or rejected |
+
+**Why a flat list of tables instead of nesting `entries` under a
+`setName` → `tableName` tree:** `NameTableStore.tablesForSet`/`setNames`
+derive the grouping from this flat list on read, the same
+"derive, don't duplicate the structure" convention as
+`PartyStore.partiesForPlayer` deriving Party membership from
+`Party.playerIds` rather than storing a back-reference. A flat list is also
+what a straightforward per-row JSON import naturally produces.
+
+### MonsterTemplate
+
+Loaded read-only via `MonsterStore` from `public/data/monsters-5e-srd.json`
+/ `monsters-shadowdark.json`. Originally imported once from two
+open-license sources by `scripts/import-monsters-5e-srd.cjs` /
+`import-monsters-shadowdark.cjs` — like `NameTable`, those scripts are now
+historical, and both JSON files are the GM-editable source directly. The
+Encounter Generator (Phase 2.5 Milestone 3) uses these as candidates and
+links a generated `Npc`/`Combatant` back to the template it came from via
+`monsterTemplateId` (Milestone 4) — see `Npc`/`Combatant` above.
+
+| Field                | Type                                 | Notes                                                                                                                                                                                                                                                                      |
+| -------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                 | string                               | e.g. `5e-srd-goblin`, `shadowdark-goblin`                                                                                                                                                                                                                                  |
+| `source`             | `'5e-srd'` \| `'shadowdark'`         | Which system's difficulty/stat-block conventions this follows — still exactly these two values for a GM-added monster too (see `homebrew` below), since the Encounter Generator/stat-block dialog branch on this to know CR-vs-Level, ability-scores-vs-flat-bonuses, etc. |
+| `homebrew`           | boolean                              | `true` for a GM-added monster, as opposed to one from the licensed import below. `false` for every originally-imported entry. Shown as "(Homebrew)" next to the source label in the stat-block dialog                                                                      |
+| `name`               | string                               |                                                                                                                                                                                                                                                                            |
+| `difficulty`         | number \| null                       | CR for `'5e-srd'` (e.g. `0.25`, `10`), Level for `'shadowdark'`. `null` for the handful of Shadowdark monsters (the four Elementals, the Hydra) whose stats scale with context rather than having one fixed value                                                          |
+| `ac`                 | number \| null                       |                                                                                                                                                                                                                                                                            |
+| `maxHp`              | number \| null                       | `null` for the same context-scaling monsters as `difficulty`                                                                                                                                                                                                               |
+| `initiativeModifier` | number                               | DEX modifier — both systems key Roll4's d20 initiative roll off it, even though neither system's actual rules roll individual per-monster initiative quite this way                                                                                                        |
+| `statBlock`          | `{ label: string; value: string }[]` | Deliberately loose rather than one rigid schema — 5e's ability-scores/saves/skills/actions shape and Shadowdark's flat-bonus/numbered-Talents shape don't line up section-for-section                                                                                      |
+
+**"CR 0.25" / "LV 3" labeling:** `monsterDifficultyLabel(template)`
+(`src/app/models/monster-template.model.ts`) is the one place this
+CR-vs-Level string is built from `source`/`difficulty` (blank for a `null`
+difficulty) — centralized once a fourth call site (`MonsterPickerTable`)
+needed it, after finding it duplicated (and missing its null guard in one
+spot — a genuine "CR null" render for the four Elementals/Hydra, now
+fixed) across the Encounter Generator, `AddCombatantDialog`, and
+`MonsterStatBlockDialog`. `MonsterStatBlockDialog` keeps its own separate
+`difficultyLabel` computed, which intentionally renders differently (a
+`—` for `null` rather than blanking the whole line) — not consolidated
+into the shared helper on purpose.
+
+**Sources and required attribution** (surfaced to the GM in a Credits
+section on the Encounter Generator page, `encounter-generator.html` — where
+this data is actually generated from, not the Names page) — these cover
+the originally-imported entries (`homebrew: false`) specifically, not
+anything added directly to the JSON afterward:
+
+- **5e SRD**: [Open5e](https://open5e.com)'s System Reference Document 5.1
+  data, OGL-licensed. The OGL's Section 15 copyright notice must be
+  reproduced verbatim wherever this data is used — verified directly
+  against the official `SRD-OGL_V5.1.pdf`, not a paraphrase, since exact
+  wording matters for OGL compliance.
+- **Shadowdark**: the "Unofficial Shadowdark Monster List" by Michael
+  Putlack (Night Noon Games) — a third-party compilation of official
+  Shadowdark Core Rulebook monster stat blocks (every row's source column
+  reads `"CR"`; no homebrew mixed into the _original import_). Two licenses
+  stack: the monster text itself is used under the Shadowdark RPG
+  Third-Party License (requiring a specific disclaimer), and the
+  compilation itself is CC BY-SA 4.0 (requiring attribution to Night Noon
+  Games, and — per ShareAlike — that this derived JSON carry the same CC
+  BY-SA 4.0 license forward if the app is ever hosted/distributed publicly,
+  an open item to revisit before Phase 3).
+
+**Encounter Generator algorithm** (`src/app/services/encounter-generator.ts`,
+pure functions, no store/DI — same standalone-testability precedent as
+`compareByInitiative`/`computeDisplayNames`): the two sources use
+deliberately different generation strategies rather than one shared
+"difficulty" concept, because they don't have comparable underlying rules.
+
+- **5e SRD** uses the actual DMG encounter-building math: the party's XP
+  budget for a difficulty tier is the per-character-level XP threshold
+  (DMG p.82) times party size, and a candidate list is stochastically
+  assembled by repeatedly picking a random pool monster (filtered to CR's
+  XP value ≤ the whole budget) and adding it, stopping once the **adjusted
+  XP** — raw monster XP (DMG p.275's CR-to-XP table) times the DMG's
+  group-size multiplier (p.82) — reaches the budget or comes within ~10%
+  over it, or a 15-monster cap is hit.
+- **Shadowdark has no XP-budget system in its own rules** — confirmed
+  while researching this milestone: the Core Rulebook's stance is
+  explicitly to let the world/dice decide an encounter's difficulty, not
+  balance it mathematically. Inventing a fake difficulty score for it would
+  misrepresent the game, so its generator is instead a level-range random
+  draw: the GM picks a Level band and a monster count, and it fills that
+  count by repeatedly picking a random pool monster within the range — the
+  same spirit as an official Shadowdark random-encounter table, not a
+  balance guarantee.
+
+Both exclude pool monsters with a `null` difficulty (nothing to compare
+against a budget or range). The Encounter Generator page lets the GM edit
+the resulting candidate list (adjust counts, add/remove monsters) before
+applying names and saving — see [PRODUCT.md](./PRODUCT.md).
+
+### WildMagicTable
+
+Loaded read-only via `WildMagicStore` from `public/data/wild-magic.json`.
+Originally imported once from a free fan-made PDF by
+`scripts/import-wild-magic.cjs` — like `NameTable`/`MonsterTemplate`, that
+script is now historical, and `wild-magic.json` is the GM-editable source
+directly (see [ARCHITECTURE.md](./ARCHITECTURE.md)).
+
+| Field         | Type     | Notes                                                                                                                                                                                                                                       |
+| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`          | string   | e.g. `wild-magic-chaos-burst`                                                                                                                                                                                                               |
+| `setName`     | string   | Currently always `"Wild Magic"` — kept as its own field for parity with `NameTable`, in case a second source table set is added later                                                                                                       |
+| `tableName`   | string   | `"Chaos Burst"` or `"Burst Duration Condition"`                                                                                                                                                                                             |
+| `description` | string   | GM-facing explanation of what the table is for, shown on the Wild Magic generator page under the Table picker — e.g. Burst Duration Condition's clarifies that it's for Chaos Bursts with no stated duration, not a table rolled on its own |
+| `entries`     | string[] | 10,000 entries for Chaos Burst, 100 for Burst Duration Condition                                                                                                                                                                            |
+
+**Why a separate model/store from `NameTable`, despite the near-identical
+shape:** `NameTableStore.setNames()` feeds the inline 🎲 popover on every
+Name field (`NameGeneratorButton`, used by `CombatantFields` and the
+Encounter Generator roster) — every set in that store is offered there as a
+pickable _name_. Folding the Wild Magic tables into `NameTable` would surface
+"Chaos Burst" as a name option when naming a Player/NPC. `WildMagicStore` is
+a parallel, near-twin service instead (same `toSignal`-over-`HttpClient`
+load shape, and it reuses `NameTableStore`'s exported `pickRandomEntries`
+directly rather than duplicating that Fisher-Yates helper) — see
+[PRODUCT.md](./PRODUCT.md) section 13.
+
+**Source and attribution:** _The Net Libram of Random Magical Effects_
+v2.00, by Orrex — a free, non-OGL fan document (the PDF's own disclaimer:
+"derivative work... no challenge to the status of these or any other
+copyrights is intended or implied"). Unlike the 5e SRD/Shadowdark monster
+data, there's no formal open license here to satisfy, just a good-faith
+author credit — surfaced in a Credits section on the Wild Magic generator
+page. Same open item as the Shadowdark CC BY-SA data: worth a licensing
+sanity check before Phase 3 hosting makes the app public, given the
+source's informal "derivative work" framing.
+
+**Import mechanics** (`scripts/import-wild-magic.cjs`): the source PDF
+renders as two visual columns per page, but `pdftotext`'s default
+(non-`-layout`) mode already emits one flowing, strictly-ascending stream —
+so parsing is entry-number-driven rather than column-position-driven: each
+entry is recognized only by matching the _exact expected next_ sequential
+id (`"0001"`, `"0002"`, ... `"9999"`, then `"0000"` standing in for the
+10,000th roll; separately `"01"`...`"99"`, `"00"` for the 100-entry table),
+which makes it immune to ordinary numbers (dice sizes, gold amounts) inside
+the entry text itself. Page-footer numbers are stripped by line before
+tokenizing, since a stray one would otherwise glue onto whichever entry
+finished right before that page break. A handful of degree-symbol glyphs the
+PDF's font encodes non-standardly come through as the Unicode replacement
+character; the script fixes those (and two unrelated accented-word cases —
+"risqué," "déjà vu" — found by manually checking every occurrence) rather
+than leaving `�` in the data.
+
+### TreasureTable
+
+Loaded read-only via `TreasureStore` (see [ARCHITECTURE.md](./ARCHITECTURE.md))
+from `public/data/treasure.json`, same as `NameTable`/`MonsterTemplate`/
+`WildMagicTable` — but unlike those three, **`treasure.json` itself is the
+GM-editable source**, not generated output to be treated as disposable.
+Those other tables come from an external document (a spreadsheet, a PDF)
+worth preserving fidelity/attribution to, so their JSON is regenerated from
+that source by an import script whenever it changes. Treasure has no such
+external document — a GM just wants to add/edit entries over time — so
+after the initial batch there's no reason to keep re-deriving the JSON from
+an intermediate format. Edit `public/data/treasure.json` directly for
+anything from here on (adding entries, fixing typos, a new category).
+
+`.claude/treasure-<category>.txt` and `scripts/import-treasure.cjs` (three
+parsing `format`s: `'lines'`, `'tab'`, `'blocks'` — see the script) still
+exist and are how the first batch of each category was assembled, kept
+around as a historical record the same way `.claude/Names.xlsx` is — but
+they're stale now and **must not be re-run** once `treasure.json` has been
+hand-edited past what they'd regenerate; doing so silently discards
+whatever was added directly to the JSON (this happened once already — the
+fix was recovered from VS Code's local edit history, not git, since none of
+these files were committed at the time).
+
+| Field       | Type              | Notes                                                                                              |
+| ----------- | ----------------- | -------------------------------------------------------------------------------------------------- |
+| `id`        | string            | e.g. `treasure-trinkets`                                                                           |
+| `setName`   | string            | Currently always `"Treasure"` — same parity-with-`NameTable` reasoning as `WildMagicTable.setName` |
+| `tableName` | string            | `"Trinkets"`, `"Wondrous Items"`, or `"Potions"`                                                   |
+| `entries`   | `TreasureEntry[]` | See below                                                                                          |
+
+**`TreasureEntry`** (`{ text: string; detail: string | null }`): one roll's
+result. Trinkets are one GM-provided line per entry — `text` is that line,
+`detail` is `null`. Wondrous Items and Potions each carry a name plus a
+second field (a magic item's property, a potion's effect) — `text` is the
+name and `detail` is that second field; the generator page shows `detail`
+as a second line under `text` whenever it's set, and includes it
+(`"Name — Effect"`) when copying. `scripts/import-treasure.cjs`'s `format`
+per category (`'lines'`, `'tab'`, or `'blocks'`) is what selects the right
+parsing for that category's source file shape — Wondrous Items' source is
+blank-line-separated "Name\nDescription" blocks, unlike Potions' one
+tab-separated line per entry, since that's the shape the GM pasted each
+one in.
+
+**Why a separate model/store from `NameTable`, despite the similar
+shape:** same reasoning as `WildMagicTable` — `NameTableStore.setNames()`
+feeds the inline 🎲 Name-field popover, and a Trinket/Potion isn't a name a
+GM would pick there. `TreasureStore` is a parallel, near-twin service (same
+`toSignal`-over-`HttpClient` load shape, reuses `NameTableStore`'s
+`pickRandomEntries` — genericized to `<T>` so it works over `TreasureEntry`
+objects too, not just strings) — see [PRODUCT.md](./PRODUCT.md) section 14.
 
 ### Timer
+
 An Encounter-scoped countdown, created via the same "+" menu (next to the
 Previous/Next Turn buttons, run phase only) as a mid-encounter Combatant —
 see "Timers" below for the full behavior.
 
-| Field                    | Type           | Notes                                        |
-|---------------------------|----------------|-----------------------------------------------|
-| `id`                      | string         | Unique identifier                              |
-| `encounterId`             | string         | References `Encounter.id`                      |
-| `name`                    | string         | GM-entered label, e.g. "Room floods"           |
-| `remaining`               | number         | Current countdown value                        |
+| Field                     | Type           | Notes                                                                                                                                             |
+| ------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                      | string         | Unique identifier                                                                                                                                 |
+| `encounterId`             | string         | References `Encounter.id`                                                                                                                         |
+| `name`                    | string         | GM-entered label, e.g. "Room floods"                                                                                                              |
+| `remaining`               | number         | Current countdown value                                                                                                                           |
 | `initialValue`            | number         | The value set at creation; never changes afterward — used only to compute the card's light-grey-to-black background as `remaining / initialValue` |
-| `linkedCombatantId`       | string \| null | Optional, set at creation. `null` = ticks at every round boundary. Set = ticks when that combatant's turn ends instead |
-| `lastTickedRoundCredited` | number \| null | Internal bookkeeping, not GM-facing — see "Timers" below |
+| `linkedCombatantId`       | string \| null | Optional, set at creation. `null` = ticks at every round boundary. Set = ticks when that combatant's turn ends instead                            |
+| `lastTickedRoundCredited` | number \| null | Internal bookkeeping, not GM-facing — see "Timers" below                                                                                          |
 
 **Why copy `name`/`initiativeModifier` onto the Combatant instead of always
 reading through to the Player/Npc?** An ad-hoc entry has no library source
@@ -201,18 +434,52 @@ group). `addPlayerCombatant`/`addNpcCombatant` pull in one roster entry
 without its whole group, no-op if that entry is already present.
 `addAdHocCombatant(encounterId, type, fields)` creates a Combatant with no
 library link at all (`playerId`/`npcId` both `null`) — today's only
-NPC-creation path, generalized to also allow an ad-hoc Player.
+NPC-creation path, generalized to also allow an ad-hoc Player. `fields`
+optionally carries `monsterTemplateId`/`monsterName` too (forwarded
+straight into `buildCombatant`, which already accepted them for the
+Party/Troop pull-in paths above) — this is what `AddCombatantDialog`'s
+**From Book** option (see [PRODUCT.md](./PRODUCT.md) section 2) uses:
+picking a `MonsterTemplate` prefills the same ad-hoc create form and stashes
+its id/name, so the resulting Combatant is `monsterTemplateId`-linked from
+creation, the same as one pulled in from an Encounter-Generator-saved Troop,
+without needing to go through that generator/Troop flow at all. A third
+path reaches the same call now too: `EncounterList`'s embedded
+`MonsterGeneratorPanel` (see [PRODUCT.md](./PRODUCT.md) section 2's
+"Generate Monsters") loops its generated draft and calls
+`addAdHocCombatant` once per entry directly — the "+ Add These to
+Encounter" commit, landing monsters straight onto the Encounter being
+built without ever creating a Troop, unlike the standalone Encounter
+Generator page's "Save as Troop" (section 12), which still goes through
+`NpcStore.createNpc`/`addNpcToTroop` instead.
+
+**Lazily creating the Encounter itself, from `EncounterList`'s create/edit
+panel:** unlike every path above (which all assume a real `encounterId`
+already exists), a brand-new Encounter isn't created in the store the
+instant the panel opens — only on the first real commit (a generated
+roster via the path above, or any Add Combatant pick), via a private
+`ensureEncounterCreated()` that calls `createEncounter` with whatever
+name/Party/Troop selections are currently staged (defaulting the name to
+`"Untitled Encounter"` if still blank) and remembers the resulting id for
+the rest of that panel session. A plain create (name + Party/Troop only,
+submitted before anything else happens) is unaffected — it still calls
+`createEncounter` directly, same as before this existed.
 
 **Saving an ad-hoc combatant to the roster** ("Save to Roster," available
 on any Combatant with `playerId`/`npcId` both `null`): the GM optionally
 checks which Party/Troop to also add it to, then
 `EncounterStore.linkCombatantToLibraryEntry(encounterId, combatantId, linkedId)`
-sets `playerId` or `npcId` (matching the Combatant's `type`) on that *same*
+sets `playerId` or `npcId` (matching the Combatant's `type`) on that _same_
 Combatant record. No second Combatant is ever created — creating the
 library entry and assigning it to a group happens first, at the page level
 (`PartyStore.createPlayer`/`NpcStore.createNpc` +
 `addPlayerToParty`/`addNpcToTroop`), and `linkCombatantToLibraryEntry` only
-does the final id assignment.
+does the final id assignment. `EncounterDetail`/`EncounterList`'s
+`confirmSaveToRoster` also carries the Combatant's own
+`monsterTemplateId`/`monsterName` onto the new `Npc` (the `NpcStore.createNpc`
+call only, since `PartyStore.createPlayer` has no such fields — a
+monster-templated Combatant is always `type: 'npc'` in the first place) —
+otherwise a From Book combatant would lose its stat-block link the moment
+it's saved to the roster.
 
 **Current HP and Max HP edits:** clicking the heart icon or the health bar
 opens a small input for a signed delta (e.g. `-15`, `+10`), applied via
@@ -269,7 +536,7 @@ derives a matching `lastRoll` (`initiativeTotal - initiativeModifier`) purely
 to keep that invariant consistent — it isn't a real die roll.
 
 `position` also decides whose turn it is afterward: `'above'` sets
-`activeCombatantIndex` to the *returning* combatant — an interrupt, since a
+`activeCombatantIndex` to the _returning_ combatant — an interrupt, since a
 held trigger firing ahead of the current turn means acting immediately.
 `'below'` leaves `activeCombatantIndex` on whoever was already Active — just
 queuing the combatant up next. No special-case "resume" logic is needed for
@@ -299,7 +566,7 @@ dashed placeholder marks the drop gap and siblings shift live as it's
 dragged. `EncounterStore.reorderCombatant(encounterId, combatantId,
 newIndex)` handles the drop; `newIndex` follows the same "remove, then
 insert" convention as `Array.splice`/CDK's `moveItemInArray` — the target
-index in the order *with the dragged combatant already removed*. Like every
+index in the order _with the dragged combatant already removed_. Like every
 other manual repositioning in this app, it pins to a neighbor's total ± 1
 (one point below whoever ends up above it, or one point above whoever ends
 up below it if dropped at the very top) rather than computing a midpoint.
@@ -329,6 +596,7 @@ never interrupting whoever's turn it currently is.
 Left un-joined, a Ready to Join combatant folds into the main list
 automatically at the next round boundary, alongside Hold Action's own
 round-boundary reconciliation:
+
 - **Re-roll mode** (`reRollEachRound: true`): `reRollRound` clears
   `readyToJoin` the same way it already clears a held combatant's
   `onHold` — since the combatant's id is already in `combatantIds`, that
@@ -366,7 +634,7 @@ return-from-hold. Keying lettering off initiative order would relabel
 "A"/"B" on nearly every turn; `combatantsSignal` itself is only ever
 appended to, so creation order is stable across all of that churn.
 
-**The one accepted wrinkle:** deleting a combatant *can* relabel the
+**The one accepted wrinkle:** deleting a combatant _can_ relabel the
 survivors. This only happens via `removeCombatant` (a hard delete — today
 only reachable from the setup-phase list's trash icon on an ad-hoc NPC
 before the first Roll), which actually removes the record from
@@ -374,7 +642,7 @@ before the first Roll), which actually removes the record from
 "Goblin B" relabels to plain "Goblin" (now the only one) the next time
 `computeDisplayNames` runs — same relabel-on-removal behavior already
 accepted for `toggleRemoved`'s "N/A" initiative placement elsewhere. Toggling
-`removedFromCombat` (the *soft* Removed From Combat flag, everywhere else
+`removedFromCombat` (the _soft_ Removed From Combat flag, everywhere else
 in the app) does **not** touch `combatantsSignal`, so it never triggers this
 — a combatant moved to the Removed From Combat list keeps its letter.
 
@@ -409,19 +677,20 @@ boundary itself. `EncounterStore` guards this with `lastTickedRoundCredited`
 no-op if that timer already credited `round`. This is called from three
 places, all safe to call redundantly for the same combatant/round thanks
 to the guard:
+
 1. `advanceTurn`'s Forward branch, for whoever was Active before the step
    (same-round advance and round-rollover both count).
 2. `advanceTurn`'s round-rollover branch, additionally, for every
    combatant still `onHold` at that moment — covers a combatant linked to
    a Hold Action combatant who never got a turn that round at all; a
-   no-op if they *did* go on Hold this same round (already credited by
+   no-op if they _did_ go on Hold this same round (already credited by
    the Forward branch when they held).
 3. `returnFromHold`'s `'above'` interrupt branch, for the combatant being
    interrupted — this is the one place `activeCombatantIndex` changes
    without going through `advanceTurn` at all.
 
 `advanceTurn`'s Back branch mirrors this with `uncreditLinkedTimerOnBack`:
-if the combatant Back just landed on has a linked timer credited *this*
+if the combatant Back just landed on has a linked timer credited _this_
 round, increment it by 1 and clear the credit. Back never crosses a round
 boundary (see `isFirstActiveCombatant` in `encounter-detail.ts`), so
 there's never an earlier round's credit to worry about touching — this
@@ -430,6 +699,7 @@ exactly reverses whatever the matching credit call did.
 ## Notes on "re-roll every round"
 
 When `reRollEachRound` is `true` (the default), starting a new round means:
+
 1. Every non-removed Combatant gets a new `lastRoll` (and thus a new
    `initiativeTotal`).
 2. `combatantIds` is re-sorted descending by the new totals.

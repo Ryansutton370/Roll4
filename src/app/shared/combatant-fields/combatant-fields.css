@@ -15,14 +15,24 @@
    (styles.css), whose ".entry-form input[type=...]" rules apply here too —
    they're plain global CSS, not another component's scoped stylesheet, so
    the view-encapsulation gotcha documented in docs/ARCHITECTURE.md doesn't
-   block them from reaching in. The rules below only override the *widths*
-   those set, so all 5 fields plus the caller's submit button have a
-   realistic chance of fitting on one line — qualified with the input's own
-   type/class (not just a class) so they win the specificity tie against
-   the global rule rather than depending on stylesheet load order. */
-input[type='text'].field-name {
+   block them from reaching in. The flex sizing that used to live directly
+   on .field-name now lives on its wrapper (below) instead, since
+   <app-name-generator-button> needs to size/position alongside the input
+   rather than as a second top-level flex item of the caller's .entry-form.
+   No position: relative here anymore — NameGeneratorButton's own :host
+   establishes that for its popover now, since the popover moved into that
+   component's own template. */
+.name-field-wrapper {
+  display: inline-flex;
   flex: 1 1 5rem;
   min-width: 4.5rem;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+input[type='text'].field-name {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* Below this width, letting Name shrink down alongside 4 more fields and a
@@ -32,7 +42,7 @@ input[type='text'].field-name {
    legible Name field, which is the one every other field's icon can't
    compensate for. */
 @media (max-width: 480px) {
-  input[type='text'].field-name {
+  .name-field-wrapper {
     flex-basis: 100%;
     min-width: 0;
   }
@@ -79,12 +89,31 @@ input[type='text'].field-name {
   appearance: textfield;
 }
 
+/* A <button>, not a <label> wrapping an input like Init/AC/HP above — see
+   combatant-fields.html. Resets the browser's default button chrome so it
+   still reads as the same "icon + label" pill as its siblings. */
 .field-icon-notes {
   flex: 1 1 4rem;
   min-width: 3.5rem;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
 }
 
-.field-icon-notes input {
-  width: auto;
-  min-width: 0;
+/* Dark-when-set / muted-when-empty — same state language as the combatant
+   bubble's Notes icon (combatant-bubble.css's .notes-badge-btn). */
+.field-icon-notes.has-notes {
+  color: var(--color-text);
+}
+
+/* The toolbar+editor doesn't fit alongside the small Name/Init/AC/HP
+   fields on one line, so expanding Notes (notesExpanded in
+   combatant-fields.ts) always forces its own full-width row underneath
+   them, the same "flex-basis: 100% pushes everything after it onto the
+   next line" trick already used for .name-field-wrapper on mobile above. */
+.notes-editor-wrapper {
+  flex-basis: 100%;
+  margin-top: 0.25rem;
 }

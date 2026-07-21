@@ -2,14 +2,17 @@
      only within this component's own template (it stops at this
      component's host boundary), so it never tries to register with
      whatever <form> the parent happens to wrap this component in. -->
-<input
-  type="text"
-  class="field-name"
-  [ngModel]="name()"
-  (ngModelChange)="name.set($event)"
-  placeholder="Name"
-  aria-label="Name"
-/>
+<div class="name-field-wrapper">
+  <input
+    type="text"
+    class="field-name"
+    [ngModel]="name()"
+    (ngModelChange)="name.set($event)"
+    placeholder="Name"
+    aria-label="Name"
+  />
+  <app-name-generator-button (nameSelected)="name.set($event)" />
+</div>
 
 <!-- Each of these wraps an icon + input in one <label> — the icon (no
      visible text) doubles as a persistent visual label, the same icon used
@@ -71,18 +74,33 @@
   />
 </label>
 
-<label class="field-icon field-icon-notes" title="Notes">
+<!-- Collapsed by default (see notesExpanded in combatant-fields.ts) — a
+     toggle button, not a label-wrapped input like the fields above, since
+     there's no single-line input for rich text. Same dark-when-set/
+     lighter-when-empty + "See Notes"/"Add Notes" language as the combatant
+     bubble's Notes icon (combatant-bubble.html) — one consistent way of
+     signaling "does this have notes" everywhere the app shows it. -->
+<button
+  type="button"
+  class="field-icon field-icon-notes"
+  [class.has-notes]="hasNotes()"
+  [title]="hasNotes() ? 'See Notes' : 'Add Notes'"
+  (click)="notesExpanded.set(!notesExpanded())"
+>
   <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <path
       d="M5 2.5A1.5 1.5 0 0 0 3.5 4v12A1.5 1.5 0 0 0 5 17.5h10a1.5 1.5 0 0 0 1.5-1.5V4A1.5 1.5 0 0 0 15 2.5H5Zm1 4h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h5a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Z"
     />
   </svg>
-  <input
-    type="text"
-    class="field-notes"
-    [ngModel]="notes()"
-    (ngModelChange)="notes.set($event)"
-    placeholder="Notes"
-    aria-label="Notes"
-  />
-</label>
+  <span>{{ hasNotes() ? 'See Notes' : 'Add Notes' }}</span>
+</button>
+
+@if (notesExpanded()) {
+  <!-- flex-basis: 100% (see .notes-editor-wrapper in combatant-fields.css)
+       — a toolbar + editor box doesn't fit alongside the small Name/Init/
+       AC/HP fields on one line, so expanding it always forces its own
+       full-width row underneath them instead. -->
+  <div class="notes-editor-wrapper">
+    <app-rich-text-editor [value]="notes()" (valueChange)="notes.set($event)" />
+  </div>
+}

@@ -1,0 +1,90 @@
+<div class="picker">
+  <button
+    type="button"
+    class="picker-toggle"
+    [attr.aria-expanded]="expanded()"
+    (click)="toggleExpanded()"
+  >
+    <span class="chevron" [class.open]="expanded()">▸</span>
+    {{ expanded() ? 'Hide monster list' : 'Browse monster list' }}
+    <span class="picker-count">({{ templates().length }})</span>
+  </button>
+
+  @if (expanded()) {
+    <input
+      type="text"
+      class="picker-search"
+      placeholder="Search by name…"
+      [ngModel]="searchText()"
+      (ngModelChange)="searchText.set($event)"
+    />
+
+    <div class="picker-table-wrap">
+      <table class="picker-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('name')">
+                Name
+                <span class="sort-arrow" [class.active]="sortColumn() === 'name'">{{
+                  sortColumn() === 'name' ? (sortDirection() === 'asc' ? '▲' : '▼') : '⇅'
+                }}</span>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setSort('difficulty')">
+                {{ difficultyColumnLabel() }}
+                <span class="sort-arrow" [class.active]="sortColumn() === 'difficulty'">{{
+                  sortColumn() === 'difficulty' ? (sortDirection() === 'asc' ? '▲' : '▼') : '⇅'
+                }}</span>
+              </button>
+            </th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of rows(); track t.id) {
+            <tr>
+              <td>{{ t.name }}</td>
+              <td class="col-difficulty">{{ difficultyLabel(t) }}</td>
+              <td class="col-actions">
+                <button
+                  type="button"
+                  class="icon-btn"
+                  title="View {{ t.name }}'s stat block"
+                  (click)="openStatBlock(t)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 4.5c-4.2 0-7.75 2.9-9 5.5 1.25 2.6 4.8 5.5 9 5.5s7.75-2.9 9-5.5c-1.25-2.6-4.8-5.5-9-5.5Zm0 9.17A3.67 3.67 0 1 1 10 6.33a3.67 3.67 0 0 1 0 7.34Zm0-1.5a2.17 2.17 0 1 0 0-4.34 2.17 2.17 0 0 0 0 4.34Z"
+                    />
+                  </svg>
+                  <span class="sr-only">View {{ t.name }}'s stat block</span>
+                </button>
+                <button
+                  type="button"
+                  class="icon-btn add-btn"
+                  title="Add {{ t.name }}"
+                  (click)="pick(t)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 4a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 10 4Z"
+                    />
+                  </svg>
+                  <span class="sr-only">Add {{ t.name }}</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3" class="empty-state">No monsters match "{{ searchText() }}".</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<app-monster-stat-block-dialog #statBlockDialog />

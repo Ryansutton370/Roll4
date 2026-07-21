@@ -1,0 +1,140 @@
+/* This component's template has two top-level siblings (the .picker div and
+   the stat-block dialog) meant to sit inline with whatever the caller
+   renders around it, not be wrapped in one opaque host box — same
+   CombatantFields gotcha documented in docs/ARCHITECTURE.md. */
+:host {
+  display: contents;
+}
+
+.picker {
+  margin-bottom: 0.75rem;
+}
+
+.picker-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.picker-toggle:hover {
+  background: var(--color-removed-tint);
+}
+
+.chevron {
+  display: inline-block;
+  transition: transform var(--transition-fast);
+}
+
+.chevron.open {
+  transform: rotate(90deg);
+}
+
+.picker-count {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.picker-search {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.picker-table-wrap {
+  max-height: 16rem;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+}
+
+.picker-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.picker-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--color-panel-bg);
+  text-align: left;
+}
+
+.picker-table td,
+.picker-table th {
+  padding: 0.4rem 0.6rem;
+}
+
+.sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sort-arrow {
+  font-size: 0.7rem;
+  opacity: 0.4;
+}
+
+.sort-arrow.active {
+  opacity: 1;
+}
+
+.picker-table tbody tr:not(:last-child) {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.col-difficulty {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Scoped to td, not th: the header's own .col-actions cell must stay a
+   plain table-cell box so the sticky, panel-bg'd <th> rule above covers it
+   correctly — display:flex on the header cell was computing a differently
+   shaped box than its sticky background, leaving a stray white rectangle
+   where the two didn't line up. */
+td.col-actions {
+  display: flex;
+  gap: 0.15rem;
+  white-space: nowrap;
+}
+
+.picker-table .icon-btn {
+  width: 2.15rem;
+  height: 2.15rem;
+}
+
+.picker-table .icon-btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.add-btn {
+  color: var(--color-heal);
+}
+
+.picker-table .empty-state {
+  padding: 0.75rem;
+  text-align: center;
+}

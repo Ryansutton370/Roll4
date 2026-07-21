@@ -1,52 +1,5 @@
 <h1>Encounters</h1>
 
-@if (encounterStore.encounters().length === 0) {
-  <p class="empty-state">No encounters yet. Create one below.</p>
-} @else {
-  <ul class="bubble-list">
-    @for (encounter of encounterStore.encounters(); track encounter.id) {
-      <li class="bubble entry">
-        <a class="entry-title" [routerLink]="['/encounters', encounter.id]">{{
-          encounter.name
-        }}</a>
-        @if (encounter.round > 0) {
-          <span class="badge">Round {{ encounter.round }}</span>
-        } @else {
-          <span class="badge">Not started</span>
-        }
-        <button
-          type="button"
-          class="icon-btn"
-          (click)="startEdit(encounter)"
-        >
-          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path
-              d="M13.94 3.06a1.5 1.5 0 0 1 2.12 0l.88.88a1.5 1.5 0 0 1 0 2.12l-8.9 8.9-3.5.9.9-3.5 8.5-8.5Zm-9.7 9.7L3 17l4.24-1.24 8.9-8.9-2.12-2.12-8.78 8.78Z"
-            />
-          </svg>
-          <span class="sr-only">Edit {{ encounter.name }}</span>
-        </button>
-        <button
-          type="button"
-          class="icon-btn danger"
-          (click)="deleteEncounter(encounter.id, encounter.name)"
-        >
-          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path
-              d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
-            />
-          </svg>
-          <span class="sr-only">Delete {{ encounter.name }}</span>
-        </button>
-      </li>
-    }
-  </ul>
-}
-
-@if (editingEncounter(); as editing) {
-  <h2>Editing "{{ editing.name }}"</h2>
-}
-
 <app-add-combatant-dialog
   #addCombatantDialog
   [availablePlayers]="availablePlayersToAdd()"
@@ -56,202 +9,298 @@
   (newCombatantSubmitted)="onNewCombatantSubmitted($event)"
 />
 
-<form class="entry-form" (ngSubmit)="submitEncounterForm()">
-  <input
-    type="text"
-    [ngModel]="newEncounterName()"
-    (ngModelChange)="newEncounterName.set($event)"
-    name="encounterName"
-    placeholder="Encounter name, e.g. Goblin Ambush"
-  />
-
-  @if (partyStore.parties().length > 0) {
-    <fieldset>
-      <legend>Pull PCs from:</legend>
-      @for (party of partyStore.parties(); track party.id) {
-        <label>
-          <input
-            type="checkbox"
-            [checked]="selectedPartyIds().includes(party.id)"
-            (change)="togglePartySelected(party.id, $any($event.target).checked)"
-          />
-          {{ party.name }}
-        </label>
-      }
-    </fieldset>
-  }
-
-  @if (npcStore.troops().length > 0) {
-    <fieldset>
-      <legend>Pull NPCs from:</legend>
-      @for (troop of npcStore.troops(); track troop.id) {
-        <label>
-          <input
-            type="checkbox"
-            [checked]="selectedTroopIds().includes(troop.id)"
-            (change)="toggleTroopSelected(troop.id, $any($event.target).checked)"
-          />
-          {{ troop.name }}
-        </label>
-      }
-    </fieldset>
-  }
-
-  @if (editingEncounter()) {
-    <!-- Edit mode only: NPCs (and the party PCs added above) apply straight
-         to the store, the same as the setup screen on encounter-detail —
-         only the name/Party selection wait for the submit button below. -->
-    <fieldset>
-      <legend>Combatants</legend>
-      @if (editingCombatants().length === 0) {
-        <p class="empty-state">No combatants yet. Add an NPC below.</p>
+<div class="encounters-layout">
+  <div class="builder-column">
+    @if (builderOpen()) {
+      @if (editingEncounter(); as editing) {
+        <h2>Editing "{{ editing.name }}"</h2>
       } @else {
-        <ul class="bubble-list">
-          @for (c of editingCombatants(); track c.id) {
-            <li
-              class="bubble entry combatant-edit-entry"
-              [class.pc-entry]="c.type === 'pc'"
-              [class.npc-entry]="c.type === 'npc'"
-              [class.entry-removed]="c.removedFromCombat"
-            >
-              <span class="type-dot" [class.pc]="c.type === 'pc'" [class.npc]="c.type === 'npc'"></span>
-              <!-- Same shared 5-field set used by the ad-hoc form just below
+        <h2>New Encounter</h2>
+      }
+
+      <form class="entry-form encounter-form" (ngSubmit)="submitEncounterForm()">
+        <input
+          type="text"
+          [ngModel]="newEncounterName()"
+          (ngModelChange)="newEncounterName.set($event)"
+          name="encounterName"
+          placeholder="Encounter name, e.g. Goblin Ambush"
+        />
+
+        @if (partyStore.parties().length > 0) {
+          <fieldset>
+            <legend>Pull PCs from:</legend>
+            @for (party of partyStore.parties(); track party.id) {
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="selectedPartyIds().includes(party.id)"
+                  (change)="togglePartySelected(party.id, $any($event.target).checked)"
+                />
+                {{ party.name }}
+              </label>
+            }
+          </fieldset>
+        }
+
+        @if (npcStore.troops().length > 0) {
+          <fieldset>
+            <legend>Pull NPCs from:</legend>
+            @for (troop of npcStore.troops(); track troop.id) {
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="selectedTroopIds().includes(troop.id)"
+                  (change)="toggleTroopSelected(troop.id, $any($event.target).checked)"
+                />
+                {{ troop.name }}
+              </label>
+            }
+          </fieldset>
+        }
+
+        <!-- Same build-a-roster UI as the standalone Encounter Generator
+             page (/generators/encounter) — Browse Monster List above,
+             Generate Monsters below (own headings, no wrapping fieldset so
+             neither reads as a sub-part of the other). Live-synced to real
+             Combatants by the constructor's reconciliation effect as the
+             GM builds it — no separate commit step; materializes the
+             Encounter on first use via ensureEncounterCreated(), same as
+             Add Combatant below. -->
+        <app-monster-generator-panel
+          [draft]="generatorDraft()"
+          (draftChange)="generatorDraft.set($event)"
+        />
+
+        <!-- Not gated on editingEncounter() — Add Combatant is reachable as
+         soon as the panel is open, even before this Encounter exists yet.
+         The row list itself naturally stays empty pre-materialization
+         (editingCombatants() returns [] until there's a real id). -->
+        <fieldset>
+          <legend>Combatants</legend>
+          @if (editingCombatants().length === 0) {
+            <p class="empty-state">No combatants yet. Add an NPC below.</p>
+          } @else {
+            <ul class="bubble-list">
+              @for (c of editingCombatants(); track c.id) {
+                <li
+                  class="bubble entry combatant-edit-entry"
+                  [class.pc-entry]="c.type === 'pc'"
+                  [class.npc-entry]="c.type === 'npc'"
+                  [class.entry-removed]="c.removedFromCombat"
+                >
+                  <span
+                    class="type-dot"
+                    [class.pc]="c.type === 'pc'"
+                    [class.npc]="c.type === 'npc'"
+                  ></span>
+                  <!-- Same shared 5-field set used by the ad-hoc form just below
                    and by the run-phase Edit dialog — one line on desktop,
                    name-then-stats on mobile (see combatant-fields.css),
                    instead of this row's own bespoke inputs/breakpoints.
                    updateCombatantFieldInEditingEncounter routes straight to
                    EncounterStore.updateCombatantDetails per keystroke,
                    rather than waiting for a separate save step. -->
-              <app-combatant-fields
-                [name]="c.name"
-                (nameChange)="updateCombatantFieldInEditingEncounter(c.id, { name: $event })"
-                [initiativeModifier]="c.initiativeModifier"
-                (initiativeModifierChange)="setCombatantModifierInEditingEncounter(c.id, $event)"
-                [ac]="c.ac"
-                (acChange)="updateCombatantFieldInEditingEncounter(c.id, { ac: $event })"
-                [maxHp]="c.maxHp"
-                (maxHpChange)="updateCombatantFieldInEditingEncounter(c.id, { maxHp: $event })"
-                [notes]="c.notes"
-                (notesChange)="updateCombatantFieldInEditingEncounter(c.id, { notes: $event })"
-              />
-              @if (c.type === 'pc') {
-                <!-- Party members can't be deleted here (see
+                  <app-combatant-fields
+                    [name]="c.name"
+                    (nameChange)="updateCombatantFieldInEditingEncounter(c.id, { name: $event })"
+                    [initiativeModifier]="c.initiativeModifier"
+                    (initiativeModifierChange)="
+                      setCombatantModifierInEditingEncounter(c.id, $event)
+                    "
+                    [ac]="c.ac"
+                    (acChange)="updateCombatantFieldInEditingEncounter(c.id, { ac: $event })"
+                    [maxHp]="c.maxHp"
+                    (maxHpChange)="updateCombatantFieldInEditingEncounter(c.id, { maxHp: $event })"
+                    [notes]="c.notes"
+                    (notesChange)="updateCombatantFieldInEditingEncounter(c.id, { notes: $event })"
+                  />
+                  @if (c.type === 'pc') {
+                    <!-- Party members can't be deleted here (see
                      toggleCombatantRemovedInEditingEncounter) — this marks
                      them Removed from Combat instead, for an absent player.
                      aria-pressed exposes it as a toggle (vs. a one-shot
                      action) to screen readers, mirroring its actual behavior. -->
-                <button
-                  type="button"
-                  class="icon-btn"
-                  [class.marked-removed]="c.removedFromCombat"
-                  [attr.aria-pressed]="c.removedFromCombat"
-                  [title]="
-                    c.removedFromCombat
-                      ? 'Mark ' + displayName(c.id) + ' as present'
-                      : 'Mark ' + displayName(c.id) + ' as absent (Removed from Combat)'
-                  "
-                  (click)="toggleCombatantRemovedInEditingEncounter(c.id)"
-                >
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
-                    />
-                  </svg>
-                  <span class="sr-only">{{
-                    c.removedFromCombat
-                      ? 'Mark ' + displayName(c.id) + ' as present'
-                      : 'Mark ' + displayName(c.id) + ' as absent'
-                  }}</span>
-                </button>
-              } @else {
-                <button
-                  type="button"
-                  class="icon-btn danger"
-                  (click)="removeCombatantFromEditingEncounter(c.id)"
-                >
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
-                    />
-                  </svg>
-                  <span class="sr-only">Remove {{ displayName(c.id) }}</span>
-                </button>
-              }
-              @if (!c.playerId && !c.npcId) {
-                <!-- Icon-only (not a text "Save to Roster" button) so this
+                    <button
+                      type="button"
+                      class="icon-btn"
+                      [class.marked-removed]="c.removedFromCombat"
+                      [attr.aria-pressed]="c.removedFromCombat"
+                      [title]="
+                        c.removedFromCombat
+                          ? 'Mark ' + displayName(c.id) + ' as present'
+                          : 'Mark ' + displayName(c.id) + ' as absent (Removed from Combat)'
+                      "
+                      (click)="toggleCombatantRemovedInEditingEncounter(c.id)"
+                    >
+                      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                          d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
+                        />
+                      </svg>
+                      <span class="sr-only">{{
+                        c.removedFromCombat
+                          ? 'Mark ' + displayName(c.id) + ' as present'
+                          : 'Mark ' + displayName(c.id) + ' as absent'
+                      }}</span>
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="icon-btn danger"
+                      (click)="removeCombatantFromEditingEncounter(c.id)"
+                    >
+                      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                          d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+                        />
+                      </svg>
+                      <span class="sr-only">Remove {{ displayName(c.id) }}</span>
+                    </button>
+                  }
+                  @if (!c.playerId && !c.npcId) {
+                    <!-- Icon-only (not a text "Save to Roster" button) so this
                      row — type-dot, 5 combatant-fields, remove, this — has
                      a real chance of fitting on one line at desktop widths;
                      [class.marked-removed] reuses the same "solid fill =
                      currently on" treatment as the mark-absent button
                      above, since this is the same kind of toggle (open/
                      close the picker below) rather than a one-shot action. -->
-                <button
-                  type="button"
-                  class="icon-btn save-to-roster-btn"
-                  [class.marked-removed]="isSavingToRoster(c.id)"
-                  [attr.aria-pressed]="isSavingToRoster(c.id)"
-                  [title]="isSavingToRoster(c.id) ? 'Cancel saving to roster' : 'Save to Roster'"
-                  (click)="toggleSavingToRoster(c.id)"
-                >
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M5 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13.5a.5.5 0 0 1-.777.416L10 14.09l-4.223 2.826A.5.5 0 0 1 5 16.5V3Z"
-                    />
-                  </svg>
-                  <span class="sr-only">{{
-                    isSavingToRoster(c.id)
-                      ? 'Cancel saving ' + c.name + ' to roster'
-                      : 'Save ' + c.name + ' to roster'
-                  }}</span>
-                </button>
-              }
-            </li>
-            @if (isSavingToRoster(c.id)) {
-              <li class="bubble entry save-to-roster-picker">
-                <p>
-                  Save "{{ c.name }}" to the {{ c.type === 'pc' ? 'Player' : 'NPC' }} roster
-                  @if (c.type === 'pc' ? partyStore.parties().length > 0 : npcStore.troops().length > 0) {
-                    and optionally add it to:
+                    <button
+                      type="button"
+                      class="icon-btn save-to-roster-btn"
+                      [class.marked-removed]="isSavingToRoster(c.id)"
+                      [attr.aria-pressed]="isSavingToRoster(c.id)"
+                      [title]="
+                        isSavingToRoster(c.id) ? 'Cancel saving to roster' : 'Save to Roster'
+                      "
+                      (click)="toggleSavingToRoster(c.id)"
+                    >
+                      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                          d="M5 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13.5a.5.5 0 0 1-.777.416L10 14.09l-4.223 2.826A.5.5 0 0 1 5 16.5V3Z"
+                        />
+                      </svg>
+                      <span class="sr-only">{{
+                        isSavingToRoster(c.id)
+                          ? 'Cancel saving ' + c.name + ' to roster'
+                          : 'Save ' + c.name + ' to roster'
+                      }}</span>
+                    </button>
                   }
-                </p>
-                @if (c.type === 'pc') {
-                  @for (party of partyStore.parties(); track party.id) {
-                    <label>
-                      <input
-                        type="checkbox"
-                        [checked]="isGroupSelectedForSave(c.id, party.id)"
-                        (change)="toggleGroupSelectedForSave(c.id, party.id, $any($event.target).checked)"
-                      />
-                      {{ party.name }}
-                    </label>
-                  }
-                } @else {
-                  @for (troop of npcStore.troops(); track troop.id) {
-                    <label>
-                      <input
-                        type="checkbox"
-                        [checked]="isGroupSelectedForSave(c.id, troop.id)"
-                        (change)="toggleGroupSelectedForSave(c.id, troop.id, $any($event.target).checked)"
-                      />
-                      {{ troop.name }}
-                    </label>
-                  }
+                </li>
+                @if (isSavingToRoster(c.id)) {
+                  <li class="bubble entry save-to-roster-picker">
+                    <p>
+                      Save "{{ c.name }}" to the {{ c.type === 'pc' ? 'Player' : 'NPC' }} roster
+                      @if (
+                        c.type === 'pc'
+                          ? partyStore.parties().length > 0
+                          : npcStore.troops().length > 0
+                      ) {
+                        and optionally add it to:
+                      }
+                    </p>
+                    @if (c.type === 'pc') {
+                      @for (party of partyStore.parties(); track party.id) {
+                        <label>
+                          <input
+                            type="checkbox"
+                            [checked]="isGroupSelectedForSave(c.id, party.id)"
+                            (change)="
+                              toggleGroupSelectedForSave(
+                                c.id,
+                                party.id,
+                                $any($event.target).checked
+                              )
+                            "
+                          />
+                          {{ party.name }}
+                        </label>
+                      }
+                    } @else {
+                      @for (troop of npcStore.troops(); track troop.id) {
+                        <label>
+                          <input
+                            type="checkbox"
+                            [checked]="isGroupSelectedForSave(c.id, troop.id)"
+                            (change)="
+                              toggleGroupSelectedForSave(
+                                c.id,
+                                troop.id,
+                                $any($event.target).checked
+                              )
+                            "
+                          />
+                          {{ troop.name }}
+                        </label>
+                      }
+                    }
+                    <button type="button" (click)="confirmSaveToRoster(c)">Confirm</button>
+                  </li>
                 }
-                <button type="button" (click)="confirmSaveToRoster(c)">Confirm</button>
-              </li>
-            }
+              }
+            </ul>
           }
-        </ul>
-      }
 
-      <button type="button" class="add-combatant-btn" (click)="openAddCombatantDialog()">
-        + Add Combatant
+          <button type="button" class="add-combatant-btn" (click)="openAddCombatantDialog()">
+            + Add Combatant
+          </button>
+        </fieldset>
+
+        <button type="submit">
+          {{ editingEncounter() ? 'Update Encounter' : 'Create Encounter' }}
+        </button>
+        <button type="button" class="cancel-encounter-btn" (click)="cancelEdit()">Cancel</button>
+      </form>
+    } @else {
+      <button type="button" class="create-encounter-btn" (click)="startCreate()">
+        + Create Encounter
       </button>
-    </fieldset>
-  }
+    }
 
-  <button type="submit">{{ editingEncounter() ? 'Update Encounter' : 'Create Encounter' }}</button>
-  @if (editingEncounter()) {
-    <button type="button" (click)="cancelEdit()">Cancel</button>
-  }
-</form>
+    <app-monster-credits />
+  </div>
+
+  <div class="saved-column">
+    <h2>Saved Encounters</h2>
+    @if (encounterStore.encounters().length === 0) {
+      <p class="empty-state">No encounters yet — create one to get started.</p>
+    } @else {
+      <ul class="bubble-list">
+        @for (encounter of encounterStore.encounters(); track encounter.id) {
+          <li class="bubble entry">
+            <a class="entry-title" [routerLink]="['/encounters', encounter.id]">{{
+              encounter.name
+            }}</a>
+            @if (encounter.round > 0) {
+              <span class="badge">Round {{ encounter.round }}</span>
+            } @else {
+              <span class="badge">Not started</span>
+            }
+            <button type="button" class="icon-btn" (click)="startEdit(encounter)">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M13.94 3.06a1.5 1.5 0 0 1 2.12 0l.88.88a1.5 1.5 0 0 1 0 2.12l-8.9 8.9-3.5.9.9-3.5 8.5-8.5Zm-9.7 9.7L3 17l4.24-1.24 8.9-8.9-2.12-2.12-8.78 8.78Z"
+                />
+              </svg>
+              <span class="sr-only">Edit {{ encounter.name }}</span>
+            </button>
+            <button
+              type="button"
+              class="icon-btn danger"
+              (click)="deleteEncounter(encounter.id, encounter.name)"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+                />
+              </svg>
+              <span class="sr-only">Delete {{ encounter.name }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

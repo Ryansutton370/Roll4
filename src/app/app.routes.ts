@@ -1,14 +1,19 @@
 import { Routes } from '@angular/router';
 import { EncounterDetail } from './pages/encounter-detail/encounter-detail';
+import { EncounterGenerator } from './pages/encounter-generator/encounter-generator';
 import { EncounterList } from './pages/encounter-list/encounter-list';
+import { GeneratorsShell } from './pages/generators-shell/generators-shell';
+import { NameGenerator } from './pages/name-generator/name-generator';
 import { NpcRoster } from './pages/npc-roster/npc-roster';
 import { NpcsShell } from './pages/npcs-shell/npcs-shell';
 import { PartyDetail } from './pages/party-detail/party-detail';
 import { PartyList } from './pages/party-list/party-list';
 import { PlayerRoster } from './pages/player-roster/player-roster';
 import { PlayersShell } from './pages/players-shell/players-shell';
+import { TreasureGenerator } from './pages/treasure-generator/treasure-generator';
 import { TroopDetail } from './pages/troop-detail/troop-detail';
 import { TroopList } from './pages/troop-list/troop-list';
+import { WildMagicGenerator } from './pages/wild-magic-generator/wild-magic-generator';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'players', pathMatch: 'full' },
@@ -38,4 +43,14 @@ export const routes: Routes = [
   },
   { path: 'encounters', component: EncounterList },
   { path: 'encounters/:encounterId', component: EncounterDetail },
+  {
+    path: 'generators',
+    component: GeneratorsShell,
+    children: [
+      { path: '', component: NameGenerator },
+      { path: 'encounter', component: EncounterGenerator },
+      { path: 'wild-magic', component: WildMagicGenerator },
+      { path: 'treasure', component: TreasureGenerator },
+    ],
+  },
 ];

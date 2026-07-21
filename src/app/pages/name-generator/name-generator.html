@@ -1,0 +1,64 @@
+<h1>Random Generators</h1>
+<p class="page-intro">
+  Generate names inspired by real-world and fictional sources — the same tables available inline via
+  the 🎲 button next to any Name field.
+</p>
+<p class="page-intro">
+  Names derived from the "real world" are loosely inspired by naming conventions, phonetics, and
+  patterns from those cultures — not necessarily actual, authentic names.
+</p>
+
+@if (nameTableStore.setNames().length === 0) {
+  <p class="empty-state">No generator tables loaded.</p>
+} @else {
+  <div class="picker-row">
+    <label>
+      Set
+      <select [ngModel]="selectedSetName()" (ngModelChange)="selectSet($event)">
+        @for (setName of nameTableStore.setNames(); track setName) {
+          <option [value]="setName">{{ setName }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Table
+      <select [ngModel]="selectedTableId()" (ngModelChange)="selectTable($event)">
+        @for (table of tablesForSelectedSet(); track table.id) {
+          <option [value]="table.id">
+            {{ table.tableName
+            }}{{ table.gender === 'male' ? ' (M)' : table.gender === 'female' ? ' (F)' : '' }}
+          </option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Count
+      <input
+        type="number"
+        min="1"
+        max="50"
+        [ngModel]="rollCount()"
+        (ngModelChange)="rollCount.set($event)"
+      />
+    </label>
+
+    <button type="button" (click)="roll()">Roll</button>
+  </div>
+
+  @if (rolledNames().length > 0) {
+    <ul class="results-list">
+      @for (name of rolledNames(); track $index) {
+        <li>
+          <span>{{ name }}</span>
+          <button type="button" class="copy-btn" (click)="copy(name, $index)">
+            {{ copiedIndex() === $index ? 'Copied!' : 'Copy' }}
+          </button>
+        </li>
+      }
+    </ul>
+  }
+}
+
+<app-generator-disclaimer />

@@ -27,6 +27,8 @@ function combatant(overrides: Partial<Combatant>): Combatant {
     maxHp: null,
     currentHp: null,
     notes: '',
+    monsterTemplateId: null,
+    monsterName: null,
     lastRoll: null,
     initiativeTotal: null,
     removedFromCombat: false,

@@ -1,0 +1,29 @@
+<h1>Encounter Generator</h1>
+
+<app-monster-generator-panel
+  [draft]="draft()"
+  (draftChange)="draft.set($event)"
+  (draftEdited)="savedTroopId.set(null)"
+/>
+
+@if (draft().length > 0) {
+  <div class="save-row">
+    <input
+      type="text"
+      name="troopName"
+      placeholder="Troop name"
+      [ngModel]="troopName()"
+      (ngModelChange)="troopName.set($event)"
+    />
+    <button type="button" (click)="saveAsTroop()">Save as Troop</button>
+  </div>
+}
+
+@if (savedTroopId()) {
+  <p class="saved-banner">
+    Saved!
+    <button type="button" class="link-btn" (click)="goToSavedTroop()">View the new Troop →</button>
+  </p>
+}
+
+<app-monster-credits />

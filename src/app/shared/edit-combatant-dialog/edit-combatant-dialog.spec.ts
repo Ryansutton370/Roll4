@@ -14,6 +14,8 @@ const combatant: Combatant = {
   maxHp: 7,
   currentHp: 7,
   notes: 'Skittish',
+  monsterTemplateId: null,
+  monsterName: null,
   lastRoll: null,
   initiativeTotal: null,
   removedFromCombat: false,

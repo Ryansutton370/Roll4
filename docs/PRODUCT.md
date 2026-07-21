@@ -11,7 +11,7 @@ needing a fast, clear way to track turn order across multiple rounds.
   needed to run combat: name and Initiative Modifier; AC, Max HP, and Notes
   are optional on top of that. Lives in the GM's Player roster
   (`/players`), independent of any one Party — see **Party** below. (Don't
-  confuse this with the *future* Player account role described later in
+  confuse this with the _future_ Player account role described later in
   this doc — that's a login/permissions concept; this is character data the
   GM manages today.)
 - **Party** — a reusable, named grouping of Players that a GM can pull into
@@ -22,7 +22,7 @@ needing a fast, clear way to track turn order across multiple rounds.
 - **NPC** — a reusable library entry for any non-player combatant: a
   monster, a villain, a townsperson who joined the fight. Same data as a
   Player: name and Initiative Modifier required, AC/Max HP/Notes optional.
-  Lives in the GM's NPC roster (`/npcs`). NPCs can *also* still be created
+  Lives in the GM's NPC roster (`/npcs`). NPCs can _also_ still be created
   ad-hoc, directly within an Encounter, without ever touching the roster —
   that Phase 1 workflow is unchanged; the roster is an added option, not a
   replacement for it.
@@ -39,6 +39,7 @@ needing a fast, clear way to track turn order across multiple rounds.
 
 Two top-level tabs organize the GM's reusable data, each with its own
 sub-nav:
+
 - **Players** → **Roster** (every Player, regardless of Party) and
   **Parties** (create/rename/delete a Party, and check which roster
   Players belong to it).
@@ -47,47 +48,118 @@ sub-nav:
 
 **Encounters** remains its own top-level tab, unchanged.
 
+**Random Generators** is a fourth top-level tab, with its own Roster-style
+sub-nav (see "11. Random Generators", "12. Encounter Generator", "13. Wild
+Magic Generator", and "14. Treasure Generator" below): **Names**,
+**Encounter**, **Wild Magic**, and **Treasure**.
+
 ## GM workflows
 
 ### 1. Manage the Player roster and Parties
+
 The GM adds Players to the roster (name + Initiative Modifier, plus
 optional AC/Max HP/Notes) from the **Players → Roster** page — this is now
 the only place a Player is created; a Party doesn't own its own dedicated
 characters the way it did in Phase 1. From **Players → Parties**, the GM
 creates a Party and checks which roster Players belong to it; the same
 Player can be checked into more than one Party. Parties persist and can be
-reused across many Encounters. NPCs/Troops work identically, under the
-**NPCs** tab.
+reused across many Encounters. NPCs/Troops work the same way under the
+**NPCs** tab, plus one addition Players has no equivalent for: a **Browse
+Monster List** section (the same sortable/searchable/eye-icon table
+described in section 12) sits between the roster and the hand-entry create
+form on **NPCs → Roster**, letting the GM save a 5e SRD/Shadowdark monster
+template straight into the roster — instantly, with a confirmation toast,
+no separate submit step — instead of retyping its stats by hand. The saved
+NPC carries the same `monsterTemplateId` link as one added via Add
+Combatant's From Book option or the Encounter Generator, so it still gets
+the View Stat Block button once pulled into an Encounter (section 4a). A
+monster is always an NPC, never a Player, which is why this option only
+exists on this tab.
 
 ### 2. Create an Encounter
-The GM builds up the combatant list from four sources, any combination of
-which can be used together:
+
+The **Encounters** tab (`/encounters`) is a two-column layout (stacked on
+narrow viewports): the left column holds a **+ Create Encounter** button
+that expands into a build panel — the _same_ panel (name, Party/Troop
+pulls, monster generation, Combatants) is reused for editing an existing
+Encounter too (via its pencil icon), pre-filled instead of blank, rather
+than two different UIs for create vs. edit. The right column, headed
+**Saved Encounters**, always shows every saved Encounter as a list,
+independent of whether the left column's panel is open or collapsed.
+
+Inside the panel, the GM builds up the combatant list from four sources,
+any combination of which can be used together:
+
 - **Pull a Party (or Parties)** in as a unit — every Player in the Party
   joins as a Combatant.
 - **Pull a Troop (or Troops)** in the same way — every NPC in the Troop
   joins as a Combatant.
-- **Add a single roster entry, or an ad-hoc one** — an **Add Combatant**
-  button opens a modal (the same one used in the Encounters list's Edit
-  form and the run-phase "+" menu — see section 9 below). It always opens
-  on a three-way choice — **Existing NPC**, **Existing Player**, or
-  **Create New** — as peers, not a toggle buried under one of them.
+- **Generate Monsters** — the same build-a-roster flow as the standalone
+  Encounter Generator (source toggle, generation controls, candidate
+  count adjustment, apply-names — see section 12), embedded directly in
+  this panel instead of requiring a trip to a separate page and a Troop
+  detour. A **+ Add These to Encounter** button commits the current
+  generated roster straight onto this Encounter's Combatants (each
+  carrying its `monsterTemplateId`/`monsterName` link, same as any other
+  monster-templated combatant), rather than creating a Troop first.
+- **Add a single roster entry, an ad-hoc one, or one from an official
+  source** — an **Add Combatant** button opens a modal (the same one used
+  in the run-phase "+" menu — see section 9 below). It always opens on a
+  four-way choice — **Existing NPC**, **Existing Player**, **From Book**,
+  or **Create New** — as peers, not a toggle buried under one of them.
   Picking Existing NPC/Player shows that type's roster entries to pick
-  from, one click each; picking Create New asks the type (NPC/Player) and
-  then shows the ad-hoc create form. A **← Back** link on either path
-  returns to the three-way choice. Any step, or Cancel (or Escape), closes
-  the modal back out — nothing is added until the GM actually picks or
-  submits one.
+  from, one click each. Picking **From Book** asks a sourcebook (D&D 5e
+  SRD or Shadowdark, same two sources as the Encounter Generator — see
+  section 12) and then a monster from that source, picked from a
+  sortable/searchable table (name, CR/Level, sortable by either and by
+  A-Z/Z-A, live search-by-typing, and an eye icon previewing the full stat
+  block before picking — see section 12's `MonsterPickerTable` note);
+  picking one prefills the same create form Create New uses (name, AC, Max
+  HP, Initiative Modifier all copied from the template) and skips asking
+  NPC-vs-Player, since a monster is always an NPC. Either way the GM can
+  still rename it before adding — typed by hand or via the 🎲 name
+  generator (section 11) — same as any ad-hoc entry. A combatant added
+  this way gets the same `monsterTemplateId` link as one from the
+  Encounter Generator (see section 12's `Npc`/`Combatant` note and 4a's
+  View Stat Block button). Picking Create New on its own asks the type
+  (NPC/Player) and shows the same form, blank. A **← Back** link on any
+  path returns to the previous step (From Book's own picker, for a
+  combatant picked From Book, so re-picking a different monster doesn't
+  mean starting over; the four-way choice for every other path). Any step,
+  or Cancel (or Escape), closes the modal back out — nothing is added
+  until the GM actually picks or submits one.
+
+**The Encounter isn't actually saved until the GM adds something real to
+it** — typing a name or checking Party/Troop boxes alone doesn't create
+anything yet. The moment the GM commits a generated roster or an Add
+Combatant pick, the Encounter is created right then (named "Untitled
+Encounter" if the name field is still blank — renameable at any point
+afterward, including via the panel's own name field) and the Combatants
+section fills in live; the bottom button's label flips from "Create
+Encounter" to "Update Encounter" to match. If the GM never adds anything
+before clicking the bottom button, behavior is the plain, simple case:
+it creates the Encounter from the name/Party/Troop selections and takes
+the GM straight into that Encounter's setup/run screen, same as ever. Once
+something has already been added first, clicking that same button instead
+just saves the name/Party/Troop selection and closes the panel back onto
+the list — the GM is presumably still refining combatants there rather
+than being pulled away mid-build. **Cancel never deletes anything** that
+already exists: if the GM added a real combatant before clicking Cancel,
+that Encounter and its combatants stay saved exactly as an existing
+Encounter's Cancel always has — Cancel only ever discards _unsaved_ name/
+Party/Troop edits, never combatants already committed to the store.
 
 An ad-hoc entry isn't stuck ad-hoc forever: **Save to Roster** creates a
 library Player/NPC from its current fields, optionally adds it to a
-Party/Troop the GM checks off, and links it to the *same* Combatant — it
+Party/Troop the GM checks off, and links it to the _same_ Combatant — it
 never appears twice in the Encounter being built.
 
 A saved Encounter can be edited later from the Encounters list — rename it,
-change which Parties/Troops are pulled in, or add/remove combatants (e.g.
-reinforcements) — using that same form.
+change which Parties/Troops are pulled in, generate and add more monsters,
+or add/remove combatants (e.g. reinforcements) — using that same panel.
 
 ### 3. Roll Initiative
+
 The GM presses **Roll**. Every combatant gets a random value from 1–20, plus
 their Initiative Modifier, producing their initiative total. Combatants are
 sorted descending by that total (highest acts first). Ties are broken by
@@ -95,7 +167,9 @@ whichever combatant has the higher Initiative Modifier; if that's also tied,
 by a random coin flip.
 
 ### 4. Run the Encounter
+
 The initiative order is displayed as a list. Each entry shows:
+
 - Combatant name — two combatants sharing a name (e.g. two "Goblin"s) each
   get an " A"/" B" suffix so they're never ambiguous, in the order they
   were added to the Encounter
@@ -110,6 +184,7 @@ default rule, a previous round's order/rolls are no longer meaningful to
 return to.
 
 ### 4a. Combat data: AC / HP / Notes
+
 AC, Max HP, and Notes are optional fields a GM can set when creating a
 Player or NPC, and can also add or change later via the combatant bubble's
 **Edit Info** button (in the expansion drawer) — a pop-up that reuses the
@@ -118,6 +193,22 @@ values. The same drawer also has a **Create Timer** button, which
 immediately creates a Timer linked to that combatant with a default name
 and starting value — a shortcut for the common case, alongside the full
 **+** → **Add Timer** flow (see section 10) for a custom name/value.
+
+A combatant sourced from a monster template — via the Encounter Generator
+(section 12) or Add Combatant's **From Book** option (section 2) — gets one
+more drawer button, **View Stat Block** — opens a read-only popup with that
+monster's full stat block (AC, HP, Initiative, and every trait/action from
+its source). The same action is also available directly on the collapsed
+bubble row, as a small icon next to the name, whenever there's room for it —
+one click to the stat block without expanding the drawer first; it's the
+first thing to yield space if the bubble gets tight (same "give up the
+least essential thing first" ladder as Notes/HP bar/Name truncation, just
+ahead of all of them, since the drawer button is always a fallback). Only
+shown for a monster-templated combatant; a hand-entered Player/NPC has no
+stat block to show. That same combatant's bubble also displays differently
+whenever it was given a personal name: the personal name shows prominently
+(e.g. "Barry"), with the creature type as a smaller "- Goblin" subtitle
+right after it, instead of just "Goblin" alone.
 Every create/edit form for a Player/NPC uses the same layout: one field
 per row-item (Name, then an icon-labeled field per stat — a d20 for
 Initiative Modifier, shield for AC, heart for Max HP, notepad for Notes),
@@ -137,7 +228,7 @@ scan at a glance.
 
 The whole bubble is meant to read as one compact line, and is designed to
 never wrap onto a second line while there's still a way to reclaim width
-instead. Wrapping is a *viewport*-width concern on a phone, but a bubble can
+instead. Wrapping is a _viewport_-width concern on a phone, but a bubble can
 also end up just as narrow on a wide desktop screen once the Timers rail
 and the Hold Action panel both crowd the combatant list — so the bubble
 watches its own rendered width (not the page's) and truncates in this
@@ -152,7 +243,7 @@ bubble finally wrap onto two lines, as a last resort.
 In an Encounter, HP displays as **Current / Max**, drawn as a health bar
 showing the percentage remaining, its color easing from green through
 yellow to red as that percentage drops. Clicking the heart icon or the bar
-itself, on *any* combatant (not just the Active one), opens a small popover:
+itself, on _any_ combatant (not just the Active one), opens a small popover:
 a magnitude input on the left, and a Damage/Healing switch (red/Damage by
 default, green when flipped to Healing) stacked above a confirm button on
 the right. The switch sets the sign — the input only ever holds the number
@@ -172,19 +263,22 @@ Editing AC/HP/Notes from a combatant's Edit button only affects that one
 Encounter — it doesn't write back to the Player/NPC's own saved roster data.
 
 ### 5. Rounds
+
 When the GM advances past the last combatant in the order, a new round
 begins and the round counter increments. The GM has a per-Encounter setting
 for what happens to initiative order at the start of a new round:
 
-- **Re-roll every turn** (default) — a homebrew rule where *every* combatant
+- **Re-roll every turn** (default) — a homebrew rule where _every_ combatant
   re-rolls initiative at the start of each round, and the order is rebuilt
   from scratch.
 - **Keep initiative order** — the standard rule where the order rolled at the
   start of combat is kept for every subsequent round.
 
 ### 6. Remove from Combat
+
 The GM can mark any combatant as **Removed from Combat** (e.g. defeated,
 fled, or otherwise out of the fight). A removed combatant:
+
 - Shows **N/A** for initiative (counts as `0` for sorting).
 - Is skipped when advancing Forward/Back — the Active highlight jumps over
   them.
@@ -201,9 +295,11 @@ rejoining the fight mid-round rather than snapping back to wherever they
 started.
 
 ### 6a. Incapacitated
+
 The GM can also mark a combatant as **Incapacitated** (unconscious, stunned,
 or otherwise unable to act) without removing them from the fight. Unlike
 Removed from Combat or Hold Action, this is purely a visual marker:
+
 - The combatant's bubble is greyed out, the same tint used for a Removed
   entry, with a small crescent-moon badge in place of the initiative-based
   status icons — clicking the badge un-marks it, the same shortcut the
@@ -212,8 +308,10 @@ Removed from Combat or Hold Action, this is purely a visual marker:
   and keeps rolling, sorting, and taking turns exactly like everyone else.
 
 ### 7. Hold Action
+
 The GM can mark a combatant as **Holding their action** (waiting for a
 trigger before acting). A combatant on hold:
+
 - Moves out of the main initiative list into a **Hold Action panel**: a
   bordered, darker-background box labeled "Hold Action," shown beside the
   main list on wide screens (or stacked below it on narrow ones). The panel
@@ -229,6 +327,7 @@ A combatant in the Hold Action panel can start returning to the main list two
 ways: unchecking Hold Action in its drawer, or a dedicated ◀ button on the
 left edge of its bubble (a shortcut that skips opening the drawer). Either one
 opens **placement mode** rather than immediately rejoining the fight:
+
 - Two dashed placeholder slots appear in the main list directly around the
   Active combatant, one point above its total and one point below — each
   shows just the target initiative number, since the placeholder's job is to
@@ -247,7 +346,7 @@ opens **placement mode** rather than immediately rejoining the fight:
   main list at that exact spot.
 - **Placing above Active means interrupting**: the returning combatant
   becomes the new Active combatant immediately, jumping in ahead on their
-  held trigger. The combatant who *was* Active isn't skipped — they simply
+  held trigger. The combatant who _was_ Active isn't skipped — they simply
   haven't acted yet this round, so the next Forward naturally lands back on
   them once the interrupter's turn ends.
 - **Placing below Active** just queues the combatant up next, one point
@@ -265,6 +364,7 @@ combatant returns to the main list, either with a freshly rolled initiative
 if not re-rolling each round.
 
 ### 8. Manual Reordering
+
 The GM can drag any main-list combatant to a new spot via a grip icon on the
 left edge of its bubble — for correcting a bad roll, or just for a GM call
 that overrides the dice. The grip icon stays hidden until it's needed:
@@ -281,6 +381,7 @@ currently on Hold Action aren't draggable this way (Hold Action has its own
 placement flow, above).
 
 ### 9. Adding mid-encounter: the "+" menu
+
 Once combat is running (after the first Roll), a **+** button sits to the
 left of the Previous/Next Turn buttons. Clicking it offers a choice: **Add
 Timer** or **Add Combatant**.
@@ -300,6 +401,7 @@ automatically rolled into the main list once the round ends — the same
 already get at every round boundary.
 
 ### 10. Timers
+
 **Add Timer** (same "+" menu) opens a "new timer" card right in the
 Timers rail — a GM-written name, a starting countdown value, and an
 optional **link** to one specific combatant (chosen from whoever's
@@ -343,6 +445,120 @@ card shows the name in bold white text on a red background (the count
 stays visible, now reading 0). An **×** button on every card dismisses it
 at any time.
 
+### 11. Random Generators
+
+A GM's spreadsheet of d100 name tables (grouped into "sets" like
+"European", "Non-European", "Fantasy", "Titles & Bynames", "Potions &
+Alchemy", "Places" — not every table is a _person_ name, e.g. Places holds
+settlement names) is imported once into the app (see
+[DATA_MODEL.md](./DATA_MODEL.md)'s `NameTable`). Two ways to use it:
+
+- **The Random Generators tab** (`/generators`): pick a set, then a table
+  within it, choose how many results to roll, and copy any result — a
+  standalone browsing/rolling tool, not tied to any particular Player/NPC.
+- **Inline, wherever a Name is entered**: every Player/NPC create/edit
+  screen shares one form (`CombatantFields` — Player/NPC roster, ad-hoc NPC
+  forms, the Edit pop-up, per section 4a above) with a 🎲 button next to the
+  Name field. Clicking it opens the same set/table picker in a small
+  popover; clicking a rolled name fills the Name field directly, without
+  navigating away from whatever screen the GM was already on.
+
+Every page under the Random Generators tab (Names, Encounter, Wild Magic,
+Treasure) carries a short general disclaimer at the bottom — content is
+sourced from a variety of places, credit is given wherever possible, no
+ownership is claimed — alongside (not instead of) any page-specific
+attribution a source requires (the Encounter Generator's OGL/CC BY-SA
+notices in section 12, the Wild Magic page's author credit in section 13).
+
+### 12. Encounter Generator
+
+The Random Generators tab's second page (`/generators/encounter`) generates
+a candidate monster list from the imported 5e SRD / Shadowdark monster data
+(see [DATA_MODEL.md](./DATA_MODEL.md)'s `MonsterTemplate`) instead of the
+GM building an Encounter's roster combatant-by-combatant. The whole
+generate/adjust/apply-names flow (steps 1–3 below) is the
+`MonsterGeneratorPanel` component — the same one embedded directly in the
+Encounter creation/edit panel (see "2. Create an Encounter" above), so a GM
+generating monsters as part of building a specific Encounter doesn't need
+this separate page at all; this standalone page exists for building a
+reusable Troop ahead of any specific Encounter, or browsing/creating
+monster rosters independent of a particular fight.
+
+1. **Choose a sourcebook** — D&D 5e SRD or Shadowdark. The two use
+   different generation controls, since they don't share a difficulty
+   concept (see [DATA_MODEL.md](./DATA_MODEL.md) for why):
+   - **5e SRD**: Party Level, Party Size, and a Difficulty tier
+     (Easy/Medium/Hard/Deadly) — generates a list whose total adjusted XP
+     targets that difficulty, using the DMG's own encounter-building math.
+   - **Shadowdark**: a Min/Max Level range and a monster count — draws
+     randomly from monsters within that range, since Shadowdark's own
+     rules don't define a difficulty budget to target.
+2. **Edit the candidates** — each generated monster type is one row with
+   +/- count controls and can be removed entirely; an "Add a monster"
+   picker (`MonsterPickerTable`) lets the GM add anything else from that
+   source, generated or not — an expandable table (collapsed by default),
+   sortable by Name (A-Z/Z-A) or CR/Level (either direction) via clickable
+   column headers, live search-by-typing, and an eye icon per row opening
+   that monster's full stat block (`MonsterStatBlockDialog`) before
+   deciding to add it. The same component also replaced the plain
+   alphabetical dropdown previously used here and in `AddCombatantDialog`'s
+   "From Book" step (see section 2) — one picker, every place a GM chooses
+   a single monster from either sourcebook.
+3. **Apply names** — two ways, usable together: pick one set/table (the
+   same Random Generators data from section 11 above) and roll to bulk-fill
+   every still-unnamed candidate at once from that one table; or roll a
+   single candidate individually via its own 🎲 button on the Roster list,
+   picking a different set/table just for that one — useful for mixing
+   ancestries/categories across a roster instead of every monster coming
+   from the same one. Either way the result is individually
+   editable/clearable afterward. A candidate with no personal name just
+   keeps its creature type as its name (e.g. "Goblin"), same as any
+   hand-entered NPC.
+4. **Save as Troop** — names the new Troop and creates one library `Npc`
+   per candidate (carrying `monsterTemplateId`/`monsterName`, so the
+   combatant bubble shows the View Stat Block button and the "Barry -
+   Goblin" name split described in section 4a above), all added to that
+   Troop. The GM lands on the new Troop's page, ready to pull it into an
+   Encounter exactly like any other Troop (see "2. Create an Encounter"
+   above). This step is specific to this standalone page — the same
+   generated roster, embedded inside an Encounter's own creation/edit
+   panel, instead gets a **+ Add These to Encounter** button that skips
+   the Troop step entirely and lands the candidates directly as Combatants
+   on that Encounter.
+
+### 13. Wild Magic Generator
+
+The Random Generators tab's third page (`/generators/wild-magic`) rolls on
+the imported Wild Magic tables (see [DATA_MODEL.md](./DATA_MODEL.md)'s
+`WildMagicTable`): a 10,000-entry **Chaos Burst** table of wild-magic mishap
+effects, and a companion 100-entry **Burst Duration Condition** table for
+Bursts with no stated duration. Same table-picker/roll-count/copy-any-result
+mechanic as the Names page (section 11), minus the Set step — there's
+currently only one Wild Magic set.
+
+A source credit for the document these tables are drawn from is shown
+up front, right under the page's intro (not tucked behind a click, unlike
+the monster data's longer formal license notices on the Names page) — this
+is someone else's free fan work, not a licensed dataset, and the credit
+deserves to be seen. Below the Table picker, a one-line description explains
+what the currently-selected table is for — most notably that Burst Duration
+Condition isn't rolled on its own; it's consulted only for a Chaos Burst
+result with no stated duration, to determine what condition must be met
+before that effect ends.
+
+### 14. Treasure Generator
+
+The Random Generators tab's fourth page (`/generators/treasure`) rolls on
+the imported Treasure tables (see [DATA_MODEL.md](./DATA_MODEL.md)'s
+`TreasureTable`) — GM-provided lists, unlike Names/Monsters/Wild Magic,
+which each come from one external source document. Same table-picker/
+roll-count/copy-any-result mechanic as the Wild Magic page, except a rolled
+result can show two lines instead of one: **Wondrous Items** and
+**Potions** each carry a name **and** a property/effect (e.g. Potions'
+"Healing" / "Heal 1d8 HP"), shown and copied together, while **Trinkets**
+are just one descriptive line, same as a Name table's results. All three
+categories are done.
+
 ## Persistence
 
 GM data (Players, NPCs, Parties, Troops, Encounters, and encounter-in-progress
@@ -354,16 +570,17 @@ for when that changes.
 ## Future: Player account role
 
 Not in the current build phase, but part of the intended direction — a
-different concept from the **Player** *character* library entry described
+different concept from the **Player** _character_ library entry described
 above, despite the name collision:
-- A **Player** *account* type, separate from GM — a login/permissions
+
+- A **Player** _account_ type, separate from GM — a login/permissions
   role, not the reusable character data in the GM's roster.
 - Account-holding players can upload/manage their own character's data for
   a GM's Party, rather than the GM entering it on their behalf as today.
 - Players get a notification when it becomes their character's turn.
 
 This has real implications for the data model (a Player entity needs an
-*owner* distinct from the GM) and for hosting (notifications imply a
+_owner_ distinct from the GM) and for hosting (notifications imply a
 live/realtime backend of some kind) — see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Open decisions
@@ -373,6 +590,7 @@ this phase" below. Future phases (see [ROADMAP.md](./ROADMAP.md)) will
 likely surface new ones.
 
 **Resolved this phase:**
+
 - Combat-relevant data beyond name + Initiative Modifier is AC, Max HP
   (tracked in-encounter as Current/Max), and Notes — all optional, all
   editable live during an Encounter via the Edit button. See "4a. Combat
