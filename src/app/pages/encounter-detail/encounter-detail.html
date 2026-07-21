@@ -63,194 +63,150 @@
   @if (!hasStarted()) {
     <!-- Setup phase: review pulled-in PCs, add ad-hoc NPCs, then Roll. -->
     <section>
+      <!-- Top of the section, ahead of the combatant list — this is the one
+           action every setup-phase visit is ultimately working toward, so
+           it stays visible without scrolling past everything else first
+           (see .roll-btn in encounter-detail.css for the larger/bolder
+           treatment that goes with top billing). -->
+      <button
+        type="button"
+        class="roll-btn"
+        (click)="rollInitiative()"
+        [disabled]="combatants().length === 0"
+      >
+        <!-- Hexagonal gem outline + spokes to its center corners = a d20,
+             using the same viewBox/fill convention as the app's other icons
+             except stroke-based (a filled path can't show the facet lines). -->
+        <svg
+          class="roll-icon"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.3"
+          stroke-linejoin="round"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M10 1.5 17.5 6v8L10 18.5 2.5 14V6Z" />
+          <path
+            d="M10 1.5V10M17.5 6 10 10M2.5 6 10 10M10 10v8.5M2.5 14 10 10M17.5 14 10 10"
+            stroke-width="1"
+          />
+        </svg>
+        Roll Initiative
+      </button>
+
       <h2>Combatants</h2>
-      @if (combatants().length === 0) {
+      @if (setupCombatants().length === 0) {
         <p class="empty-state">No combatants yet. Add an NPC below.</p>
       } @else {
-        <!-- Spacers mirror the row below (type-dot, name, remove button) so
-             "Initiative Modifier" lines up directly over the input column. -->
-        <div class="setup-list-header">
-          <span class="type-dot-spacer"></span>
-          <span class="entry-title-spacer"></span>
-          <span class="ac-heading-spacer"></span>
-          <span class="hp-heading-spacer"></span>
-          <span class="notes-heading-spacer"></span>
-          <span class="incapacitated-heading-spacer"></span>
-          <span class="modifier-heading">Initiative Modifier</span>
-          <span class="remove-spacer"></span>
-        </div>
+        <!-- Same app-combatant-bubble + previewMode used by the New Encounter
+             builder's Encounter Preview (EncounterPreviewPanel) — a GM sees
+             the exact same bubble (columns, drawer contents, Save to
+             Players/NPCs, Edit Info) here before Roll Initiative as they did
+             while building the Encounter, rather than a second, differently
+             laid-out "setup list" UI. Wired to this component's own
+             existing dialogs/store calls (openEditDialog etc.) rather than
+             embedding EncounterPreviewPanel itself, which would mean a
+             second, duplicate set of Edit/Notes/StatBlock dialog instances
+             on this page. -->
         <ul class="bubble-list">
           @for (c of setupCombatants(); track c.id) {
             <li
-              class="bubble entry setup-combatant-entry"
+              class="bubble entry preview-combatant"
               [attr.data-combatant-id]="c.id"
               [class.pc-entry]="c.type === 'pc'"
               [class.npc-entry]="c.type === 'npc'"
-              [class.entry-removed]="c.removedFromCombat"
+              [class.hp-adjusting]="isHpAdjusting(c.id)"
             >
-              <span
-                class="type-dot"
-                [class.pc]="c.type === 'pc'"
-                [class.npc]="c.type === 'npc'"
-              ></span>
-              <span class="entry-title">{{ displayName(c.id) }}</span>
-
-              <!-- AC/HP/Notes/Incapacitated — same icon markup as
-                   CombatantBubble's #statsBlock (combatant-bubble.html),
-                   duplicated rather than shared (Angular view encapsulation
-                   means this component's own template can't reach into a
-                   child component's styles/template — same reasoning as
-                   .initiative-total further down this file). Read-only here
-                   (no HP-adjust popover, no Incapacitated toggle) — those
-                   stay exclusive to the run phase, where turn order/Active
-                   combatant semantics actually apply. -->
-              <span class="stat ac-stat" [title]="c.ac !== null ? 'Armor Class: ' + c.ac : null">
-                @if (c.ac !== null) {
-                  <span class="badge-icon">
-                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path
-                        d="M10 2.25 3.75 4.5v4.75c0 4.86 2.98 7.9 6.25 8.75 3.27-.85 6.25-3.89 6.25-8.75V4.5L10 2.25Z"
-                      />
-                    </svg>
-                    <span class="badge-value">{{ c.ac }}</span>
-                  </span>
+              <app-combatant-bubble
+                [combatant]="c"
+                [displayName]="displayName(c.id)"
+                [expanded]="isExpanded(c.id)"
+                [isPlacing]="false"
+                [previewMode]="true"
+                (expandToggle)="toggleExpanded(c.id)"
+                (removedToggle)="toggleRemoved(c.id)"
+                (editRequested)="openEditDialog(c)"
+                (viewStatBlockRequested)="openStatBlockDialog(c)"
+                (notesRequested)="openNotesDialog(c)"
+                (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
+                (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+                (deleteRequested)="removeCombatant(c.id)"
+              >
+                <!-- Only an ad-hoc combatant (no library link yet) has
+                     anything to save — a Party/Troop-pulled or
+                     already-linked combatant skips this entirely. -->
+                @if (!c.playerId && !c.npcId) {
+                  <div drawer-extra-action class="save-to-roster-block">
+                    @if (isSavingToRoster(c.id)) {
+                      <p>
+                        Save "{{ c.name }}" to the {{ c.type === 'pc' ? 'Player' : 'NPC' }} roster
+                        @if (
+                          c.type === 'pc'
+                            ? partyStore.parties().length > 0
+                            : npcStore.troops().length > 0
+                        ) {
+                          and optionally add it to:
+                        }
+                      </p>
+                      @if (c.type === 'pc') {
+                        @for (party of partyStore.parties(); track party.id) {
+                          <label>
+                            <input
+                              type="checkbox"
+                              [checked]="isGroupSelectedForSave(c.id, party.id)"
+                              (change)="
+                                toggleGroupSelectedForSave(
+                                  c.id,
+                                  party.id,
+                                  $any($event.target).checked
+                                )
+                              "
+                            />
+                            {{ party.name }}
+                          </label>
+                        }
+                      } @else {
+                        @for (troop of npcStore.troops(); track troop.id) {
+                          <label>
+                            <input
+                              type="checkbox"
+                              [checked]="isGroupSelectedForSave(c.id, troop.id)"
+                              (change)="
+                                toggleGroupSelectedForSave(
+                                  c.id,
+                                  troop.id,
+                                  $any($event.target).checked
+                                )
+                              "
+                            />
+                            {{ troop.name }}
+                          </label>
+                        }
+                      }
+                      <div class="save-to-roster-actions">
+                        <button type="button" (click)="confirmSaveToRoster(c)">Confirm</button>
+                        <button type="button" (click)="toggleSavingToRoster(c.id)">Cancel</button>
+                      </div>
+                    } @else {
+                      <button
+                        type="button"
+                        class="save-to-roster-btn"
+                        (click)="toggleSavingToRoster(c.id)"
+                      >
+                        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path
+                            d="M5 2.5A1.5 1.5 0 0 0 3.5 4v12A1.5 1.5 0 0 0 5 17.5h10a1.5 1.5 0 0 0 1.5-1.5V6.56a1.5 1.5 0 0 0-.44-1.06l-2.56-2.56A1.5 1.5 0 0 0 12.44 2.5H5Zm1.5 1.5h6V6a1 1 0 0 1-1 1H7.5a1 1 0 0 1-1-1V4Zm-.25 6.25h9.5a.75.75 0 0 1 .75.75V16h-11v-5a.75.75 0 0 1 .75-.75Z"
+                          />
+                        </svg>
+                        {{ c.type === 'pc' ? 'Save to Players' : 'Save to NPCs' }}
+                      </button>
+                    }
+                  </div>
                 }
-              </span>
-
-              @if (c.maxHp !== null) {
-                <span class="stat setup-hp-stat" title="Current / Max HP">
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M10 17.35 8.55 16.03C4 11.9 1 9.19 1 5.86 1 3.17 3.12 1 5.75 1c1.47 0 2.89.68 3.8 1.76A5.07 5.07 0 0 1 13.35 1 4.7 4.7 0 0 1 18 5.86c0 3.33-3 6.04-7.55 10.17L10 17.35Z"
-                    />
-                  </svg>
-                  <span class="hp-numbers">{{ c.currentHp }}/{{ c.maxHp }}</span>
-                  <span class="hp-bar"
-                    ><span
-                      class="hp-bar-fill"
-                      [style.width.%]="setupHpPercent(c)"
-                      [style.--hp-hue]="setupHpHue(c)"
-                    ></span
-                  ></span>
-                </span>
-              } @else {
-                <span class="stat setup-hp-stat" aria-hidden="true"></span>
-              }
-
-              <!-- Same icon-badge-btn treatment as CombatantBubble's own
-                   Notes/View Stat Block badges (combatant-bubble.html) —
-                   duplicated for the same view-encapsulation reason as the
-                   rest of this row, opening the same shared NotesDialog/
-                   MonsterStatBlockDialog via the same EncounterDetail
-                   methods the run-phase list already uses. -->
-              <span class="stat notes-stat">
-                <button
-                  type="button"
-                  class="icon-badge-btn notes-badge-btn"
-                  [class.has-notes]="hasNotes(c.notes)"
-                  [title]="hasNotes(c.notes) ? 'See Notes' : 'Add Notes'"
-                  (click)="openNotesDialog(c)"
-                >
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M5 2.5A1.5 1.5 0 0 0 3.5 4v12A1.5 1.5 0 0 0 5 17.5h10a1.5 1.5 0 0 0 1.5-1.5V4A1.5 1.5 0 0 0 15 2.5H5Zm1 4h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h8a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Zm0 3.5h5a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1 0-1.5Z"
-                    />
-                  </svg>
-                  <span class="sr-only"
-                    >{{ hasNotes(c.notes) ? 'See' : 'Add' }} Notes for {{ displayName(c.id) }}</span
-                  >
-                </button>
-              </span>
-
-              @if (c.monsterTemplateId) {
-                <button
-                  type="button"
-                  class="icon-badge-btn stat-block-badge-btn"
-                  title="View {{ displayName(c.id) }}'s stat block"
-                  (click)="openStatBlockDialog(c)"
-                >
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M10 4.5c-4.2 0-7.75 2.9-9 5.5 1.25 2.6 4.8 5.5 9 5.5s7.75-2.9 9-5.5c-1.25-2.6-4.8-5.5-9-5.5Zm0 9.17A3.67 3.67 0 1 1 10 6.33a3.67 3.67 0 0 1 0 7.34Zm0-1.5a2.17 2.17 0 1 0 0-4.34 2.17 2.17 0 0 0 0 4.34Z"
-                    />
-                  </svg>
-                  <span class="sr-only">View {{ displayName(c.id) }}'s stat block</span>
-                </button>
-              }
-
-              @if (c.incapacitated) {
-                <span class="status-icon incapacitated-icon" title="Incapacitated">
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path d="M17.5 10.66A7.5 7.5 0 1 1 9.34 2.5a5.83 5.83 0 0 0 8.16 8.16Z" />
-                  </svg>
-                  <span class="sr-only">{{ displayName(c.id) }} is Incapacitated</span>
-                </span>
-              }
-
-              <input
-                type="number"
-                class="modifier-input"
-                [ngModel]="c.initiativeModifier"
-                (ngModelChange)="setCombatantModifier(c.id, $event)"
-                [attr.aria-label]="'Initiative Modifier for ' + displayName(c.id)"
-              />
-              @if (c.type === 'pc') {
-                <!-- Party members can't be deleted here — this marks them
-                     Removed from Combat instead, for an absent player.
-                     aria-pressed exposes it as a toggle (vs. a one-shot
-                     action) to screen readers, mirroring its actual behavior. -->
-                <button
-                  type="button"
-                  class="icon-btn"
-                  [class.marked-removed]="c.removedFromCombat"
-                  [attr.aria-pressed]="c.removedFromCombat"
-                  [title]="
-                    c.removedFromCombat
-                      ? 'Mark ' + displayName(c.id) + ' as present'
-                      : 'Mark ' + displayName(c.id) + ' as absent (Removed from Combat)'
-                  "
-                  (click)="toggleRemoved(c.id)"
-                >
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5c1.51 0 2.9.51 4.01 1.36l-9.15 9.15A5.98 5.98 0 0 1 4 10a6 6 0 0 1 6-6Zm0 12a5.98 5.98 0 0 1-4.01-1.54l9.15-9.15A5.98 5.98 0 0 1 16 10a6 6 0 0 1-6 6Z"
-                    />
-                  </svg>
-                  <span class="sr-only">{{
-                    c.removedFromCombat
-                      ? 'Mark ' + displayName(c.id) + ' as present'
-                      : 'Mark ' + displayName(c.id) + ' as absent'
-                  }}</span>
-                </button>
-              } @else {
-                <button type="button" class="icon-btn danger" (click)="removeCombatant(c.id)">
-                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path
-                      d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
-                    />
-                  </svg>
-                  <span class="sr-only">Remove {{ displayName(c.id) }}</span>
-                </button>
-              }
-              <!-- Only ad-hoc combatants (no library link yet) can be saved
-                   to the roster — a Party/Troop-pulled or already-linked
-                   combatant has nothing new to save. -->
-              @if (!c.playerId && !c.npcId) {
-                <button
-                  type="button"
-                  class="save-to-roster-btn"
-                  (click)="toggleSavingToRoster(c.id)"
-                >
-                  {{ isSavingToRoster(c.id) ? 'Cancel' : 'Save to Roster' }}
-                </button>
-              }
+              </app-combatant-bubble>
             </li>
-            @if (isSavingToRoster(c.id)) {
-              <ng-container
-                [ngTemplateOutlet]="saveToRosterPicker"
-                [ngTemplateOutletContext]="{ $implicit: c }"
-              />
-            }
           }
         </ul>
       }
@@ -284,34 +240,6 @@
           <span><strong>Classic</strong> — Roll initiative only at the start of combat.</span>
         </label>
       </fieldset>
-
-      <button
-        type="button"
-        class="roll-btn"
-        (click)="rollInitiative()"
-        [disabled]="combatants().length === 0"
-      >
-        <!-- Hexagonal gem outline + spokes to its center corners = a d20,
-             using the same viewBox/fill convention as the app's other icons
-             except stroke-based (a filled path can't show the facet lines). -->
-        <svg
-          class="roll-icon"
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.3"
-          stroke-linejoin="round"
-          stroke-linecap="round"
-          aria-hidden="true"
-        >
-          <path d="M10 1.5 17.5 6v8L10 18.5 2.5 14V6Z" />
-          <path
-            d="M10 1.5V10M17.5 6 10 10M2.5 6 10 10M10 10v8.5M2.5 14 10 10M17.5 14 10 10"
-            stroke-width="1"
-          />
-        </svg>
-        Roll Initiative
-      </button>
     </section>
   } @else {
     <!-- Run phase: initiative order, Active-turn highlight, round tracking. -->

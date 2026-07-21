@@ -28,7 +28,6 @@ import {
 } from '../../shared/edit-combatant-dialog/edit-combatant-dialog';
 import { MonsterStatBlockDialog } from '../../shared/monster-stat-block-dialog/monster-stat-block-dialog';
 import { NotesDialog } from '../../shared/notes-dialog/notes-dialog';
-import { hasRichTextContent } from '../../shared/rich-text-editor/rich-text-editor';
 import { CombatantBubble } from './combatant-bubble';
 
 @Component({
@@ -408,28 +407,6 @@ export class EncounterDetail {
 
   protected removeCombatant(combatantId: string): void {
     this.encounterStore.removeCombatant(this.encounterId(), combatantId);
-  }
-
-  protected setCombatantModifier(combatantId: string, initiativeModifier: number): void {
-    this.encounterStore.setInitiativeModifier(this.encounterId(), combatantId, initiativeModifier);
-  }
-
-  // Setup-phase list's read-only HP bar — same percent/hue math as
-  // CombatantBubble.hpPercent()/hpHue() (combatant-bubble.ts), duplicated
-  // for the same view-encapsulation reason as the icon markup itself (see
-  // the comment above the setup list's stat icons in encounter-detail.html).
-  protected setupHpPercent(c: Combatant): number {
-    if (!c.maxHp) return 0;
-    return Math.round(((c.currentHp ?? c.maxHp) / c.maxHp) * 100);
-  }
-
-  protected setupHpHue(c: Combatant): number {
-    return Math.round(this.setupHpPercent(c) * 1.2);
-  }
-
-  /** Drives the setup-list Notes badge's dark-vs-muted color and hint text — same helper CombatantBubble uses for the run-phase list's own Notes badge. */
-  protected hasNotes(notes: string): boolean {
-    return hasRichTextContent(notes);
   }
 
   protected rollInitiative(): void {

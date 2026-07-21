@@ -61,6 +61,8 @@ export class CombatantBubble {
   readonly active = input(false);
   /** True when a Timer is currently linked to this combatant — shows a small clock icon next to their name (see EncounterDetail.isLinkedToTimer). */
   readonly hasLinkedTimer = input(false);
+  /** True when this bubble is shown pre-Roll in the New Encounter builder's Encounter Preview (see EncounterPreviewPanel) rather than the run-phase screen — hides Hold Action/Incapacitated/Create Timer (none apply before combat starts), relabels Removed from Combat "Mark Absent" for a Player, and swaps it for a Delete button for an NPC. */
+  readonly previewMode = input(false);
 
   // output(): the signal-based replacement for @Output()/EventEmitter — it
   // exposes an emitter that the parent's template listens to with a normal
@@ -79,6 +81,8 @@ export class CombatantBubble {
   readonly createTimerRequested = output<void>();
   /** Drawer's View Stat Block button, and the same-named badge in the row itself (only shown when combatant().monsterTemplateId is set) — EncounterDetail looks up the MonsterTemplate and opens the shared MonsterStatBlockDialog. */
   readonly viewStatBlockRequested = output<void>();
+  /** previewMode's Delete button (NPC only) — EncounterPreviewPanel removes this Combatant entirely (pre-Roll only, same EncounterStore.removeCombatant guard the setup-phase list already relies on). */
+  readonly deleteRequested = output<void>();
   /** The row's Notes badge — EncounterDetail opens the shared NotesDialog for this combatant. */
   readonly notesRequested = output<void>();
   /** A signed HP delta typed into the popover below (damage negative, healing positive) — EncounterDetail applies it via EncounterStore.adjustCurrentHp. */
@@ -104,6 +108,24 @@ export class CombatantBubble {
 
   /** Drives the Notes badge's dark-vs-muted color and "See Notes"/"Add Notes" hint — see hasRichTextContent for why this isn't just `combatant().notes !== ''`. */
   protected readonly hasNotes = computed(() => hasRichTextContent(this.combatant().notes));
+
+  // previewMode has no initiativeTotal yet (no Roll has happened) — showing
+  // "N/A" there would be true but useless, since the one thing worth
+  // knowing pre-Roll (the modifier that'll be added to the eventual d20
+  // roll) is sitting right there on the Combatant already. Signed so a
+  // negative modifier reads unambiguously (e.g. "-1"), matching how a GM
+  // would write it by hand; 0 renders as a plain "0", not "+0".
+  protected readonly initiativeBadgeValue = computed(() => {
+    const c = this.combatant();
+    if (!this.previewMode()) return c.initiativeTotal ?? 'N/A';
+    const mod = c.initiativeModifier;
+    return mod > 0 ? `+${mod}` : `${mod}`;
+  });
+
+  protected readonly initiativeBadgeTitle = computed(() => {
+    if (this.previewMode()) return `Initiative Modifier: ${this.initiativeBadgeValue()}`;
+    return `Initiative: ${this.combatant().initiativeTotal ?? 'N/A'}`;
+  });
 
   // Current/Max HP as a 0-100 percentage for the health bar's width. Guards
   // against maxHp being 0 (not a realistic value, but still a valid number)

@@ -304,6 +304,10 @@ sort by CR/Level, search, or preview a stat block before picking.
         first commit. `EncounterStore.addAdHocCombatant` now returns the
         created `Combatant` so the effect can track/update/remove it again
         by id without a separate lookup.
+        **Superseded in Phase 2.9** — a real "not yet in the Encounter"
+        Candidates state (needed for the new Encounter Preview panel) isn't
+        representable by a live-sync effect, so this went back to an
+        explicit commit step. See Phase 2.9 below.
   - [x] `MonsterGeneratorPanel` reordered so **Browse Monster List** is
         always visible (previously nested inside the Candidates section,
         only reachable after clicking Generate once) and sits above
@@ -335,6 +339,128 @@ sort by CR/Level, search, or preview a stat block before picking.
         the roster row's already-inline-editable name field, same as any
         hand-entered NPC. See [PRODUCT.md](./PRODUCT.md) section 1.
 
+## Phase 2.9 — New Encounter Redesign (complete)
+
+Still local-storage only. Opened once the New Encounter builder had grown
+enough sections (Party/Troop pulls, an unheaded source toggle, Browse
+Monster List, Generate Monsters, a flat always-editable Combatants list)
+that it read as a pile of features rather than one coherent flow, and the
+Combatants list looked nothing like the run-phase screen a GM spends the
+rest of their time on.
+
+- [x] `MonsterGeneratorPanel` gained a heading + short explanation wrapping
+      the source toggle/Browse Monster List/Generate Monsters ("Monsters"),
+      and each Roster row gained an eye icon (`MonsterStatBlockDialog`,
+      same pattern as `MonsterPickerTable`'s) — on both hosts, since they
+      share the component.
+- [x] Reverted the Phase 2.8 live-sync effect (see that phase's note above)
+      in favor of an explicit commit step: two new opt-in
+      inputs/outputs (`showEncounterCommitActions`/`encounterName`,
+      `addAllToEncounter`/`addOneToEncounter`) render an **Add All to
+      Encounter** button plus each Roster row's individual **Add to
+      Encounter** button, gated off (and so invisible/inert) on the
+      standalone Encounter Generator page. Committing a row plays a
+      flash-green/shrink CSS animation before it's actually removed from
+      `draft`, `(animationend)`-driven same as `combatant-pop-out`/
+      `finishPopOut` in `encounter-detail.css`/`.ts` — see
+      [ARCHITECTURE.md](./ARCHITECTURE.md)'s fifth precedent.
+- [x] New `EncounterPreviewPanel` (`src/app/shared/encounter-preview-panel/`)
+      replaces the old flat, always-editable Combatants list — a live
+      preview of the Encounter being built using the exact same
+      `CombatantBubble` UI as the run-phase screen, in the same right-hand
+      column "Saved Encounters" used to occupy (swapped in while the
+      builder panel is open, rather than shown side by side with it).
+      `CombatantBubble` gained a `previewMode` input for this third usage
+      context — see [ARCHITECTURE.md](./ARCHITECTURE.md)'s seventh/eighth
+      precedents for both components' design.
+- [x] Docs updated: [PRODUCT.md](./PRODUCT.md) section 2 rewritten for the
+      new Monsters/Candidates/Encounter Preview shape;
+      [ARCHITECTURE.md](./ARCHITECTURE.md)'s live-sync rationale replaced
+      with why an explicit commit step came back.
+- [x] Follow-on polish pass, after using the above in practice:
+  - [x] Party/Troop checkboxes apply immediately (materializing the
+        Encounter and pulling members in on the spot, via
+        `setEncounterParties`/`setEncounterTroops`) instead of staying
+        staged until a submit that no longer exists — see the next bullet.
+  - [x] Removed the **Update Encounter**/Create Encounter submit button
+        entirely — every field in the panel (name, Party/Troop, Add
+        Combatant, Candidates commits) already applies immediately, so
+        there was nothing left for a submit to do. A single **Done** button
+        just closes the panel back onto Saved Encounters. Typing a name
+        after materialization renames the real Encounter live too (a blank
+        name doesn't blank the stored one, same "don't flicker mid-edit"
+        reasoning `encounterCommitPhrase` already used for the doubled-word
+        case).
+  - [x] Browse Monster List's Add, embedded in the builder specifically,
+        now adds straight to the real Encounter instead of staging a
+        Candidate — `MonsterGeneratorPanel.addTemplate()` branches on
+        `showEncounterCommitActions()` (unaffected on the standalone
+        Encounter Generator page, which has no Encounter to add to and
+        keeps the Candidates-staging behavior).
+  - [x] Candidates and Roster merged into one **Candidates** section (the
+        grouped "x3" count-adjuster view is gone — Generate's output is
+        per-instance rows only, on both hosts, matching what Roster already
+        did) — see [ARCHITECTURE.md](./ARCHITECTURE.md) for why this is a
+        shared-component change, not embedded-builder-only.
+  - [x] `CombatantBubble` gained a `[drawer-extra-action]` content-projection
+        slot so `EncounterPreviewPanel` could move "Save to Roster" into the
+        expansion drawer (positioned above Delete) instead of a sibling row
+        below the bubble — see [ARCHITECTURE.md](./ARCHITECTURE.md)'s ninth
+        precedent.
+  - [x] Encounter Preview's Initiative badge shows the signed Initiative
+        Modifier (previewMode only) instead of "N/A", since a modifier is
+        meaningful pre-Roll and "N/A" wasn't.
+  - [x] `EditCombatantDialog` widened (28rem → 40rem) — `CombatantFields`
+        assumes roughly a 700px column to lay its 5 fields out on one line
+        (see its own CSS comment), and 28rem was well short of that.
+- [x] Second follow-on polish pass:
+  - [x] Removed the bulk "Apply Names" pass from `MonsterGeneratorPanel`
+        entirely (Set/Table dropdowns + "Generate Names") — naming a
+        Candidate is per-row only now (the 🎲 next to each one), on both
+        hosts. `NameTableStore` is no longer injected by
+        `MonsterGeneratorPanel` itself; its data load is now triggered
+        lazily, the first time a Candidates row's `NameGeneratorButton`
+        actually renders.
+  - [x] "Add All to Encounter" moved from beside the "Candidates" heading to
+        below the candidate list, after every row.
+  - [x] `EncounterList`'s "+ Add Combatant" renamed to **"+ Add Individual
+        Combatant"** and moved above the Monsters section (a peer to the
+        Party/Troop pulls and Monsters, not something tucked below them),
+        with a plain `<hr class="panel-divider">` between each of the
+        panel's sections (Party/Troop, Add Individual Combatant, Monsters,
+        Done) for a subtle visual break.
+  - [x] `EncounterPreviewPanel`'s "Save to Roster" button relabeled
+        **"Save to Players"**/**"Save to NPCs"** (matching `combatant.type`)
+        with a save/floppy-disk icon, and repositioned above Delete in the
+        drawer via the `[drawer-extra-action]` slot moving inside
+        `.drawer-actions` itself (previously a separate footer row below
+        both `.drawer-checkboxes` and `.drawer-actions`) — see
+        [ARCHITECTURE.md](./ARCHITECTURE.md)'s ninth precedent.
+  - [x] Verified (not a bug after all): Encounter Preview's AC/HP/Notes/View
+        Stat Block/Initiative columns already line up pixel-for-pixel
+        across every bubble regardless of which fields any one combatant
+        has set, via the same fixed-width `.stat` columns
+        (`combatant-bubble.css`) the run-phase screen has always used —
+        confirmed live with a mix of a Player (no AC/HP/stat-block) and
+        NPCs (full stats) in the same list.
+- [x] Third follow-on polish pass: `EncounterDetail`'s pre-Roll setup-phase
+      Combatants list (`/encounters/:id`, before the first Roll) replaced
+      its own hand-duplicated combatant row (read-only AC/HP/Notes/View
+      Stat Block markup, a bare Initiative Modifier `<input>`, no Edit Info)
+      with the same `<app-combatant-bubble [previewMode]="true">` usage
+      `EncounterPreviewPanel` uses — a GM now sees the identical bubble,
+      column layout, and drawer (Edit Info, View Stat Block, Save to
+      Players/Save to NPCs, Mark Absent/Delete) whether they're still
+      building the Encounter or have just opened it to run — see
+      [ARCHITECTURE.md](./ARCHITECTURE.md)'s tenth precedent. Deleted a
+      large block of now-dead duplicated CSS/TS
+      (`.setup-list-header`/`.modifier-input`/`.stat`/`.badge-icon`/
+      `.icon-badge-btn`/etc., `setCombatantModifier`/`hasNotes`/
+      `setupHpPercent`/`setupHpHue`) in the process. **Roll Initiative**
+      also moved from the bottom of the setup section to the top (above the
+      Combatants list) and got noticeably bigger/bolder, since it's the one
+      thing a GM opening an unstarted Encounter is ultimately there to do.
+
 ## Phase 3 — GM Accounts + Real Persistence
 
 - [ ] Choose a backend (see [ARCHITECTURE.md](./ARCHITECTURE.md) — deferred
@@ -343,6 +469,13 @@ sort by CR/Level, search, or preview a stat block before picking.
 - [ ] Migrate Players/NPCs/Parties/Troops/Encounters from browser storage to
       the backend, scoped per-GM.
 - [ ] Data accessible from more than one device/browser.
+- [ ] Account preferences: a GM-level settings page, starting with a
+      preferred source book (D&D 5e SRD vs. Shadowdark — the same two
+      sources as the Encounter Generator/From Book/Random Generators —
+      more sources may be added later). The preferred source should be
+      selected by default anywhere a source toggle appears (Encounter
+      Generator, `AddCombatantDialog`'s From Book step, NPC roster's
+      Browse Monster List), rather than the GM re-selecting it every time.
 
 ## Phase 4 — Player Role
 
@@ -352,6 +485,21 @@ sort by CR/Level, search, or preview a stat block before picking.
       entering it.
 - [ ] Turn notification: a Player gets notified when their PC becomes the
       Active combatant.
+
+## Known issues (not yet fixed)
+
+- **Pre-Roll Combatants list: generated NPCs' bubble columns don't align.**
+  In `EncounterDetail`'s setup-phase Combatants list (see Phase 2.9's third
+  follow-on polish pass), AC/HP/Notes icon/Eye icon/Initiative badge are
+  supposed to line up column-by-column across every bubble via
+  `combatant-bubble.css`'s fixed-width `.stat` columns — confirmed working
+  for a mix of a Player and NPCs at the time. Reported afterward: NPCs added
+  via **Generate Monsters** specifically don't align (Browse Monster
+  List/Party-Troop-pulled/Add Combatant entries reportedly do) — not yet
+  investigated further. Needs a live repro (a Generated NPC alongside a
+  Browsed one in the same Combatants list, then compare
+  `getBoundingClientRect()` on each `.stat` column, same technique used to
+  confirm alignment before) to find the actual cause before fixing.
 
 ## Backlog — future ideas (not yet phased)
 

@@ -4,12 +4,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { MonsterTemplate } from '../../models/monster-template.model';
 import { EncounterStore } from '../../services/encounter-store';
+import { NpcStore } from '../../services/npc-store';
+import { PartyStore } from '../../services/party-store';
 import { EncounterList } from './encounter-list';
 
 describe('EncounterList', () => {
   let component: EncounterList;
   let fixture: ComponentFixture<EncounterList>;
   let encounterStore: EncounterStore;
+  let partyStore: PartyStore;
+  let npcStore: NpcStore;
   let router: Router;
 
   beforeEach(async () => {
@@ -22,6 +26,8 @@ describe('EncounterList', () => {
     fixture = TestBed.createComponent(EncounterList);
     component = fixture.componentInstance;
     encounterStore = TestBed.inject(EncounterStore);
+    partyStore = TestBed.inject(PartyStore);
+    npcStore = TestBed.inject(NpcStore);
     router = TestBed.inject(Router);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -42,26 +48,19 @@ describe('EncounterList', () => {
     await fixture.whenStable();
   }
 
-  async function submitEncounterForm(): Promise<void> {
-    const form: HTMLFormElement = fixture.nativeElement.querySelector('form.encounter-form');
-    form.dispatchEvent(new Event('submit'));
-    fixture.detectChanges();
-    await fixture.whenStable();
-  }
-
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('starts collapsed, showing only the Create Encounter trigger', () => {
     expect(fixture.nativeElement.querySelector('.create-encounter-btn')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('form.encounter-form')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.encounter-form')).toBeNull();
   });
 
   it('the Create Encounter trigger opens the panel', async () => {
     await click('.create-encounter-btn');
 
-    expect(fixture.nativeElement.querySelector('form.encounter-form')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.encounter-form')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('.create-encounter-btn')).toBeNull();
   });
 
@@ -79,25 +78,94 @@ describe('EncounterList', () => {
     );
   });
 
-  it('a plain create (name + submit, nothing else touched) is unchanged: creates and navigates straight to the detail page', async () => {
-    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-
+  it('typing a name alone does not create an Encounter — only a real commitment does', async () => {
     await click('.create-encounter-btn');
-    await fillInput('input[name=encounterName]', 'Simple Encounter');
-    await submitEncounterForm();
+    await fillInput('input[name=encounterName]', 'Just Thinking About It');
 
-    expect(encounterStore.encounters().length).toBe(1);
-    expect(encounterStore.encounters()[0].name).toBe('Simple Encounter');
-    expect(navigateSpy).toHaveBeenCalledWith(['/encounters', encounterStore.encounters()[0].id]);
+    expect(encounterStore.encounters().length).toBe(0);
   });
 
-  it('Cancel on a never-materialized create session leaves no trace', async () => {
+  it('Done on a never-materialized create session leaves no trace', async () => {
     await click('.create-encounter-btn');
     await fillInput('input[name=encounterName]', 'Abandoned');
-    await click('.cancel-encounter-btn');
+    await click('.done-btn');
 
     expect(encounterStore.encounters().length).toBe(0);
     expect(fixture.nativeElement.querySelector('.create-encounter-btn')).toBeTruthy();
+  });
+
+  it('checking a Party immediately materializes the Encounter and pulls its Players in', async () => {
+    const player = partyStore.createPlayer({
+      name: 'Aria',
+      initiativeModifier: 2,
+      ac: null,
+      maxHp: null,
+      notes: '',
+    });
+    const party = partyStore.createParty('The Crew');
+    partyStore.addPlayerToParty(party.id, player.id);
+    fixture.detectChanges();
+
+    await click('.create-encounter-btn');
+    await click('input[type=checkbox]');
+
+    expect(encounterStore.encounters().length).toBe(1);
+    const encounterId = encounterStore.encounters()[0].id;
+    const combatants = encounterStore.combatantsForEncounter(encounterId);
+    expect(combatants.length).toBe(1);
+    expect(combatants[0].playerId).toBe(player.id);
+
+    // Unchecking reconciles the drop immediately too (setEncounterParties'
+    // existing "only before the first Roll" behavior, just now triggered
+    // per-toggle instead of at a since-removed submit).
+    await click('input[type=checkbox]');
+    expect(encounterStore.combatantsForEncounter(encounterId).length).toBe(0);
+  });
+
+  it('checking a Troop immediately materializes the Encounter and pulls its NPCs in', async () => {
+    const npc = npcStore.createNpc({
+      name: 'Goblin',
+      initiativeModifier: 1,
+      ac: null,
+      maxHp: null,
+      notes: '',
+    });
+    const troop = npcStore.createTroop('Goblin Warband');
+    npcStore.addNpcToTroop(troop.id, npc.id);
+    fixture.detectChanges();
+
+    await click('.create-encounter-btn');
+    await click('input[type=checkbox]');
+
+    expect(encounterStore.encounters().length).toBe(1);
+    const encounterId = encounterStore.encounters()[0].id;
+    const combatants = encounterStore.combatantsForEncounter(encounterId);
+    expect(combatants.length).toBe(1);
+    expect(combatants[0].npcId).toBe(npc.id);
+  });
+
+  it('a name typed after materialization renames the real Encounter immediately; clearing it back to blank does not blank the stored name', async () => {
+    const player = partyStore.createPlayer({
+      name: 'Aria',
+      initiativeModifier: 2,
+      ac: null,
+      maxHp: null,
+      notes: '',
+    });
+    const party = partyStore.createParty('The Crew');
+    partyStore.addPlayerToParty(party.id, player.id);
+    fixture.detectChanges();
+
+    await click('.create-encounter-btn');
+    await click('input[type=checkbox]');
+    const encounterId = encounterStore.encounters()[0].id;
+    expect(encounterStore.getEncounter(encounterId)?.name).toBe('Untitled Encounter');
+
+    await fillInput('input[name=encounterName]', 'Goblin Ambush');
+    expect(encounterStore.getEncounter(encounterId)?.name).toBe('Goblin Ambush');
+
+    await fillInput('input[name=encounterName]', '');
+    expect(encounterStore.getEncounter(encounterId)?.name).toBe('Goblin Ambush');
   });
 
   async function openAddCombatantDialogAndCreateNew(name: string): Promise<void> {
@@ -131,10 +199,6 @@ describe('EncounterList', () => {
     expect(encounterStore.encounters().length).toBe(1);
     expect(encounterStore.encounters()[0].name).toBe('Untitled Encounter');
     expect(encounterStore.combatantsForEncounter(encounterStore.encounters()[0].id).length).toBe(1);
-    const submitBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
-      'form.encounter-form button[type=submit]',
-    );
-    expect(submitBtn.textContent?.trim()).toBe('Update Encounter');
   });
 
   it('reuses the same materialized id for a second Add Combatant commit in the same session', async () => {
@@ -149,30 +213,16 @@ describe('EncounterList', () => {
     expect(encounterStore.combatantsForEncounter(idAfterFirst).length).toBe(2);
   });
 
-  it('submitting with a blank name after mid-session materialization still closes the panel, keeping the existing name rather than no-opping', async () => {
-    await click('.create-encounter-btn');
-    await openAddCombatantDialogAndCreateNew('Goblin');
-    expect(encounterStore.encounters()[0].name).toBe('Untitled Encounter');
-
-    // Name field is still blank at this point — this is the regression case:
-    // submitEncounterForm must not silently no-op just because name is empty
-    // once an id already exists.
-    await submitEncounterForm();
-
-    expect(encounterStore.encounters()[0].name).toBe('Untitled Encounter');
-    expect(fixture.nativeElement.querySelector('.create-encounter-btn')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('form.encounter-form')).toBeNull();
-  });
-
-  it('Cancel after mid-session materialization keeps the real Encounter (does not delete it)', async () => {
+  it('Done after mid-session materialization keeps the real Encounter (does not delete it) and closes the panel', async () => {
     await click('.create-encounter-btn');
     await openAddCombatantDialogAndCreateNew('Goblin');
     expect(encounterStore.encounters().length).toBe(1);
 
-    await click('.cancel-encounter-btn');
+    await click('.done-btn');
 
     expect(encounterStore.encounters().length).toBe(1);
     expect(fixture.nativeElement.querySelector('.create-encounter-btn')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.encounter-form')).toBeNull();
   });
 
   it('startEdit on an existing Encounter opens the panel pre-filled without creating a duplicate', async () => {
@@ -191,7 +241,7 @@ describe('EncounterList', () => {
   });
 });
 
-describe('EncounterList generator live-sync', () => {
+describe('EncounterList generator explicit commit', () => {
   let fixture: ComponentFixture<EncounterList>;
   let component: EncounterList;
   let encounterStore: EncounterStore;
@@ -256,9 +306,26 @@ describe('EncounterList generator live-sync', () => {
     await fixture.whenStable();
   }
 
-  it('Generate immediately adds a real Combatant — no separate commit button exists', async () => {
+  it('Generate stages a Candidate — no real Combatant exists until explicitly added', async () => {
     await openBuilderAndFlushMonsterData();
     await clickGenerate();
+
+    expect(encounterStore.encounters().length).toBe(0);
+    expect(fixture.nativeElement.querySelector('.candidate-row')).toBeTruthy();
+    const buttons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('button'),
+    );
+    expect(buttons.some((b) => b.textContent?.includes('Add All to Encounter'))).toBe(true);
+    httpMock.verify();
+  });
+
+  it('"Add All to Encounter" commits every candidate as a real Combatant', async () => {
+    await openBuilderAndFlushMonsterData();
+    await clickGenerate();
+
+    (fixture.nativeElement.querySelector('.add-all-btn') as HTMLElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(encounterStore.encounters().length).toBe(1);
     const encounterId = encounterStore.encounters()[0].id;
@@ -266,60 +333,94 @@ describe('EncounterList generator live-sync', () => {
     expect(combatants.length).toBe(1);
     expect(combatants[0].name).toBe('Goblin');
     expect(combatants[0].monsterTemplateId).toBe('5e-srd-goblin');
-
-    const buttons: HTMLButtonElement[] = Array.from(
-      fixture.nativeElement.querySelectorAll('button'),
-    );
-    expect(buttons.some((b) => b.textContent?.includes('Add These to Encounter'))).toBe(false);
     httpMock.verify();
   });
 
-  it('removing a roster entry removes the real Combatant it was synced to', async () => {
+  it('a Candidate row\'s individual "Add to Encounter" button commits just that one candidate', async () => {
     await openBuilderAndFlushMonsterData();
     await clickGenerate();
-    const encounterId = encounterStore.encounters()[0].id;
-    expect(encounterStore.combatantsForEncounter(encounterId).length).toBe(1);
+    // Seed a second candidate directly (there's no +/- count adjuster
+    // anymore — Candidates are per-instance rows only) so committing one
+    // individually leaves the other still staged. generatorDraft is
+    // protected; reaching past that here is simpler than driving an extra
+    // full Generate roundtrip just to get a second instance.
+    interface WithGeneratorDraft {
+      generatorDraft: { (): { localId: string }[]; set(v: { localId: string }[]): void };
+    }
+    const draftSignal = (component as unknown as WithGeneratorDraft).generatorDraft;
+    const [first] = draftSignal();
+    draftSignal.set([first, { ...first, localId: 'second' }]);
+    fixture.detectChanges();
 
-    (fixture.nativeElement.querySelector('.remove-btn') as HTMLElement).click();
+    (fixture.nativeElement.querySelector('.add-one-btn') as HTMLElement).click();
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(encounterStore.combatantsForEncounter(encounterId).length).toBe(0);
+    expect(encounterStore.encounters().length).toBe(1);
+    const encounterId = encounterStore.encounters()[0].id;
+    expect(encounterStore.combatantsForEncounter(encounterId).length).toBe(1);
     httpMock.verify();
   });
 
-  it('renaming a roster entry updates the real Combatant name', async () => {
+  it('renaming a staged candidate before committing it is reflected on the real Combatant once added', async () => {
     await openBuilderAndFlushMonsterData();
     await clickGenerate();
-    const encounterId = encounterStore.encounters()[0].id;
 
-    const nameInput: HTMLInputElement = fixture.nativeElement.querySelector('.roster-name');
+    const nameInput: HTMLInputElement = fixture.nativeElement.querySelector('.candidate-name');
     nameInput.value = 'Grix';
     nameInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
     await fixture.whenStable();
 
+    expect(encounterStore.encounters().length).toBe(0);
+
+    (fixture.nativeElement.querySelector('.add-all-btn') as HTMLElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const encounterId = encounterStore.encounters()[0].id;
     expect(encounterStore.combatantsForEncounter(encounterId)[0].name).toBe('Grix');
     httpMock.verify();
   });
 
-  it('reuses the same materialized Encounter across multiple generator actions', async () => {
+  it('reuses the same materialized Encounter across multiple commit actions', async () => {
     await openBuilderAndFlushMonsterData();
     await clickGenerate();
+    (fixture.nativeElement.querySelector('.add-all-btn') as HTMLElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
     expect(encounterStore.encounters().length).toBe(1);
     const idAfterFirst = encounterStore.encounters()[0].id;
 
-    (
-      fixture.nativeElement.querySelector(
-        '.group-count button[aria-label="Add one"]',
-      ) as HTMLElement
-    ).click();
+    await clickGenerate();
+    (fixture.nativeElement.querySelector('.add-all-btn') as HTMLElement).click();
     fixture.detectChanges();
     await fixture.whenStable();
 
     expect(encounterStore.encounters().length).toBe(1);
     expect(encounterStore.encounters()[0].id).toBe(idAfterFirst);
     expect(encounterStore.combatantsForEncounter(idAfterFirst).length).toBe(2);
+    httpMock.verify();
+  });
+
+  it('Browse Monster List\'s Add goes straight to the Encounter, not Candidates', async () => {
+    await openBuilderAndFlushMonsterData();
+
+    (fixture.nativeElement.querySelector('app-monster-picker-table .picker-toggle') as HTMLElement)
+      .click();
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('app-monster-picker-table .add-btn') as HTMLElement)
+      .click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(encounterStore.encounters().length).toBe(1);
+    const encounterId = encounterStore.encounters()[0].id;
+    const combatants = encounterStore.combatantsForEncounter(encounterId);
+    expect(combatants.length).toBe(1);
+    expect(combatants[0].monsterTemplateId).toBe('5e-srd-goblin');
+    // Never staged as a Candidate.
+    expect(fixture.nativeElement.querySelector('.candidates')).toBeFalsy();
     httpMock.verify();
   });
 });

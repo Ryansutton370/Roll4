@@ -81,31 +81,35 @@ exists on this tab.
 The **Encounters** tab (`/encounters`) is a two-column layout (stacked on
 narrow viewports): the left column holds a **+ Create Encounter** button
 that expands into a build panel — the _same_ panel (name, Party/Troop
-pulls, monster generation, Combatants) is reused for editing an existing
-Encounter too (via its pencil icon), pre-filled instead of blank, rather
-than two different UIs for create vs. edit. The right column, headed
-**Saved Encounters**, always shows every saved Encounter as a list,
-independent of whether the left column's panel is open or collapsed.
+pulls, a Monsters section) is reused for editing an existing Encounter too
+(via its pencil icon), pre-filled instead of blank, rather than two
+different UIs for create vs. edit. The right column normally shows every
+saved Encounter as a list, headed **Saved Encounters** — but while the
+build panel is open, this column instead shows **Encounter Preview**
+(below), taking over that same space entirely rather than the two being
+shown side by side.
 
-Inside the panel, the GM builds up the combatant list from four sources,
-any combination of which can be used together:
+Inside the panel, top to bottom, are the encounter name field, Party/Troop
+pulls, a subtle divider, **Add Individual Combatant** (below), another
+divider, the **Monsters** section, a final divider, and **Done** — each
+section separated by a plain hairline rule so the panel reads as a
+sequence of distinct steps rather than one long form. The GM builds up the
+combatant list from three sources, any combination of which can be used
+together. **Every one of them applies immediately** — there's no separate
+"Update Encounter" submit step to wait for; the moment any of them happens,
+the Encounter itself is created if it doesn't already exist (see below)
+and Encounter Preview reflects it right away:
 
-- **Pull a Party (or Parties)** in as a unit — every Player in the Party
-  joins as a Combatant.
-- **Pull a Troop (or Troops)** in the same way — every NPC in the Troop
-  joins as a Combatant.
-- **Generate Monsters** — the same build-a-roster flow as the standalone
-  Encounter Generator (source toggle, generation controls, candidate
-  count adjustment, apply-names — see section 12), embedded directly in
-  this panel instead of requiring a trip to a separate page and a Troop
-  detour. A **+ Add These to Encounter** button commits the current
-  generated roster straight onto this Encounter's Combatants (each
-  carrying its `monsterTemplateId`/`monsterName` link, same as any other
-  monster-templated combatant), rather than creating a Troop first.
-- **Add a single roster entry, an ad-hoc one, or one from an official
-  source** — an **Add Combatant** button opens a modal (the same one used
-  in the run-phase "+" menu — see section 9 below). It always opens on a
-  four-way choice — **Existing NPC**, **Existing Player**, **From Book**,
+- **Pull a Party (or Parties)** in as a unit — checking its box immediately
+  pulls every Player in the Party in as a Combatant; unchecking immediately
+  drops them again (same "only before the first Roll" rule
+  `setEncounterParties` already enforces elsewhere).
+- **Pull a Troop (or Troops)** in the same way, immediately, for NPCs.
+- **Add Individual Combatant** — a one-off pick, positioned above the
+  Monsters section since it's a peer to Party/Troop pulls and the Monsters
+  compendium flow, not a sub-part of either: opens a modal (the same one
+  used in the run-phase "+" menu — see section 9 below). It always opens on
+  a four-way choice — **Existing NPC**, **Existing Player**, **From Book**,
   or **Create New** — as peers, not a toggle buried under one of them.
   Picking Existing NPC/Player shows that type's roster entries to pick
   from, one click each. Picking **From Book** asks a sourcebook (D&D 5e
@@ -128,43 +132,98 @@ any combination of which can be used together:
   mean starting over; the four-way choice for every other path). Any step,
   or Cancel (or Escape), closes the modal back out — nothing is added
   until the GM actually picks or submits one.
+- A **Monsters** section, headed with a short explanation of the sourcebook
+  toggle just below it (D&D 5e SRD or Shadowdark — same two sources as the
+  Encounter Generator, section 12 — driving both subsections at once), with
+  two headed subsections in order:
+  - **Browse Monster List** — the same sortable/searchable/eye-icon table
+    described in section 12's `MonsterPickerTable` note. Picking a monster
+    here adds it straight to the Encounter immediately (shown right away in
+    Encounter Preview) — it does not stage as a Candidate.
+  - **Generate Monsters** — the same generate flow as the standalone
+    Encounter Generator (source-specific generation controls — see section
+    12), embedded directly in this panel instead of requiring a trip to a
+    separate page and a Troop detour. Unlike Browse Monster List, a
+    generated batch stages as **Candidates** (below) for the GM to
+    review/name/prune before any of it becomes real.
+
+  Generated monsters render below as **Candidates**: one row per instance
+  (multiples of the same monster, e.g. 3 Goblins, are three separate rows,
+  not one grouped "x3" row — each independently nameable via its own 🎲
+  button, previewable via an eye icon, and removable), followed by a
+  top-level **Add All to Encounter** button below the whole list. Each row
+  also has its own **Add to Encounter** button (a green checkmark icon).
+  Neither becomes a real Combatant until one of these is clicked — clicking
+  either flashes the affected row(s) green before they disappear from
+  Candidates, with a snackbar confirming ("Added to _Encounter Name_
+  Encounter", or "_Monster Name_ added to _Encounter Name_ Encounter" for an
+  individual add) — they then appear in Encounter Preview, carrying the
+  same `monsterTemplateId`/`monsterName` link as any other monster-templated
+  combatant.
 
 **The Encounter isn't actually saved until the GM adds something real to
-it** — typing a name or checking Party/Troop boxes alone doesn't create
-anything yet. The moment the GM commits a generated roster or an Add
-Combatant pick, the Encounter is created right then (named "Untitled
-Encounter" if the name field is still blank — renameable at any point
-afterward, including via the panel's own name field) and the Combatants
-section fills in live; the bottom button's label flips from "Create
-Encounter" to "Update Encounter" to match. If the GM never adds anything
-before clicking the bottom button, behavior is the plain, simple case:
-it creates the Encounter from the name/Party/Troop selections and takes
-the GM straight into that Encounter's setup/run screen, same as ever. Once
-something has already been added first, clicking that same button instead
-just saves the name/Party/Troop selection and closes the panel back onto
-the list — the GM is presumably still refining combatants there rather
-than being pulled away mid-build. **Cancel never deletes anything** that
-already exists: if the GM added a real combatant before clicking Cancel,
-that Encounter and its combatants stay saved exactly as an existing
-Encounter's Cancel always has — Cancel only ever discards _unsaved_ name/
-Party/Troop edits, never combatants already committed to the store.
+it** — typing a name alone doesn't create anything yet, and neither does
+opening the panel. The moment the GM does anything real — checks a
+Party/Troop, adds a monster (Browse, or a Candidates commit), or picks
+something via Add Combatant — the Encounter is created right then (named
+"Untitled Encounter" if the name field is still blank at that point) and
+Encounter Preview fills in live. Typing a name after that point renames the
+real Encounter immediately too (a blank name doesn't blank the stored one —
+it just leaves it as whatever it already is, rather than flickering to
+"Untitled Encounter" while the GM is mid-edit). A single **Done** button
+closes the panel back onto the Saved Encounters list — there's nothing left
+to discard by that point, since every change already applied the moment it
+was made, so Done is just "I'm finished," not a commit step.
 
-An ad-hoc entry isn't stuck ad-hoc forever: **Save to Roster** creates a
-library Player/NPC from its current fields, optionally adds it to a
-Party/Troop the GM checks off, and links it to the _same_ Combatant — it
-never appears twice in the Encounter being built.
+**Encounter Preview** (the right-hand column while the panel is open) shows
+every Combatant added so far — pulled from a Party/Troop, added via Browse
+Monster List or Add Combatant, or committed from Candidates — using the
+exact same combatant-bubble UI as the run-phase screen (same AC/HP/Notes
+columns, always in the same fixed left-to-right order and column position
+whether or not any one combatant happens to have that field set, same
+never-wrap/truncation behavior at any width). Initiative shows the
+combatant's signed Initiative Modifier (e.g. "+2", "-1") rather than "N/A",
+since no Roll has happened yet to produce a total. Its expansion drawer is
+pared down to what makes sense before Roll Initiative, top to bottom:
+**Edit Info** (same dialog as the run-phase drawer, and the same
+`CombatantFields`-based layout/sizing as Add Combatant's Create New step),
+**View Stat Block** (monster-templated combatants only, as elsewhere), an
+ad-hoc entry's (no Player/NPC roster link) **Save to Players**/**Save to
+NPCs** button (a save/floppy-disk icon, labeled for whichever type this
+combatant is) — creates a library Player/NPC from its current fields,
+optionally adds it to a Party/Troop the GM checks off, and links it to the
+_same_ Combatant, never appearing twice in the Encounter being built — and,
+for an NPC only, **Delete** at the bottom (removes the Combatant entirely).
+A Player can only be **Mark Absent**, never deleted (the same underlying
+flag as run-phase Removed from Combat, just relabeled, since a party member
+can't be deleted from an Encounter) — shown in place of Delete for that
+case. Hold Action, Incapacitated, and Create Timer are hidden throughout,
+since none apply before combat starts.
 
 A saved Encounter can be edited later from the Encounters list — rename it,
 change which Parties/Troops are pulled in, generate and add more monsters,
-or add/remove combatants (e.g. reinforcements) — using that same panel.
+or add/remove combatants (e.g. reinforcements) — using that same panel,
+applying just as immediately as during the original create.
 
 ### 3. Roll Initiative
 
-The GM presses **Roll**. Every combatant gets a random value from 1–20, plus
-their Initiative Modifier, producing their initiative total. Combatants are
-sorted descending by that total (highest acts first). Ties are broken by
-whichever combatant has the higher Initiative Modifier; if that's also tied,
-by a random coin flip.
+Opening a saved Encounter that hasn't rolled yet (`/encounters/:id`, before
+the first Roll) shows the same setup: a **Combatants** list using the exact
+same combatant-bubble UI as Encounter Preview above — same columns, same
+pared-down drawer (Edit Info, View Stat Block, Save to Players/Save to NPCs,
+Mark Absent/Delete) — so a GM sees no difference between "the Encounter I
+was just building" and "the Encounter I just opened to run." A **+ Add
+Combatant** button and the **Initiative Style** (Chaotic/Classic — see
+"5. Rounds" below) setting sit beneath the list. **Roll Initiative** itself
+is the first thing on the page, above the Combatants list — a large, bold
+button rather than just another item in a row of controls, since it's the
+one thing a GM opening an unstarted Encounter is ultimately here to do.
+
+The GM presses **Roll Initiative**. Every combatant gets a random value from
+1–20, plus their Initiative Modifier, producing their initiative total.
+Combatants are sorted descending by that total (highest acts first). Ties
+are broken by whichever combatant has the higher Initiative Modifier; if
+that's also tied, by a random coin flip.
 
 ### 4. Run the Encounter
 
@@ -476,13 +535,13 @@ The Random Generators tab's second page (`/generators/encounter`) generates
 a candidate monster list from the imported 5e SRD / Shadowdark monster data
 (see [DATA_MODEL.md](./DATA_MODEL.md)'s `MonsterTemplate`) instead of the
 GM building an Encounter's roster combatant-by-combatant. The whole
-generate/adjust/apply-names flow (steps 1–3 below) is the
-`MonsterGeneratorPanel` component — the same one embedded directly in the
-Encounter creation/edit panel (see "2. Create an Encounter" above), so a GM
-generating monsters as part of building a specific Encounter doesn't need
-this separate page at all; this standalone page exists for building a
-reusable Troop ahead of any specific Encounter, or browsing/creating
-monster rosters independent of a particular fight.
+generate/adjust flow (steps 1–3 below) is the `MonsterGeneratorPanel`
+component — the same one embedded directly in the Encounter creation/edit
+panel (see "2. Create an Encounter" above), so a GM generating monsters as
+part of building a specific Encounter doesn't need this separate page at
+all; this standalone page exists for building a reusable Troop ahead of any
+specific Encounter, or browsing/creating monster rosters independent of a
+particular fight.
 
 1. **Choose a sourcebook** — D&D 5e SRD or Shadowdark. The two use
    different generation controls, since they don't share a difficulty
@@ -493,27 +552,30 @@ monster rosters independent of a particular fight.
    - **Shadowdark**: a Min/Max Level range and a monster count — draws
      randomly from monsters within that range, since Shadowdark's own
      rules don't define a difficulty budget to target.
-2. **Edit the candidates** — each generated monster type is one row with
-   +/- count controls and can be removed entirely; an "Add a monster"
-   picker (`MonsterPickerTable`) lets the GM add anything else from that
-   source, generated or not — an expandable table (collapsed by default),
-   sortable by Name (A-Z/Z-A) or CR/Level (either direction) via clickable
-   column headers, live search-by-typing, and an eye icon per row opening
-   that monster's full stat block (`MonsterStatBlockDialog`) before
+2. **Review the candidates** — one row per instance (multiples of the same
+   monster, e.g. 3 Goblins, show as three separate rows rather than one
+   grouped "x3" row), each independently nameable/removable; an "Add a
+   monster" picker (`MonsterPickerTable`) lets the GM add anything else from
+   that source, generated or not — an expandable table (collapsed by
+   default), sortable by Name (A-Z/Z-A) or CR/Level (either direction) via
+   clickable column headers, live search-by-typing, and an eye icon per row
+   opening that monster's full stat block (`MonsterStatBlockDialog`) before
    deciding to add it. The same component also replaced the plain
    alphabetical dropdown previously used here and in `AddCombatantDialog`'s
    "From Book" step (see section 2) — one picker, every place a GM chooses
    a single monster from either sourcebook.
-3. **Apply names** — two ways, usable together: pick one set/table (the
-   same Random Generators data from section 11 above) and roll to bulk-fill
-   every still-unnamed candidate at once from that one table; or roll a
-   single candidate individually via its own 🎲 button on the Roster list,
-   picking a different set/table just for that one — useful for mixing
-   ancestries/categories across a roster instead of every monster coming
-   from the same one. Either way the result is individually
-   editable/clearable afterward. A candidate with no personal name just
-   keeps its creature type as its name (e.g. "Goblin"), same as any
-   hand-entered NPC.
+3. **Name a candidate** — each Candidates row has its own 🎲 button (the
+   same Random Generators picker from section 11), so the GM can roll a
+   name for that one specific monster from whichever set/table fits it —
+   useful for mixing ancestries/categories across a roster instead of every
+   monster coming from the same one. There's no bulk "name everything at
+   once" pass; naming is deliberately per-row only. The result is
+   individually editable/clearable afterward, and a candidate with no
+   personal name just keeps its creature type as its name (e.g. "Goblin"),
+   same as any hand-entered NPC. Each Candidates row also has an eye icon
+   opening that monster's stat block (`MonsterStatBlockDialog`) — the same
+   preview Browse Monster List's picker offers before adding, available
+   here too without leaving the list.
 4. **Save as Troop** — names the new Troop and creates one library `Npc`
    per candidate (carrying `monsterTemplateId`/`monsterName`, so the
    combatant bubble shows the View Stat Block button and the "Barry -
@@ -522,9 +584,10 @@ monster rosters independent of a particular fight.
    Encounter exactly like any other Troop (see "2. Create an Encounter"
    above). This step is specific to this standalone page — the same
    generated roster, embedded inside an Encounter's own creation/edit
-   panel, instead gets a **+ Add These to Encounter** button that skips
-   the Troop step entirely and lands the candidates directly as Combatants
-   on that Encounter.
+   panel, instead gets an **Add All to Encounter** button (plus each
+   Candidates row's own individual **Add to Encounter** button) that skips the Troop
+   step entirely and lands the candidates directly as Combatants on that
+   Encounter — see section 2's Monsters/Candidates description above.
 
 ### 13. Wild Magic Generator
 

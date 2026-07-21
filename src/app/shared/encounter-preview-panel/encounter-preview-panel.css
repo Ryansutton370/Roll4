@@ -1,0 +1,82 @@
+/* Several top-level sibling sections (heading, the bubble list/empty state,
+   three dialog components) meant to flow as direct children of whichever
+   column embeds this (EncounterList's .saved-column) — same
+   CombatantFields/MonsterGeneratorPanel gotcha documented in
+   docs/ARCHITECTURE.md: without this, the host tag defaults to a single
+   opaque box instead of dissolving away. */
+:host {
+  display: contents;
+}
+
+/* Same tint convention as the run-phase bubble (encounter-detail.css's
+   .pc-entry/.npc-entry) — a Party member reads blue, an ad-hoc/generated
+   NPC reads red, matching what these same combatants will look like once
+   the Encounter actually starts. */
+.pc-entry {
+  border-color: var(--color-pc);
+  background: var(--color-pc-tint);
+}
+
+.npc-entry {
+  border-color: var(--color-npc);
+  background: var(--color-npc-tint);
+}
+
+/* container-type: inline-size — establishes this <li> as a query container
+   for combatant-bubble.css's @container truncation ladder, same as
+   .main-combatant/.held-bubble in encounter-detail.css. Required here too:
+   this column can be just as narrow as the run-phase screen's main list
+   ever gets, so the bubble needs the same "measure my own rendered width"
+   mechanism to never wrap/squish (see CLAUDE.md's combatant-bubble rule). */
+.preview-combatant {
+  container-type: inline-size;
+}
+
+/* Raises a bubble's <li> above its siblings while its HP delta popover is
+   open — same fix/rationale as encounter-detail.css's .hp-adjusting (a
+   bubble's own stacking context otherwise traps the popover behind a
+   sibling bubble below it in the DOM). */
+.hp-adjusting {
+  z-index: 10;
+}
+
+/* Projected into CombatantBubble's [drawer-extra-action] slot (see
+   combatant-bubble.html), positioned above Delete — still styled from here,
+   not combatant-bubble.css, since Angular's view encapsulation scopes a
+   component's styles to elements authored in its OWN template regardless of
+   where they're projected (see docs/ARCHITECTURE.md). Matches
+   .drawer-action-btn's visual language (border/radius/gap/hover/icon size)
+   by value rather than by shared class for that same reason. */
+.save-to-roster-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.save-to-roster-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.save-to-roster-btn svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.save-to-roster-btn:hover {
+  background: var(--color-removed-tint);
+}
+
+.save-to-roster-actions {
+  display: flex;
+  gap: 0.5rem;
+}

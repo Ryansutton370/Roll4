@@ -1,5 +1,11 @@
+/* Wide enough for CombatantFields' 5 fields (Name + 4 icon-labeled stats) to
+   lay out close to one line, matching the room they get on a real page —
+   see combatant-fields.css's own comment about assuming a ~700px column.
+   The previous 28rem was narrower than AddCombatantDialog's Create New step
+   really needs too, but this dialog is the one a GM actually lives in while
+   refining Encounter Preview combatants, so it's the one worth widening. */
 .edit-dialog {
-  width: min(28rem, calc(100vw - 2rem));
+  width: min(40rem, calc(100vw - 2rem));
   padding: 1.25rem;
   border: none;
   border-radius: var(--radius-bubble);

@@ -108,56 +108,68 @@
           <ng-container [ngTemplateOutlet]="statsBlock"></ng-container>
         </div>
       }
-      <!-- Two columns: the three status checkboxes on the left, and a
-           stack of one-shot action buttons (Create Timer, Edit Info) on
-           the right — see .drawer-content in combatant-bubble.css. -->
+      <!-- Two columns: status checkboxes on the left, and a stack of
+           one-shot action buttons (Create Timer, Edit Info, ...) on the
+           right — see .drawer-content in combatant-bubble.css. previewMode
+           (pre-Roll, EncounterPreviewPanel) hides Hold Action/Incapacitated/
+           Create Timer entirely (none apply before combat starts), and
+           swaps Removed from Combat for a plain "Mark Absent" (Player) or a
+           Delete button (NPC) — see combatant-bubble.ts's previewMode doc
+           comment. -->
       <div class="drawer-checkboxes">
-        <label>
-          <input
-            type="checkbox"
-            [checked]="combatant().onHold"
-            [disabled]="combatant().removedFromCombat || isPlacing()"
-            (change)="holdActionChange.emit()"
-          />
-          Hold Action
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            [checked]="combatant().incapacitated"
-            [disabled]="isPlacing()"
-            (change)="incapacitatedToggle.emit()"
-          />
-          Incapacitated
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            [checked]="combatant().removedFromCombat"
-            [disabled]="isPlacing()"
-            (change)="removedToggle.emit()"
-          />
-          Removed from Combat
-        </label>
+        @if (!previewMode()) {
+          <label>
+            <input
+              type="checkbox"
+              [checked]="combatant().onHold"
+              [disabled]="combatant().removedFromCombat || isPlacing()"
+              (change)="holdActionChange.emit()"
+            />
+            Hold Action
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              [checked]="combatant().incapacitated"
+              [disabled]="isPlacing()"
+              (change)="incapacitatedToggle.emit()"
+            />
+            Incapacitated
+          </label>
+        }
+        @if (!previewMode() || combatant().type === 'pc') {
+          <label>
+            <input
+              type="checkbox"
+              [checked]="combatant().removedFromCombat"
+              [disabled]="isPlacing()"
+              (change)="removedToggle.emit()"
+            />
+            {{ previewMode() ? 'Mark Absent' : 'Removed from Combat' }}
+          </label>
+        }
       </div>
       <div class="drawer-actions">
-        <!-- One-shot action, not a persisted toggle (unlike the three
-             checkboxes) — creates a Timer linked to this combatant with a
-             default name/value immediately on click; EncounterDetail owns
-             the actual EncounterStore.createTimer call. -->
-        <button
-          type="button"
-          class="drawer-action-btn create-timer-btn"
-          [disabled]="isPlacing()"
-          (click)="createTimerRequested.emit()"
-        >
-          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path
-              d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm.75 2.25a.75.75 0 0 0-1.5 0V10c0 .2.08.39.22.53l3 3a.75.75 0 1 0 1.06-1.06l-2.78-2.78V6.25Z"
-            />
-          </svg>
-          Create Timer
-        </button>
+        @if (!previewMode()) {
+          <!-- One-shot action, not a persisted toggle (unlike the
+               checkboxes above) — creates a Timer linked to this combatant
+               with a default name/value immediately on click;
+               EncounterDetail owns the actual EncounterStore.createTimer
+               call. -->
+          <button
+            type="button"
+            class="drawer-action-btn create-timer-btn"
+            [disabled]="isPlacing()"
+            (click)="createTimerRequested.emit()"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                d="M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 1.5a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm.75 2.25a.75.75 0 0 0-1.5 0V10c0 .2.08.39.22.53l3 3a.75.75 0 1 0 1.06-1.06l-2.78-2.78V6.25Z"
+              />
+            </svg>
+            Create Timer
+          </button>
+        }
         <button
           type="button"
           class="drawer-action-btn edit-info-btn"
@@ -185,6 +197,32 @@
               />
             </svg>
             View Stat Block
+          </button>
+        }
+        <!-- Parent-supplied drawer action(s) that don't fit the fixed set
+             above, e.g. EncounterPreviewPanel's "Save to NPCs"/"Save to
+             Players" button — positioned here, above Delete, so a host can
+             slot in something between the built-in actions and the
+             (previewMode + NPC only) Delete button below. Renders nothing
+             for any host that doesn't project into it. -->
+        <ng-content select="[drawer-extra-action]"></ng-content>
+        <!-- previewMode + NPC only — Players never get a hard delete, here
+             or in the run-phase screen (see Mark Absent above instead); a
+             pre-Roll NPC can be, since removeCombatant only no-ops once
+             activeCombatantIndex is set. -->
+        @if (previewMode() && combatant().type === 'npc') {
+          <button
+            type="button"
+            class="drawer-action-btn danger"
+            [disabled]="isPlacing()"
+            (click)="deleteRequested.emit()"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                d="M7.5 2.5h5a1 1 0 0 1 1 1V5H17a.75.75 0 0 1 0 1.5h-.6l-.77 10.02A2 2 0 0 1 13.64 18.5H6.36a2 2 0 0 1-1.99-1.98L3.6 6.5H3a.75.75 0 0 1 0-1.5h3.5V3.5a1 1 0 0 1 1-1Zm-.5 3h6V4h-6v1.5Zm-1.4 1.5.75 9.87a.5.5 0 0 0 .5.46h7.28a.5.5 0 0 0 .5-.46L15.4 6H5.6Z"
+              />
+            </svg>
+            Delete
           </button>
         }
       </div>
@@ -389,18 +427,22 @@
     }
   </span>
 
-  <span class="stat init-stat" [title]="'Initiative: ' + (combatant().initiativeTotal ?? 'N/A')">
+  <span class="stat init-stat" [title]="initiativeBadgeTitle()">
     <!-- Same badge treatment as AC above — the d20's facet-line detail
          (kept on the Roll Initiative button, encounter-detail.html) is
          dropped here so the filled shape stays a solid, legible backdrop
-         for the reversed-white number. -->
+         for the reversed-white number. previewMode shows the signed
+         Initiative Modifier instead of "N/A" (no Roll has happened yet) —
+         see initiativeBadgeValue's doc comment. -->
     <span class="badge-icon">
       <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path d="M10 1.5 17.5 6v8L10 18.5 2.5 14V6Z" />
       </svg>
-      <span class="badge-value" [class.na]="combatant().initiativeTotal === null">{{
-        combatant().initiativeTotal ?? 'N/A'
-      }}</span>
+      <span
+        class="badge-value"
+        [class.na]="!previewMode() && combatant().initiativeTotal === null"
+        >{{ initiativeBadgeValue() }}</span
+      >
     </span>
   </span>
 </ng-template>
