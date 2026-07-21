@@ -41,4 +41,22 @@ export class MonsterStatBlockDialog {
   protected close(): void {
     this.dialogRef().nativeElement.close();
   }
+
+  // Native <dialog> has no separate clickable node for its own ::backdrop —
+  // clicking the backdrop just fires a click on the <dialog> element itself,
+  // the same target a click on the dialog's own padding (outside the h2/dl/
+  // etc. children) would produce. Comparing event.target to the dialog
+  // wouldn't tell those two cases apart, so this checks the actual click
+  // coordinates against the dialog's rendered box instead — outside it is
+  // the backdrop (close), inside it (even in the padding, not just on a
+  // child element) is still the card the GM is reading (don't close).
+  protected onOverlayClick(event: MouseEvent): void {
+    const rect = this.dialogRef().nativeElement.getBoundingClientRect();
+    const clickedOutside =
+      event.clientX < rect.left ||
+      event.clientX > rect.right ||
+      event.clientY < rect.top ||
+      event.clientY > rect.bottom;
+    if (clickedOutside) this.close();
+  }
 }

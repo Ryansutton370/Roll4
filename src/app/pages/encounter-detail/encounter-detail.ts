@@ -787,6 +787,29 @@ export class EncounterDetail {
       input.scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
 
+    // Keep the Active combatant in view as the GM advances turns. Reacting to
+    // activeCombatantId() itself (rather than scrolling inside advance()
+    // directly) means Roll Initiative picking the first Active combatant
+    // gets the same treatment for free, with no separate code path. effect()
+    // re-runs after Angular has already applied the DOM update for the new
+    // Active id (same timing as the timerNameInput effect above), so the
+    // [class.active] bubble it queries for is already the right one.
+    // `block: 'nearest'` only moves the page if the bubble isn't ALREADY
+    // fully on-screen — a GM already looking at the Active bubble won't get
+    // yanked around by every click, only one who's scrolled elsewhere. The
+    // sticky header (app.css) and sticky turn-controls footer (below) both
+    // cover part of the viewport now, so "fully on-screen" alone isn't
+    // enough — scroll-margin-block on .main-combatant (this file's CSS) is
+    // what stops the browser from calling a bubble "visible" while it's
+    // really peeking out from under one of them.
+    effect(() => {
+      const activeId = this.activeCombatantId();
+      if (!activeId) return;
+      const container = this.combatantColumnsEl()?.nativeElement;
+      const bubble = container?.querySelector<HTMLElement>(`[data-combatant-id="${activeId}"]`);
+      bubble?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
     // .combatant-columns is always in the DOM throughout the run phase (not
     // behind an @if), so this effect only really runs once — the moment the
     // viewChild first resolves — rather than genuinely reacting to repeated
