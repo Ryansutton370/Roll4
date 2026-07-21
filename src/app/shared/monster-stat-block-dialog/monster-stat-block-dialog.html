@@ -1,9 +1,27 @@
 <!-- Native <dialog>, opened imperatively via showModal() (see openFor() in
      monster-stat-block-dialog.ts) — gets a free ::backdrop and Escape-to-close
-     from the browser, so there's no hand-rolled overlay/focus-trap here. -->
-<dialog #dialog class="stat-block-dialog">
+     from the browser, so there's no hand-rolled overlay/focus-trap here.
+     (click) here is the "click outside closes it" handler — see
+     onOverlayClick() for why it checks click coordinates rather than
+     event.target. -->
+<dialog #dialog class="stat-block-dialog" (click)="onOverlayClick($event)">
   @if (template(); as t) {
-    <h2>{{ t.name }}</h2>
+    <!-- position: sticky (monster-stat-block-dialog.css) keeps the title and
+         × button pinned to the top of the dialog's own scrollbar — a full
+         stat block routinely runs taller than the dialog, and the old
+         bottom-of-content Close button needed scrolling all the way down
+         to reach. -->
+    <div class="stat-block-header">
+      <h2>{{ t.name }}</h2>
+      <button
+        type="button"
+        class="dialog-close-btn"
+        (click)="close()"
+        aria-label="Close stat block"
+      >
+        ×
+      </button>
+    </div>
     <p class="stat-block-meta">
       {{ sourceLabel() }} · {{ difficultyLabel() }} {{ t.difficulty ?? '—' }} · AC
       {{ t.ac ?? '—' }} · HP {{ t.maxHp ?? '—' }} · Init
@@ -16,7 +34,4 @@
       }
     </dl>
   }
-  <div class="dialog-actions">
-    <button type="button" (click)="close()">Close</button>
-  </div>
 </dialog>

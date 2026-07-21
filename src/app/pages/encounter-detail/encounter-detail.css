@@ -822,6 +822,20 @@ input[type='text'].timer-name-input:focus {
   container-type: inline-size;
 }
 
+/* scroll-margin-block: how much of the viewport's top/bottom edge to treat
+   as "not really visible" for scrollIntoView() (see the activeCombatantId
+   effect in encounter-detail.ts) — without it, `block: 'nearest'` would
+   consider the Active bubble fully in view the instant any sliver of it
+   pokes out from under the sticky header (app.css, ~4.25rem tall) or the
+   sticky turn-controls footer below (~4rem tall), leaving it half-hidden
+   instead of actually scrolling. Rounded up from both bars' real measured
+   height for a little breathing room, rather than measuring them live —
+   both are a fixed one-line row that doesn't change size across viewports,
+   so there's no case where a live ResizeObserver would earn its keep here. */
+.main-combatant {
+  scroll-margin-block: 4.5rem;
+}
+
 /* Smaller than the standard 44px icon-btn touch target — the held bubble is
    already tight for width, and this button sits right next to the equally
    small type-dot rather than standing alone. */
@@ -1073,9 +1087,26 @@ input[type='text'].timer-name-input:focus {
    — the .drawer element itself is part of CombatantBubble's own template,
    not this one. */
 
+/* Sticky footer — pinned to the bottom of the viewport (not just its own
+   container) so the GM can advance a turn without scrolling back down past
+   a long combatant list first. `main` (app.css) has no overflow of its own,
+   so the window is the nearest scrollport and `bottom: 0` sticks this
+   against the actual bottom of the screen, the same way header's `top: 0`
+   (app.css) already sticks it against the top. Needs its own background —
+   sticky elements don't clip what scrolls underneath them — same
+   --color-page-bg the page itself uses (styles.css), so it blends into the
+   page rather than reading as a separate panel. z-index above ordinary
+   combatant bubbles (.hp-adjusting tops out at 10) so the list never paints
+   over it mid-scroll. */
 .turn-controls {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
   display: flex;
   gap: 0.6rem;
+  padding: 0.6rem 0;
+  background: var(--color-page-bg);
+  box-shadow: 0 -4px 10px rgb(0 0 0 / 0.08);
 }
 
 .turn-controls button {

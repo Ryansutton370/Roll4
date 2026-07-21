@@ -18,8 +18,57 @@
   background: rgb(0 0 0 / 0.4);
 }
 
-.stat-block-dialog h2 {
-  margin: 0 0 0.5rem;
+/* Sticky within .stat-block-dialog's own overflow-y: auto (this dialog IS
+   the scrolling box, there's no separate inner wrapper) — same technique
+   as the run-phase page's sticky turn-controls footer
+   (encounter-detail.css), just pinned to the top of a scrolling dialog
+   instead of the bottom of a scrolling page. The negative margin cancels
+   out .stat-block-dialog's own padding so this bleeds flush to the
+   dialog's edges (otherwise a sliver of unscrolled padding would show
+   outside it on every side), and the matching padding put back here keeps
+   the title/button inset the same amount visually. */
+.stat-block-header {
+  position: sticky;
+  top: -1.25rem;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: -1.25rem -1.25rem 0.5rem;
+  padding: 1.25rem 1.25rem 0.5rem;
+  background: var(--color-surface);
+}
+
+.stat-block-header h2 {
+  margin: 0;
+}
+
+/* Round icon button, same footprint/hover treatment as CombatantBubble's
+   .icon-badge-btn — always reachable regardless of scroll, unlike the old
+   bottom-of-content "Close" button it replaces. */
+.dialog-close-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.dialog-close-btn:hover {
+  background: var(--color-removed-tint);
+  color: var(--color-text);
 }
 
 .stat-block-meta {
@@ -44,9 +93,4 @@
 .stat-block-entries dd {
   margin: 0.15rem 0 0;
   color: var(--color-text);
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
 }

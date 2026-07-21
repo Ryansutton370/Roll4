@@ -1,3 +1,20 @@
+/* ---------------------------------------------------------------------
+   THE RULE: this row must never deform. Every column (AC/HP/Notes/View
+   Stat Block/Initiative/status icons/expand button/drag handle) is a
+   fixed-size, flex-shrink: 0 box — see each one below — so NONE of them
+   ever squish, stretch, or go oval. .combatant-name is the only flexible
+   thing here, and it absorbs 100% of the give: it shrinks (down to a
+   single truncated character if it has to) before anything else so much
+   as flinches, and it's the only reason the row wraps at all when it
+   truly has no room left (the @container ladder near the end of this
+   file). If you're touching this row — adding a badge, a status icon, an
+   inline indicator, anything — and it still looks wrong once the Timers
+   rail or Hold Action panel (encounter-detail.css) are also on screen,
+   the fix belongs on .combatant-name's flex-basis or the ladder below,
+   not on any of the fixed-size columns. Never add a new column here
+   without flex-shrink: 0.
+   --------------------------------------------------------------------- */
+
 /* flex-wrap: wrap is a fallback, not the goal — on any reasonably wide
    bubble everything fits on one line; narrow (mobile) widths wrap instead
    of squeezing/overflowing. */
@@ -8,12 +25,25 @@
   gap: 0.5rem 0.6rem;
 }
 
-/* flex: 1 1 6rem plus ellipsis truncation (rather than the old
-   overflow-wrap: anywhere, which let a long name wrap the row taller) —
-   the name gives up space to the other stats first, but never grows the
-   row's height on its own. */
+/* flex-basis: 0 (not a comfortable-looking rem value like 6rem) is
+   deliberate, not a typo — basis only matters for two things: how much
+   free space flex-grow leaves this to fill (irrelevant here, it's the
+   only flexible child, so it always ends up with 100% of whatever's left
+   regardless of basis) and how much space the *browser's line-wrapping
+   decision* reserves for it before anything is shrunk (very relevant: a
+   6rem reservation was quietly adding 6rem to the "does this fit on one
+   line" sum on every bubble, even while flex-shrink was about to bring it
+   down to a sliver anyway). That's what caused this to keep recurring —
+   a 5th badge, a status icon, anything added to the fixed-size columns
+   nudged the total just past whatever a 6rem (then 3.5rem) name
+   reservation left available, and the row silently fell through to the
+   browser's plain, unstyled wrap instead of the deliberate two-line
+   layout near the end of this file. Base it at 0 and this can't happen
+   again regardless of how many fixed columns this row ends up with —
+   ellipsis truncation (below) still keeps it readable in the room it
+   ends up getting via flex-shrink. */
 .combatant-name {
-  flex: 1 1 6rem;
+  flex: 1 1 0;
   min-width: 0;
   overflow: hidden;
   font-weight: 600;
@@ -24,9 +54,9 @@
 
 /* Click-to-expand (see toggleNameExpanded() in combatant-bubble.ts) — same
    "temporary growth that snaps back after the user's done" as
-   .notes-stat.revealed below: lifts the truncation so the full name can
-   wrap onto as many lines as it needs instead of stopping at the
-   container-query ladder's tightened flex-basis. */
+   .notes-stat.revealed below: lifts the ellipsis truncation so the full
+   name can wrap onto as many lines as it needs instead of staying pinned
+   to whatever sliver flex-shrink left it. */
 .combatant-name.name-expanded {
   flex-basis: auto;
   overflow: visible;
@@ -123,6 +153,18 @@
 
 .incapacitated-icon:hover:not(:disabled) {
   opacity: 0.75;
+}
+
+/* flex-shrink: 0 — every other icon in the row (.status-icons, .badge-icon,
+   .hp-stat-wrapper, etc.) pins its own size the same way; this one relies on
+   the global .icon-btn (styles.css) for its width/height, which has no
+   flex-shrink of its own, so without this the expand button was the one
+   thing still free to get squeezed into an oval whenever the row ran tight
+   (e.g. the Timers rail eating into desktop width) instead of holding its
+   shape like everything else. The bubble should never deform horizontally —
+   only wrap (see the @container ladder below) or grow taller via the drawer. */
+.expand-btn {
+  flex-shrink: 0;
 }
 
 .expand-btn svg {
@@ -571,11 +613,13 @@
    or mobile alike. Notes and View Stat Block no longer have a tier here —
    both are now fixed-size icon buttons rather than variable-width inline
    content (see .notes-stat/.icon-badge-btn above), so there's nothing left
-   about them to collapse; only the HP bar and Name still have anything to
-   give up. Each tier below only spends its width savings once the previous
-   tier's wasn't enough — the HP bar first (redundant with the numbers next
-   to it), then the Name, and only as an absolute last resort reordering
-   onto two lines. The bubble should never wrap while either is still
+   about them to collapse. .combatant-name (above) already unconditionally
+   gives up space before anything else does, at every width, not just
+   below a specific tier — these remaining tiers are extra space-saving
+   measures for when even a fully-shrunk Name isn't enough: the HP bar
+   first (redundant with the numbers next to it), then the badges
+   themselves, and only as an absolute last resort reordering onto two
+   lines. The bubble should never wrap while any of those is still
    available to reclaim space instead.
 
    Deliberately placed at the END of the file, after every base rule it
@@ -600,17 +644,6 @@
   }
 }
 
-/* Name: tightened further, with a click-to-expand escape hatch (see
-   .name-expanded / toggleNameExpanded() in combatant-bubble.ts) — same
-   "temporary growth on click, snaps back on click-away" pattern already
-   used for Notes above. The native `title` attribute (combatant-bubble.html)
-   covers hover for free, no extra CSS/JS needed for that half of it. */
-@container (max-width: 24rem) {
-  .combatant-name:not(.name-expanded) {
-    flex-basis: 3.5rem;
-  }
-}
-
 /* AC/HP/Notes/View-Stat-Block/Initiative badges: shrunk from 2.15rem to
    1.7rem. Verified live that a genuinely narrow phone (375px) still
    2-line-wraps even with every tier above already applied — four
@@ -619,12 +652,25 @@
    keeps the "just as big as the shield/heart icons" sizing at every width
    down to this tier, and only trades it away for single-line-ness once
    the alternative is genuinely wrapping onto two lines regardless. Has to
-   sit at a WIDER max-width than the two-line-wrap tier below (23rem vs.
+   sit at a WIDER max-width than the two-line-wrap tier below (33rem vs.
    22rem) — @container tiers don't try narrower ones only after wider ones
    fail, every matching tier applies at once, so shrinking has to already
    be in effect *before* the wrap threshold is reached for it to ever have
-   a chance to prevent that wrap. */
-@container (max-width: 23rem) {
+   a chance to prevent that wrap.
+
+   Widened from 23rem to 33rem (matching the HP-bar tier just above) after
+   a real desktop repro: with the Timers rail present, .main-combatant can
+   sit right around 29-30rem — comfortably above the old 23rem cutoff, but
+   still not enough room for a fully-statted combatant (AC+HP+Notes+View
+   Stat Block+Initiative, five badges) plus the drag-handle's permanently-
+   reserved space once the row-break tier hasn't kicked in yet. The row
+   would silently overflow into an unstyled flex-wrap — the expand button
+   dropping to its own line instead of using the deliberate two-line layout
+   below — rather than the intended "shrink badges first" tier ever having
+   fired. This tier and the HP-bar one above are cheap enough visually that
+   activating both together as soon as either would be needed is safer than
+   trying to tune the exact width where five-badge overflow starts. */
+@container (max-width: 33rem) {
   .badge-icon,
   .icon-badge-btn {
     width: 1.7rem;

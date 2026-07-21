@@ -41,6 +41,29 @@ understanding, not just for shipping code fast.
   in the same change — they're meant to stay accurate, not be a one-time
   snapshot.
 
+## Standing rules
+
+- **The combatant bubble (`combatant-bubble.html`/`.css`, run-phase
+  `encounter-detail.html`) must never deform.** No squishing, no oval
+  buttons, no silent fall-through to a two-line layout except via the
+  deliberate `@container` tier at the bottom of `combatant-bubble.css` (see
+  "THE RULE" comment at the top of that file for the mechanics: every
+  column is `flex-shrink: 0`, `.combatant-name` is the only flexible thing
+  and absorbs all the give). This has regressed twice from two different
+  causes (a missing `flex-shrink: 0`, then a too-generous flex-basis on the
+  name) — both looked fine in isolation and only showed up once the Timers
+  rail and/or Hold Action panel narrowed the row on desktop, or once enough
+  badges/status icons were present at once. **Any change that touches the
+  encounter run-phase screen — a new badge, a new status icon, a layout
+  change to the Timers rail/Hold Action panel/turn-controls, anything that
+  can affect `.main-combatant`'s available width — needs the bubble
+  actually checked afterward** (ideally live, via the `run-roll4` skill),
+  not just assumed fine from reading the CSS. Check it under the worst
+  realistic case, not the easy one: Timers rail *and* Hold Action panel
+  both visible, a fully-statted (AC/HP/Notes/View Stat Block/Initiative)
+  combatant, at least one status icon (e.g. Incapacitated) — that
+  combination is what has broken this twice before.
+
 ## Conventions already in place
 
 - Angular 22, standalone components (no `NgModule`s), Signals for state —

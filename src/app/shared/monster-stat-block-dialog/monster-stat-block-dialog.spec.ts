@@ -75,8 +75,29 @@ describe('MonsterStatBlockDialog', () => {
     component.openFor(goblin);
     fixture.detectChanges();
 
-    fixture.nativeElement.querySelector('.dialog-actions button').click();
+    fixture.nativeElement.querySelector('.dialog-close-btn').click();
 
+    expect(closeSpy).toHaveBeenCalled();
+  });
+
+  it('closes on a click outside the dialog box, not on a click inside it', () => {
+    const dialog: HTMLDialogElement = fixture.nativeElement.querySelector('dialog');
+    dialog.showModal = vi.fn();
+    const closeSpy = vi.fn();
+    dialog.close = closeSpy;
+    // jsdom lays every element out at 0x0 by default, so getBoundingClientRect()
+    // wouldn't naturally distinguish "inside" from "outside" here — stubbed to
+    // a fixed box the way monster-stat-block-dialog.ts actually renders one.
+    dialog.getBoundingClientRect = () =>
+      ({ left: 100, right: 300, top: 100, bottom: 300 }) as DOMRect;
+
+    component.openFor(goblin);
+    fixture.detectChanges();
+
+    dialog.dispatchEvent(new MouseEvent('click', { clientX: 200, clientY: 200 }));
+    expect(closeSpy).not.toHaveBeenCalled();
+
+    dialog.dispatchEvent(new MouseEvent('click', { clientX: 10, clientY: 10 }));
     expect(closeSpy).toHaveBeenCalled();
   });
 });
