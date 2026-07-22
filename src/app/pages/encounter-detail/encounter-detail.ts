@@ -22,13 +22,13 @@ import {
   AddCombatantDialog,
   NewCombatantSubmitted,
 } from '../../shared/add-combatant-dialog/add-combatant-dialog';
+import { CombatThesaurusDialog } from '../../shared/combat-thesaurus-dialog/combat-thesaurus-dialog';
 import {
   CombatantDetailsChanges,
   EditCombatantDialog,
 } from '../../shared/edit-combatant-dialog/edit-combatant-dialog';
 import { MonsterStatBlockDialog } from '../../shared/monster-stat-block-dialog/monster-stat-block-dialog';
 import { NotesDialog } from '../../shared/notes-dialog/notes-dialog';
-import { hasRichTextContent } from '../../shared/rich-text-editor/rich-text-editor';
 import { CombatantBubble } from './combatant-bubble';
 
 @Component({
@@ -43,6 +43,7 @@ import { CombatantBubble } from './combatant-bubble';
     AddCombatantDialog,
     MonsterStatBlockDialog,
     NotesDialog,
+    CombatThesaurusDialog,
   ],
   templateUrl: './encounter-detail.html',
   styleUrl: './encounter-detail.css',
@@ -203,9 +204,19 @@ export class EncounterDetail {
   // openNotesDialog below.
   private readonly notesDialog = viewChild.required<NotesDialog>('notesDialog');
 
+  // Same pattern again for the run-phase "+" menu's Combat Thesaurus option
+  // — see openCombatThesaurusDialog below.
+  private readonly combatThesaurusDialog =
+    viewChild.required<CombatThesaurusDialog>('combatThesaurusDialog');
+
   protected openAddCombatantDialog(): void {
     this.closeAddMenu();
     this.addCombatantDialog().open();
+  }
+
+  protected openCombatThesaurusDialog(): void {
+    this.closeAddMenu();
+    this.combatThesaurusDialog().open();
   }
 
   // readyToJoin is decided here, not passed in from the template: the
@@ -410,28 +421,6 @@ export class EncounterDetail {
     this.encounterStore.removeCombatant(this.encounterId(), combatantId);
   }
 
-  protected setCombatantModifier(combatantId: string, initiativeModifier: number): void {
-    this.encounterStore.setInitiativeModifier(this.encounterId(), combatantId, initiativeModifier);
-  }
-
-  // Setup-phase list's read-only HP bar — same percent/hue math as
-  // CombatantBubble.hpPercent()/hpHue() (combatant-bubble.ts), duplicated
-  // for the same view-encapsulation reason as the icon markup itself (see
-  // the comment above the setup list's stat icons in encounter-detail.html).
-  protected setupHpPercent(c: Combatant): number {
-    if (!c.maxHp) return 0;
-    return Math.round(((c.currentHp ?? c.maxHp) / c.maxHp) * 100);
-  }
-
-  protected setupHpHue(c: Combatant): number {
-    return Math.round(this.setupHpPercent(c) * 1.2);
-  }
-
-  /** Drives the setup-list Notes badge's dark-vs-muted color and hint text — same helper CombatantBubble uses for the run-phase list's own Notes badge. */
-  protected hasNotes(notes: string): boolean {
-    return hasRichTextContent(notes);
-  }
-
   protected rollInitiative(): void {
     this.encounterStore.rollInitiative(this.encounterId());
   }
@@ -619,11 +608,12 @@ export class EncounterDetail {
   }
 
   // ---------------------------------------------------------------------
-  // "+" menu — turn-controls button to the left of Previous/Next Turn.
-  // 'timer' opens the inline "new timer" card in the rail (see
-  // createTimer below); choosing Combatant instead opens AddCombatantDialog
-  // directly (openAddCombatantDialog above) and never sets this to
-  // 'combatant' — the dialog manages its own open/closed state.
+  // "+" menu (vertical-ellipsis trigger button) — turn-controls, to the left
+  // of Previous/Next Turn. 'timer' opens the inline "new timer" card in the
+  // rail (see createTimer below); choosing Combatant or Combat Thesaurus
+  // instead opens AddCombatantDialog/CombatThesaurusDialog directly
+  // (openAddCombatantDialog/openCombatThesaurusDialog above) and never sets
+  // this to anything else — each dialog manages its own open/closed state.
   // ---------------------------------------------------------------------
   protected readonly addMenuMode = signal<'closed' | 'menu' | 'timer'>('closed');
 

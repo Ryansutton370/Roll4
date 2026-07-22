@@ -289,33 +289,67 @@ input[type='text'].timer-name-input:focus {
 }
 
 /* ---------------------------------------------------------------------
-   "+" menu — Timer/Combatant choice popover next to Previous/Next Turn
+   "+" menu — vertical-ellipsis trigger opening the Timer/Combatant/Combat
+   Thesaurus choice popover next to Previous/Next Turn
    --------------------------------------------------------------------- */
 .add-menu-wrapper {
   position: relative;
 }
 
-/* Black/white by default (not the global .icon-btn's transparent/muted
-   look) so it reads as a clear call-to-action next to Previous/Next Turn —
-   reuses the same near-black/white tokens as .roll-btn instead of new
-   literal colors. Selector is `.add-menu-wrapper .add-btn` (two classes),
-   not just `.add-btn` — this button is a descendant of `.turn-controls`
-   too, and `.turn-controls button` (below) has higher specificity than a
-   single class would (a class+element selector beats a lone class), so it
-   would otherwise win and paint this white like Previous/Next Turn. :hover
-   is restated for the same reason, on top of beating the global
+/* White/black — inverted from the near-black/white .roll-btn treatment, so
+   it reads as a distinct icon-only control next to Previous/Next Turn's own
+   plain white buttons rather than blending toward their look. A border
+   (unlike Previous/Next Turn's implicit one from `.turn-controls button`
+   below) keeps it visible against the page background now that it's
+   white-on-white otherwise. Selector is `.add-menu-wrapper .add-btn` (two
+   classes), not just `.add-btn` — this button is a descendant of
+   `.turn-controls` too, and `.turn-controls button` (below) has higher
+   specificity than a single class would (a class+element selector beats a
+   lone class), so it would otherwise win and override this. :hover is
+   restated for the same reason, on top of beating the global
    .icon-btn:hover tint. */
 .add-menu-wrapper .add-btn {
-  background: var(--color-header-bg);
-  color: var(--color-header-fg);
-  font-size: 1.4rem;
-  font-weight: 700;
+  background: var(--color-surface);
+  color: var(--color-header-bg);
+  border: 1px solid var(--color-border);
+  /* Match Previous/Next Turn's height exactly instead of the global
+     .icon-btn's fixed 2.75rem (which read slightly short next to them —
+     those two size to their own padding/line-height, not a fixed value).
+     `.add-menu-wrapper` is a plain, auto-height block — as a `.turn-controls`
+     flex child with the default `align-items: stretch`, it already stretches
+     to match its tallest sibling on its own; `height: 100%` here just passes
+     that stretched height down from the wrapper to this button. `width:
+     auto` + `aspect-ratio: 1` keep it square at whatever that height turns
+     out to be, rather than hardcoding a width that would drift out of sync
+     if Previous/Next Turn's own padding or font-size ever changes. */
+  width: auto;
+  height: 100%;
+  aspect-ratio: 1;
 }
 
 .add-menu-wrapper .add-btn:hover {
-  background: var(--color-header-bg);
-  color: var(--color-header-fg);
-  opacity: 0.85;
+  background: var(--color-removed-tint);
+  color: var(--color-header-bg);
+}
+
+/* Bigger/bolder than a typical inline icon (1.2rem elsewhere) — this is the
+   run-phase screen's one entry point for adding a Timer/Combatant or
+   rolling a Combat Thesaurus verb, so it needs to read clearly at a glance
+   next to the much larger Previous/Next Turn buttons beside it.
+   Deliberately a fixed size, NOT a percentage — a percentage width/height
+   on an <svg> root only resolves against a containing block with a
+   *definite* size, and this button's own height (`.add-menu-wrapper
+   .add-btn`, above) is itself resolved via flex "stretch" against its
+   sibling, which is circular from the SVG's point of view. When that
+   happens the browser can't resolve the percentage and falls back to the
+   SVG's default intrinsic size (300×150 CSS px) instead — confirmed live,
+   and it's exactly as huge as it sounds. The uxwing icon's own viewBox
+   (122.88 square) is already square with the ink filling nearly all of it,
+   unlike the cropped Material glyph this replaced, so no extra
+   letterboxing/cropping consideration is needed here. */
+.add-menu-wrapper .add-btn svg {
+  width: 2.125rem;
+  height: 2.125rem;
 }
 
 .add-menu-popover {
@@ -335,6 +369,9 @@ input[type='text'].timer-name-input:focus {
 }
 
 .add-menu-popover button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   border: none;
   border-radius: var(--radius-control);
@@ -347,7 +384,22 @@ input[type='text'].timer-name-input:focus {
   background: var(--color-removed-tint);
 }
 
+.add-menu-popover button svg {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text-muted);
+}
+
+/* Shared by the Ready to Join list's plain text button (run phase) and the
+   setup-phase preview bubbles' icon+text "Save to Players"/"Save to NPCs"
+   (see .save-to-roster-block below) — inline-flex/gap only matters once
+   there's an icon to space against text, harmless for the icon-less
+   Ready to Join case. */
 .save-to-roster-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   flex-shrink: 0;
   padding: 0.4rem 0.7rem;
   border: 1px solid var(--color-border);
@@ -356,6 +408,11 @@ input[type='text'].timer-name-input:focus {
   color: var(--color-text-muted);
   font-size: 0.85rem;
   cursor: pointer;
+}
+
+.save-to-roster-btn svg {
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .save-to-roster-btn:hover {
@@ -409,16 +466,22 @@ input[type='text'].timer-name-input:focus {
   color: var(--color-text);
 }
 
+/* Top-billed now (see encounter-detail.html) — bigger and bolder than a
+   normal action button since this is the one thing every setup-phase visit
+   is ultimately working toward, not just another item in a row of equally-
+   weighted buttons. */
 .roll-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1.1rem;
+  gap: 0.6rem;
+  padding: 1rem 1.75rem;
+  margin-bottom: 1.25rem;
   border: none;
   border-radius: var(--radius-control);
   background: var(--color-header-bg);
   color: var(--color-header-fg);
-  font-weight: 600;
+  font-size: 1.2rem;
+  font-weight: 700;
   cursor: pointer;
   transition: opacity var(--transition-fast);
 }
@@ -429,8 +492,8 @@ input[type='text'].timer-name-input:focus {
 }
 
 .roll-icon {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.6rem;
+  height: 1.6rem;
   flex-shrink: 0;
 }
 
@@ -438,244 +501,32 @@ input[type='text'].timer-name-input:focus {
   margin-bottom: 1.25rem;
 }
 
-/* Column heading above the setup-phase combatant list — spacer widths match
-   the row below (type-dot, name, remove button) so "Initiative Modifier"
-   lines up over the input column. */
-.setup-list-header {
+/* Same app-combatant-bubble usage (previewMode) as EncounterList's Encounter
+   Preview panel — see encounter-preview-panel.css for the identical
+   .preview-combatant/.save-to-roster-block rules, duplicated here rather
+   than shared for the same view-encapsulation reason documented throughout
+   this file (a component's styles only apply to elements authored in its
+   own template). container-type: inline-size establishes this <li> as a
+   query container for combatant-bubble.css's @container truncation ladder,
+   same as .main-combatant/.held-bubble below. */
+.preview-combatant {
+  container-type: inline-size;
+}
+
+/* Wraps the setup-phase preview bubble's "Save to Players"/"Save to NPCs"
+   button (styled via the shared .save-to-roster-btn rule above, which the
+   Ready to Join list's plain-text version also uses) and its expanded
+   Party/Troop picker. */
+.save-to-roster-block {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0 1rem 0.35rem;
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
 }
 
-.setup-list-header .type-dot-spacer {
-  width: 0.65rem;
-  flex-shrink: 0;
-}
-
-.setup-list-header .entry-title-spacer {
-  flex: 1;
-  min-width: 0;
-}
-
-.setup-list-header .ac-heading-spacer {
-  width: 2.4rem;
-  flex-shrink: 0;
-}
-
-.setup-list-header .hp-heading-spacer {
-  width: 8.75rem;
-  flex-shrink: 0;
-}
-
-.setup-list-header .notes-heading-spacer {
-  width: 2.4rem;
-  flex-shrink: 0;
-}
-
-.setup-list-header .incapacitated-heading-spacer {
-  width: 1.4rem;
-  flex-shrink: 0;
-}
-
-.setup-list-header .modifier-heading {
-  width: 5rem;
-  flex-shrink: 0;
-}
-
-.setup-list-header .remove-spacer {
-  width: 2.75rem;
-  flex-shrink: 0;
-}
-
-.modifier-input {
-  width: 5rem;
-  flex-shrink: 0;
-}
-
-/* The global .entry (styles.css) is a non-wrapping flex row — fine for its
-   other, sparser uses (party-list, npc-list), but this row now has enough
-   fixed-width columns (AC badge, HP, Notes, Incapacitated, the modifier
-   input, remove/save buttons) that forcing them all onto one line would
-   squeeze .entry-title's flex-basis down to near-zero instead, wrapping the
-   name vertically letter-by-letter. Scoped to this row specifically (not a
-   change to .entry-title itself) since that class is shared by other pages
-   that don't have this problem. */
-.setup-combatant-entry {
-  flex-wrap: wrap;
-}
-
-.setup-combatant-entry .entry-title {
-  flex: 1 1 8rem;
-}
-
-/* ---------------------------------------------------------------------
-   Setup-phase list's AC/HP/Notes/Incapacitated icons — duplicated from
-   combatant-bubble.css/.html rather than shared: Angular's view
-   encapsulation means this page's own template can't reuse a child
-   component's styles (same reasoning already documented on
-   .initiative-total further below). Read-only here (no HP-adjust popover,
-   no Incapacitated toggle target) since turn order/Active-combatant
-   semantics don't apply before Roll.
-   --------------------------------------------------------------------- */
-.stat {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 0.3rem;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.stat svg {
-  width: 0.95rem;
-  height: 0.95rem;
-  flex-shrink: 0;
-}
-
-.ac-stat {
-  width: 2.4rem;
-}
-
-/* Same AC badge treatment as combatant-bubble.css: a solid black icon with
-   the value reversed (white) and centered on top of it. Sizes match
-   combatant-bubble.css's own badge (bumped from an initial smaller pass —
-   AC/HP were still hard to read at a glance). */
-.badge-icon {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.15rem;
-  height: 2.15rem;
-  flex-shrink: 0;
-}
-
-.badge-icon svg {
-  width: 100%;
-  height: 100%;
-  color: #000;
-}
-
-.badge-value {
-  position: absolute;
-  inset: 0;
+.save-to-roster-actions {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.setup-hp-stat {
-  width: 8.75rem;
-}
-
-.setup-hp-stat svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.hp-numbers {
-  min-width: 3ch;
-  font-size: 1rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.hp-bar {
-  display: inline-block;
-  width: 4.5rem;
-  height: 0.65rem;
-  border-radius: 999px;
-  background: var(--color-panel-bg);
-  overflow: hidden;
-}
-
-.hp-bar-fill {
-  display: block;
-  height: 100%;
-  background: hsl(var(--hp-hue, 120) 70% 45%);
-  transition:
-    width var(--transition-standard),
-    background-color var(--transition-standard);
-}
-
-.notes-stat {
-  width: 2.4rem;
-}
-
-/* Notes and View Stat Block: same .icon-badge-btn/.notes-badge-btn/
-   .stat-block-badge-btn treatment as combatant-bubble.css's own badges —
-   duplicated here for the same view-encapsulation reason as the rest of
-   this row (see the comment above the setup list's stat icons in
-   encounter-detail.html). */
-.icon-badge-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.15rem;
-  height: 2.15rem;
-  flex-shrink: 0;
-  border: none;
-  border-radius: var(--radius-control);
-  background: transparent;
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.icon-badge-btn svg {
-  width: 1.4rem;
-  height: 1.4rem;
-}
-
-.icon-badge-btn:hover {
-  background: var(--color-removed-tint);
-}
-
-.notes-badge-btn {
-  color: var(--color-text-muted);
-}
-
-.notes-badge-btn.has-notes {
-  color: var(--color-text);
-}
-
-.stat-block-badge-btn {
-  color: var(--color-text-muted);
-}
-
-.stat-block-badge-btn:hover {
-  color: var(--color-text);
-}
-
-.status-icon {
-  display: inline-flex;
-  width: 1.4rem;
-  height: 1.4rem;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border-radius: 50%;
-}
-
-.status-icon svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-.incapacitated-icon {
-  background: var(--color-removed-tint);
-  color: var(--color-removed);
+  gap: 0.5rem;
 }
 
 /* Party members are tinted blue (same --color-pc used by the type-dot) so
@@ -692,20 +543,13 @@ input[type='text'].timer-name-input:focus {
   background: var(--color-npc-tint);
 }
 
-/* Active state for the "mark absent" button on a party member — a solid
-   fill (not just a tint) so it reads as clearly "on" at a glance, the same
-   way .active/.on-hold bubbles below are unmistakable rather than subtle.
-   :hover is repeated here to beat the global .icon-btn:hover tint, which
-   would otherwise wash the solid fill back out on mouseover. */
-.marked-removed,
-.marked-removed:hover {
-  background: var(--color-removed);
-  color: var(--color-surface);
-}
-
 /* Grayed-out, same treatment as a Removed-from-Combat bubble in the run
    phase (.combatant.removed below) — placed after .pc-entry so it wins on
-   background/border-color when a removed combatant is also a PC. */
+   background/border-color when a removed combatant is also a PC. Still used
+   by the run-phase Removed From Combat table further down this file; the
+   setup-phase preview bubbles above show no equivalent greying (previewMode
+   Mark Absent is only visible via the drawer checkbox), matching Encounter
+   Preview's own behavior. */
 .entry-removed {
   border-color: var(--color-removed);
   background: var(--color-removed-tint);
@@ -1111,7 +955,12 @@ input[type='text'].timer-name-input:focus {
 
 .turn-controls button {
   flex: 1;
-  padding: 0.7rem 1rem;
+  /* Vertical padding trimmed slightly (was 0.7rem) to take up a bit less
+     height. The "more" button (.add-menu-wrapper .add-btn, above) tracks
+     this height automatically via its own height: 100%/aspect-ratio: 1, so
+     it shrinks right along with these two and stays square without needing
+     a matching edit here. */
+  padding: 0.55rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control);
   background: var(--color-surface);
@@ -1129,6 +978,26 @@ input[type='text'].timer-name-input:focus {
 .turn-controls button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* "Previous Turn" → "Previous" once the row's now-shorter buttons (see
+   padding above) leave too little width to fit the full label on one
+   line — same 560px mobile breakpoint as the Hold Action panel stacking
+   below. Desktop keeps the full label; .short-label stays out of the DOM's
+   visible flow via display: none rather than being conditionally rendered,
+   since this is a pure CSS presentation choice, not app state. */
+.short-label {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .full-label {
+    display: none;
+  }
+
+  .short-label {
+    display: inline;
+  }
 }
 
 /* Below the turn controls, same "heading + bubble-list" shape as the Hold

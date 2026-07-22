@@ -49,7 +49,6 @@ describe('MonsterGeneratorPanel', () => {
     httpMock = TestBed.inject(HttpTestingController);
     httpMock.expectOne('data/monsters-5e-srd.json').flush([goblin]);
     httpMock.expectOne('data/monsters-shadowdark.json').flush([]);
-    httpMock.expectOne('data/name-tables.json').flush(sampleNameTables);
     fixture.detectChanges();
   });
 
@@ -66,6 +65,17 @@ describe('MonsterGeneratorPanel', () => {
     fixture.detectChanges();
   }
 
+  // NameTableStore's HTTP call is triggered lazily by the per-row
+  // NameGeneratorButton (🎲) the first time a Candidates row actually
+  // renders — not by MonsterGeneratorPanel itself, which no longer has any
+  // bulk "Apply Names" pass of its own to need it for. match() (not
+  // expectOne()) since not every test renders a row at all.
+  function flushNameTablesIfRequested(): void {
+    for (const req of httpMock.match('data/name-tables.json')) {
+      req.flush(sampleNameTables);
+    }
+  }
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -80,12 +90,13 @@ describe('MonsterGeneratorPanel', () => {
     component.draft.subscribe((d) => (emitted = d));
     fixture.nativeElement.querySelector('.generate-row button').click();
     fixture.detectChanges();
+    flushNameTablesIfRequested();
 
     expect(component.draft().length).toBeGreaterThan(0);
     expect(emitted).toEqual(component.draft());
     expect(fixture.nativeElement.querySelector('.candidates')).toBeTruthy();
-    const groupName: HTMLElement = fixture.nativeElement.querySelector('.group-name');
-    expect(groupName.textContent).toBe('Goblin');
+    const candidateType: HTMLElement = fixture.nativeElement.querySelector('.candidate-type');
+    expect(candidateType.textContent).toBe('Goblin');
   });
 
   it('Generate emits draftEdited', () => {
@@ -94,34 +105,17 @@ describe('MonsterGeneratorPanel', () => {
 
     fixture.nativeElement.querySelector('.generate-row button').click();
     fixture.detectChanges();
+    flushNameTablesIfRequested();
 
     expect(draftEditedSpy).toHaveBeenCalled();
   });
 
-  it('the group +/- controls adjust the draft and emit draftEdited', () => {
-    fixture.nativeElement.querySelector('.generate-row button').click();
-    fixture.detectChanges();
-    const countBefore = component.draft().length;
-
-    const draftEditedSpy = vi.fn();
-    component.draftEdited.subscribe(draftEditedSpy);
-
-    fixture.nativeElement.querySelector('.group-count button[aria-label="Add one"]').click();
-    fixture.detectChanges();
-    expect(component.draft().length).toBe(countBefore + 1);
-    expect(draftEditedSpy).toHaveBeenCalledTimes(1);
-
-    fixture.nativeElement.querySelector('.group-count button[aria-label="Remove one"]').click();
-    fixture.detectChanges();
-    expect(component.draft().length).toBe(countBefore);
-    expect(draftEditedSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it('removing a roster instance drops it from the draft and emits draftEdited', () => {
+  it('removing a candidate instance drops it from the draft and emits draftEdited', () => {
     setNumberInput(0, 1);
     setNumberInput(1, 1);
     fixture.nativeElement.querySelector('.generate-row button').click();
     fixture.detectChanges();
+    flushNameTablesIfRequested();
     expect(component.draft().length).toBe(1);
 
     const draftEditedSpy = vi.fn();
@@ -138,6 +132,7 @@ describe('MonsterGeneratorPanel', () => {
   it('switching source clears the draft and emits draftEdited', () => {
     fixture.nativeElement.querySelector('.generate-row button').click();
     fixture.detectChanges();
+    flushNameTablesIfRequested();
     expect(component.draft().length).toBeGreaterThan(0);
 
     const draftEditedSpy = vi.fn();
@@ -153,6 +148,7 @@ describe('MonsterGeneratorPanel', () => {
   it('the embedded MonsterPickerTable "Add" button increments the draft via addTemplate, without a separate draftEdited listener miss', () => {
     fixture.nativeElement.querySelector('.generate-row button').click();
     fixture.detectChanges();
+    flushNameTablesIfRequested();
     const countBefore = component.draft().length;
 
     fixture.nativeElement.querySelector('app-monster-picker-table .picker-toggle').click();
@@ -170,24 +166,47 @@ describe('MonsterGeneratorPanel', () => {
     fixture.detectChanges();
     fixture.nativeElement.querySelector('app-monster-picker-table .add-btn').click();
     fixture.detectChanges();
+    flushNameTablesIfRequested();
 
-    expect(toastService.messages().map((m) => m.text)).toContain('Added Goblin');
+    expect(toastService.messages().map((m) => m.text)).toContain('Added Goblin to Candidates');
   });
 
-  it('Generate Names fills only unnamed entries and does not emit draftEdited (matches pre-extraction behavior)', () => {
-    fixture.nativeElement.querySelector('.generate-row button').click();
-    fixture.detectChanges();
-    component.draft.set([{ ...component.draft()[0], personalName: 'Keeper' }]);
-    fixture.detectChanges();
-
-    const draftEditedSpy = vi.fn();
-    component.draftEdited.subscribe(draftEditedSpy);
-
-    const nameButtons = fixture.nativeElement.querySelectorAll('.generate-row button');
-    (nameButtons[nameButtons.length - 1] as HTMLButtonElement).click();
+  it('with showEncounterCommitActions, Browse Monster List\'s Add emits addOneToEncounter directly instead of staging a Candidate', () => {
+    fixture.componentRef.setInput('showEncounterCommitActions', true);
+    fixture.componentRef.setInput('encounterName', 'Goblin Ambush');
     fixture.detectChanges();
 
-    expect(component.draft()[0].personalName).toBe('Keeper');
-    expect(draftEditedSpy).not.toHaveBeenCalled();
+    const addOneSpy = vi.fn();
+    component.addOneToEncounter.subscribe(addOneSpy);
+
+    fixture.nativeElement.querySelector('app-monster-picker-table .picker-toggle').click();
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('app-monster-picker-table .add-btn').click();
+    fixture.detectChanges();
+
+    expect(addOneSpy).toHaveBeenCalledTimes(1);
+    expect(addOneSpy.mock.calls[0][0].template.name).toBe('Goblin');
+    // Never touched draft — it goes straight to the real Encounter, not Candidates.
+    expect(component.draft().length).toBe(0);
+    expect(fixture.nativeElement.querySelector('.candidates')).toBeFalsy();
+  });
+
+  it('by default (EncounterList\'s usage), Browse Monster List renders before Generate Monsters', () => {
+    const browse: HTMLElement = fixture.nativeElement.querySelector('.browse-section');
+    const generate: HTMLElement = fixture.nativeElement.querySelector('.generate-section');
+    expect(browse.compareDocumentPosition(generate) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
+  it('with emphasizeGenerate, Generate Monsters renders before Browse Monster List', () => {
+    fixture.componentRef.setInput('emphasizeGenerate', true);
+    fixture.detectChanges();
+
+    const browse: HTMLElement = fixture.nativeElement.querySelector('.browse-section');
+    const generate: HTMLElement = fixture.nativeElement.querySelector('.generate-section');
+    expect(generate.compareDocumentPosition(browse) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
 });

@@ -246,6 +246,11 @@
   gap: 0.5rem;
 }
 
+/* Parent-projected content (see [drawer-extra-action] in
+   combatant-bubble.html) is just another flex item in this column, between
+   the built-in actions and (previewMode + NPC) Delete — no special CSS
+   needed for it here since it's laid out by this container's own
+   flex-direction: column/gap, same as every other child. */
 .drawer-actions {
   display: flex;
   flex-direction: column;
@@ -283,6 +288,18 @@
 
 .drawer-action-btn:hover:not(:disabled) {
   background: var(--color-removed-tint);
+}
+
+/* previewMode's Delete button (NPC only, see combatant-bubble.html) — same
+   danger color pair the rest of the app uses for a destructive action
+   (e.g. .icon-btn.danger in styles.css). */
+.drawer-action-btn.danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.drawer-action-btn.danger:hover:not(:disabled) {
+  background: var(--color-danger-tint);
 }
 
 .drawer-action-btn:disabled {

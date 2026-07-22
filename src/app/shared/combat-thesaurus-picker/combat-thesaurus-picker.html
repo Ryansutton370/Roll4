@@ -1,0 +1,109 @@
+@if (tables().length === 0) {
+  <p class="empty-state">No Combat Thesaurus categories loaded.</p>
+} @else {
+  <!-- A row of icon buttons instead of a `<select>` — see the component's
+       doc comment for why: a native <option> can't show an SVG, and the
+       icon is the point of this picker. -->
+  <div class="category-row" role="group" aria-label="Category">
+    @for (table of tables(); track table.id) {
+      <button
+        type="button"
+        class="category-btn"
+        [class.selected]="table.id === selectedTableId()"
+        [attr.aria-pressed]="table.id === selectedTableId()"
+        (click)="selectTable(table.id)"
+      >
+        <span class="category-icon" aria-hidden="true">
+          @switch (table.icon) {
+            @case ('blade') {
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 1 L11.4 3.2 L11.4 12 L8.6 12 L8.6 3.2 Z" />
+                <rect x="5.5" y="12" width="9" height="1.6" rx="0.6" />
+                <rect x="9" y="13.7" width="2" height="3.3" rx="0.4" />
+                <circle cx="10" cy="17.8" r="1.3" />
+              </svg>
+            }
+            @case ('blunt') {
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <rect x="4" y="2" width="12" height="5" rx="1" />
+                <rect x="8.4" y="7" width="3.2" height="11" rx="1" />
+              </svg>
+            }
+            @case ('defense') {
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  d="M10 2 L16 4.3 V9.4 C16 13.4 13.4 16.5 10 18 C6.6 16.5 4 13.4 4 9.4 V4.3 Z"
+                />
+              </svg>
+            }
+            @case ('impairment') {
+              <!-- A blood drop — reads clearly as "bloodied/bruised" at icon
+                   size, unlike the two overlapping circles this replaced
+                   (looked like an infinity symbol instead) or a tapering
+                   wavy-line tornado tried first (read as a wifi/signal icon
+                   at this size instead of "dizzy"). -->
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  d="M10 1.5 C10 1.5 4.5 9.2 4.5 13.2 C4.5 16.7 6.9 19 10 19 C13.1 19 15.5 16.7 15.5 13.2 C15.5 9.2 10 1.5 10 1.5Z"
+                />
+              </svg>
+            }
+            @case ('magic') {
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 1 L11 8 L19 10 L11 12 L10 19 L9 12 L1 10 L9 8 Z" />
+              </svg>
+            }
+            @case ('range') {
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="10" cy="10" r="8" />
+                <circle cx="10" cy="10" r="4.5" />
+                <circle cx="10" cy="10" r="1" fill="currentColor" stroke="none" />
+              </svg>
+            }
+          }
+        </span>
+        <span class="category-label">{{ table.tableName }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="picker-row">
+    <label>
+      Count
+      <input
+        type="number"
+        min="1"
+        max="50"
+        [ngModel]="rollCount()"
+        (ngModelChange)="rollCount.set($event)"
+      />
+    </label>
+
+    <button
+      type="button"
+      [disabled]="!selectedTable() || selectedTable()!.entries.length === 0"
+      (click)="roll()"
+    >
+      Roll
+    </button>
+  </div>
+
+  @if (selectedTable(); as table) {
+    @if (table.entries.length === 0) {
+      <p class="table-description">No verbs added yet for this category.</p>
+    }
+  }
+
+  @if (rolledEntries().length > 0) {
+    <ul class="results-list">
+      @for (entry of rolledEntries(); track $index) {
+        <li>
+          <span>{{ entry }}</span>
+          <button type="button" class="copy-btn" (click)="copy(entry, $index)">
+            {{ copiedIndex() === $index ? 'Copied!' : 'Copy' }}
+          </button>
+        </li>
+      }
+    </ul>
+  }
+}

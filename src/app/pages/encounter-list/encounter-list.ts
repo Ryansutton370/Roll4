@@ -1,30 +1,32 @@
-import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { Combatant, Encounter } from '../../models/encounter.model';
-import { EncounterStore, computeDisplayNames } from '../../services/encounter-store';
+import { Encounter } from '../../models/encounter.model';
+import { EncounterStore } from '../../services/encounter-store';
 import { NpcStore } from '../../services/npc-store';
 import { PartyStore } from '../../services/party-store';
 import {
   AddCombatantDialog,
   NewCombatantSubmitted,
 } from '../../shared/add-combatant-dialog/add-combatant-dialog';
-import { CombatantFields } from '../../shared/combatant-fields/combatant-fields';
+import { EncounterPreviewPanel } from '../../shared/encounter-preview-panel/encounter-preview-panel';
 import { MonsterCredits } from '../../shared/monster-credits/monster-credits';
 import {
+  combatantFieldsFromDraft,
   DraftCombatant,
   MonsterGeneratorPanel,
 } from '../../shared/monster-generator-panel/monster-generator-panel';
+import { ToastService } from '../../shared/toast/toast';
 
 @Component({
   selector: 'app-encounter-list',
   imports: [
     FormsModule,
     RouterLink,
-    CombatantFields,
     AddCombatantDialog,
     MonsterGeneratorPanel,
     MonsterCredits,
+    EncounterPreviewPanel,
   ],
   templateUrl: './encounter-list.html',
   styleUrl: './encounter-list.css',
@@ -33,11 +35,35 @@ export class EncounterList {
   protected readonly encounterStore = inject(EncounterStore);
   protected readonly partyStore = inject(PartyStore);
   protected readonly npcStore = inject(NpcStore);
+  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
+
+  // Bound from the '?edit=<id>' query param via withComponentInputBinding()
+  // (see app.config.ts) — the same router-input mechanism used elsewhere in
+  // this app for path params (e.g. PartyDetail's :partyId), just applied to
+  // a query param instead. Set by EncounterGenerator's "Add to Encounter"
+  // action so the GM lands here with that Encounter's edit panel already
+  // open, instead of the plain Saved Encounters list.
+  readonly openForEncounterId = input<string | null>(null, { alias: 'edit' });
+
+  constructor() {
+    // effect(): re-runs whenever a signal it reads changes — here,
+    // openForEncounterId(). Opens the edit panel once for the Encounter
+    // named in the query param, then clears the param (an empty navigate)
+    // so a later refresh or back-navigation doesn't keep re-opening it; the
+    // `if (!id) return` guard stops that clear from re-triggering itself.
+    effect(() => {
+      const id = this.openForEncounterId();
+      if (!id) return;
+      const encounter = this.encounterStore.getEncounter(id);
+      if (encounter) this.startEdit(encounter);
+      this.router.navigate([], { queryParams: {}, replaceUrl: true });
+    });
+  }
 
   // Gates the whole create/edit panel — collapsed by default, showing just
   // a "+ Create Encounter" button. Both startCreate() and startEdit() open
-  // it; cancelEdit() closes it. Kept separate from editingEncounterId below
+  // it; closePanel() closes it. Kept separate from editingEncounterId below
   // since the panel can be open with no Encounter created yet at all (a
   // fresh, not-yet-materialized create — see ensureEncounterCreated()).
   protected readonly builderOpen = signal(false);
@@ -47,33 +73,21 @@ export class EncounterList {
   protected readonly selectedTroopIds = signal<string[]>([]);
 
   // The embedded Encounter Generator's working roster (see
-  // MonsterGeneratorPanel) — live-synced to real Combatants by the
-  // reconciliation effect below as the GM builds it (Generate, Browse
-  // Monster List's Add, the +/- adjusters, Roster's remove/rename all flow
-  // through this same signal), rather than requiring a separate "commit"
-  // step the way the standalone Encounter Generator page's "Save as Troop"
-  // does.
+  // MonsterGeneratorPanel) — staged here until the GM explicitly commits it
+  // via "Add All to Encounter" or an individual Roster row's "Add to
+  // Encounter" (see onAddAllToEncounter/onAddOneToEncounter below), rather
+  // than live-syncing automatically. Encounter Preview only ever shows real
+  // Combatants, so a candidate sitting in this draft is genuinely not part
+  // of the Encounter yet.
   protected readonly generatorDraft = signal<DraftCombatant[]>([]);
-
-  // Tracks which draft entries (by DraftCombatant.localId) have already
-  // been promoted to a real Combatant, and that Combatant's last-known
-  // name — lets the reconciliation effect tell "new," "unchanged," and
-  // "renamed" apart without re-deriving it from the store every run. Plain
-  // mutable field, not a signal: pure internal bookkeeping the template
-  // never reads, and mutating it must NOT retrigger the effect that owns
-  // it (a signal here would create a feedback loop).
-  private readonly generatorCombatantLinks = new Map<
-    string,
-    { combatantId: string; lastName: string }
-  >();
 
   // Non-null once this panel's Encounter actually exists in the store —
   // either a pre-existing Encounter being edited (startEdit), or one
-  // materialized mid-session by ensureEncounterCreated() the first time the
-  // GM commits something real (a generated roster, an Add Combatant pick)
-  // before ever reaching the bottom submit button. Drives both the submit
-  // button's label ("Update Encounter" vs. "Create Encounter") and whether
-  // the Combatants list has anything to show.
+  // materialized by ensureEncounterCreated() the first time the GM does
+  // anything real (checking a Party/Troop, an Add All/individual "Add to
+  // Encounter", an Add Combatant pick, typing a name). Every one of those
+  // applies immediately now — there's no "Update Encounter" submit step to
+  // wait for — so this just drives what Encounter Preview shows.
   protected readonly editingEncounterId = signal<string | null>(null);
 
   protected readonly editingEncounter = computed(() => {
@@ -81,79 +95,13 @@ export class EncounterList {
     return id ? this.encounterStore.getEncounter(id) : null;
   });
 
-  constructor() {
-    // Keeps generatorDraft's contents live-synced to real Combatants —
-    // the "+ Add These to Encounter" button this replaced required the GM
-    // to remember an extra click after already reviewing/naming the
-    // roster; this way whatever's in the draft (from Generate, Browse
-    // Monster List's Add, the +/- count adjusters, or a Roster rename/
-    // remove) is always already reflected in the Combatants section below
-    // it. Materializes the Encounter on first use via
-    // ensureEncounterCreated(), same as any other first commit.
-    effect(() => {
-      const draft = this.generatorDraft();
-      const currentLocalIds = new Set(draft.map((d) => d.localId));
-
-      for (const [localId, link] of [...this.generatorCombatantLinks]) {
-        if (currentLocalIds.has(localId)) continue;
-        const encounterId = this.editingEncounterId();
-        if (encounterId) this.encounterStore.removeCombatant(encounterId, link.combatantId);
-        this.generatorCombatantLinks.delete(localId);
-      }
-
-      for (const d of draft) {
-        const name = d.personalName.trim() || d.template.name;
-        const existing = this.generatorCombatantLinks.get(d.localId);
-        if (!existing) {
-          const encounterId = this.ensureEncounterCreated();
-          const combatant = this.encounterStore.addAdHocCombatant(encounterId, 'npc', {
-            name,
-            initiativeModifier: d.template.initiativeModifier,
-            ac: d.template.ac,
-            maxHp: d.template.maxHp,
-            notes: '',
-            monsterTemplateId: d.template.id,
-            monsterName: d.template.name,
-          });
-          this.generatorCombatantLinks.set(d.localId, {
-            combatantId: combatant.id,
-            lastName: name,
-          });
-        } else if (existing.lastName !== name) {
-          const encounterId = this.editingEncounterId();
-          if (encounterId) {
-            this.encounterStore.updateCombatantDetails(encounterId, existing.combatantId, { name });
-            existing.lastName = name;
-          }
-        }
-      }
-    });
-  }
-
-  // Party members always shown first, ad-hoc NPCs after — Array.sort is
-  // stable (guaranteed since ES2019), so within each group the original
-  // order (add order / initiative order) is left untouched.
-  protected readonly editingCombatants = computed(() => {
+  // Internal only — not rendered directly (Encounter Preview reads the
+  // store itself), just used below to filter AddCombatantDialog's roster
+  // pickers down to entries not already in this Encounter.
+  private readonly editingCombatants = computed(() => {
     const id = this.editingEncounterId();
-    if (!id) return [];
-    return [...this.encounterStore.combatantsForEncounter(id)].sort((a, b) =>
-      a.type === b.type ? 0 : a.type === 'pc' ? -1 : 1,
-    );
+    return id ? this.encounterStore.combatantsForEncounter(id) : [];
   });
-
-  // "Goblin"/"Goblin" -> "Goblin A"/"Goblin B" — see EncounterDetail's
-  // identical displayNames/displayName pair, and computeDisplayNames' own
-  // doc comment, for why this needs creation order specifically.
-  protected readonly displayNames = computed(() => {
-    const id = this.editingEncounterId();
-    return id
-      ? computeDisplayNames(this.encounterStore.combatantsForEncounterInCreationOrder(id))
-      : new Map<string, string>();
-  });
-
-  protected displayName(combatantId: string): string {
-    return this.displayNames().get(combatantId) ?? '';
-  }
 
   // Roster entries not yet in the Encounter being edited — same "never
   // offer a no-op add" filtering as EncounterDetail's pickers, fed into
@@ -189,16 +137,28 @@ export class EncounterList {
     this.encounterStore.addAdHocCombatant(encounterId, event.type, event.fields);
   }
 
+  // Checking/unchecking a Party (or Troop, below) applies immediately —
+  // materializing the Encounter on first use via ensureEncounterCreated(),
+  // same as any other real commit — rather than staying staged until a
+  // since-removed "Update Encounter" submit. setEncounterParties reconciles
+  // membership itself (adds newly-selected PCs, drops de-selected ones
+  // before the first Roll), so this is safe to call on every toggle.
   protected togglePartySelected(partyId: string, checked: boolean): void {
-    this.selectedPartyIds.update((ids) =>
-      checked ? [...ids, partyId] : ids.filter((id) => id !== partyId),
-    );
+    const partyIds = checked
+      ? [...this.selectedPartyIds(), partyId]
+      : this.selectedPartyIds().filter((id) => id !== partyId);
+    this.selectedPartyIds.set(partyIds);
+    const encounterId = this.ensureEncounterCreated();
+    this.encounterStore.setEncounterParties(encounterId, partyIds);
   }
 
   protected toggleTroopSelected(troopId: string, checked: boolean): void {
-    this.selectedTroopIds.update((ids) =>
-      checked ? [...ids, troopId] : ids.filter((id) => id !== troopId),
-    );
+    const troopIds = checked
+      ? [...this.selectedTroopIds(), troopId]
+      : this.selectedTroopIds().filter((id) => id !== troopId);
+    this.selectedTroopIds.set(troopIds);
+    const encounterId = this.ensureEncounterCreated();
+    this.encounterStore.setEncounterTroops(encounterId, troopIds);
   }
 
   // Opens the panel blank, for a genuinely new Encounter — nothing is
@@ -209,39 +169,40 @@ export class EncounterList {
     this.selectedPartyIds.set([]);
     this.selectedTroopIds.set([]);
     this.generatorDraft.set([]);
-    this.generatorCombatantLinks.clear();
     this.builderOpen.set(true);
   }
 
   // Pre-populates the create form with an existing Encounter's name and
-  // Party/Troop selection so it doubles as the edit form — see
-  // submitEncounterForm for what happens to those values on submit.
+  // Party/Troop selection so it doubles as the edit form — name/Party/Troop
+  // edits from here apply immediately (see onEncounterNameChange/
+  // togglePartySelected/toggleTroopSelected), same as any other change.
   protected startEdit(encounter: Encounter): void {
     this.editingEncounterId.set(encounter.id);
     this.newEncounterName.set(encounter.name);
     this.selectedPartyIds.set([...encounter.partyIds]);
     this.selectedTroopIds.set([...encounter.troopIds]);
     this.generatorDraft.set([]);
-    this.generatorCombatantLinks.clear();
     this.builderOpen.set(true);
   }
 
-  protected cancelEdit(): void {
+  // Closes the panel back onto the Saved Encounters list — there's nothing
+  // left to "cancel" (every change in this panel already applies live), so
+  // this is just "I'm done," same as closing any other already-saved
+  // editor.
+  protected closePanel(): void {
     this.editingEncounterId.set(null);
     this.newEncounterName.set('');
     this.selectedPartyIds.set([]);
     this.selectedTroopIds.set([]);
     this.generatorDraft.set([]);
-    this.generatorCombatantLinks.clear();
     this.builderOpen.set(false);
   }
 
-  // Creates this panel's Encounter on first real commitment — either the
-  // bottom submit button, or committing something before ever reaching it
-  // (a generated roster via commitGeneratorDraftToEncounter, or any Add
-  // Combatant pick). Reuses the same id for the rest of this panel session
-  // once materialized. A brand-new Encounter is deliberately NOT created
-  // the instant the panel opens — only once the GM actually adds something
+  // Creates this panel's Encounter on first real commitment — a Party/Troop
+  // check, an Add All/individual "Add to Encounter", or any Add Combatant
+  // pick. Reuses the same id for the rest of this panel session once
+  // materialized. A brand-new Encounter is deliberately NOT created the
+  // instant the panel opens — only once the GM actually adds something
   // real, so an abandoned "+ Create Encounter" click never leaves a stub
   // behind (see docs/PRODUCT.md section 2).
   private ensureEncounterCreated(): string {
@@ -256,43 +217,60 @@ export class EncounterList {
     return encounter.id;
   }
 
-  protected submitEncounterForm(): void {
-    const name = this.newEncounterName().trim();
-    const editingId = this.editingEncounterId();
-    if (editingId) {
-      // Already materialized — either a pre-existing Encounter being
-      // edited, or one created mid-session above. A blank name here just
-      // means "keep the current name" rather than no-opping the whole
-      // submit (which would otherwise leave the GM stuck on an
-      // unresponsive button once materialization can happen before this
-      // is ever clicked).
-      if (name) this.encounterStore.renameEncounter(editingId, name);
-      this.encounterStore.setEncounterParties(editingId, this.selectedPartyIds());
-      this.encounterStore.setEncounterTroops(editingId, this.selectedTroopIds());
-      this.cancelEdit();
-      return;
-    }
+  // Live-typed name shown in Encounter Preview's heading and in the
+  // Add-to-Encounter button/toast wording — deliberately the in-progress
+  // newEncounterName signal, not editingEncounter()?.name: this Encounter
+  // may not be materialized yet (nothing typed here creates one on its
+  // own), and even once it is, onEncounterNameChange below only pushes a
+  // non-blank name to the store, so the local signal is the source of
+  // truth for what the GM is currently seeing either way.
+  protected encounterNameForDisplay(): string {
+    return this.newEncounterName().trim() || 'Untitled Encounter';
+  }
 
-    if (!name) return;
-    const encounter = this.encounterStore.createEncounter(
-      name,
-      this.selectedPartyIds(),
-      this.selectedTroopIds(),
-    );
-    this.newEncounterName.set('');
-    this.selectedPartyIds.set([]);
-    this.selectedTroopIds.set([]);
-    this.generatorDraft.set([]);
-    this.builderOpen.set(false);
-    // Straight into the setup/run screen for the encounter just created —
-    // only for this genuinely-fresh path; the editingId branch above stays
-    // on the list, since the GM may still be refining combatants there.
-    this.router.navigate(['/encounters', encounter.id]);
+  // Typing a name applies immediately once this Encounter already exists —
+  // no separate "Update Encounter" submit to wait for. A blank name doesn't
+  // rename the store's copy (leaves whatever it already is, e.g. "Untitled
+  // Encounter") rather than flickering the real Encounter's name to blank
+  // while the GM is mid-edit (e.g. selecting-all to retype); it also
+  // doesn't materialize an Encounter on its own — typing a name alone still
+  // isn't a "real" commitment (see docs/PRODUCT.md section 2).
+  protected onEncounterNameChange(name: string): void {
+    this.newEncounterName.set(name);
+    const encounterId = this.editingEncounterId();
+    const trimmed = name.trim();
+    if (encounterId && trimmed) this.encounterStore.renameEncounter(encounterId, trimmed);
+  }
+
+  // The Add All/individual Add-to-Encounter phrase (passed to
+  // MonsterGeneratorPanel as encounterName, used verbatim there without
+  // appending anything further) — avoids "Untitled Encounter Encounter"
+  // once the default placeholder name already ends with the word.
+  protected encounterCommitPhrase(): string {
+    const name = this.encounterNameForDisplay();
+    return /\bencounter$/i.test(name) ? name : `${name} Encounter`;
+  }
+
+  private addDraftAsCombatant(encounterId: string, d: DraftCombatant): void {
+    this.encounterStore.addAdHocCombatant(encounterId, 'npc', combatantFieldsFromDraft(d));
+  }
+
+  protected onAddAllToEncounter(entries: DraftCombatant[]): void {
+    const encounterId = this.ensureEncounterCreated();
+    for (const d of entries) this.addDraftAsCombatant(encounterId, d);
+    this.toastService.show(`Added to ${this.encounterCommitPhrase()}`);
+  }
+
+  protected onAddOneToEncounter(d: DraftCombatant): void {
+    const encounterId = this.ensureEncounterCreated();
+    this.addDraftAsCombatant(encounterId, d);
+    const name = d.personalName.trim() || d.template.name;
+    this.toastService.show(`${name} added to ${this.encounterCommitPhrase()}`);
   }
 
   // Adding/removing combatants applies immediately (like the setup screen on
-  // encounter-detail) rather than waiting for Update Encounter — only the
-  // name and Party/Troop selection are staged until submit.
+  // encounter-detail) — everything in this panel does now, there's no
+  // staged state waiting on a submit button anymore.
   private addIndividualPlayerToEditingEncounter(playerId: string): void {
     if (!playerId) return;
     const encounterId = this.ensureEncounterCreated();
@@ -305,121 +283,9 @@ export class EncounterList {
     this.encounterStore.addNpcCombatant(encounterId, npcId);
   }
 
-  // Same Set-of-ids "Save to Roster" pattern as EncounterDetail — see that
-  // component for the full rationale.
-  protected readonly savingToRosterIds = signal<ReadonlySet<string>>(new Set());
-  private readonly saveToRosterSelections = signal<ReadonlyMap<string, ReadonlySet<string>>>(
-    new Map(),
-  );
-
-  protected isSavingToRoster(combatantId: string): boolean {
-    return this.savingToRosterIds().has(combatantId);
-  }
-
-  protected toggleSavingToRoster(combatantId: string): void {
-    this.savingToRosterIds.update((ids) => {
-      const next = new Set(ids);
-      next.has(combatantId) ? next.delete(combatantId) : next.add(combatantId);
-      return next;
-    });
-    this.saveToRosterSelections.update((selections) => {
-      if (!selections.has(combatantId)) return selections;
-      const next = new Map(selections);
-      next.delete(combatantId);
-      return next;
-    });
-  }
-
-  protected isGroupSelectedForSave(combatantId: string, groupId: string): boolean {
-    return this.saveToRosterSelections().get(combatantId)?.has(groupId) ?? false;
-  }
-
-  protected toggleGroupSelectedForSave(
-    combatantId: string,
-    groupId: string,
-    checked: boolean,
-  ): void {
-    this.saveToRosterSelections.update((selections) => {
-      const current = new Set(selections.get(combatantId) ?? []);
-      checked ? current.add(groupId) : current.delete(groupId);
-      const next = new Map(selections);
-      next.set(combatantId, current);
-      return next;
-    });
-  }
-
-  protected confirmSaveToRoster(combatant: Combatant): void {
-    const encounterId = this.editingEncounterId();
-    if (!encounterId) return;
-    const groupIds = [...(this.saveToRosterSelections().get(combatant.id) ?? [])];
-    const fields = {
-      name: combatant.name,
-      initiativeModifier: combatant.initiativeModifier,
-      ac: combatant.ac,
-      maxHp: combatant.maxHp,
-      notes: combatant.notes,
-    };
-    // A monster-templated combatant (type 'npc' only — see AddCombatantDialog's
-    // From Book flow) keeps its stat-block link when saved to the roster,
-    // rather than that being silently dropped.
-    const linkedId =
-      combatant.type === 'pc'
-        ? this.partyStore.createPlayer(fields).id
-        : this.npcStore.createNpc({
-            ...fields,
-            monsterTemplateId: combatant.monsterTemplateId,
-            monsterName: combatant.monsterName,
-          }).id;
-    if (combatant.type === 'pc') {
-      groupIds.forEach((partyId) => this.partyStore.addPlayerToParty(partyId, linkedId));
-    } else {
-      groupIds.forEach((troopId) => this.npcStore.addNpcToTroop(troopId, linkedId));
-    }
-    this.encounterStore.linkCombatantToLibraryEntry(encounterId, combatant.id, linkedId);
-    this.toggleSavingToRoster(combatant.id);
-  }
-
-  protected removeCombatantFromEditingEncounter(combatantId: string): void {
-    const encounterId = this.editingEncounterId();
-    if (!encounterId) return;
-    this.encounterStore.removeCombatant(encounterId, combatantId);
-  }
-
-  protected setCombatantModifierInEditingEncounter(
-    combatantId: string,
-    initiativeModifier: number,
-  ): void {
-    const encounterId = this.editingEncounterId();
-    if (!encounterId) return;
-    this.encounterStore.setInitiativeModifier(encounterId, combatantId, initiativeModifier);
-  }
-
-  // Name/AC/Max HP/Notes for an existing combatant in the encounter being
-  // edited — same updateCombatantDetails the run-phase Edit dialog uses
-  // (unlike the modifier field above, there's no "locked after the first
-  // Roll" rule for these, so this can go straight to the store).
-  protected updateCombatantFieldInEditingEncounter(
-    combatantId: string,
-    changes: { name?: string; ac?: number | null; maxHp?: number | null; notes?: string },
-  ): void {
-    const encounterId = this.editingEncounterId();
-    if (!encounterId) return;
-    this.encounterStore.updateCombatantDetails(encounterId, combatantId, changes);
-  }
-
-  // Party members can't be deleted from an Encounter here — a player being
-  // absent is temporary, so this marks them Removed from Combat (same flag/
-  // behavior as the in-combat drawer checkbox) instead of dropping their
-  // Combatant record entirely. Clicking again un-marks them.
-  protected toggleCombatantRemovedInEditingEncounter(combatantId: string): void {
-    const encounterId = this.editingEncounterId();
-    if (!encounterId) return;
-    this.encounterStore.toggleRemoved(encounterId, combatantId);
-  }
-
   protected deleteEncounter(id: string, name: string): void {
     if (confirm(`Delete "${name}"?`)) {
-      if (this.editingEncounterId() === id) this.cancelEdit();
+      if (this.editingEncounterId() === id) this.closePanel();
       this.encounterStore.deleteEncounter(id);
     }
   }

@@ -1,4 +1,5 @@
-import { Component, computed, effect, inject, model, output, signal } from '@angular/core';
+import { Component, computed, inject, input, model, output, signal, viewChild } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   MonsterSource,
@@ -12,42 +13,58 @@ import {
   generateShadowdarkEncounter,
 } from '../../services/encounter-generator';
 import { MonsterStore } from '../../services/monster-store';
-import { NameTableStore } from '../../services/name-table-store';
 import { MonsterPickerTable } from '../monster-picker-table/monster-picker-table';
+import { MonsterStatBlockDialog } from '../monster-stat-block-dialog/monster-stat-block-dialog';
 import { NameGeneratorButton } from '../name-generator-button/name-generator-button';
 import { ToastService } from '../toast/toast';
 
-/** One individual monster in the working roster — the unit a host component's own "commit" action (Save as Troop, Add to Encounter, ...) turns into something real. Kept flat (not grouped by template) so each instance can carry its own personal name. */
+/** One individual monster in the working roster — the unit a host component's own "commit" action (Save as Troop, Add to Encounter, ...) turns into something real. Kept flat (not grouped by template) so each instance can carry its own personal name; multiples of the same monster (e.g. 3 Goblins) show as three separate Candidates rows rather than one grouped "x3" row. */
 export interface DraftCombatant {
   localId: string;
   template: MonsterTemplate;
   personalName: string;
 }
 
-/** The count-adjuster view groups DraftCombatants back up by template — "3 Goblins" as one row with +/- controls, rather than three separate rows. */
-interface DraftGroup {
-  template: MonsterTemplate;
-  count: number;
+/** The "DraftCombatant → ad-hoc combatant fields" mapping every commit action (Save as Troop, EncounterList's Add to Encounter, EncounterGenerator's Add to Encounter) needs — pulled out once a third call site needed the exact same object. */
+export function combatantFieldsFromDraft(d: DraftCombatant) {
+  return {
+    name: d.personalName.trim() || d.template.name,
+    initiativeModifier: d.template.initiativeModifier,
+    ac: d.template.ac,
+    maxHp: d.template.maxHp,
+    notes: '',
+    monsterTemplateId: d.template.id,
+    monsterName: d.template.name,
+  };
 }
 
 /**
- * The generate/adjust/apply-names roster-building UI shared by the
- * standalone Encounter Generator page and (embedded) the Encounter List's
- * create/edit panel — extracted once a second host needed the exact same
- * flow. Owns everything about *building* the draft roster; deliberately
- * does NOT own what happens once the GM is done with it (EncounterGenerator's
- * "Save as Troop" vs. EncounterList's "Add to Encounter") — that stays
- * host-specific, reading `draft()` via the two-way binding below.
+ * The generate/adjust roster-building UI shared by the standalone Encounter
+ * Generator page and (embedded) the Encounter List's create/edit panel —
+ * extracted once a second host needed the exact same flow. Owns everything
+ * about *building* the draft roster; deliberately does NOT own what happens
+ * once the GM is done with it (EncounterGenerator's "Save as Troop" vs.
+ * EncounterList's "Add to Encounter") — that stays host-specific, reading
+ * `draft()` via the two-way binding below. Naming a candidate is per-row
+ * only (the 🎲 `NameGeneratorButton` next to each one) — there's no bulk
+ * "name everything at once" pass; a GM generating a batch usually wants
+ * different names/tables per monster anyway, and removing/renaming
+ * individual entries is already one click each.
  */
 @Component({
   selector: 'app-monster-generator-panel',
-  imports: [FormsModule, MonsterPickerTable, NameGeneratorButton],
+  imports: [
+    FormsModule,
+    NgTemplateOutlet,
+    MonsterPickerTable,
+    NameGeneratorButton,
+    MonsterStatBlockDialog,
+  ],
   templateUrl: './monster-generator-panel.html',
   styleUrl: './monster-generator-panel.css',
 })
 export class MonsterGeneratorPanel {
   private readonly monsterStore = inject(MonsterStore);
-  protected readonly nameTableStore = inject(NameTableStore);
   private readonly toastService = inject(ToastService);
 
   // Two-way bound (model()) rather than an output — the host needs to read
@@ -60,6 +77,40 @@ export class MonsterGeneratorPanel {
   // EncounterGenerator.saveAsTroop(); a host with no such banner (EncounterList)
   // just leaves this unbound.
   readonly draftEdited = output<void>();
+
+  // Opt-in "commit to a real Encounter" UI — false/null on the standalone
+  // Encounter Generator page (which has no Encounter concept and keeps its
+  // own separate "Save as Troop" step), true + a name when EncounterList
+  // embeds this panel. Gates the "Add All to Encounter" button and each
+  // Candidates row's individual "Add to {encounterName}" button below (also
+  // switches Browse Monster List's Add from staging a Candidate to adding
+  // straight to the Encounter — see addTemplate()).
+  // encounterName is used verbatim (not suffixed with "Encounter" here) —
+  // the host already builds the full phrase (e.g. "Goblin Ambush Encounter"),
+  // since only it knows how to avoid a doubled "Untitled Encounter Encounter"
+  // for the unnamed-encounter case (see EncounterList.encounterCommitPhrase).
+  readonly showEncounterCommitActions = input(false);
+  readonly encounterName = input<string | null>(null);
+
+  // Opt-in "Generate Monsters is the star of this page" layout — true only
+  // on the standalone Encounter Generator page. Gives Generate Monsters a
+  // bigger heading and first/left position (Browse Monster List moves to a
+  // narrower second/right column at desktop widths — see the CSS grid rule
+  // under .emphasize-generate). Off by default so EncounterList's embedded
+  // panel (which already spends its own right-hand column on Encounter
+  // Preview) keeps its current Browse-then-Generate stacked layout.
+  readonly emphasizeGenerate = input(false);
+
+  // Emitted immediately on click (the host commits it to the real Encounter
+  // right away) — the row itself keeps rendering, marked via addingIds
+  // below, until its flash-green/shrink CSS animation finishes and
+  // finishAdding() actually drops it from draft. See combatant-pop-out's
+  // identical "(animationend) does the real removal" precedent in
+  // encounter-detail.css/.ts.
+  readonly addAllToEncounter = output<DraftCombatant[]>();
+  readonly addOneToEncounter = output<DraftCombatant>();
+
+  protected readonly addingIds = signal<ReadonlySet<string>>(new Set());
 
   protected readonly source = signal<MonsterSource>('5e-srd');
 
@@ -75,42 +126,9 @@ export class MonsterGeneratorPanel {
   protected readonly maxLevel = signal(3);
   protected readonly monsterCount = signal(4);
 
-  protected readonly draftGroups = computed<DraftGroup[]>(() => {
-    const groups: DraftGroup[] = [];
-    for (const d of this.draft()) {
-      const existing = groups.find((g) => g.template.id === d.template.id);
-      if (existing) existing.count++;
-      else groups.push({ template: d.template, count: 1 });
-    }
-    return groups;
-  });
-
   protected readonly allTemplatesForSource = computed(() =>
     this.monsterStore.templatesForSource(this.source()),
   );
-
-  // Name-application controls — same Set/Table picker shape as
-  // NameGenerator/CombatantFields, reused here for a bulk "fill every
-  // still-unnamed draft combatant" pass rather than a single roll.
-  protected readonly nameSetName = signal<string | null>(null);
-  protected readonly nameTableId = signal<string | null>(null);
-  protected readonly tablesForSelectedSet = computed(() => {
-    const setName = this.nameSetName();
-    return setName ? this.nameTableStore.tablesForSet(setName) : [];
-  });
-
-  constructor() {
-    // Same "the table data loads asynchronously, default-select once it
-    // arrives" pattern as NameGenerator — without this, the Set/Table
-    // selects sit empty (nothing to pick from yet) and "Generate Names"
-    // silently no-ops until the GM manually opens the Set dropdown first.
-    effect(() => {
-      const setNames = this.nameTableStore.setNames();
-      if (setNames.length > 0 && this.nameSetName() === null) {
-        this.selectNameSet(setNames[0]);
-      }
-    });
-  }
 
   protected selectSource(source: MonsterSource): void {
     this.source.set(source);
@@ -150,20 +168,8 @@ export class MonsterGeneratorPanel {
     this.setDraftFromEntries(entries);
   }
 
-  protected incrementGroup(templateId: string): void {
-    const template = this.allTemplatesForSource().find((t) => t.id === templateId);
-    if (!template) return;
+  private addTemplateInstance(template: MonsterTemplate): void {
     this.draft.update((d) => [...d, { localId: crypto.randomUUID(), template, personalName: '' }]);
-    this.draftEdited.emit();
-  }
-
-  /** Removes the last (most recently added) instance of this template — an arbitrary but simple choice; if the GM cares which specific instance goes, they can clear/remove it individually in the roster list below. */
-  protected decrementGroup(templateId: string): void {
-    this.draft.update((d) => {
-      const lastIndex = d.map((x) => x.template.id).lastIndexOf(templateId);
-      if (lastIndex === -1) return d;
-      return [...d.slice(0, lastIndex), ...d.slice(lastIndex + 1)];
-    });
     this.draftEdited.emit();
   }
 
@@ -173,32 +179,24 @@ export class MonsterGeneratorPanel {
   }
 
   protected addTemplate(template: MonsterTemplate): void {
-    this.incrementGroup(template.id);
+    if (this.showEncounterCommitActions()) {
+      // Embedded in the Encounter builder — Browse Monster List adds
+      // straight to the real Encounter, skipping Candidates entirely (only
+      // Generate Monsters populates Candidates here). The host shows its
+      // own "X added to {encounter}" toast for this (see EncounterList's
+      // onAddOneToEncounter), so no local toast here.
+      this.addOneToEncounter.emit({ localId: crypto.randomUUID(), template, personalName: '' });
+      return;
+    }
+    this.addTemplateInstance(template);
     // Browse Monster List's Add is the one action here whose result isn't
     // otherwise visible without scrolling (the table itself can be long,
-    // and Candidates/Roster render below it) — confirm it landed rather
-    // than leaving the GM to scroll down and check.
-    this.toastService.show(`Added ${template.name}`);
-  }
-
-  protected selectNameSet(setName: string): void {
-    this.nameSetName.set(setName);
-    this.nameTableId.set(this.nameTableStore.tablesForSet(setName)[0]?.id ?? null);
-  }
-
-  /** Fills every draft combatant that doesn't already have a personal name — rolls exactly as many distinct names as are needed in one pick (via NameTableStore.rollNames) rather than one at a time. */
-  protected generateNames(): void {
-    const tableId = this.nameTableId();
-    if (!tableId) return;
-    const unnamed = this.draft().filter((d) => d.personalName.trim() === '');
-    if (unnamed.length === 0) return;
-    const rolled = this.nameTableStore.rollNames(tableId, unnamed.length);
-    let i = 0;
-    this.draft.update((d) =>
-      d.map((entry) =>
-        entry.personalName.trim() === '' ? { ...entry, personalName: rolled[i++] ?? '' } : entry,
-      ),
-    );
+    // and Candidates renders below it) — confirm it landed rather than
+    // leaving the GM to scroll down and check. Worded "to Candidates" (not
+    // just "Added X") since landing in draft doesn't mean it's in a real
+    // Encounter — this only ever runs on the standalone Encounter Generator
+    // page, which has no Encounter to add to (see the branch above).
+    this.toastService.show(`Added ${template.name} to Candidates`);
   }
 
   protected setPersonalName(localId: string, name: string): void {
@@ -209,5 +207,35 @@ export class MonsterGeneratorPanel {
 
   protected label(template: MonsterTemplate): string {
     return monsterDifficultyLabel(template);
+  }
+
+  private readonly statBlockDialog = viewChild.required<MonsterStatBlockDialog>('statBlockDialog');
+
+  protected openStatBlock(template: MonsterTemplate): void {
+    this.statBlockDialog().openFor(template);
+  }
+
+  /** "Add All to Encounter" — commits every current Candidates row, each playing its own flash-green/shrink exit (see addingIds/finishAdding). */
+  protected addAllToEncounterClicked(): void {
+    const entries = this.draft();
+    if (entries.length === 0) return;
+    this.addAllToEncounter.emit(entries);
+    this.addingIds.set(new Set(entries.map((d) => d.localId)));
+  }
+
+  protected addOneToEncounterClicked(entry: DraftCombatant): void {
+    this.addOneToEncounter.emit(entry);
+    this.addingIds.update((ids) => new Set(ids).add(entry.localId));
+  }
+
+  /** (animationend) handler — the flash-green/shrink CSS animation has finished, so this is what actually drops the row from draft, same "(animationend) does the real removal" precedent as combatant-pop-out/finishPopOut in encounter-detail.css/.ts. */
+  protected finishAdding(localId: string): void {
+    if (!this.addingIds().has(localId)) return;
+    this.draft.update((d) => d.filter((x) => x.localId !== localId));
+    this.addingIds.update((ids) => {
+      const next = new Set(ids);
+      next.delete(localId);
+      return next;
+    });
   }
 }

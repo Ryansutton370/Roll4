@@ -304,6 +304,10 @@ sort by CR/Level, search, or preview a stat block before picking.
         first commit. `EncounterStore.addAdHocCombatant` now returns the
         created `Combatant` so the effect can track/update/remove it again
         by id without a separate lookup.
+        **Superseded in Phase 2.9** — a real "not yet in the Encounter"
+        Candidates state (needed for the new Encounter Preview panel) isn't
+        representable by a live-sync effect, so this went back to an
+        explicit commit step. See Phase 2.9 below.
   - [x] `MonsterGeneratorPanel` reordered so **Browse Monster List** is
         always visible (previously nested inside the Candidates section,
         only reachable after clicking Generate once) and sits above
@@ -335,7 +339,216 @@ sort by CR/Level, search, or preview a stat block before picking.
         the roster row's already-inline-editable name field, same as any
         hand-entered NPC. See [PRODUCT.md](./PRODUCT.md) section 1.
 
-## Phase 3 — GM Accounts + Real Persistence
+## Phase 2.9 — New Encounter Redesign (complete)
+
+Still local-storage only. Opened once the New Encounter builder had grown
+enough sections (Party/Troop pulls, an unheaded source toggle, Browse
+Monster List, Generate Monsters, a flat always-editable Combatants list)
+that it read as a pile of features rather than one coherent flow, and the
+Combatants list looked nothing like the run-phase screen a GM spends the
+rest of their time on.
+
+- [x] `MonsterGeneratorPanel` gained a heading + short explanation wrapping
+      the source toggle/Browse Monster List/Generate Monsters ("Monsters"),
+      and each Roster row gained an eye icon (`MonsterStatBlockDialog`,
+      same pattern as `MonsterPickerTable`'s) — on both hosts, since they
+      share the component.
+- [x] Reverted the Phase 2.8 live-sync effect (see that phase's note above)
+      in favor of an explicit commit step: two new opt-in
+      inputs/outputs (`showEncounterCommitActions`/`encounterName`,
+      `addAllToEncounter`/`addOneToEncounter`) render an **Add All to
+      Encounter** button plus each Roster row's individual **Add to
+      Encounter** button, gated off (and so invisible/inert) on the
+      standalone Encounter Generator page. Committing a row plays a
+      flash-green/shrink CSS animation before it's actually removed from
+      `draft`, `(animationend)`-driven same as `combatant-pop-out`/
+      `finishPopOut` in `encounter-detail.css`/`.ts` — see
+      [ARCHITECTURE.md](./ARCHITECTURE.md)'s fifth precedent.
+- [x] New `EncounterPreviewPanel` (`src/app/shared/encounter-preview-panel/`)
+      replaces the old flat, always-editable Combatants list — a live
+      preview of the Encounter being built using the exact same
+      `CombatantBubble` UI as the run-phase screen, in the same right-hand
+      column "Saved Encounters" used to occupy (swapped in while the
+      builder panel is open, rather than shown side by side with it).
+      `CombatantBubble` gained a `previewMode` input for this third usage
+      context — see [ARCHITECTURE.md](./ARCHITECTURE.md)'s seventh/eighth
+      precedents for both components' design.
+- [x] Docs updated: [PRODUCT.md](./PRODUCT.md) section 2 rewritten for the
+      new Monsters/Candidates/Encounter Preview shape;
+      [ARCHITECTURE.md](./ARCHITECTURE.md)'s live-sync rationale replaced
+      with why an explicit commit step came back.
+- [x] Follow-on polish pass, after using the above in practice:
+  - [x] Party/Troop checkboxes apply immediately (materializing the
+        Encounter and pulling members in on the spot, via
+        `setEncounterParties`/`setEncounterTroops`) instead of staying
+        staged until a submit that no longer exists — see the next bullet.
+  - [x] Removed the **Update Encounter**/Create Encounter submit button
+        entirely — every field in the panel (name, Party/Troop, Add
+        Combatant, Candidates commits) already applies immediately, so
+        there was nothing left for a submit to do. A single **Done** button
+        just closes the panel back onto Saved Encounters. Typing a name
+        after materialization renames the real Encounter live too (a blank
+        name doesn't blank the stored one, same "don't flicker mid-edit"
+        reasoning `encounterCommitPhrase` already used for the doubled-word
+        case).
+  - [x] Browse Monster List's Add, embedded in the builder specifically,
+        now adds straight to the real Encounter instead of staging a
+        Candidate — `MonsterGeneratorPanel.addTemplate()` branches on
+        `showEncounterCommitActions()` (unaffected on the standalone
+        Encounter Generator page, which has no Encounter to add to and
+        keeps the Candidates-staging behavior).
+  - [x] Candidates and Roster merged into one **Candidates** section (the
+        grouped "x3" count-adjuster view is gone — Generate's output is
+        per-instance rows only, on both hosts, matching what Roster already
+        did) — see [ARCHITECTURE.md](./ARCHITECTURE.md) for why this is a
+        shared-component change, not embedded-builder-only.
+  - [x] `CombatantBubble` gained a `[drawer-extra-action]` content-projection
+        slot so `EncounterPreviewPanel` could move "Save to Roster" into the
+        expansion drawer (positioned above Delete) instead of a sibling row
+        below the bubble — see [ARCHITECTURE.md](./ARCHITECTURE.md)'s ninth
+        precedent.
+  - [x] Encounter Preview's Initiative badge shows the signed Initiative
+        Modifier (previewMode only) instead of "N/A", since a modifier is
+        meaningful pre-Roll and "N/A" wasn't.
+  - [x] `EditCombatantDialog` widened (28rem → 40rem) — `CombatantFields`
+        assumes roughly a 700px column to lay its 5 fields out on one line
+        (see its own CSS comment), and 28rem was well short of that.
+- [x] Second follow-on polish pass:
+  - [x] Removed the bulk "Apply Names" pass from `MonsterGeneratorPanel`
+        entirely (Set/Table dropdowns + "Generate Names") — naming a
+        Candidate is per-row only now (the 🎲 next to each one), on both
+        hosts. `NameTableStore` is no longer injected by
+        `MonsterGeneratorPanel` itself; its data load is now triggered
+        lazily, the first time a Candidates row's `NameGeneratorButton`
+        actually renders.
+  - [x] "Add All to Encounter" moved from beside the "Candidates" heading to
+        below the candidate list, after every row.
+  - [x] `EncounterList`'s "+ Add Combatant" renamed to **"+ Add Individual
+        Combatant"** and moved above the Monsters section (a peer to the
+        Party/Troop pulls and Monsters, not something tucked below them),
+        with a plain `<hr class="panel-divider">` between each of the
+        panel's sections (Party/Troop, Add Individual Combatant, Monsters,
+        Done) for a subtle visual break.
+  - [x] `EncounterPreviewPanel`'s "Save to Roster" button relabeled
+        **"Save to Players"**/**"Save to NPCs"** (matching `combatant.type`)
+        with a save/floppy-disk icon, and repositioned above Delete in the
+        drawer via the `[drawer-extra-action]` slot moving inside
+        `.drawer-actions` itself (previously a separate footer row below
+        both `.drawer-checkboxes` and `.drawer-actions`) — see
+        [ARCHITECTURE.md](./ARCHITECTURE.md)'s ninth precedent.
+  - [x] Verified (not a bug after all): Encounter Preview's AC/HP/Notes/View
+        Stat Block/Initiative columns already line up pixel-for-pixel
+        across every bubble regardless of which fields any one combatant
+        has set, via the same fixed-width `.stat` columns
+        (`combatant-bubble.css`) the run-phase screen has always used —
+        confirmed live with a mix of a Player (no AC/HP/stat-block) and
+        NPCs (full stats) in the same list.
+- [x] Third follow-on polish pass: `EncounterDetail`'s pre-Roll setup-phase
+      Combatants list (`/encounters/:id`, before the first Roll) replaced
+      its own hand-duplicated combatant row (read-only AC/HP/Notes/View
+      Stat Block markup, a bare Initiative Modifier `<input>`, no Edit Info)
+      with the same `<app-combatant-bubble [previewMode]="true">` usage
+      `EncounterPreviewPanel` uses — a GM now sees the identical bubble,
+      column layout, and drawer (Edit Info, View Stat Block, Save to
+      Players/Save to NPCs, Mark Absent/Delete) whether they're still
+      building the Encounter or have just opened it to run — see
+      [ARCHITECTURE.md](./ARCHITECTURE.md)'s tenth precedent. Deleted a
+      large block of now-dead duplicated CSS/TS
+      (`.setup-list-header`/`.modifier-input`/`.stat`/`.badge-icon`/
+      `.icon-badge-btn`/etc., `setCombatantModifier`/`hasNotes`/
+      `setupHpPercent`/`setupHpHue`) in the process. **Roll Initiative**
+      also moved from the bottom of the setup section to the top (above the
+      Combatants list) and got noticeably bigger/bolder, since it's the one
+      thing a GM opening an unstarted Encounter is ultimately there to do.
+
+## Phase 2.10 — Encounter Generator → Encounters bridge + layout (complete)
+
+Still local-storage only. Opened after two requests on the standalone
+Encounter Generator page (`/generators/encounter`): generated monsters could
+only reach a real Encounter via a Save as Troop detour (Troop → `/encounters`
+→ pull it in), and Generate Monsters (the primary "build me a roster"
+action) read as equal-or-lower priority than Browse Monster List (a
+secondary manual picker) — same heading size, Browse listed first.
+
+- [x] **Add to Encounter**: a new action beside Save as Troop — a dropdown
+      of existing Encounters (plus a default "+ New Encounter") and an Add
+      to Encounter button that adds every Candidate as a Combatant on the
+      picked (or newly created) Encounter in one step, then navigates to
+      `/encounters?edit=<id>` so the GM lands with that Encounter's
+      setup/edit panel already open. `EncounterList` gained a new
+      `openForEncounterId` input (aliased to the `edit` query param via the
+      already-configured `withComponentInputBinding()` in `app.config.ts` —
+      the same router-input mechanism used elsewhere for path params, here
+      applied to a query param instead) and a constructor `effect()` that
+      opens the panel for that Encounter, then clears the query param so a
+      refresh/back-navigation doesn't re-trigger it.
+- [x] `combatantFieldsFromDraft` (`monster-generator-panel.ts`) — the
+      "`DraftCombatant` → ad-hoc combatant fields" mapping was independently
+      duplicated in `EncounterGenerator.saveAsTroop` and
+      `EncounterList.addDraftAsCombatant`; pulled out once Add to Encounter
+      needed the same mapping a third time.
+- [x] `MonsterGeneratorPanel` gained an opt-in `emphasizeGenerate` input
+      (true only on the standalone Encounter Generator page): Generate
+      Monsters gets a bigger heading and renders first/left; Browse Monster
+      List moves to a plain-size second/right column at desktop widths
+      (`main:has(.emphasize-generate)` widens the page past its normal
+      700px cap the same way `.hold-panel`/`.encounters-layout` already do).
+      DOM order (not just visual order) swaps too, via each section living
+      behind an `<ng-template>` and being stamped out via `ngTemplateOutlet`
+      in whichever order the flag picks — keeps keyboard tab order matching
+      what's visually first, which a CSS-only `order` reshuffle wouldn't.
+      `EncounterList`'s embedded copy leaves the input unset, keeping its
+      original Browse-then-Generate stacked layout (that panel's own
+      right-hand column is already spent on Encounter Preview).
+
+## Phase 2.11 — Combat Thesaurus Generator (complete)
+
+Still local-storage only. A fifth Random Generators tab page, requested
+alongside Wild Magic/Treasure back in Phase 2.6 but not built until now.
+
+- [x] **Combat Thesaurus Generator** (`/generators/combat-thesaurus`): rolls
+      a flavor verb for narrating a combat action, across six GM-provided
+      categories — Blade, Blunt, Defense, Impairment, Magic, Range (see
+      [DATA_MODEL.md](./DATA_MODEL.md)'s `CombatThesaurusTable`) — same
+      no-external-source-document situation as Treasure, so
+      `combat-thesaurus.json` has been hand-edited from the start with no
+      import script. Same count/roll/copy-any-result mechanic as the Wild
+      Magic/Treasure pages, but the category picker is a row of hand-drawn
+      icon buttons (one SVG per category) instead of a `<select>`, since
+      showing each category's icon was the point of the request. Range
+      (a bullseye/target icon) was added after the other five, once the GM
+      wanted a sixth category for thrown/ranged attacks.
+- [x] Populate each category's `entries` — GM-provided, 29 verbs each for
+      Blade, Blunt, Defense, Impairment, Magic, and Range.
+- [x] Icon iteration: Impairment's icon changed twice after the initial two
+      overlapping circles read as an infinity symbol rather than
+      "impairment" — a wavy-line tornado tried next read as a wifi/signal
+      icon at button size, so it landed on a solid blood drop instead.
+
+## Phase 2.12 — Combat Thesaurus in the run-phase "+" menu (complete)
+
+Still local-storage only. The standalone Combat Thesaurus page (Phase 2.11)
+meant leaving the Encounter screen mid-combat to roll a flavor verb —
+opened once the GM wanted it reachable from the run-phase "+" menu instead.
+
+- [x] `CombatThesaurusPicker` (`src/app/shared/combat-thesaurus-picker/`)
+      extracted from `CombatThesaurusGenerator`'s entire template (the
+      category-row/count/roll/copy-any-result UI) — see
+      [ARCHITECTURE.md](./ARCHITECTURE.md)'s eleventh precedent.
+      `CombatThesaurusGenerator` now just wraps it with page chrome
+      (`<h1>`, intro, `GeneratorDisclaimer`).
+- [x] `CombatThesaurusDialog` (`src/app/shared/combat-thesaurus-dialog/`):
+      a native `<dialog>` embedding `CombatThesaurusPicker`, opened via
+      `EncounterDetail.openCombatThesaurusDialog()` — same
+      open()/close()/onOverlayClick shape as `MonsterStatBlockDialog`
+      (dismissed via × or clicking outside it).
+- [x] The run-phase "+" menu (`EncounterDetail`'s `turn-controls`) gained a
+      third option, **Combat Thesaurus**, alongside **Add Timer**/**Add
+      Combatant** — each now with its own icon (a plus-sign glyph for the
+      first two, a small open-book glyph for Combat Thesaurus). The
+      trigger button itself changed from a literal **+** to a
+      vertical-ellipsis (⋮) icon, since a single "+" no longer described a
+      menu with a non-"add" option in it.
 
 - [ ] Choose a backend (see [ARCHITECTURE.md](./ARCHITECTURE.md) — deferred
       on purpose until this phase).
@@ -343,6 +556,13 @@ sort by CR/Level, search, or preview a stat block before picking.
 - [ ] Migrate Players/NPCs/Parties/Troops/Encounters from browser storage to
       the backend, scoped per-GM.
 - [ ] Data accessible from more than one device/browser.
+- [ ] Account preferences: a GM-level settings page, starting with a
+      preferred source book (D&D 5e SRD vs. Shadowdark — the same two
+      sources as the Encounter Generator/From Book/Random Generators —
+      more sources may be added later). The preferred source should be
+      selected by default anywhere a source toggle appears (Encounter
+      Generator, `AddCombatantDialog`'s From Book step, NPC roster's
+      Browse Monster List), rather than the GM re-selecting it every time.
 
 ## Phase 4 — Player Role
 
@@ -352,6 +572,39 @@ sort by CR/Level, search, or preview a stat block before picking.
       entering it.
 - [ ] Turn notification: a Player gets notified when their PC becomes the
       Active combatant.
+
+## Known issues (fixed)
+
+- **Pre-Roll Combatants list: bubble columns didn't align.** ~~Reported as
+  "generated NPCs specifically don't align," but the live repro (2026-07-22,
+  `getBoundingClientRect()` on each `.stat` column comparing a Browsed NPC
+  against a Generated one) showed the real trigger is name *length*, not
+  the source: the `<li>` wrapping each bubble in both `EncounterDetail`'s
+  setup-phase Combatants list and `EncounterPreviewPanel` carried a stray
+  `entry` class (`class="bubble entry preview-combatant"`) left over from
+  copying the flat single-line row markup those two components used before
+  Phase 2.9. `.entry` sets `display: flex` on the `<li>` — combined with
+  `<app-combatant-bubble>` having no explicit `:host` display (so its block
+  child `.combatant-row` becomes a direct flex item once the `<li>` is a
+  flex container), that made `.combatant-row` shrink-wrap to its own
+  content width instead of stretching to the full row, so `.combatant-name`
+  (the only `flex-grow` child) never had real free space to fill and just
+  rendered at its natural text width — shifting every fixed-width `.stat`
+  column after it left or right by however much shorter/longer that
+  particular name was. Generated NPCs stood out because a personal name +
+  `monsterSubtitle` ("Bloodfang - Giant Toad") reads much longer than a
+  Browsed NPC's bare template name ("Aboleth", no subtitle since
+  `name === monsterName`) — but a hand-typed long name would have shown the
+  same drift. The run-phase `.main-combatant`/`.held-bubble` `<li>`s never
+  had the `entry` class, which is why that screen was never affected.~~
+  **Fix:** dropped `entry` from both `<li>`s' class lists (they don't need
+  its `display: flex`/`gap` — `.combatant-row` inside `CombatantBubble`
+  already handles its own internal layout); verified with
+  `getBoundingClientRect()` (columns now land at identical `left` offsets
+  regardless of name length) and visually at desktop and 375px mobile
+  widths. See [[feedback_combatant_bubble_never_deforms]] — same standing
+  "never deforms" rule, one layer up (the bubble's *container*, not the
+  bubble's own CSS, was at fault this time).
 
 ## Backlog — future ideas (not yet phased)
 

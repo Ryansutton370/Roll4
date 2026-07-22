@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { CombatThesaurusGenerator } from './pages/combat-thesaurus-generator/combat-thesaurus-generator';
 import { EncounterDetail } from './pages/encounter-detail/encounter-detail';
 import { EncounterGenerator } from './pages/encounter-generator/encounter-generator';
 import { EncounterList } from './pages/encounter-list/encounter-list';
@@ -51,6 +52,7 @@ export const routes: Routes = [
       { path: 'encounter', component: EncounterGenerator },
       { path: 'wild-magic', component: WildMagicGenerator },
       { path: 'treasure', component: TreasureGenerator },
+      { path: 'combat-thesaurus', component: CombatThesaurusGenerator },
     ],
   },
 ];

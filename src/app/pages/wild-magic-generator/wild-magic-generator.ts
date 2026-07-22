@@ -22,7 +22,11 @@ export class WildMagicGenerator {
   protected readonly wildMagicStore = inject(WildMagicStore);
 
   protected readonly selectedTableId = signal<string | null>(null);
-  protected readonly rollCount = signal(1);
+  // Matches NameGeneratorButton's hardcoded 6 (the inline 🎲 popover on
+  // every Player/NPC Name field) — same default roll count across every
+  // Random Generators page except Encounter Generator, just GM-adjustable
+  // via the Count input below instead of fixed.
+  protected readonly rollCount = signal(6);
   protected readonly rolledEntries = signal<string[]>([]);
   protected readonly copiedIndex = signal<number | null>(null);
 

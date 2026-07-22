@@ -119,6 +119,20 @@ exactly and nothing else. The "Parties" link is left at the default prefix
 match on purpose, since it _should_ stay highlighted for both
 `/players/parties` and `/players/parties/:partyId`.
 
+**Deep-linking into a page's local UI state via a query param:** the
+Encounter Generator's "Add to Encounter" action (see PRODUCT.md section 12)
+needs to land the GM on `/encounters` with one specific Encounter's edit
+panel already open — state `EncounterList` only ever tracked locally
+(`editingEncounterId`, opened via `startEdit()`), with no route of its own.
+Rather than invent a new dedicated route/component just for this one
+entry point, `EncounterList` gained an `openForEncounterId` input aliased
+to a `?edit=<id>` query param — the same `withComponentInputBinding()`
+already configured in `app.config.ts` for path params (see above) binds
+query params too, so this needed no new router wiring, just a new input. A
+constructor `effect()` reads it, calls the existing `startEdit()` if the
+Encounter exists, then clears the param via an empty `router.navigate()` so
+a refresh or back-navigation doesn't reopen the panel from a stale link.
+
 ## Testing approach
 
 Use Vitest (already configured by the CLI) for unit tests on:
@@ -240,16 +254,28 @@ the first non-scalar `model()` use in this codebase (every prior use, e.g.
 itself (the standalone page's "Saved!" banner needs to disappear the
 moment the roster is touched again; a plain `effect()` watching `draft()`
 would misfire here, since `saveAsTroop()` itself clears `draft` right
-after showing that banner). The two hosts' "what happens when I'm done"
-ended up genuinely different in kind, not just in target: the standalone
-page still requires an explicit **Save as Troop** click (troop-name input
-
-- button, outside the component), while `EncounterList` dropped its own
-  initial "+ Add These to Encounter" button in favor of a host-side
-  `effect()` that live-syncs `draft` straight to real Combatants as the GM
-  builds it — see the "Encounter Builder Consolidation" phase's follow-on
-  bullets in [ROADMAP.md](./ROADMAP.md) for why a live sync fit that host
-  better than a second manual commit step.
+after showing that banner). Both hosts now end up with an explicit commit
+step, just a different one: the standalone page still requires **Save as
+Troop** (troop-name input + button, outside the component), while
+`EncounterList` gets two new opt-in inputs/outputs
+(`showEncounterCommitActions`/`encounterName`, `addAllToEncounter`/
+`addOneToEncounter`) that render an **Add All to Encounter** button plus a
+per-Roster-row individual **Add to Encounter** button inside the component
+itself (gated behind `showEncounterCommitActions()` so the standalone page,
+which never passes it, is unaffected). This replaced an earlier design
+(Phase 2.8) where `EncounterList` instead ran a host-side `effect()` that
+live-synced `draft` straight to real Combatants with no button at all — that
+fit the "Encounter Preview" a GM sees while building had to distinguish
+"still just a candidate" from "actually in the Encounter," which a live-sync
+effect can't represent (everything in `draft` was already a real Combatant
+the instant it existed). Each commit method marks the affected Roster
+row(s) with a CSS class that plays a flash-green/shrink animation;
+`(animationend)` is what actually removes the row from `draft` (same
+"`(animationend)` does the real removal" precedent as
+`combatant-pop-out`/`finishPopOut` in `encounter-detail.css`/`.ts`, two
+independent components landing on the same trick for the same reason: a
+CSS animation needs to finish before the DOM node it's animating can
+safely disappear).
 
 **A sixth precedent, splitting attribution text out from the component
 that first needed it:** `MonsterCredits` (`src/app/shared/monster-credits/`)
@@ -275,3 +301,105 @@ components down, not just the immediate host's own; scope selectors by an
 explicit class on the element you actually mean rather than relying on
 `:not()`-style exclusion once a form embeds rich nested components like
 these.
+
+**A seventh precedent, splitting out a whole rendered list rather than one
+row's markup:** `EncounterPreviewPanel`
+(`src/app/shared/encounter-preview-panel/`) is the New Encounter builder's
+live preview of what's actually been added — same "template growing
+unwieldy" justification as the original `CombatantBubble` extraction, one
+level up (a bubble list + drawer/dialog wiring, not just one row). Unlike
+`CombatantBubble` (which stays a dumb "child reports, parent decides"
+component with no injected stores), `EncounterPreviewPanel` is
+self-contained like `MonsterGeneratorPanel`: it injects `EncounterStore`/
+`PartyStore`/`NpcStore`/`MonsterStore` directly and owns its own
+`EditCombatantDialog`/`MonsterStatBlockDialog`/`NotesDialog` instances,
+rather than the host (`EncounterList`) passing everything down and wiring
+every dialog itself — the host only ever hands it an `encounterId`. This
+reuses `CombatantBubble` itself (not a copy) so the pre-Roll preview gets
+the exact same never-wraps/truncates-by-rendered-width behavior the
+run-phase screen already relies on (see the `CombatantBubble` file header
+and CLAUDE.md's standing rule) — including its own
+`container-type: inline-size` on the wrapping `<li>`, the same mechanism
+`.main-combatant`/`.held-bubble` use in `encounter-detail.css`, since this
+is a third, independently-narrow usage context for the same component.
+
+**An eighth precedent, growing `CombatantBubble` for a third host instead of
+copying it:** the same component now takes a `previewMode` input (used only
+by `EncounterPreviewPanel` above) that swaps its drawer's Hold Action/
+Incapacitated/Create Timer/Removed-from-Combat controls (none of which make
+sense before Roll Initiative) for a reduced set — Edit Info and, depending
+on `combatant().type`, either a relabeled "Mark Absent" checkbox (Player,
+same underlying flag as Removed from Combat) or a new `deleteRequested`
+output wired to a Delete button (NPC). The change is confined to the
+drawer's already-conditional inner content, not `.combatant-row` itself, so
+the collapsed-row width/squish behavior CLAUDE.md's standing rule governs
+is untouched in principle — but a new usage context (a narrower preview-
+panel column) still needs a live check under that rule rather than assuming
+the drawer-only change makes it exempt.
+
+**A ninth precedent, a content-projection slot for drawer content
+`CombatantBubble` doesn't need to understand:** `EncounterPreviewPanel`'s
+"Save to Players"/"Save to NPCs" button + Party/Troop picker (creating a
+library Player/NPC from an ad-hoc Combatant) needed to live in the
+expansion drawer, positioned above Delete, but it's specific to the
+pre-Roll builder — `CombatantBubble` shouldn't need to know about
+`PartyStore`/`NpcStore` just to host it. Same `[leading-control]`
+content-projection pattern `CombatantBubble` already used for the drag
+handle, one level down: a `<ng-content select="[drawer-extra-action]">`
+placed inside `.drawer-actions` itself, directly before the (previewMode +
+NPC only) Delete button — not a separate full-width row after
+`.drawer-actions`/`.drawer-checkboxes` (an earlier version of this slot,
+`[drawer-footer]`, did that, but the projected content's *position*
+relative to Delete matters here, and `.drawer-actions`'s own
+`flex-direction: column` already lays out whatever's projected into it in
+document order — no separate footer row needed). `EncounterPreviewPanel`
+projects its Save to Roster markup into it (wrapped in an `@if`, which
+doesn't block Angular's content-projection matching). The projected markup
+is still styled from `EncounterPreviewPanel`'s own stylesheet, not
+`combatant-bubble.css` — the same view-encapsulation rule as ever (a
+component's styles apply to elements authored in *its own* template,
+regardless of where they end up rendered) — so its "look like a drawer
+action button" styling (plus the save/floppy-disk icon) is written out by
+value in `encounter-preview-panel.css` rather than sharing
+`.drawer-action-btn`'s class name, which would resolve to nothing there.
+
+**A tenth precedent, retiring a hand-duplicated row once the real component
+could just be reused directly:** `EncounterDetail`'s own pre-Roll setup-phase
+Combatants list used to be a completely separate, hand-duplicated rendering
+of a combatant row (its own AC/HP/Notes/View-Stat-Block markup and CSS,
+predating `previewMode`) rather than `<app-combatant-bubble>` — reasonable
+when it was written (the run-phase-only concepts `previewMode` now hides
+didn't have an off switch yet), but it meant a GM saw a visibly different,
+less capable row (no Edit Info, no inline AC/HP editing) the moment they
+opened an Encounter they'd just finished building in Encounter Preview.
+Once `previewMode` existed (see the eighth precedent above), replacing that
+hand-duplicated markup with the same `<app-combatant-bubble [previewMode]>`
+usage `EncounterPreviewPanel` already uses — wired to `EncounterDetail`'s own
+existing dialogs/store calls (`openEditDialog` etc.), not by embedding
+`EncounterPreviewPanel` itself, which would've meant a second, duplicate set
+of Edit/Notes/StatBlock dialog instances on one page — deleted a large block
+of duplicated markup/CSS in favor of the real component, and gave the setup
+phase a capability it never had (renaming/editing AC/HP via Edit Info; the
+old row was read-only apart from a bare Initiative Modifier `<input>`).
+`CombatantBubble` is now used in four contexts total: the run-phase main
+list, the Hold Action panel, `EncounterPreviewPanel`, and this setup-phase
+list — one more reason `previewMode`'s changes stay confined to the
+drawer's *already-conditional* content rather than touching `.combatant-row`
+itself (see the eighth precedent's note on the CLAUDE.md standing rule).
+
+**An eleventh precedent, a routed page and a modal dialog sharing one
+picker component — the same shape as the fifth precedent above, one page
+smaller:** `CombatThesaurusPicker`
+(`src/app/shared/combat-thesaurus-picker/`) is the category-row/count/roll/
+copy-any-result UI that used to be `CombatThesaurusGenerator`'s entire
+template — pulled out once `CombatThesaurusDialog` (opened from
+`EncounterDetail`'s run-phase "+" menu, for rolling a verb mid-combat
+without leaving the Encounter screen) needed the identical picker a second
+time. `CombatThesaurusGenerator` (the full Random Generators page) kept only
+its own page chrome (`<h1>`, intro paragraph, `GeneratorDisclaimer`) around
+`<app-combat-thesaurus-picker>`; `CombatThesaurusDialog` wraps the same tag
+in a native `<dialog>` with a title/close-button header, following
+`MonsterStatBlockDialog`'s open()/close()/onOverlayClick shape rather than
+`MonsterGeneratorPanel`'s two-way-`model()` shape — this picker owns its
+data outright (loaded from `CombatThesaurusStore`) instead of taking it from
+a host, so there's no draft/commit split for either host to manage.

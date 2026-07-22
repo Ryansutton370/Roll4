@@ -1,27 +1,24 @@
-<div class="source-toggle" role="group" aria-label="Sourcebook">
-  <button type="button" [class.active]="source() === '5e-srd'" (click)="selectSource('5e-srd')">
-    D&amp;D 5e SRD
-  </button>
-  <button
-    type="button"
-    [class.active]="source() === 'shadowdark'"
-    (click)="selectSource('shadowdark')"
-  >
-    Shadowdark
-  </button>
-</div>
+<!-- Browse Monster List and Generate Monsters each live behind an
+     ng-template so they can be rendered in either DOM order below (real
+     order, not just a CSS `order` reshuffle — that would desync tab order
+     from what's visually first) depending on emphasizeGenerate(), without
+     duplicating either section's markup. ngTemplateOutlet stamps a
+     <ng-template>'s content out wherever it's referenced, same idea as a
+     function you can call from two spots. -->
+<ng-template #browseSection>
+  <section class="browse-section">
+    <h3>Browse Monster List</h3>
+    <app-monster-picker-table
+      [source]="source()"
+      [templates]="allTemplatesForSource()"
+      (addTemplate)="addTemplate($event)"
+    />
+  </section>
+</ng-template>
 
-<section class="browse-section">
-  <h2>Browse Monster List</h2>
-  <app-monster-picker-table
-    [source]="source()"
-    [templates]="allTemplatesForSource()"
-    (addTemplate)="addTemplate($event)"
-  />
-</section>
-
-<section class="generate-section">
-  <h2>Generate Monsters</h2>
+<ng-template #generateSection>
+  <section class="generate-section">
+    <h3>Generate Monsters</h3>
   @if (source() === '5e-srd') {
     <p class="section-note">
       Generates a candidate list whose total adjusted XP targets the chosen difficulty, using the
@@ -97,79 +94,103 @@
       </label>
       <button type="button" (click)="generate()">Generate</button>
     </div>
+    }
+  </section>
+</ng-template>
+
+<section class="monsters-section" [class.emphasize-generate]="emphasizeGenerate()">
+  <div class="monsters-header">
+    <h2>Monsters</h2>
+    <p class="section-note">
+      Choose which monster compendium to draw from — it controls both the list you can browse below
+      and how Generate Monsters builds a roster.
+      @if (showEncounterCommitActions()) {
+        Browsing adds a monster straight to your encounter; Generate Monsters builds a batch of
+        Candidates for you to review, name, and add from below.
+      } @else {
+        Anything you add lands in Candidates, ready to add to your encounter.
+      }
+    </p>
+    <div class="source-toggle" role="group" aria-label="Sourcebook">
+      <button type="button" [class.active]="source() === '5e-srd'" (click)="selectSource('5e-srd')">
+        D&amp;D 5e SRD
+      </button>
+      <button
+        type="button"
+        [class.active]="source() === 'shadowdark'"
+        (click)="selectSource('shadowdark')"
+      >
+        Shadowdark
+      </button>
+    </div>
+  </div>
+
+  @if (emphasizeGenerate()) {
+    <ng-container [ngTemplateOutlet]="generateSection" />
+    <ng-container [ngTemplateOutlet]="browseSection" />
+  } @else {
+    <ng-container [ngTemplateOutlet]="browseSection" />
+    <ng-container [ngTemplateOutlet]="generateSection" />
   }
 </section>
 
 @if (draft().length > 0) {
   <section class="candidates">
     <h2>Candidates</h2>
-    <ul class="group-list">
-      @for (group of draftGroups(); track group.template.id) {
-        <li class="group-row">
-          <span class="group-name">{{ group.template.name }}</span>
-          <span class="group-difficulty">{{ label(group.template) }}</span>
-          <div class="group-count">
-            <button
-              type="button"
-              (click)="decrementGroup(group.template.id)"
-              aria-label="Remove one"
-            >
-              −
-            </button>
-            <span>{{ group.count }}</span>
-            <button type="button" (click)="incrementGroup(group.template.id)" aria-label="Add one">
-              +
-            </button>
-          </div>
-        </li>
-      }
-    </ul>
 
-    <h2>Apply Names</h2>
-    <p class="section-note">
-      Rolls a name for every monster below that doesn't already have one — same tables as the Random
-      Generators tab. Unnamed monsters just display as their creature type (e.g. "Goblin").
-    </p>
-    <div class="generate-row">
-      <label>
-        Set
-        <select [ngModel]="nameSetName()" (ngModelChange)="selectNameSet($event)">
-          @for (setName of nameTableStore.setNames(); track setName) {
-            <option [value]="setName">{{ setName }}</option>
-          }
-        </select>
-      </label>
-      <label>
-        Table
-        <select [ngModel]="nameTableId()" (ngModelChange)="nameTableId.set($event)">
-          @for (table of tablesForSelectedSet(); track table.id) {
-            <option [value]="table.id">
-              {{ table.tableName
-              }}{{ table.gender === 'male' ? ' (M)' : table.gender === 'female' ? ' (F)' : '' }}
-            </option>
-          }
-        </select>
-      </label>
-      <button type="button" (click)="generateNames()">Generate Names</button>
-    </div>
-
-    <h2>Roster</h2>
-    <ul class="roster-list">
+    <!-- One row per instance (multiples of the same monster, e.g. 3
+         Goblins, show as three separate rows here rather than one grouped
+         "x3" row) — each independently nameable/removable. -->
+    <ul class="candidate-list">
       @for (d of draft(); track d.localId) {
-        <li class="roster-row">
-          <span class="roster-type">{{ d.template.name }}</span>
+        <li
+          class="candidate-row"
+          [class.adding]="addingIds().has(d.localId)"
+          (animationend)="finishAdding(d.localId)"
+        >
+          <span class="candidate-type">{{ d.template.name }}</span>
+          <span class="candidate-difficulty">{{ label(d.template) }}</span>
           <input
             type="text"
-            class="roster-name"
+            class="candidate-name"
             placeholder="(no personal name)"
             [ngModel]="d.personalName"
             (ngModelChange)="setPersonalName(d.localId, $event)"
           />
           <!-- Per-entry alternative to the bulk "Generate Names" pass above
                — lets the GM roll this one monster from a different
-               set/table than the rest of the roster, e.g. mixing a Fantasy
-               name onto one monster and a European one onto another. -->
+               set/table than the rest of the candidates, e.g. mixing a
+               Fantasy name onto one monster and a European one onto
+               another. -->
           <app-name-generator-button (nameSelected)="setPersonalName(d.localId, $event)" />
+          <button
+            type="button"
+            class="icon-btn"
+            (click)="openStatBlock(d.template)"
+            title="View {{ d.template.name }}'s stat block"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                d="M10 4.5c-4.2 0-7.75 2.9-9 5.5 1.25 2.6 4.8 5.5 9 5.5s7.75-2.9 9-5.5c-1.25-2.6-4.8-5.5-9-5.5Zm0 9.17A3.67 3.67 0 1 1 10 6.33a3.67 3.67 0 0 1 0 7.34Zm0-1.5a2.17 2.17 0 1 0 0-4.34 2.17 2.17 0 0 0 0 4.34Z"
+              />
+            </svg>
+            <span class="sr-only">View {{ d.template.name }}'s stat block</span>
+          </button>
+          @if (showEncounterCommitActions()) {
+            <button
+              type="button"
+              class="icon-btn add-one-btn"
+              (click)="addOneToEncounterClicked(d)"
+              title="Add to {{ encounterName() }}"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.58l7.3-7.28a1 1 0 0 1 1.4 0Z"
+                />
+              </svg>
+              <span class="sr-only">Add to {{ encounterName() }}</span>
+            </button>
+          }
           <button
             type="button"
             class="remove-btn"
@@ -181,5 +202,13 @@
         </li>
       }
     </ul>
+
+    @if (showEncounterCommitActions()) {
+      <button type="button" class="add-all-btn" (click)="addAllToEncounterClicked()">
+        Add All to Encounter
+      </button>
+    }
   </section>
 }
+
+<app-monster-stat-block-dialog #statBlockDialog />

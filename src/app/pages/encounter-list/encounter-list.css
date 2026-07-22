@@ -4,6 +4,18 @@ fieldset {
   flex-basis: 100%;
 }
 
+/* Subtle separators between the panel's sections (Party/Troop pulls, Add
+   Individual Combatant, Monsters, Done) — a plain <hr>, reset to a hairline
+   rather than the browser's default 3D-inset groove, and forced onto its
+   own line in .entry-form's flex-wrap row the same way fieldset is above. */
+.panel-divider {
+  flex-basis: 100%;
+  height: 0;
+  margin: 0.25rem 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
 /* Two-column layout: the New Encounter panel on the left, Saved Encounters
    on the right — mobile-first (stacked, builder above saved, matching
    reading order) with a side-by-side row only once the viewport actually
@@ -38,62 +50,6 @@ fieldset {
   }
 }
 
-/* Combatant rows in edit mode: type-dot + <app-combatant-fields> (its own
-   :host { display: contents }, see combatant-fields.css, makes its 5 fields
-   direct flex items here) + remove/mark-absent + optional Save-to-Roster.
-   flex-wrap is the fallback for the buttons/type-dot alongside
-   combatant-fields' own internal wrapping (its Name field goes full-width
-   below ~480px) — everything fits on one line at normal desktop widths. */
-.combatant-edit-entry {
-  flex-wrap: wrap;
-  /* Tighter than .entry's default 0.75rem gap — type-dot + 5
-     combatant-fields + remove + Save-to-Roster is right at the edge of
-     fitting on one line at this page's 700px content width, and every
-     column-gap saved here is what keeps it from tipping into a wrap. */
-  gap: 0.5rem;
-}
-
-/* Party members are tinted blue (same --color-pc used by the type-dot) so
-   the roster reads apart from ad-hoc NPCs at a glance, not just via the dot.
-   NPCs get the equivalent red tint, so both types are readable without
-   relying on the dot alone. */
-.pc-entry {
-  border-color: var(--color-pc);
-  background: var(--color-pc-tint);
-}
-
-.npc-entry {
-  border-color: var(--color-npc);
-  background: var(--color-npc-tint);
-}
-
-/* Active state for the "mark absent" button on a party member — a solid
-   fill (not just a tint) so it reads as clearly "on" at a glance. :hover is
-   repeated here to beat the global .icon-btn:hover tint, which would
-   otherwise wash the solid fill back out on mouseover. */
-.marked-removed,
-.marked-removed:hover {
-  background: var(--color-removed);
-  color: var(--color-surface);
-}
-
-/* Grayed-out, same treatment as a Removed-from-Combat bubble in the run
-   phase (encounter-detail.css's .combatant.removed) — placed after
-   .pc-entry so it wins on background/border-color when a removed
-   combatant is also a PC. */
-.entry-removed {
-  border-color: var(--color-removed);
-  background: var(--color-removed-tint);
-  opacity: 0.65;
-}
-
-.save-to-roster-picker {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.4rem;
-  margin-top: -0.3rem;
-}
-
 .add-combatant-btn {
   padding: 0.6rem 1.1rem;
   border: 1px solid var(--color-border);
@@ -125,5 +81,24 @@ fieldset {
 }
 
 .create-encounter-btn:hover {
+  opacity: 0.85;
+}
+
+/* The panel's sole closing action now that every field applies immediately
+   (no more "Update Encounter" submit next to it) — same solid treatment as
+   .create-encounter-btn/the global button[type='submit'], since this is
+   the primary way to finish up and return to Saved Encounters. */
+.done-btn {
+  padding: 0.6rem 1.1rem;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.done-btn:hover {
   opacity: 0.85;
 }

@@ -1,9 +1,9 @@
-/* This component's template has several top-level sibling sections (source
-   toggle, the browse-section, the generate-section, the candidates
-   <section>) meant to flow in whichever page embeds it — the standalone
-   Encounter Generator page's body, or inline inside EncounterList's own
-   .entry-form. Same CombatantFields gotcha documented in
-   docs/ARCHITECTURE.md: without this, the host tag defaults to a single
+/* This component's template has two top-level sibling sections
+   (.monsters-section — source toggle + Browse + Generate — and the
+   candidates <section>) meant to flow in whichever page embeds it — the
+   standalone Encounter Generator page's body, or inline inside
+   EncounterList's own .entry-form. Same CombatantFields gotcha documented
+   in docs/ARCHITECTURE.md: without this, the host tag defaults to a single
    opaque box instead of dissolving away. Credits/disclaimer moved out to
    their own MonsterCredits component (see monster-credits.ts) so each host
    can place it at its own true page bottom instead of wherever this panel
@@ -12,26 +12,78 @@
   display: contents;
 }
 
+.monsters-header h2 {
+  margin: 0 0 0.5rem;
+}
+
+.monsters-header .section-note {
+  margin-bottom: 1rem;
+}
+
 .source-toggle {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
-/* Browse Monster List sits above, and visually separate from, Generate
-   Monsters — its own headed section, always present (not gated behind
-   having generated a roster yet), rather than buried inside the
-   Candidates list the way the old "Add a monster" picker was. */
+/* Browse Monster List sits visually separate from Generate Monsters — its
+   own headed section, always present (not gated behind having generated a
+   roster yet), rather than buried inside the Candidates list the way the
+   old "Add a monster" picker was. The divider between the two normally
+   sits under Browse (it's first); .emphasize-generate below moves it to
+   sit under Generate instead, since that section renders first there. */
 .browse-section {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--color-border);
 }
 
-.browse-section h2,
-.generate-section h2 {
+.browse-section h3,
+.generate-section h3 {
   margin: 0 0 0.75rem;
   font-size: 1.1rem;
+}
+
+/* emphasize-generate: Generate Monsters is the star of this layout (see
+   MonsterGeneratorPanel.emphasizeGenerate) — bigger heading, first/left
+   position, with Browse Monster List demoted to a plain-size second/right
+   column at desktop widths. Only ever set on the standalone Encounter
+   Generator page. */
+.monsters-section.emphasize-generate .generate-section h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.monsters-section.emphasize-generate .browse-section {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.monsters-section.emphasize-generate .generate-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 900px) {
+  .monsters-section.emphasize-generate {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    column-gap: 2rem;
+    align-items: start;
+  }
+
+  .monsters-section.emphasize-generate .monsters-header {
+    grid-column: 1 / -1;
+  }
+
+  /* Side by side now, so the stacked-layout divider is no longer needed. */
+  .monsters-section.emphasize-generate .generate-section {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
 }
 
 .source-toggle button {
@@ -97,23 +149,65 @@
 }
 
 .candidates h2 {
-  margin-top: 2rem;
+  margin: 2rem 0 0.75rem;
   font-size: 1.1rem;
 }
 
-.group-list,
-.roster-list {
+.add-all-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-heal);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Same green "something good just happened" pair the toast/HP-heal state
+   use — a solid check rather than an outline distinguishes it at a glance
+   from the plain icon-btn's eyeball next to it. */
+.add-one-btn {
+  color: var(--color-heal);
+}
+
+.add-one-btn:hover {
+  background: var(--color-heal-tint);
+}
+
+/* Flash green, then shrink/fade out — the (animationend) handler
+   (finishAdding) is what actually removes the row from draft, same
+   precedent as .held-bubble.popping-out/combatant-pop-out in
+   encounter-detail.css. */
+@keyframes candidate-added-flash {
+  0% {
+    background: var(--color-surface);
+  }
+  35% {
+    background: var(--color-heal-tint);
+  }
+  100% {
+    background: var(--color-heal-tint);
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+.candidate-row.adding {
+  animation: candidate-added-flash 500ms ease forwards;
+  pointer-events: none;
+}
+
+.candidate-list {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
   list-style: none;
   padding: 0;
   margin: 0 0 1rem;
-  max-width: 32rem;
+  max-width: 36rem;
 }
 
-.group-row,
-.roster-row {
+.candidate-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -123,35 +217,18 @@
   background: var(--color-surface);
 }
 
-.group-name,
-.roster-type {
+.candidate-type {
   flex: 1;
   font-weight: 600;
 }
 
-.group-difficulty {
+.candidate-difficulty {
   flex-shrink: 0;
   color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
-.group-count {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.group-count button {
-  width: 1.75rem;
-  height: 1.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-control);
-  background: transparent;
-  cursor: pointer;
-}
-
-.roster-name {
+.candidate-name {
   flex: 2;
   min-width: 8rem;
   padding: 0.4rem 0.6rem;

@@ -1,0 +1,98 @@
+<h2>Encounter Preview — {{ encounterName() }}</h2>
+
+@if (combatants().length === 0) {
+  <p class="empty-state">No combatants yet.</p>
+} @else {
+  <ul class="bubble-list">
+    @for (c of combatants(); track c.id) {
+      <li
+        class="bubble preview-combatant"
+        [class.pc-entry]="c.type === 'pc'"
+        [class.npc-entry]="c.type === 'npc'"
+        [class.hp-adjusting]="isHpAdjusting(c.id)"
+      >
+        <app-combatant-bubble
+          [combatant]="c"
+          [displayName]="displayName(c.id)"
+          [expanded]="isExpanded(c.id)"
+          [isPlacing]="false"
+          [previewMode]="true"
+          (expandToggle)="toggleExpanded(c.id)"
+          (removedToggle)="toggleMarkAbsent(c.id)"
+          (editRequested)="openEditDialog(c)"
+          (viewStatBlockRequested)="openStatBlockDialog(c)"
+          (notesRequested)="openNotesDialog(c)"
+          (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
+          (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+          (deleteRequested)="deleteCombatant(c.id)"
+        >
+          <!-- Only an ad-hoc combatant (no library link) has anything to
+               save — projected into the drawer's [drawer-extra-action] slot
+               (see combatant-bubble.html), positioned above Delete, so it
+               lives in the expansion menu alongside Edit Info/Mark
+               Absent/Delete rather than as a sibling row below the bubble. -->
+          @if (!c.playerId && !c.npcId) {
+            <div drawer-extra-action class="save-to-roster-block">
+              @if (isSavingToRoster(c.id)) {
+                <p>
+                  Save "{{ c.name }}" to the {{ c.type === 'pc' ? 'Player' : 'NPC' }} roster
+                  @if (c.type === 'pc' ? parties().length > 0 : troops().length > 0) {
+                    and optionally add it to:
+                  }
+                </p>
+                @if (c.type === 'pc') {
+                  @for (party of parties(); track party.id) {
+                    <label>
+                      <input
+                        type="checkbox"
+                        [checked]="isGroupSelectedForSave(c.id, party.id)"
+                        (change)="
+                          toggleGroupSelectedForSave(c.id, party.id, $any($event.target).checked)
+                        "
+                      />
+                      {{ party.name }}
+                    </label>
+                  }
+                } @else {
+                  @for (troop of troops(); track troop.id) {
+                    <label>
+                      <input
+                        type="checkbox"
+                        [checked]="isGroupSelectedForSave(c.id, troop.id)"
+                        (change)="
+                          toggleGroupSelectedForSave(c.id, troop.id, $any($event.target).checked)
+                        "
+                      />
+                      {{ troop.name }}
+                    </label>
+                  }
+                }
+                <div class="save-to-roster-actions">
+                  <button type="button" (click)="confirmSaveToRoster(c)">Confirm</button>
+                  <button type="button" (click)="toggleSavingToRoster(c.id)">Cancel</button>
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  class="save-to-roster-btn"
+                  (click)="toggleSavingToRoster(c.id)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M5 2.5A1.5 1.5 0 0 0 3.5 4v12A1.5 1.5 0 0 0 5 17.5h10a1.5 1.5 0 0 0 1.5-1.5V6.56a1.5 1.5 0 0 0-.44-1.06l-2.56-2.56A1.5 1.5 0 0 0 12.44 2.5H5Zm1.5 1.5h6V6a1 1 0 0 1-1 1H7.5a1 1 0 0 1-1-1V4Zm-.25 6.25h9.5a.75.75 0 0 1 .75.75V16h-11v-5a.75.75 0 0 1 .75-.75Z"
+                    />
+                  </svg>
+                  {{ c.type === 'pc' ? 'Save to Players' : 'Save to NPCs' }}
+                </button>
+              }
+            </div>
+          }
+        </app-combatant-bubble>
+      </li>
+    }
+  </ul>
+}
+
+<app-edit-combatant-dialog #editDialog (saveRequested)="onEditSave($event)" />
+<app-monster-stat-block-dialog #statBlockDialog />
+<app-notes-dialog #notesDialog (notesSaved)="onNotesSaved($event)" />
