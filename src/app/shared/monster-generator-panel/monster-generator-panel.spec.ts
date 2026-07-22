@@ -190,4 +190,23 @@ describe('MonsterGeneratorPanel', () => {
     expect(component.draft().length).toBe(0);
     expect(fixture.nativeElement.querySelector('.candidates')).toBeFalsy();
   });
+
+  it('by default (EncounterList\'s usage), Browse Monster List renders before Generate Monsters', () => {
+    const browse: HTMLElement = fixture.nativeElement.querySelector('.browse-section');
+    const generate: HTMLElement = fixture.nativeElement.querySelector('.generate-section');
+    expect(browse.compareDocumentPosition(generate) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
+  it('with emphasizeGenerate, Generate Monsters renders before Browse Monster List', () => {
+    fixture.componentRef.setInput('emphasizeGenerate', true);
+    fixture.detectChanges();
+
+    const browse: HTMLElement = fixture.nativeElement.querySelector('.browse-section');
+    const generate: HTMLElement = fixture.nativeElement.querySelector('.generate-section');
+    expect(generate.compareDocumentPosition(browse) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
 });

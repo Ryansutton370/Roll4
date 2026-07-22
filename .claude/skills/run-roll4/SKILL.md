@@ -141,13 +141,28 @@ the default config already runs headless.
   anything left behind by an earlier invocation.
 - **`CombatantFields` (the shared 5-field Name/AC/HP/Notes/Initiative
   form) has no `name` attributes on its inputs** — only classes
-  (`.field-name`, `.field-ac`, `.field-max-hp`, `.field-notes`; the
-  modifier input is `.field-modifier`). It's reused on several pages at
-  once in ways that can put *two* instances in the DOM simultaneously
-  (e.g. a page's own create form plus the Edit dialog, which stays in
-  the DOM even while visually hidden) — bare `input.field-name` can
-  match the wrong one. Append `:visible` (e.g.
-  `input.field-name:visible`) to target the one actually on screen.
+  (`.field-name`, `.field-ac`, `.field-max-hp`; the modifier input is
+  `.field-modifier`). It's reused on several pages at once in ways that
+  can put *two* instances in the DOM simultaneously (e.g. a page's own
+  create form plus the Edit dialog, which stays in the DOM even while
+  visually hidden) — bare `input.field-name` can match the wrong one.
+  Append `:visible` (e.g. `input.field-name:visible`) to target the one
+  actually on screen. Notes is *not* a plain `.field-notes` input (that
+  class no longer exists) — it's a rich-text editor behind an "Add
+  Notes"/"See Notes" toggle button; there's no plain-text `fill` target
+  for it at all.
+- **A `:has-text()` selector matches substrings, and `CombatantFields`'
+  own "Add Notes" toggle button contains the word "Add".** Any selector
+  meant to hit a form's actual submit button — `button:has-text("Add")`
+  for `AddCombatantDialog`'s "Add" submit, for instance — can silently
+  click "Add Notes" instead if it resolves to the first DOM match, with
+  **no error thrown** (the click "succeeds," the form just never
+  submits). Symptom: every subsequent step in the script times out
+  because the dialog/modal never closed. Same risk with the page-level
+  "+ Add Individual Combatant" button, which also contains "Add." Prefer
+  a scoped, structural selector for a submit button instead of relying on
+  its label text — e.g. `form.entry-form button[type=submit]` for
+  `AddCombatantDialog`'s Create New step, not `button:has-text("Add")`.
 - **`fill`'s selector parsing is naive (split on first space).** A
   selector like `input[placeholder="Party name"]` breaks because the
   space inside the quotes gets treated as the selector/value

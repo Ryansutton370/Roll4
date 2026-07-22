@@ -1,0 +1,63 @@
+/* Same sizing/scroll approach as .stat-block-dialog
+   (monster-stat-block-dialog.css) — wide enough for the category-button row
+   to lay out in one or two lines rather than wrapping awkwardly. */
+.combat-thesaurus-dialog {
+  width: min(30rem, calc(100vw - 2rem));
+  max-height: min(80vh, 36rem);
+  overflow-y: auto;
+  padding: 1.25rem;
+  border: none;
+  border-radius: var(--radius-bubble);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-md);
+}
+
+.combat-thesaurus-dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+/* Sticky header, same technique as .stat-block-header — see that CSS
+   comment for why the negative margin/padding pairing is needed. */
+.dialog-header {
+  position: sticky;
+  top: -1.25rem;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: -1.25rem -1.25rem 0.5rem;
+  padding: 1.25rem 1.25rem 0.5rem;
+  background: var(--color-surface);
+}
+
+.dialog-header h2 {
+  margin: 0;
+}
+
+/* Round icon button, same footprint/hover treatment as
+   .dialog-close-btn elsewhere (e.g. monster-stat-block-dialog.css). */
+.dialog-close-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.dialog-close-btn:hover {
+  background: var(--color-removed-tint);
+  color: var(--color-text);
+}

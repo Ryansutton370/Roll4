@@ -394,6 +394,32 @@ GM would pick there. `TreasureStore` is a parallel, near-twin service (same
 `pickRandomEntries` — genericized to `<T>` so it works over `TreasureEntry`
 objects too, not just strings) — see [PRODUCT.md](./PRODUCT.md) section 14.
 
+### CombatThesaurusTable
+
+Loaded read-only via `CombatThesaurusStore` from `public/data/
+combat-thesaurus.json`. Unlike `NameTable`/`MonsterTemplate`/`WildMagicTable`,
+there was never a bulk external document to convert, so — like
+`TreasureTable` post-initial-batch — this JSON has been the GM-editable
+source directly from the start; there's no `scripts/import-combat-
+thesaurus.cjs` and none is needed. Edit `public/data/combat-thesaurus.json`
+directly to add/edit verbs.
+
+| Field       | Type                    | Notes                                                                                     |
+| ----------- | ----------------------- | ------------------------------------------------------------------------------------------- |
+| `id`        | string                  | e.g. `combat-thesaurus-blade`                                                             |
+| `setName`   | string                  | Currently always `"Combat Thesaurus"` — same parity-with-`NameTable` reasoning as `WildMagicTable.setName` |
+| `tableName` | string                  | `"Blade"`, `"Blunt"`, `"Defense"`, `"Impairment"`, `"Magic"`, or `"Range"` |
+| `icon`      | `CombatThesaurusIcon`   | One of `'blade' \| 'blunt' \| 'defense' \| 'impairment' \| 'magic' \| 'range'` — selects which hand-authored inline SVG the generator page's category-button row shows for that table; no icon library is used anywhere in this app (see `CombatThesaurusGenerator`'s template) |
+| `entries`   | string[]                | Flavor verbs for that category, e.g. Blade: "skewer", "slash"; 29 entries per category, all six provided |
+
+**Why a separate model/store from `NameTable`, despite the similar
+shape:** same reasoning as `WildMagicTable`/`TreasureTable` —
+`NameTableStore.setNames()` feeds the inline 🎲 Name-field popover, and a
+combat verb isn't a name a GM would pick there. `CombatThesaurusStore` is a
+parallel, near-twin service (same `toSignal`-over-`HttpClient` load shape,
+reuses `NameTableStore`'s `pickRandomEntries`) — see
+[PRODUCT.md](./PRODUCT.md) section 15.
+
 ### Timer
 
 An Encounter-scoped countdown, created via the same "+" menu (next to the

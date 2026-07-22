@@ -119,6 +119,20 @@ exactly and nothing else. The "Parties" link is left at the default prefix
 match on purpose, since it _should_ stay highlighted for both
 `/players/parties` and `/players/parties/:partyId`.
 
+**Deep-linking into a page's local UI state via a query param:** the
+Encounter Generator's "Add to Encounter" action (see PRODUCT.md section 12)
+needs to land the GM on `/encounters` with one specific Encounter's edit
+panel already open — state `EncounterList` only ever tracked locally
+(`editingEncounterId`, opened via `startEdit()`), with no route of its own.
+Rather than invent a new dedicated route/component just for this one
+entry point, `EncounterList` gained an `openForEncounterId` input aliased
+to a `?edit=<id>` query param — the same `withComponentInputBinding()`
+already configured in `app.config.ts` for path params (see above) binds
+query params too, so this needed no new router wiring, just a new input. A
+constructor `effect()` reads it, calls the existing `startEdit()` if the
+Encounter exists, then clears the param via an empty `router.navigate()` so
+a refresh or back-navigation doesn't reopen the panel from a stale link.
+
 ## Testing approach
 
 Use Vitest (already configured by the CLI) for unit tests on:
@@ -372,3 +386,20 @@ list, the Hold Action panel, `EncounterPreviewPanel`, and this setup-phase
 list — one more reason `previewMode`'s changes stay confined to the
 drawer's *already-conditional* content rather than touching `.combatant-row`
 itself (see the eighth precedent's note on the CLAUDE.md standing rule).
+
+**An eleventh precedent, a routed page and a modal dialog sharing one
+picker component — the same shape as the fifth precedent above, one page
+smaller:** `CombatThesaurusPicker`
+(`src/app/shared/combat-thesaurus-picker/`) is the category-row/count/roll/
+copy-any-result UI that used to be `CombatThesaurusGenerator`'s entire
+template — pulled out once `CombatThesaurusDialog` (opened from
+`EncounterDetail`'s run-phase "+" menu, for rolling a verb mid-combat
+without leaving the Encounter screen) needed the identical picker a second
+time. `CombatThesaurusGenerator` (the full Random Generators page) kept only
+its own page chrome (`<h1>`, intro paragraph, `GeneratorDisclaimer`) around
+`<app-combat-thesaurus-picker>`; `CombatThesaurusDialog` wraps the same tag
+in a native `<dialog>` with a title/close-button header, following
+`MonsterStatBlockDialog`'s open()/close()/onOverlayClick shape rather than
+`MonsterGeneratorPanel`'s two-way-`model()` shape — this picker owns its
+data outright (loaded from `CombatThesaurusStore`) instead of taking it from
+a host, so there's no draft/commit split for either host to manage.

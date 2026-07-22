@@ -4,6 +4,7 @@
   [draft]="draft()"
   (draftChange)="draft.set($event)"
   (draftEdited)="savedTroopId.set(null)"
+  [emphasizeGenerate]="true"
 />
 
 @if (draft().length > 0) {
@@ -16,6 +17,22 @@
       (ngModelChange)="troopName.set($event)"
     />
     <button type="button" (click)="saveAsTroop()">Save as Troop</button>
+  </div>
+
+  <p class="or-divider">or</p>
+
+  <div class="add-encounter-row">
+    <select
+      name="targetEncounter"
+      [ngModel]="targetEncounterId()"
+      (ngModelChange)="targetEncounterId.set($event)"
+    >
+      <option value="">+ New Encounter</option>
+      @for (e of encounterStore.encounters(); track e.id) {
+        <option [value]="e.id">{{ e.name }}</option>
+      }
+    </select>
+    <button type="button" (click)="addToEncounter()">Add to Encounter</button>
   </div>
 }
 

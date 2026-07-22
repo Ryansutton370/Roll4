@@ -12,11 +12,11 @@
   display: contents;
 }
 
-.monsters-section h2 {
+.monsters-header h2 {
   margin: 0 0 0.5rem;
 }
 
-.monsters-section > .section-note {
+.monsters-header .section-note {
   margin-bottom: 1rem;
 }
 
@@ -26,10 +26,12 @@
   margin-bottom: 1rem;
 }
 
-/* Browse Monster List sits above, and visually separate from, Generate
-   Monsters — its own headed section, always present (not gated behind
-   having generated a roster yet), rather than buried inside the
-   Candidates list the way the old "Add a monster" picker was. */
+/* Browse Monster List sits visually separate from Generate Monsters — its
+   own headed section, always present (not gated behind having generated a
+   roster yet), rather than buried inside the Candidates list the way the
+   old "Add a monster" picker was. The divider between the two normally
+   sits under Browse (it's first); .emphasize-generate below moves it to
+   sit under Generate instead, since that section renders first there. */
 .browse-section {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
@@ -40,6 +42,48 @@
 .generate-section h3 {
   margin: 0 0 0.75rem;
   font-size: 1.1rem;
+}
+
+/* emphasize-generate: Generate Monsters is the star of this layout (see
+   MonsterGeneratorPanel.emphasizeGenerate) — bigger heading, first/left
+   position, with Browse Monster List demoted to a plain-size second/right
+   column at desktop widths. Only ever set on the standalone Encounter
+   Generator page. */
+.monsters-section.emphasize-generate .generate-section h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.monsters-section.emphasize-generate .browse-section {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.monsters-section.emphasize-generate .generate-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 900px) {
+  .monsters-section.emphasize-generate {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    column-gap: 2rem;
+    align-items: start;
+  }
+
+  .monsters-section.emphasize-generate .monsters-header {
+    grid-column: 1 / -1;
+  }
+
+  /* Side by side now, so the stacked-layout divider is no longer needed. */
+  .monsters-section.emphasize-generate .generate-section {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
 }
 
 .source-toggle button {

@@ -6,7 +6,7 @@
   <ul class="bubble-list">
     @for (c of combatants(); track c.id) {
       <li
-        class="bubble entry preview-combatant"
+        class="bubble preview-combatant"
         [class.pc-entry]="c.type === 'pc'"
         [class.npc-entry]="c.type === 'npc'"
         [class.hp-adjusting]="isHpAdjusting(c.id)"

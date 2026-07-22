@@ -99,3 +99,17 @@ main {
     max-width: 1100px;
   }
 }
+
+/* Same reasoning again — the Encounter Generator page's Monsters section
+   goes two-column at this width when emphasizeGenerate is set (Generate
+   Monsters left, Browse Monster List right — see
+   monster-generator-panel.css's .emphasize-generate), which needs more than
+   700px too. `.emphasize-generate` is a real descendant element (the
+   `display: contents` chain MonsterGeneratorPanel/its children use means
+   nothing wraps it in an opaque box), so :has() still finds it here the
+   same way it finds .hold-panel/.encounters-layout above. */
+@media (min-width: 900px) {
+  main:has(.emphasize-generate) {
+    max-width: 1000px;
+  }
+}

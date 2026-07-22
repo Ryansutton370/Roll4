@@ -24,7 +24,10 @@ export class NameGenerator {
 
   protected readonly selectedSetName = signal<string | null>(null);
   protected readonly selectedTableId = signal<string | null>(null);
-  protected readonly rollCount = signal(10);
+  // Matches NameGeneratorButton's hardcoded 6 (the inline 🎲 popover on
+  // every Player/NPC Name field) — same default roll count here, just
+  // GM-adjustable via the Count input below instead of fixed.
+  protected readonly rollCount = signal(6);
   protected readonly rolledNames = signal<string[]>([]);
   protected readonly copiedIndex = signal<number | null>(null);
 

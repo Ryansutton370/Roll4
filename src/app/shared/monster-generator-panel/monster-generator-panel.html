@@ -1,28 +1,11 @@
-<section class="monsters-section">
-  <h2>Monsters</h2>
-  <p class="section-note">
-    Choose which monster compendium to draw from — it controls both the list you can browse below
-    and how Generate Monsters builds a roster.
-    @if (showEncounterCommitActions()) {
-      Browsing adds a monster straight to your encounter; Generate Monsters builds a batch of
-      Candidates for you to review, name, and add from below.
-    } @else {
-      Anything you add lands in Candidates, ready to add to your encounter.
-    }
-  </p>
-  <div class="source-toggle" role="group" aria-label="Sourcebook">
-    <button type="button" [class.active]="source() === '5e-srd'" (click)="selectSource('5e-srd')">
-      D&amp;D 5e SRD
-    </button>
-    <button
-      type="button"
-      [class.active]="source() === 'shadowdark'"
-      (click)="selectSource('shadowdark')"
-    >
-      Shadowdark
-    </button>
-  </div>
-
+<!-- Browse Monster List and Generate Monsters each live behind an
+     ng-template so they can be rendered in either DOM order below (real
+     order, not just a CSS `order` reshuffle — that would desync tab order
+     from what's visually first) depending on emphasizeGenerate(), without
+     duplicating either section's markup. ngTemplateOutlet stamps a
+     <ng-template>'s content out wherever it's referenced, same idea as a
+     function you can call from two spots. -->
+<ng-template #browseSection>
   <section class="browse-section">
     <h3>Browse Monster List</h3>
     <app-monster-picker-table
@@ -31,7 +14,9 @@
       (addTemplate)="addTemplate($event)"
     />
   </section>
+</ng-template>
 
+<ng-template #generateSection>
   <section class="generate-section">
     <h3>Generate Monsters</h3>
   @if (source() === '5e-srd') {
@@ -111,6 +96,42 @@
     </div>
     }
   </section>
+</ng-template>
+
+<section class="monsters-section" [class.emphasize-generate]="emphasizeGenerate()">
+  <div class="monsters-header">
+    <h2>Monsters</h2>
+    <p class="section-note">
+      Choose which monster compendium to draw from — it controls both the list you can browse below
+      and how Generate Monsters builds a roster.
+      @if (showEncounterCommitActions()) {
+        Browsing adds a monster straight to your encounter; Generate Monsters builds a batch of
+        Candidates for you to review, name, and add from below.
+      } @else {
+        Anything you add lands in Candidates, ready to add to your encounter.
+      }
+    </p>
+    <div class="source-toggle" role="group" aria-label="Sourcebook">
+      <button type="button" [class.active]="source() === '5e-srd'" (click)="selectSource('5e-srd')">
+        D&amp;D 5e SRD
+      </button>
+      <button
+        type="button"
+        [class.active]="source() === 'shadowdark'"
+        (click)="selectSource('shadowdark')"
+      >
+        Shadowdark
+      </button>
+    </div>
+  </div>
+
+  @if (emphasizeGenerate()) {
+    <ng-container [ngTemplateOutlet]="generateSection" />
+    <ng-container [ngTemplateOutlet]="browseSection" />
+  } @else {
+    <ng-container [ngTemplateOutlet]="browseSection" />
+    <ng-container [ngTemplateOutlet]="generateSection" />
+  }
 </section>
 
 @if (draft().length > 0) {

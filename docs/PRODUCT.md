@@ -50,8 +50,9 @@ sub-nav:
 
 **Random Generators** is a fourth top-level tab, with its own Roster-style
 sub-nav (see "11. Random Generators", "12. Encounter Generator", "13. Wild
-Magic Generator", and "14. Treasure Generator" below): **Names**,
-**Encounter**, **Wild Magic**, and **Treasure**.
+Magic Generator", "14. Treasure Generator", and "15. Combat Thesaurus"
+below): **Names**, **Encounter**, **Wild Magic**, **Treasure**, and
+**Combat Thesaurus**.
 
 ## GM workflows
 
@@ -251,7 +252,7 @@ same input fields as creation, pre-filled with the combatant's current
 values. The same drawer also has a **Create Timer** button, which
 immediately creates a Timer linked to that combatant with a default name
 and starting value — a shortcut for the common case, alongside the full
-**+** → **Add Timer** flow (see section 10) for a custom name/value.
+"+" menu's **Add Timer** flow (see section 10) for a custom name/value.
 
 A combatant sourced from a monster template — via the Encounter Generator
 (section 12) or Add Combatant's **From Book** option (section 2) — gets one
@@ -441,9 +442,12 @@ placement flow, above).
 
 ### 9. Adding mid-encounter: the "+" menu
 
-Once combat is running (after the first Roll), a **+** button sits to the
-left of the Previous/Next Turn buttons. Clicking it offers a choice: **Add
-Timer** or **Add Combatant**.
+Once combat is running (after the first Roll), a vertical-ellipsis (⋮)
+button sits to the left of the Previous/Next Turn buttons — a **+** glyph
+until a third, non-"add" option (Combat Thesaurus) made that literal plus
+sign no longer describe everything the menu offers. Clicking it offers a
+choice of three, each with its own icon: **Add Timer**, **Add Combatant**,
+and **Combat Thesaurus**.
 
 **Add Combatant** opens the same modal used everywhere else a combatant is
 added (see section 2) — the same three-way Existing NPC / Existing Player /
@@ -458,6 +462,15 @@ whoever's turn it is. If the GM never clicks it, the combatant is
 automatically rolled into the main list once the round ends — the same
 "everyone still waiting gets folded back in" moment Hold Action combatants
 already get at every round boundary.
+
+**Combat Thesaurus** (same "+" menu) opens `CombatThesaurusDialog` — a
+small popup dialog (dismissed via × or clicking outside it, same as the
+combatant bubble's View Stat Block popup in section 4a) embedding the exact
+same category-row/count/roll/copy-any-result picker as the standalone
+Combat Thesaurus page (section 15), so a GM can roll a flavor verb for
+narrating whatever just happened without leaving the run-phase screen. The
+picker itself (`CombatThesaurusPicker`) is a shared component used by both
+this dialog and the full page — see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ### 10. Timers
 
@@ -523,7 +536,7 @@ settlement names) is imported once into the app (see
   navigating away from whatever screen the GM was already on.
 
 Every page under the Random Generators tab (Names, Encounter, Wild Magic,
-Treasure) carries a short general disclaimer at the bottom — content is
+Treasure, Combat Thesaurus) carries a short general disclaimer at the bottom — content is
 sourced from a variety of places, credit is given wherever possible, no
 ownership is claimed — alongside (not instead of) any page-specific
 attribution a source requires (the Encounter Generator's OGL/CC BY-SA
@@ -537,11 +550,21 @@ a candidate monster list from the imported 5e SRD / Shadowdark monster data
 GM building an Encounter's roster combatant-by-combatant. The whole
 generate/adjust flow (steps 1–3 below) is the `MonsterGeneratorPanel`
 component — the same one embedded directly in the Encounter creation/edit
-panel (see "2. Create an Encounter" above), so a GM generating monsters as
-part of building a specific Encounter doesn't need this separate page at
-all; this standalone page exists for building a reusable Troop ahead of any
-specific Encounter, or browsing/creating monster rosters independent of a
-particular fight.
+panel (see "2. Create an Encounter" above). A GM generating monsters as
+part of building one specific Encounter can do that directly inside that
+Encounter's own edit panel and never need this separate page at all; this
+standalone page instead suits building a reusable Troop ahead of any
+specific Encounter, browsing/creating monster rosters independent of a
+particular fight, or (see step 5, **Add to Encounter**, below) generating a
+roster before deciding — or without yet knowing — which Encounter it's for.
+
+On this page, **Generate Monsters** is the visually primary section (larger
+heading, first/left position) — **Browse Monster List** is the secondary,
+manual-pick alternative, demoted to a narrower right-hand column at desktop
+widths. (The embedded copy inside an Encounter's own edit panel keeps its
+original Browse-then-Generate stacked layout — see "2. Create an Encounter"
+above — since that panel already spends its right-hand column on Encounter
+Preview.)
 
 1. **Choose a sourcebook** — D&D 5e SRD or Shadowdark. The two use
    different generation controls, since they don't share a difficulty
@@ -582,12 +605,21 @@ particular fight.
    Goblin" name split described in section 4a above), all added to that
    Troop. The GM lands on the new Troop's page, ready to pull it into an
    Encounter exactly like any other Troop (see "2. Create an Encounter"
-   above). This step is specific to this standalone page — the same
-   generated roster, embedded inside an Encounter's own creation/edit
-   panel, instead gets an **Add All to Encounter** button (plus each
-   Candidates row's own individual **Add to Encounter** button) that skips the Troop
-   step entirely and lands the candidates directly as Combatants on that
-   Encounter — see section 2's Monsters/Candidates description above.
+   above).
+5. **Add to Encounter** — an alternative to Save as Troop, sitting right
+   beside it: pick an existing Encounter from the dropdown (or leave it on
+   its default **+ New Encounter**), click **Add to Encounter**, and every
+   current Candidate is added as a Combatant on that Encounter in one step
+   — no Troop, no separate pull-in. The GM then lands on `/encounters` with
+   that Encounter's setup/edit panel already open (pre-filled if it already
+   existed), ready to keep building it — rename it, pull in a Party, add
+   more combatants — exactly as if they'd built the roster from inside that
+   panel to begin with. This is the same "commit straight to an Encounter"
+   mechanism the embedded panel uses (the **Add All to Encounter**
+   button/each Candidates row's own **Add to Encounter** button — see
+   section 2's Monsters/Candidates description above), just reachable from
+   this standalone page too, so a GM isn't forced through Save as Troop
+   just to get generated monsters into a specific fight.
 
 ### 13. Wild Magic Generator
 
@@ -621,6 +653,23 @@ result can show two lines instead of one: **Wondrous Items** and
 "Healing" / "Heal 1d8 HP"), shown and copied together, while **Trinkets**
 are just one descriptive line, same as a Name table's results. All three
 categories are done.
+
+### 15. Combat Thesaurus
+
+The Random Generators tab's fifth page (`/generators/combat-thesaurus`)
+rolls a flavor verb for narrating a combat action — a quick alternative to
+saying "hit" every time — from the imported Combat Thesaurus categories (see
+[DATA_MODEL.md](./DATA_MODEL.md)'s `CombatThesaurusTable`): **Blade**,
+**Blunt**, **Defense**, **Impairment**, **Magic**, and **Range**, GM-provided
+lists like Treasure rather than drawn from one external source document.
+Same count/roll/copy-any-result mechanic as the Wild Magic and Treasure
+pages, except the category picker is a row of icon buttons (one hand-drawn
+icon per category) instead of a `<select>` dropdown, since showing each
+category's icon is the point of this picker. All six categories are
+populated (29 verbs each); a category with no verbs would show a plain "No
+verbs added yet" note in place of results and disable its Roll button, same
+as Treasure's incremental-category handling, if a new category were ever
+added empty.
 
 ## Persistence
 

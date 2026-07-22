@@ -1,6 +1,6 @@
-import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Encounter } from '../../models/encounter.model';
 import { EncounterStore } from '../../services/encounter-store';
 import { NpcStore } from '../../services/npc-store';
@@ -12,6 +12,7 @@ import {
 import { EncounterPreviewPanel } from '../../shared/encounter-preview-panel/encounter-preview-panel';
 import { MonsterCredits } from '../../shared/monster-credits/monster-credits';
 import {
+  combatantFieldsFromDraft,
   DraftCombatant,
   MonsterGeneratorPanel,
 } from '../../shared/monster-generator-panel/monster-generator-panel';
@@ -35,6 +36,30 @@ export class EncounterList {
   protected readonly partyStore = inject(PartyStore);
   protected readonly npcStore = inject(NpcStore);
   private readonly toastService = inject(ToastService);
+  private readonly router = inject(Router);
+
+  // Bound from the '?edit=<id>' query param via withComponentInputBinding()
+  // (see app.config.ts) — the same router-input mechanism used elsewhere in
+  // this app for path params (e.g. PartyDetail's :partyId), just applied to
+  // a query param instead. Set by EncounterGenerator's "Add to Encounter"
+  // action so the GM lands here with that Encounter's edit panel already
+  // open, instead of the plain Saved Encounters list.
+  readonly openForEncounterId = input<string | null>(null, { alias: 'edit' });
+
+  constructor() {
+    // effect(): re-runs whenever a signal it reads changes — here,
+    // openForEncounterId(). Opens the edit panel once for the Encounter
+    // named in the query param, then clears the param (an empty navigate)
+    // so a later refresh or back-navigation doesn't keep re-opening it; the
+    // `if (!id) return` guard stops that clear from re-triggering itself.
+    effect(() => {
+      const id = this.openForEncounterId();
+      if (!id) return;
+      const encounter = this.encounterStore.getEncounter(id);
+      if (encounter) this.startEdit(encounter);
+      this.router.navigate([], { queryParams: {}, replaceUrl: true });
+    });
+  }
 
   // Gates the whole create/edit panel — collapsed by default, showing just
   // a "+ Create Encounter" button. Both startCreate() and startEdit() open
@@ -227,16 +252,7 @@ export class EncounterList {
   }
 
   private addDraftAsCombatant(encounterId: string, d: DraftCombatant): void {
-    const name = d.personalName.trim() || d.template.name;
-    this.encounterStore.addAdHocCombatant(encounterId, 'npc', {
-      name,
-      initiativeModifier: d.template.initiativeModifier,
-      ac: d.template.ac,
-      maxHp: d.template.maxHp,
-      notes: '',
-      monsterTemplateId: d.template.id,
-      monsterName: d.template.name,
-    });
+    this.encounterStore.addAdHocCombatant(encounterId, 'npc', combatantFieldsFromDraft(d));
   }
 
   protected onAddAllToEncounter(entries: DraftCombatant[]): void {

@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 import { MonsterTemplate } from '../../models/monster-template.model';
 import { EncounterStore } from '../../services/encounter-store';
 import { NpcStore } from '../../services/npc-store';
@@ -238,6 +239,30 @@ describe('EncounterList', () => {
     expect(nameInput.value).toBe('Ambush');
     expect(encounterStore.encounters().length).toBe(1);
     expect(encounterStore.encounters()[0].id).toBe(encounter.id);
+  });
+
+  it("the 'edit' query param opens that Encounter's edit panel and then clears itself", async () => {
+    const encounter = encounterStore.createEncounter('Goblin Ambush', []);
+    fixture.detectChanges();
+    const navigateSpy = vi.spyOn(router, 'navigate');
+
+    fixture.componentRef.setInput('edit', encounter.id);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('.encounter-form')).toBeTruthy();
+    const heading: HTMLElement = fixture.nativeElement.querySelector('.builder-column h2');
+    expect(heading.textContent).toContain('Goblin Ambush');
+    expect(navigateSpy).toHaveBeenCalledWith([], { queryParams: {}, replaceUrl: true });
+  });
+
+  it("the 'edit' query param is a no-op for an unknown Encounter id", async () => {
+    fixture.componentRef.setInput('edit', 'does-not-exist');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('.encounter-form')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.create-encounter-btn')).toBeTruthy();
   });
 });
 

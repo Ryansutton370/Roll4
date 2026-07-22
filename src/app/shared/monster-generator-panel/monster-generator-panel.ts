@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, model, output, signal, viewChild } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   MonsterSource,
@@ -24,6 +25,19 @@ export interface DraftCombatant {
   personalName: string;
 }
 
+/** The "DraftCombatant → ad-hoc combatant fields" mapping every commit action (Save as Troop, EncounterList's Add to Encounter, EncounterGenerator's Add to Encounter) needs — pulled out once a third call site needed the exact same object. */
+export function combatantFieldsFromDraft(d: DraftCombatant) {
+  return {
+    name: d.personalName.trim() || d.template.name,
+    initiativeModifier: d.template.initiativeModifier,
+    ac: d.template.ac,
+    maxHp: d.template.maxHp,
+    notes: '',
+    monsterTemplateId: d.template.id,
+    monsterName: d.template.name,
+  };
+}
+
 /**
  * The generate/adjust roster-building UI shared by the standalone Encounter
  * Generator page and (embedded) the Encounter List's create/edit panel —
@@ -39,7 +53,13 @@ export interface DraftCombatant {
  */
 @Component({
   selector: 'app-monster-generator-panel',
-  imports: [FormsModule, MonsterPickerTable, NameGeneratorButton, MonsterStatBlockDialog],
+  imports: [
+    FormsModule,
+    NgTemplateOutlet,
+    MonsterPickerTable,
+    NameGeneratorButton,
+    MonsterStatBlockDialog,
+  ],
   templateUrl: './monster-generator-panel.html',
   styleUrl: './monster-generator-panel.css',
 })
@@ -71,6 +91,15 @@ export class MonsterGeneratorPanel {
   // for the unnamed-encounter case (see EncounterList.encounterCommitPhrase).
   readonly showEncounterCommitActions = input(false);
   readonly encounterName = input<string | null>(null);
+
+  // Opt-in "Generate Monsters is the star of this page" layout — true only
+  // on the standalone Encounter Generator page. Gives Generate Monsters a
+  // bigger heading and first/left position (Browse Monster List moves to a
+  // narrower second/right column at desktop widths — see the CSS grid rule
+  // under .emphasize-generate). Off by default so EncounterList's embedded
+  // panel (which already spends its own right-hand column on Encounter
+  // Preview) keeps its current Browse-then-Generate stacked layout.
+  readonly emphasizeGenerate = input(false);
 
   // Emitted immediately on click (the host commits it to the real Encounter
   // right away) — the row itself keeps rendering, marked via addingIds

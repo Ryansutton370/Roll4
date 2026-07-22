@@ -1,0 +1,18 @@
+<!-- Native <dialog>, opened imperatively via showModal() (see open() in
+     combat-thesaurus-dialog.ts) — gets a free ::backdrop and Escape-to-close
+     from the browser, same as monster-stat-block-dialog.html. -->
+<dialog #dialog class="combat-thesaurus-dialog" (click)="onOverlayClick($event)">
+  <div class="dialog-header">
+    <h2>Combat Thesaurus</h2>
+    <button
+      type="button"
+      class="dialog-close-btn"
+      (click)="close()"
+      aria-label="Close Combat Thesaurus"
+    >
+      ×
+    </button>
+  </div>
+
+  <app-combat-thesaurus-picker />
+</dialog>

@@ -22,6 +22,7 @@ import {
   AddCombatantDialog,
   NewCombatantSubmitted,
 } from '../../shared/add-combatant-dialog/add-combatant-dialog';
+import { CombatThesaurusDialog } from '../../shared/combat-thesaurus-dialog/combat-thesaurus-dialog';
 import {
   CombatantDetailsChanges,
   EditCombatantDialog,
@@ -42,6 +43,7 @@ import { CombatantBubble } from './combatant-bubble';
     AddCombatantDialog,
     MonsterStatBlockDialog,
     NotesDialog,
+    CombatThesaurusDialog,
   ],
   templateUrl: './encounter-detail.html',
   styleUrl: './encounter-detail.css',
@@ -202,9 +204,19 @@ export class EncounterDetail {
   // openNotesDialog below.
   private readonly notesDialog = viewChild.required<NotesDialog>('notesDialog');
 
+  // Same pattern again for the run-phase "+" menu's Combat Thesaurus option
+  // — see openCombatThesaurusDialog below.
+  private readonly combatThesaurusDialog =
+    viewChild.required<CombatThesaurusDialog>('combatThesaurusDialog');
+
   protected openAddCombatantDialog(): void {
     this.closeAddMenu();
     this.addCombatantDialog().open();
+  }
+
+  protected openCombatThesaurusDialog(): void {
+    this.closeAddMenu();
+    this.combatThesaurusDialog().open();
   }
 
   // readyToJoin is decided here, not passed in from the template: the
@@ -596,11 +608,12 @@ export class EncounterDetail {
   }
 
   // ---------------------------------------------------------------------
-  // "+" menu — turn-controls button to the left of Previous/Next Turn.
-  // 'timer' opens the inline "new timer" card in the rail (see
-  // createTimer below); choosing Combatant instead opens AddCombatantDialog
-  // directly (openAddCombatantDialog above) and never sets this to
-  // 'combatant' — the dialog manages its own open/closed state.
+  // "+" menu (vertical-ellipsis trigger button) — turn-controls, to the left
+  // of Previous/Next Turn. 'timer' opens the inline "new timer" card in the
+  // rail (see createTimer below); choosing Combatant or Combat Thesaurus
+  // instead opens AddCombatantDialog/CombatThesaurusDialog directly
+  // (openAddCombatantDialog/openCombatThesaurusDialog above) and never sets
+  // this to anything else — each dialog manages its own open/closed state.
   // ---------------------------------------------------------------------
   protected readonly addMenuMode = signal<'closed' | 'menu' | 'timer'>('closed');
 
