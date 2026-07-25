@@ -609,6 +609,15 @@ given the size.
       have collided with the GM-ownership `ownerId` every entity now
       actually has — the future link needs its own field name when
       Phase 4 gets there).
+- [x] **3.7 — Firebase Hosting deploy.** `firebase.json` gained a `hosting`
+      block (`public: dist/Roll4/browser`, a catch-all rewrite to
+      `index.html` for the Angular router) so the app is reachable live, not
+      just runnable locally — see [ARCHITECTURE.md](./ARCHITECTURE.md)'s new
+      Hosting section. Deployed via `npx firebase-tools deploy --only
+      hosting`; the Firebase CLI isn't a project dependency, just invoked ad
+      hoc. A second, friendlier-named Hosting site (`roll4`, alongside the
+      project's auto-created `roll4-bddd2`) makes the real shareable URL
+      **https://roll4.web.app** rather than the project-ID-derived default.
 
 A side effect of the migration, not a separate line of work: data is now
 naturally **accessible from more than one device/browser** (any signed-in

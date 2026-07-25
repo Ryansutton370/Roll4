@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "roll4-bddd2"
-  }
+  },
+  "targets": {
+    "roll4-bddd2": {
+      "hosting": {
+        "roll4": [
+          "roll4"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

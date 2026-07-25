@@ -142,6 +142,46 @@ source input from scratch and would silently discard anything added
 directly since. The scripts/source files stay in the repo as a record of
 how the first batch was assembled, not as something to run again.
 
+## Hosting — Firebase Hosting
+
+The production build (`ng build`, output `dist/Roll4/browser`) deploys to
+**Firebase Hosting** on the same project (`roll4-bddd2`) already used for
+Firestore/Auth — no separate host to wire up. Configured in `firebase.json`'s
+`hosting` block: `public` points at the real CLI-generated output path
+(`dist/Roll4/browser`, not just `dist/Roll4` — the CLI nests the actual
+static site one level deeper), and a catch-all `rewrites` rule
+(`"source": "**"` → `/index.html`) is required for Angular's client-side
+router — without it, refreshing on any route other than `/` (e.g.
+`/players`) 404s at the host level before Angular's router ever gets a
+chance to handle it.
+
+**Multiple hosting sites, one project:** the project's auto-created default
+site is `roll4-bddd2.web.app` (unmemorable — it's derived from the
+project ID, which itself got a random suffix at creation since `roll4` alone
+was already taken as a *project* ID). Firebase Hosting supports additional,
+independently-named "sites" within the same project — created a second one,
+`roll4` (`hosting:sites:create roll4`), giving the much friendlier
+`https://roll4.web.app`. `.firebaserc`'s `targets` block maps the local name
+`roll4` to that site ID, and `firebase.json`'s `hosting.target: "roll4"`
+points ordinary deploys at it — so `roll4-bddd2.web.app` still exists and
+still serves whatever was last deployed to it (the very first deploy, before
+the second site existed), but no longer receives new deploys unless
+explicitly re-targeted.
+
+**Auth caveat this created:** Firebase Auth's authorized-domains list is
+keyed by exact hostname, and only auto-populates the project's *default*
+Hosting domain at project creation. A second Hosting site's domain
+(`roll4.web.app`) needed adding by hand under Firebase Console →
+Authentication → Settings → Authorized domains for Google sign-in to work
+there — a third-party host or a differently-named Hosting site both hit this
+same gap; only the one default domain is exempt.
+
+Deploy is `npx firebase-tools deploy --only hosting` (`--only hosting` so a
+hosting deploy never touches `firestore.rules`/indexes — those deploy
+separately, deliberately, since they're a very different blast radius). Not
+added as an `npm` script yet since it's still a manual/occasional step, not
+part of any dev-loop.
+
 ## Nested routes and section "shells"
 
 `app.routes.ts` uses Angular's route nesting (a route's `children: [...]`
