@@ -4,9 +4,21 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { MonsterTemplate } from '../../models/monster-template.model';
+import { AuthService } from '../../services/auth-service';
 import { EncounterStore } from '../../services/encounter-store';
+import { FakeAuthService } from '../../services/testing/fake-auth-service';
+import { __resetFakeFirestore } from '../../services/testing/fake-firestore';
 
 import { EncounterGenerator } from './encounter-generator';
+
+// See encounter-store.spec.ts's header comment — EncounterStore is real
+// here too (this suite exercises addToEncounter's real Encounter-creation
+// flow), so 'firebase/firestore' is swapped for the same synchronous
+// in-memory double.
+vi.mock('firebase/firestore', async () => {
+  const { createFakeFirestoreModule } = await import('../../services/testing/fake-firestore');
+  return createFakeFirestoreModule();
+});
 
 // Same trick monster-generator-panel.spec.ts uses: a single cheap monster so
 // a level-1/size-1 "medium" budget only ever affords exactly one of it,
@@ -32,9 +44,15 @@ describe('EncounterGenerator', () => {
 
   beforeEach(async () => {
     localStorage.clear();
+    __resetFakeFirestore();
     await TestBed.configureTestingModule({
       imports: [EncounterGenerator],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: new FakeAuthService() },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EncounterGenerator);

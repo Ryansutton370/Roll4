@@ -4,15 +4,21 @@
 <div class="app-shell">
   <header>
     <h1>Roll4</h1>
-    <nav>
-      <!-- routerLinkActive: Angular directive that adds a class to the <a>
-           whenever its routerLink matches the current URL — no manual
-           "which page am I on" logic needed. -->
-      <a routerLink="/players" routerLinkActive="active">Players</a>
-      <a routerLink="/npcs" routerLinkActive="active">NPCs</a>
-      <a routerLink="/encounters" routerLinkActive="active">Encounters</a>
-      <a routerLink="/generators" routerLinkActive="active">Random Generators</a>
-    </nav>
+    <!-- @if (authService.uid()) — the nav (and the Log Out button) only
+         make sense once a GM is signed in; on /login itself uid() is
+         null, so this whole block just doesn't render there. -->
+    @if (authService.uid()) {
+      <nav>
+        <!-- routerLinkActive: Angular directive that adds a class to the <a>
+             whenever its routerLink matches the current URL — no manual
+             "which page am I on" logic needed. -->
+        <a routerLink="/players" routerLinkActive="active">Players</a>
+        <a routerLink="/npcs" routerLinkActive="active">NPCs</a>
+        <a routerLink="/encounters" routerLinkActive="active">Encounters</a>
+        <a routerLink="/generators" routerLinkActive="active">Random Generators</a>
+        <button type="button" class="logout-btn" (click)="logout()">Log Out</button>
+      </nav>
+    }
   </header>
 
   <main>

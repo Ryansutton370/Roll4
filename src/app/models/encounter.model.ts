@@ -9,6 +9,8 @@ export type CombatantType = 'pc' | 'npc';
 export interface Combatant {
   id: string;
   encounterId: string;
+  /** The owning GM's Firebase Auth uid, copied from the parent Encounter at creation — Firestore security rules key every read/write off this. */
+  ownerId: string;
   type: CombatantType;
   playerId: string | null;
   /** Set when this NPC combatant is linked to a library Npc (pulled in via
@@ -76,6 +78,8 @@ export interface Combatant {
 export interface Timer {
   id: string;
   encounterId: string;
+  /** The owning GM's Firebase Auth uid, copied from the parent Encounter at creation — Firestore security rules key every read/write off this. */
+  ownerId: string;
   name: string;
   remaining: number;
   /** The value the GM set at creation — never changes afterward. Used only
@@ -99,6 +103,8 @@ export interface Timer {
 
 export interface Encounter {
   id: string;
+  /** The owning GM's Firebase Auth uid — Firestore security rules key every read/write off this. */
+  ownerId: string;
   name: string;
   partyIds: string[];
   troopIds: string[];

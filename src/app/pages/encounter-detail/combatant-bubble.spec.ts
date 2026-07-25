@@ -5,6 +5,7 @@ import { CombatantBubble } from './combatant-bubble';
 const combatant: Combatant = {
   id: 'c1',
   encounterId: 'e1',
+  ownerId: 'test-gm',
   type: 'pc',
   playerId: 'pc1',
   npcId: null,

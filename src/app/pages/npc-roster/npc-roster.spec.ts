@@ -3,6 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MonsterTemplate } from '../../models/monster-template.model';
+import { NpcStore } from '../../services/npc-store';
+import { FakeNpcStore } from '../../services/testing/fake-npc-store';
 import { ToastService } from '../../shared/toast/toast';
 
 import { NpcRoster } from './npc-roster';
@@ -28,7 +30,12 @@ describe('NpcRoster', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [NpcRoster],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: NpcStore, useValue: new FakeNpcStore() },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(NpcRoster);

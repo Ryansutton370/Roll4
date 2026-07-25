@@ -1,0 +1,49 @@
+<h1>{{ mode() === 'signin' ? 'Sign In' : 'Create Account' }}</h1>
+
+<p class="login-intro">
+  @if (mode() === 'signin') {
+    Sign in to access your Players, NPCs, Parties, Troops, and Encounters.
+  } @else {
+    Create an account to start building your GM library.
+  }
+</p>
+
+<form class="entry-form login-form" (ngSubmit)="submitEmailForm()">
+  <input
+    type="email"
+    placeholder="Email"
+    autocomplete="email"
+    [ngModel]="email()"
+    (ngModelChange)="email.set($event)"
+    name="email"
+    required
+  />
+  <input
+    type="password"
+    placeholder="Password"
+    [autocomplete]="mode() === 'signup' ? 'new-password' : 'current-password'"
+    [ngModel]="password()"
+    (ngModelChange)="password.set($event)"
+    name="password"
+    required
+  />
+  <button type="submit" [disabled]="submitting()">
+    {{ mode() === 'signin' ? 'Sign In' : 'Create Account' }}
+  </button>
+</form>
+
+@if (error()) {
+  <p class="login-error">{{ error() }}</p>
+}
+
+<button type="button" class="google-btn" (click)="continueWithGoogle()">Continue with Google</button>
+
+<p class="login-toggle">
+  @if (mode() === 'signin') {
+    Don't have an account?
+    <button type="button" class="link-btn" (click)="toggleMode()">Create one</button>
+  } @else {
+    Already have an account?
+    <button type="button" class="link-btn" (click)="toggleMode()">Sign in</button>
+  }
+</p>

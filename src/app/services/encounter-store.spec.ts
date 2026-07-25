@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 
 import { Combatant } from '../models/encounter.model';
+import { AuthService } from './auth-service';
 import {
   EncounterStore,
   clearHoldWithoutReroll,
@@ -13,11 +14,34 @@ import {
 } from './encounter-store';
 import { NpcStore } from './npc-store';
 import { PartyStore } from './party-store';
+import { FakeAuthService } from './testing/fake-auth-service';
+import { __resetFakeFirestore } from './testing/fake-firestore';
+import { FakeNpcStore } from './testing/fake-npc-store';
+import { FakePartyStore } from './testing/fake-party-store';
+
+// EncounterStore is Firestore-backed (see encounter-store.ts) — its own
+// business logic (rollInitiative, advanceTurn, Hold Action, Ready to
+// Join, Timers, ...) is what this file actually wants to exercise, so
+// unlike PartyStore/NpcStore (whose specs were pared down to their
+// extracted pure functions once they went Firestore-backed — see
+// party-store.spec.ts's header comment), the REAL EncounterStore is still
+// instantiated here. That only works because 'firebase/firestore' itself
+// is swapped for a synchronous in-memory double (fake-firestore.ts) —
+// every setDoc/updateDoc/deleteDoc/writeBatch.commit() call applies
+// immediately and synchronously notifies any onSnapshot listener, so
+// there's no real network involved and no await/tick needed around
+// individual mutations, the same "call a method, assert immediately"
+// shape these tests already had against the old localStorage store.
+vi.mock('firebase/firestore', async () => {
+  const { createFakeFirestoreModule } = await import('./testing/fake-firestore');
+  return createFakeFirestoreModule();
+});
 
 function combatant(overrides: Partial<Combatant>): Combatant {
   return {
     id: 'c',
     encounterId: 'e',
+    ownerId: 'test-gm',
     type: 'npc',
     playerId: null,
     npcId: null,
@@ -53,7 +77,7 @@ function pcFields(name: string, initiativeModifier: number) {
 
 /** Creates a Player and adds it to a Party in one step — PartyStore.addPc no longer exists now that creation and Party membership are separate (many-to-many). */
 function addPlayerToParty(
-  partyStore: PartyStore,
+  partyStore: FakePartyStore,
   partyId: string,
   fields: { name: string; initiativeModifier: number; ac: number | null; maxHp: number | null; notes: string },
 ) {
@@ -64,7 +88,7 @@ function addPlayerToParty(
 
 /** Npc-side mirror of addPlayerToParty above. */
 function addNpcToTroop(
-  npcStore: NpcStore,
+  npcStore: FakeNpcStore,
   troopId: string,
   fields: { name: string; initiativeModifier: number; ac: number | null; maxHp: number | null; notes: string },
 ) {
@@ -292,15 +316,27 @@ describe('computeDisplayNames (pure logic)', () => {
 
 describe('EncounterStore', () => {
   let service: EncounterStore;
-  let partyStore: PartyStore;
-  let npcStore: NpcStore;
+  let partyStore: FakePartyStore;
+  let npcStore: FakeNpcStore;
 
   beforeEach(() => {
-    localStorage.clear();
-    TestBed.configureTestingModule({});
+    __resetFakeFirestore();
+    partyStore = new FakePartyStore();
+    npcStore = new FakeNpcStore();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useValue: new FakeAuthService() },
+        { provide: PartyStore, useValue: partyStore },
+        { provide: NpcStore, useValue: npcStore },
+      ],
+    });
     service = TestBed.inject(EncounterStore);
-    partyStore = TestBed.inject(PartyStore);
-    npcStore = TestBed.inject(NpcStore);
+    // Flushes the constructor's effect() — which is what actually
+    // subscribes the (fake) Firestore onSnapshot listeners — so every
+    // signal is populated (here, with empty arrays) before a test's first
+    // mutation call. Without this, the listeners wouldn't exist yet and a
+    // write's synchronous notify() would have nothing to call.
+    TestBed.tick();
   });
 
   it('should be created', () => {

@@ -550,19 +550,76 @@ opened once the GM wanted it reachable from the run-phase "+" menu instead.
       vertical-ellipsis (⋮) icon, since a single "+" no longer described a
       menu with a non-"add" option in it.
 
-- [ ] Choose a backend (see [ARCHITECTURE.md](./ARCHITECTURE.md) — deferred
-      on purpose until this phase).
-- [ ] GM authentication/accounts.
-- [ ] Migrate Players/NPCs/Parties/Troops/Encounters from browser storage to
-      the backend, scoped per-GM.
-- [ ] Data accessible from more than one device/browser.
-- [ ] Account preferences: a GM-level settings page, starting with a
-      preferred source book (D&D 5e SRD vs. Shadowdark — the same two
-      sources as the Encounter Generator/From Book/Random Generators —
-      more sources may be added later). The preferred source should be
-      selected by default anywhere a source toggle appears (Encounter
-      Generator, `AddCombatantDialog`'s From Book step, NPC roster's
-      Browse Monster List), rather than the GM re-selecting it every time.
+## Phase 3 — Firebase/Firestore Backend + GM Accounts (complete)
+
+Chose a backend (Firebase — Firestore + Firebase Auth, see
+[ARCHITECTURE.md](./ARCHITECTURE.md)'s Persistence section for the full
+rationale and mechanics) and migrated every GM-owned entity off
+`localStorage`. Broken into sub-milestones the way Phase 2 grew 2.5–2.12,
+given the size.
+
+- [x] **3.1 — Firebase project + SDK + environment config.** `npm install
+      firebase` (the raw modular SDK, not `@angular/fire` — see
+      [ARCHITECTURE.md](./ARCHITECTURE.md) for why), `src/environments/`
+      (the Firebase web config — safe to commit, not a secret),
+      `src/app/firebase.ts` (the one shared `initializeApp`/`getFirestore`/
+      `getAuth` call), `firestore.rules`/`firestore.indexes.json`/
+      `firebase.json`/`.firebaserc` at the repo root.
+- [x] **3.2 — `AuthService` + login page + route guards.** Email/password
+      and Google sign-in (`src/app/services/auth-service.ts`), a new
+      `/login` page (`src/app/pages/login/`), and `authGuard`/
+      `redirectIfAuthedGuard` (`src/app/guards/auth-guard.ts`) gating the
+      whole route tree behind a signed-in GM via a pathless parent route —
+      every existing URL unchanged. Verified live: sign-up/sign-in,
+      session persists across a fresh session, sign-out actually navigates
+      away (a real bug found and fixed — route guards only run on
+      navigation, not reactively, so the nav bar disappearing on sign-out
+      didn't used to also leave the page), and an already-signed-in GM
+      visiting `/login` bounces back to `/players`.
+- [x] **3.3 — `PartyStore` → Firestore** (the template every other store
+      followed). `Party`/`Player` gained a real `ownerId` field; the store
+      itself flipped from "mutate the signal, mirror it to `localStorage`
+      via an `effect()`" to "write Firestore directly, let an
+      `onSnapshot` listener be the only thing that ever sets the signal" —
+      see [ARCHITECTURE.md](./ARCHITECTURE.md) for the full pattern.
+      Verified live against the real backend: create/persist across
+      sessions, and a second GM account seeing an empty roster (proving
+      Firestore-security-rule scoping, not just browser isolation).
+- [x] **3.4 — `NpcStore` → Firestore.** Structurally identical to 3.3.
+- [x] **3.5 — `EncounterStore` → Firestore** — the largest, most
+      cross-referential store (`Encounter`/`Combatant`/`Timer` together).
+      Methods that touch more than one collection in what has to be one
+      atomic operation (`commitOrder`, `createEncounter`,
+      `setEncounterParties`/`setEncounterTroops`, `removeCombatant`,
+      `deleteEncounter`) now use a Firestore `writeBatch`. All of
+      `EncounterStore`'s existing business-logic test coverage (rolling,
+      advancing turns, Hold Action, Ready to Join, Timers) was kept
+      passing unchanged against the real service, via a new synchronous
+      in-memory `'firebase/firestore'` test double
+      (`src/app/services/testing/fake-firestore.ts`) rather than losing
+      that coverage — see [ARCHITECTURE.md](./ARCHITECTURE.md)'s Testing
+      note. Verified live: a full multi-round encounter (roll, advance
+      turns, a Timer ticking at the round boundary) surviving across
+      completely fresh sessions.
+- [x] **3.6 — Docs pass** (this entry) — `ARCHITECTURE.md`'s Persistence
+      section rewritten for the Firebase model, `DATA_MODEL.md`'s
+      `ownerId`/`User` notes updated past-tense (and a real naming
+      collision fixed along the way: an earlier draft of `DATA_MODEL.md`
+      used `Player.ownerId` for a future Player-role link, which would
+      have collided with the GM-ownership `ownerId` every entity now
+      actually has — the future link needs its own field name when
+      Phase 4 gets there).
+
+A side effect of the migration, not a separate line of work: data is now
+naturally **accessible from more than one device/browser** (any signed-in
+session reads the same Firestore-backed account) — confirmed as part of
+3.3's live verification, not something built separately.
+
+**Not part of this phase, still open:** a GM-level settings page (starting
+with a preferred source book — D&D 5e SRD vs. Shadowdark — defaulted
+wherever a source toggle appears: Encounter Generator, `AddCombatantDialog`'s
+From Book step, NPC roster's Browse Monster List). Revisit once it's
+actually being designed.
 
 ## Phase 4 — Player Role
 
@@ -621,6 +678,16 @@ design (data model, UI) before it becomes phase work.
   theme. Likely builds on the existing design tokens (see
   [ARCHITECTURE.md](./ARCHITECTURE.md)) by making them swappable per-theme
   rather than introducing a separate styling system.
+- **Temporary HP and Temporary Shield/AC bonuses on a combatant, mid-encounter**
+  — separate from the base HP/AC fields (see Phase 2's Combatant HP/AC/Notes
+  bullet), a GM-settable temp HP pool that absorbs damage before real HP
+  and a temp AC bonus (e.g. from a Shield spell) that stacks on top of base
+  AC, both scoped to the encounter/combatant and presumably clearable
+  on a status/duration trigger rather than persisting like base stats do.
+  Needs design: how temp HP interacts with healing/overhealing, whether
+  temp AC is a flat add-on shown separately or folds into the displayed AC
+  number, and whether either belongs on `Combatant` only or also on the
+  Player/NPC roster templates.
 
 ## Explicitly not planned yet
 

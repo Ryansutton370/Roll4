@@ -1,23 +1,56 @@
-import { Service, effect, signal } from '@angular/core';
+import { Service, effect, inject, signal } from '@angular/core';
+import {
+  Unsubscribe,
+  arrayRemove,
+  arrayUnion,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
+import { firestore } from '../firebase';
 import { Npc, Troop } from '../models/npc.model';
+import { AuthService } from './auth-service';
 
-// New key — NPCs had no persisted library at all before this (they were
-// always created ad-hoc, inline in an Encounter). See docs/ARCHITECTURE.md
-// for why this app doesn't bother migrating old-shaped data.
-const STORAGE_KEY = 'roll4.troops.v1';
+// Structural mirror of party-store.ts — same reasoning throughout: a
+// @Service() singleton whose signals mirror an ownerId-scoped Firestore
+// onSnapshot listener, and a many-to-many group/member pair where the
+// group (Troop.npcIds) is the single owning source of truth for
+// membership rather than a back-reference on the member (Npc has none).
+// See party-store.ts's own comments for the fuller explanation of every
+// pattern reused here — this file exists mainly to prove that pattern
+// actually generalizes to a second store, not to re-explain it.
 
-interface NpcStorageShape {
-  troops: Troop[];
-  npcs: Npc[];
+/** Pure, DI-free reconciliation logic — see party-store.ts's equivalent functions for why this is kept separate from the Firestore glue below. */
+
+export function addNpcIdToTroop(troops: Troop[], troopId: string, npcId: string): Troop[] {
+  return troops.map((t) =>
+    t.id === troopId && !t.npcIds.includes(npcId) ? { ...t, npcIds: [...t.npcIds, npcId] } : t,
+  );
 }
 
-// Structural mirror of PartyStore (party-store.ts) — same reasoning
-// throughout: a @Service() singleton, a many-to-many group/member pair of
-// signals persisted together, and the group (Troop.npcIds) as the single
-// owning source of truth for membership rather than a back-reference on
-// the member (Npc has none).
+export function removeNpcIdFromTroop(troops: Troop[], troopId: string, npcId: string): Troop[] {
+  return troops.map((t) =>
+    t.id === troopId ? { ...t, npcIds: t.npcIds.filter((id) => id !== npcId) } : t,
+  );
+}
+
+/** Removes npcId from every Troop's membership — the reverse-cascade a full NPC deletion needs. */
+export function removeNpcIdFromAllTroops(troops: Troop[], npcId: string): Troop[] {
+  return troops.map((t) =>
+    t.npcIds.includes(npcId) ? { ...t, npcIds: t.npcIds.filter((id) => id !== npcId) } : t,
+  );
+}
+
 @Service()
 export class NpcStore {
+  private readonly authService = inject(AuthService);
+
   private readonly troopsSignal = signal<Troop[]>([]);
   private readonly npcsSignal = signal<Npc[]>([]);
 
@@ -25,27 +58,26 @@ export class NpcStore {
   readonly npcs = this.npcsSignal.asReadonly();
 
   constructor() {
-    this.load();
+    let unsubTroops: Unsubscribe | null = null;
+    let unsubNpcs: Unsubscribe | null = null;
 
     effect(() => {
-      const snapshot: NpcStorageShape = {
-        troops: this.troopsSignal(),
-        npcs: this.npcsSignal(),
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-    });
-  }
+      const uid = this.authService.uid();
+      unsubTroops?.();
+      unsubNpcs?.();
+      this.troopsSignal.set([]);
+      this.npcsSignal.set([]);
+      if (!uid) return;
 
-  private load(): void {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as NpcStorageShape;
-      this.troopsSignal.set(parsed.troops ?? []);
-      this.npcsSignal.set(parsed.npcs ?? []);
-    } catch {
-      // Corrupt/unreadable data — start fresh rather than crash the app.
-    }
+      unsubTroops = onSnapshot(
+        query(collection(firestore, 'troops'), where('ownerId', '==', uid)),
+        (snap) => this.troopsSignal.set(snap.docs.map((d) => d.data() as Troop)),
+      );
+      unsubNpcs = onSnapshot(
+        query(collection(firestore, 'npcs'), where('ownerId', '==', uid)),
+        (snap) => this.npcsSignal.set(snap.docs.map((d) => d.data() as Npc)),
+      );
+    });
   }
 
   getTroop(id: string): Troop | undefined {
@@ -69,37 +101,36 @@ export class NpcStore {
   }
 
   createTroop(name: string): Troop {
-    const troop: Troop = { id: crypto.randomUUID(), name, npcIds: [] };
-    this.troopsSignal.update((troops) => [...troops, troop]);
+    const ownerId = this.requireUid();
+    const troop: Troop = { id: crypto.randomUUID(), ownerId, name, npcIds: [] };
+    setDoc(doc(firestore, 'troops', troop.id), troop).catch((err) =>
+      console.error('Failed to save troop', err),
+    );
     return troop;
   }
 
   renameTroop(id: string, name: string): void {
-    this.troopsSignal.update((troops) =>
-      troops.map((t) => (t.id === id ? { ...t, name } : t)),
+    updateDoc(doc(firestore, 'troops', id), { name }).catch((err) =>
+      console.error('Failed to rename troop', err),
     );
   }
 
   /** Doesn't cascade-delete member NPCs — a Troop is a tag on the shared NPC roster, same as Party for Players. */
   deleteTroop(id: string): void {
-    this.troopsSignal.update((troops) => troops.filter((t) => t.id !== id));
+    deleteDoc(doc(firestore, 'troops', id)).catch((err) =>
+      console.error('Failed to delete troop', err),
+    );
   }
 
   addNpcToTroop(troopId: string, npcId: string): void {
-    this.troopsSignal.update((troops) =>
-      troops.map((t) =>
-        t.id === troopId && !t.npcIds.includes(npcId)
-          ? { ...t, npcIds: [...t.npcIds, npcId] }
-          : t,
-      ),
+    updateDoc(doc(firestore, 'troops', troopId), { npcIds: arrayUnion(npcId) }).catch((err) =>
+      console.error('Failed to add npc to troop', err),
     );
   }
 
   removeNpcFromTroop(troopId: string, npcId: string): void {
-    this.troopsSignal.update((troops) =>
-      troops.map((t) =>
-        t.id === troopId ? { ...t, npcIds: t.npcIds.filter((id) => id !== npcId) } : t,
-      ),
+    updateDoc(doc(firestore, 'troops', troopId), { npcIds: arrayRemove(npcId) }).catch((err) =>
+      console.error('Failed to remove npc from troop', err),
     );
   }
 
@@ -113,13 +144,17 @@ export class NpcStore {
     monsterTemplateId?: string | null;
     monsterName?: string | null;
   }): Npc {
+    const ownerId = this.requireUid();
     const npc: Npc = {
       id: crypto.randomUUID(),
+      ownerId,
       ...fields,
       monsterTemplateId: fields.monsterTemplateId ?? null,
       monsterName: fields.monsterName ?? null,
     };
-    this.npcsSignal.update((npcs) => [...npcs, npc]);
+    setDoc(doc(firestore, 'npcs', npc.id), npc).catch((err) =>
+      console.error('Failed to save npc', err),
+    );
     return npc;
   }
 
@@ -127,16 +162,24 @@ export class NpcStore {
     id: string,
     changes: Partial<Pick<Npc, 'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes'>>,
   ): void {
-    this.npcsSignal.update((npcs) => npcs.map((n) => (n.id === id ? { ...n, ...changes } : n)));
+    updateDoc(doc(firestore, 'npcs', id), changes).catch((err) =>
+      console.error('Failed to update npc', err),
+    );
   }
 
-  /** Reverse-cascades across every Troop's npcIds, not just one — an NPC can belong to several Troops at once. */
+  /** Reverse-cascades across every Troop's npcIds, not just one — an NPC can belong to several Troops at once. writeBatch keeps the delete and every troop-update atomic, same as PartyStore.deletePlayer. */
   deleteNpc(id: string): void {
-    this.npcsSignal.update((npcs) => npcs.filter((n) => n.id !== id));
-    this.troopsSignal.update((troops) =>
-      troops.map((t) =>
-        t.npcIds.includes(id) ? { ...t, npcIds: t.npcIds.filter((nid) => nid !== id) } : t,
-      ),
-    );
+    const batch = writeBatch(firestore);
+    batch.delete(doc(firestore, 'npcs', id));
+    this.troopsSignal()
+      .filter((t) => t.npcIds.includes(id))
+      .forEach((t) => batch.update(doc(firestore, 'troops', t.id), { npcIds: arrayRemove(id) }));
+    batch.commit().catch((err) => console.error('Failed to delete npc', err));
+  }
+
+  private requireUid(): string {
+    const uid = this.authService.uid();
+    if (!uid) throw new Error('NpcStore method called while signed out');
+    return uid;
   }
 }

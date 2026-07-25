@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// Every document in every collection here carries an ownerId field set to
+// the owning GM's Firebase Auth uid. isOwner() is the one check every
+// collection's rules boil down to — see docs/ARCHITECTURE.md's
+// "Persistence" section for why this is enough for now: there are no
+// per-entity roles below the GM yet, just "is this the GM who owns it."
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(ownerId) {
+      return request.auth != null && request.auth.uid == ownerId;
+    }
+
+    match /players/{id} {
+      allow read, update, delete: if isOwner(resource.data.ownerId);
+      allow create: if isOwner(request.resource.data.ownerId);
+    }
+    match /npcs/{id} {
+      allow read, update, delete: if isOwner(resource.data.ownerId);
+      allow create: if isOwner(request.resource.data.ownerId);
+    }
+    match /parties/{id} {
+      allow read, update, delete: if isOwner(resource.data.ownerId);
+      allow create: if isOwner(request.resource.data.ownerId);
+    }
+    match /troops/{id} {
+      allow read, update, delete: if isOwner(resource.data.ownerId);
+      allow create: if isOwner(request.resource.data.ownerId);
+    }
+    match /encounters/{id} {
+      allow read, update, delete: if isOwner(resource.data.ownerId);
+      allow create: if isOwner(request.resource.data.ownerId);
+    }
+    match /combatants/{id} {
+      allow read, update, delete: if isOwner(resource.data.ownerId);
+      allow create: if isOwner(request.resource.data.ownerId);
+    }
+    match /timers/{id} {
+      allow read, update, delete: if isOwner(resource.data.ownerId);
+      allow create: if isOwner(request.resource.data.ownerId);
+    }
+  }
+}

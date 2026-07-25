@@ -4,31 +4,51 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { MonsterTemplate } from '../../models/monster-template.model';
+import { AuthService } from '../../services/auth-service';
 import { EncounterStore } from '../../services/encounter-store';
 import { NpcStore } from '../../services/npc-store';
 import { PartyStore } from '../../services/party-store';
+import { FakeAuthService } from '../../services/testing/fake-auth-service';
+import { __resetFakeFirestore } from '../../services/testing/fake-firestore';
+import { FakeNpcStore } from '../../services/testing/fake-npc-store';
+import { FakePartyStore } from '../../services/testing/fake-party-store';
 import { EncounterList } from './encounter-list';
+
+// EncounterStore is real here (not faked) since this suite exercises real
+// Encounter-creation flows through the component — see
+// encounter-store.spec.ts's header comment for why 'firebase/firestore'
+// itself is swapped for a synchronous in-memory double instead.
+vi.mock('firebase/firestore', async () => {
+  const { createFakeFirestoreModule } = await import('../../services/testing/fake-firestore');
+  return createFakeFirestoreModule();
+});
 
 describe('EncounterList', () => {
   let component: EncounterList;
   let fixture: ComponentFixture<EncounterList>;
   let encounterStore: EncounterStore;
-  let partyStore: PartyStore;
-  let npcStore: NpcStore;
+  let partyStore: FakePartyStore;
+  let npcStore: FakeNpcStore;
   let router: Router;
 
   beforeEach(async () => {
     localStorage.clear();
+    __resetFakeFirestore();
+    partyStore = new FakePartyStore();
+    npcStore = new FakeNpcStore();
     await TestBed.configureTestingModule({
       imports: [EncounterList],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: new FakeAuthService() },
+        { provide: PartyStore, useValue: partyStore },
+        { provide: NpcStore, useValue: npcStore },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EncounterList);
     component = fixture.componentInstance;
     encounterStore = TestBed.inject(EncounterStore);
-    partyStore = TestBed.inject(PartyStore);
-    npcStore = TestBed.inject(NpcStore);
     router = TestBed.inject(Router);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -289,9 +309,15 @@ describe('EncounterList generator explicit commit', () => {
 
   beforeEach(async () => {
     localStorage.clear();
+    __resetFakeFirestore();
     await TestBed.configureTestingModule({
       imports: [EncounterList],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: new FakeAuthService() },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EncounterList);

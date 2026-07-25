@@ -5,6 +5,7 @@ import { EditCombatantDialog } from './edit-combatant-dialog';
 const combatant: Combatant = {
   id: 'c1',
   encounterId: 'e1',
+  ownerId: 'test-gm',
   type: 'npc',
   playerId: null,
   npcId: null,

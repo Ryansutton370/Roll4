@@ -49,12 +49,15 @@ already used for `Encounter.combatantIds`/`holdOrder`.
 
 ## Entities
 
-**Implementation note (Phase 1):** `User` and the `ownerId` fields below
-describe the target relational shape once GM accounts exist (Phase 3 — see
-[ROADMAP.md](./ROADMAP.md)). Phase 1/2 have no accounts at all — one GM, one
-browser — so the code has no `User` type and no entity has an `ownerId`
-field yet. They'll be added when auth actually lands, instead of carrying
-an always-empty field until then.
+**Implementation note (Phase 3):** every entity below now carries a real
+`ownerId: string` field — the owning GM's Firebase Auth uid — enforced by
+Firestore security rules (see [ARCHITECTURE.md](./ARCHITECTURE.md)'s
+Persistence section). There's no separate `User` type or Firestore `users`
+collection yet: Firebase Auth's own user object (`uid`, `email`,
+`displayName`) is sufficient as every `ownerId`'s source today. The `User`
+sketch below (`role`, forward-looking for the Phase 4 Player role) stays
+documented as the eventual shape, to be added as a real Firestore document
+once Phase 4 needs to persist something Firebase Auth doesn't already carry.
 
 ### User
 
@@ -83,12 +86,24 @@ is many-to-many.
 | Field                | Type           | Notes                                                          |
 | -------------------- | -------------- | -------------------------------------------------------------- |
 | `id`                 | string         | Unique identifier                                              |
+| `ownerId`            | string         | References `User.id` (the GM) — same meaning as every other entity's `ownerId`; see the note below on why this isn't the future Player-role link |
 | `name`               | string         | e.g. "Aria Windmere"                                           |
 | `initiativeModifier` | number         | Signed integer, e.g. `3`, `0`, `-1`                            |
 | `ac`                 | number \| null | Optional. `null` means "not set," not zero                     |
 | `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the Player |
 | `notes`              | string         | Optional. `''` means "not set"                                 |
-| `ownerId`            | string \| null | Future: references a Player-role `User.id`                     |
+
+**On `ownerId` vs. the future Player-role link:** an earlier draft of this
+doc used `Player.ownerId` for a different, forward-looking idea — which
+*Player-role* `User` (Phase 4) controls this character. Once Phase 3 gave
+every entity a real GM-ownership `ownerId` (enforced by Firestore security
+rules — see [ARCHITECTURE.md](./ARCHITECTURE.md)), reusing the same field
+name for two different relationships on the same entity would only cause
+confusion. `Player.ownerId` is the GM-ownership field, exactly like
+`Party`/`Troop`/`Npc`/`Encounter`/`Combatant`/`Timer` below. The future
+"which Player-role account controls this character" link still needs
+building in Phase 4, under a different field name (e.g. `controlledByUserId`)
+— not sketched further here since that design hasn't happened yet.
 
 ### Troop
 
@@ -153,6 +168,7 @@ a Player, ad-hoc or otherwise."
 | ------------------------ | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`                     | string            | Unique identifier                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `encounterId`            | string            | References `Encounter.id`                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `ownerId`                | string            | The owning GM's Firebase Auth uid, copied from the parent `Encounter` at creation — see the Phase 3 implementation note above                                                                                                                                                                                                                                                                                                                                                     |
 | `type`                   | `"pc"` \| `"npc"` | Drives the color shown in the initiative list                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `playerId`               | string \| null    | Set when this Combatant is linked to a library `Player` — pulled in from a Party, added individually, or saved to the roster after the fact. `null` for an ad-hoc, unsaved Player. Always `null` when `type === "npc"`                                                                                                                                                                                                                                                              |
 | `npcId`                  | string \| null    | Npc-side mirror of `playerId` above — set when linked to a library `Npc` (pulled from a Troop, added individually, or saved after the fact). `null` for an ad-hoc, unsaved NPC — Phase 1's only NPC behavior, still fully supported. Always `null` when `type === "pc"`                                                                                                                                                                                                             |
@@ -430,6 +446,7 @@ see "Timers" below for the full behavior.
 | ------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`                      | string         | Unique identifier                                                                                                                                 |
 | `encounterId`             | string         | References `Encounter.id`                                                                                                                         |
+| `ownerId`                 | string         | The owning GM's Firebase Auth uid, copied from the parent `Encounter` at creation — see the Phase 3 implementation note above                    |
 | `name`                    | string         | GM-entered label, e.g. "Room floods"                                                                                                              |
 | `remaining`               | number         | Current countdown value                                                                                                                           |
 | `initialValue`            | number         | The value set at creation; never changes afterward — used only to compute the card's light-grey-to-black background as `remaining / initialValue` |
