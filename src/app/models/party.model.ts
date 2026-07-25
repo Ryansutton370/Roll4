@@ -8,6 +8,8 @@
  */
 export interface Player {
   id: string;
+  /** The owning GM's Firebase Auth uid — Firestore security rules key every read/write off this. */
+  ownerId: string;
   name: string;
   /** Signed integer added to a d20 roll, e.g. 3, 0, -1. */
   initiativeModifier: number;
@@ -27,6 +29,8 @@ export interface Player {
  */
 export interface Party {
   id: string;
+  /** The owning GM's Firebase Auth uid — Firestore security rules key every read/write off this. */
+  ownerId: string;
   name: string;
   playerIds: string[];
 }

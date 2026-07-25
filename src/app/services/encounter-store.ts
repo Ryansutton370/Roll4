@@ -1,23 +1,26 @@
 import { Service, effect, inject, signal } from '@angular/core';
+import {
+  Unsubscribe,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
+import { firestore } from '../firebase';
 import { Combatant, CombatantType, Encounter, Timer } from '../models/encounter.model';
+import { AuthService } from './auth-service';
 import { NpcStore } from './npc-store';
 import { PartyStore } from './party-store';
-
-// Bumped from 'roll4.encounters.v3' — Combatant gained readyToJoin, and the
-// storage shape gained a new Timer[] array. This app has no migration path
-// yet (see docs/ARCHITECTURE.md), so old-shaped data is simply left behind.
-const STORAGE_KEY = 'roll4.encounters.v4';
 
 /** Keeps Current HP within [0, maxHp] — null maxHp means "not tracked", so there's nothing to clamp. */
 function clampCurrentHp(currentHp: number, maxHp: number | null): number | null {
   if (maxHp === null) return null;
   return Math.min(Math.max(currentHp, 0), maxHp);
-}
-
-interface EncounterStorageShape {
-  encounters: Encounter[];
-  combatants: Combatant[];
-  timers: Timer[];
 }
 
 function rollD20(): number {
@@ -221,33 +224,45 @@ export class EncounterStore {
   // called during class field initialization (an "injection context"),
   // which is why it replaces constructor-parameter injection for @Service
   // classes rather than appearing inside a constructor body.
+  private readonly authService = inject(AuthService);
   private readonly partyStore = inject(PartyStore);
   private readonly npcStore = inject(NpcStore);
 
   constructor() {
-    this.load();
+    let unsubEncounters: Unsubscribe | null = null;
+    let unsubCombatants: Unsubscribe | null = null;
+    let unsubTimers: Unsubscribe | null = null;
 
+    // Same pattern as PartyStore/NpcStore — see party-store.ts's
+    // constructor comment for the full explanation. Three listeners
+    // instead of two: EncounterStore owns three entity groups, but each
+    // still just loads the signed-in GM's *entire* owned collection (not
+    // scoped to any one open Encounter), same as combatantsSignal/
+    // timersSignal always have — combatantsForEncounter/timersForEncounter
+    // below stay plain client-side filters over that full set.
     effect(() => {
-      const snapshot: EncounterStorageShape = {
-        encounters: this.encountersSignal(),
-        combatants: this.combatantsSignal(),
-        timers: this.timersSignal(),
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-    });
-  }
+      const uid = this.authService.uid();
+      unsubEncounters?.();
+      unsubCombatants?.();
+      unsubTimers?.();
+      this.encountersSignal.set([]);
+      this.combatantsSignal.set([]);
+      this.timersSignal.set([]);
+      if (!uid) return;
 
-  private load(): void {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as EncounterStorageShape;
-      this.encountersSignal.set(parsed.encounters ?? []);
-      this.combatantsSignal.set(parsed.combatants ?? []);
-      this.timersSignal.set(parsed.timers ?? []);
-    } catch {
-      // Corrupt/unreadable data — start fresh rather than crash the app.
-    }
+      unsubEncounters = onSnapshot(
+        query(collection(firestore, 'encounters'), where('ownerId', '==', uid)),
+        (snap) => this.encountersSignal.set(snap.docs.map((d) => d.data() as Encounter)),
+      );
+      unsubCombatants = onSnapshot(
+        query(collection(firestore, 'combatants'), where('ownerId', '==', uid)),
+        (snap) => this.combatantsSignal.set(snap.docs.map((d) => d.data() as Combatant)),
+      );
+      unsubTimers = onSnapshot(
+        query(collection(firestore, 'timers'), where('ownerId', '==', uid)),
+        (snap) => this.timersSignal.set(snap.docs.map((d) => d.data() as Timer)),
+      );
+    });
   }
 
   getEncounter(id: string): Encounter | undefined {
@@ -281,36 +296,58 @@ export class EncounterStore {
     return this.timersSignal().filter((t) => t.encounterId === encounterId);
   }
 
+  // Every method below that used to call combatantsSignal.update()/
+  // encountersSignal.update()/timersSignal.update() directly now writes to
+  // Firestore instead — the signals themselves are only ever set by the
+  // onSnapshot listeners above (see party-store.ts's constructor comment
+  // for the fuller "state flows storage -> app now, not app -> storage"
+  // explanation). updateEncounter/updateCombatant keep their original
+  // names and single-doc-partial-update signature on purpose: every call
+  // site below that only ever touched one Encounter or one Combatant doc
+  // needed zero changes once these two private helpers were swapped.
+
   private updateEncounter(id: string, changes: Partial<Encounter>): void {
-    this.encountersSignal.update((encounters) =>
-      encounters.map((e) => (e.id === id ? { ...e, ...changes } : e)),
+    updateDoc(doc(firestore, 'encounters', id), changes).catch((err) =>
+      console.error('Failed to update encounter', err),
     );
   }
 
   private updateCombatant(id: string, changes: Partial<Combatant>): void {
-    this.combatantsSignal.update((combatants) =>
-      combatants.map((c) => (c.id === id ? { ...c, ...changes } : c)),
+    updateDoc(doc(firestore, 'combatants', id), changes).catch((err) =>
+      console.error('Failed to update combatant', err),
     );
   }
 
   /**
-   * Commits a freshly-ordered combatant array: writes the (possibly changed)
-   * combatants back into the signal, saves the new order onto the Encounter,
-   * and resolves activeId to its new index. Re-resolving by id rather than
-   * carrying an index through is what lets syncHoldPositions reorder the
-   * list without every caller having to track how indices shifted.
+   * Commits a freshly-ordered combatant array: writes every (possibly
+   * changed) combatant in `order` back to Firestore, saves the new order
+   * onto the Encounter, and resolves activeId to its new index — all in
+   * one writeBatch, so a page reload never sees the combatants updated
+   * without the matching Encounter.combatantIds, or vice versa.
+   * Re-resolving activeId by id rather than carrying an index through is
+   * what lets syncHoldPositions reorder the list without every caller
+   * having to track how indices shifted. `order` is always this
+   * Encounter's *entire* combatant list (every caller passes
+   * combatantsForEncounter's result, possibly reordered/modified) — a
+   * writeBatch comfortably covers that (Firestore allows up to 500 writes
+   * per batch; a single Encounter's combatant count is nowhere close).
    */
   private commitOrder(encounterId: string, order: Combatant[], activeId: string | null): void {
-    this.combatantsSignal.update((combatants) => {
-      const byId = new Map(order.map((c) => [c.id, c]));
-      return combatants.map((c) => byId.get(c.id) ?? c);
-    });
     const activeCombatantIndex =
       activeId === null ? null : order.findIndex((c) => c.id === activeId);
-    this.updateEncounter(encounterId, {
+    const batch = writeBatch(firestore);
+    order.forEach((c) => batch.set(doc(firestore, 'combatants', c.id), c));
+    batch.update(doc(firestore, 'encounters', encounterId), {
       combatantIds: order.map((c) => c.id),
       activeCombatantIndex: activeCombatantIndex === -1 ? null : activeCombatantIndex,
     });
+    batch.commit().catch((err) => console.error('Failed to commit combatant order', err));
+  }
+
+  private requireUid(): string {
+    const uid = this.authService.uid();
+    if (!uid) throw new Error('EncounterStore method called while signed out');
+    return uid;
   }
 
   /**
@@ -339,6 +376,7 @@ export class EncounterStore {
     return {
       id: crypto.randomUUID(),
       encounterId,
+      ownerId: this.requireUid(),
       type,
       playerId: linkIds.playerId,
       npcId: linkIds.npcId,
@@ -363,6 +401,7 @@ export class EncounterStore {
 
   /** Creates an Encounter and pulls in every Player from the selected Parties, and every Npc from the selected Troops, as Combatants. */
   createEncounter(name: string, partyIds: string[], troopIds: string[] = []): Encounter {
+    const ownerId = this.requireUid();
     const encounterId = crypto.randomUUID();
     const newPlayerCombatants: Combatant[] = partyIds.flatMap((partyId) =>
       this.partyStore
@@ -380,6 +419,7 @@ export class EncounterStore {
 
     const encounter: Encounter = {
       id: encounterId,
+      ownerId,
       name,
       partyIds,
       troopIds,
@@ -390,14 +430,21 @@ export class EncounterStore {
       reRollEachRound: true,
     };
 
-    this.combatantsSignal.update((combatants) => [...combatants, ...newCombatants]);
-    this.encountersSignal.update((encounters) => [...encounters, encounter]);
+    const batch = writeBatch(firestore);
+    newCombatants.forEach((c) => batch.set(doc(firestore, 'combatants', c.id), c));
+    batch.set(doc(firestore, 'encounters', encounterId), encounter);
+    batch.commit().catch((err) => console.error('Failed to create encounter', err));
     return encounter;
   }
 
+  /** Doesn't delete this Encounter's Timers — a pre-existing quirk, not introduced by this migration (see the old localStorage-era deleteEncounter, which had the same gap). */
   deleteEncounter(id: string): void {
-    this.encountersSignal.update((encounters) => encounters.filter((e) => e.id !== id));
-    this.combatantsSignal.update((combatants) => combatants.filter((c) => c.encounterId !== id));
+    const batch = writeBatch(firestore);
+    batch.delete(doc(firestore, 'encounters', id));
+    this.combatantsSignal()
+      .filter((c) => c.encounterId === id)
+      .forEach((c) => batch.delete(doc(firestore, 'combatants', c.id)));
+    batch.commit().catch((err) => console.error('Failed to delete encounter', err));
   }
 
   renameEncounter(id: string, name: string): void {
@@ -419,10 +466,15 @@ export class EncounterStore {
     const addedPartyIds = partyIds.filter((id) => !encounter.partyIds.includes(id));
     const removedPartyIds = encounter.partyIds.filter((id) => !partyIds.includes(id));
 
+    // Snapshot once, up front — every removed/remaining computation below
+    // reads from this same snapshot rather than re-reading
+    // this.combatantsSignal() after issuing writes, since those writes
+    // are async now and wouldn't be reflected in the signal yet anyway
+    // (only the eventual onSnapshot callback updates it).
+    const currentCombatants = this.combatantsForEncounter(encounterId);
+
     const existingPlayerIds = new Set(
-      this.combatantsForEncounter(encounterId)
-        .filter((c) => c.type === 'pc')
-        .map((c) => c.playerId),
+      currentCombatants.filter((c) => c.type === 'pc').map((c) => c.playerId),
     );
 
     const newCombatants: Combatant[] = addedPartyIds.flatMap((partyId) =>
@@ -440,22 +492,21 @@ export class EncounterStore {
         : [],
     );
 
-    this.combatantsSignal.update((combatants) => [
-      ...combatants.filter(
-        (c) => !(c.encounterId === encounterId && c.playerId && removedPlayerIds.has(c.playerId)),
-      ),
-      ...newCombatants,
-    ]);
+    const combatantsToRemove = currentCombatants.filter(
+      (c) => c.playerId && removedPlayerIds.has(c.playerId),
+    );
+    const remainingCombatantIds = encounter.combatantIds.filter(
+      (id) => !combatantsToRemove.some((c) => c.id === id),
+    );
 
-    const remainingCombatantIds = encounter.combatantIds.filter((id) => {
-      const c = this.combatantsSignal().find((cc) => cc.id === id);
-      return !!c && !(c.playerId && removedPlayerIds.has(c.playerId));
-    });
-
-    this.updateEncounter(encounterId, {
+    const batch = writeBatch(firestore);
+    combatantsToRemove.forEach((c) => batch.delete(doc(firestore, 'combatants', c.id)));
+    newCombatants.forEach((c) => batch.set(doc(firestore, 'combatants', c.id), c));
+    batch.update(doc(firestore, 'encounters', encounterId), {
       partyIds,
       combatantIds: [...remainingCombatantIds, ...newCombatants.map((c) => c.id)],
     });
+    batch.commit().catch((err) => console.error('Failed to update encounter parties', err));
   }
 
   /**
@@ -471,10 +522,12 @@ export class EncounterStore {
     const addedTroopIds = troopIds.filter((id) => !encounter.troopIds.includes(id));
     const removedTroopIds = encounter.troopIds.filter((id) => !troopIds.includes(id));
 
+    // See setEncounterParties' equivalent comment for why this is snapshot
+    // once, up front, rather than re-read after issuing writes.
+    const currentCombatants = this.combatantsForEncounter(encounterId);
+
     const existingNpcIds = new Set(
-      this.combatantsForEncounter(encounterId)
-        .filter((c) => c.type === 'npc')
-        .map((c) => c.npcId),
+      currentCombatants.filter((c) => c.type === 'npc').map((c) => c.npcId),
     );
 
     const newCombatants: Combatant[] = addedTroopIds.flatMap((troopId) =>
@@ -494,22 +547,21 @@ export class EncounterStore {
         : [],
     );
 
-    this.combatantsSignal.update((combatants) => [
-      ...combatants.filter(
-        (c) => !(c.encounterId === encounterId && c.npcId && removedNpcIds.has(c.npcId)),
-      ),
-      ...newCombatants,
-    ]);
+    const combatantsToRemove = currentCombatants.filter(
+      (c) => c.npcId && removedNpcIds.has(c.npcId),
+    );
+    const remainingCombatantIds = encounter.combatantIds.filter(
+      (id) => !combatantsToRemove.some((c) => c.id === id),
+    );
 
-    const remainingCombatantIds = encounter.combatantIds.filter((id) => {
-      const c = this.combatantsSignal().find((cc) => cc.id === id);
-      return !!c && !(c.npcId && removedNpcIds.has(c.npcId));
-    });
-
-    this.updateEncounter(encounterId, {
+    const batch = writeBatch(firestore);
+    combatantsToRemove.forEach((c) => batch.delete(doc(firestore, 'combatants', c.id)));
+    newCombatants.forEach((c) => batch.set(doc(firestore, 'combatants', c.id), c));
+    batch.update(doc(firestore, 'encounters', encounterId), {
       troopIds,
       combatantIds: [...remainingCombatantIds, ...newCombatants.map((c) => c.id)],
     });
+    batch.commit().catch((err) => console.error('Failed to update encounter troops', err));
   }
 
   /**
@@ -536,10 +588,7 @@ export class EncounterStore {
       player,
       readyToJoin,
     );
-    this.combatantsSignal.update((combatants) => [...combatants, combatant]);
-    this.updateEncounter(encounterId, {
-      combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
-    });
+    this.addCombatantAndLinkToEncounter(encounterId, combatant);
   }
 
   /** Npc-side mirror of addPlayerCombatant above. */
@@ -555,10 +604,30 @@ export class EncounterStore {
       npc,
       readyToJoin,
     );
-    this.combatantsSignal.update((combatants) => [...combatants, combatant]);
-    this.updateEncounter(encounterId, {
-      combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
-    });
+    this.addCombatantAndLinkToEncounter(encounterId, combatant);
+  }
+
+  /**
+   * Shared by addPlayerCombatant/addNpcCombatant/addAdHocCombatant: writes
+   * the new Combatant doc and appends its id to the Encounter's
+   * combatantIds, batched together. Guards on the Encounter actually
+   * existing (unlike the old localStorage-era code, which fell back to an
+   * empty combatantIds array and no-op'd — harmless there since
+   * updateEncounter's Array.map silently ignores a missing id, but a
+   * Firestore updateDoc against a nonexistent document throws) — every
+   * real call site always has a valid encounterId, so this only ever
+   * matters for the same edge case the old code silently tolerated.
+   */
+  private addCombatantAndLinkToEncounter(encounterId: string, combatant: Combatant): void {
+    const encounter = this.getEncounter(encounterId);
+    const batch = writeBatch(firestore);
+    batch.set(doc(firestore, 'combatants', combatant.id), combatant);
+    if (encounter) {
+      batch.update(doc(firestore, 'encounters', encounterId), {
+        combatantIds: [...encounter.combatantIds, combatant.id],
+      });
+    }
+    batch.commit().catch((err) => console.error('Failed to add combatant', err));
   }
 
   /**
@@ -591,10 +660,7 @@ export class EncounterStore {
       fields,
       readyToJoin,
     );
-    this.combatantsSignal.update((combatants) => [...combatants, combatant]);
-    this.updateEncounter(encounterId, {
-      combatantIds: [...(this.getEncounter(encounterId)?.combatantIds ?? []), combatant.id],
-    });
+    this.addCombatantAndLinkToEncounter(encounterId, combatant);
     return combatant;
   }
 
@@ -680,10 +746,12 @@ export class EncounterStore {
   removeCombatant(encounterId: string, combatantId: string): void {
     const encounter = this.getEncounter(encounterId);
     if (!encounter || encounter.activeCombatantIndex !== null) return;
-    this.updateEncounter(encounterId, {
+    const batch = writeBatch(firestore);
+    batch.update(doc(firestore, 'encounters', encounterId), {
       combatantIds: encounter.combatantIds.filter((id) => id !== combatantId),
     });
-    this.combatantsSignal.update((combatants) => combatants.filter((c) => c.id !== combatantId));
+    batch.delete(doc(firestore, 'combatants', combatantId));
+    batch.commit().catch((err) => console.error('Failed to remove combatant', err));
   }
 
   setReRollEachRound(encounterId: string, reRollEachRound: boolean): void {
@@ -1066,15 +1134,21 @@ export class EncounterStore {
     round: number,
   ): void {
     if (!combatantId) return;
-    this.timersSignal.update((timers) =>
-      timers.map((t) =>
+    const toCredit = this.timersSignal().filter(
+      (t) =>
         t.encounterId === encounterId &&
         t.linkedCombatantId === combatantId &&
-        t.lastTickedRoundCredited !== round
-          ? { ...t, remaining: Math.max(0, t.remaining - 1), lastTickedRoundCredited: round }
-          : t,
-      ),
+        t.lastTickedRoundCredited !== round,
     );
+    if (toCredit.length === 0) return;
+    const batch = writeBatch(firestore);
+    toCredit.forEach((t) =>
+      batch.update(doc(firestore, 'timers', t.id), {
+        remaining: Math.max(0, t.remaining - 1),
+        lastTickedRoundCredited: round,
+      }),
+    );
+    batch.commit().catch((err) => console.error('Failed to credit linked timer', err));
   }
 
   /**
@@ -1092,26 +1166,34 @@ export class EncounterStore {
     round: number,
   ): void {
     if (!combatantId) return;
-    this.timersSignal.update((timers) =>
-      timers.map((t) =>
+    const toUncredit = this.timersSignal().filter(
+      (t) =>
         t.encounterId === encounterId &&
         t.linkedCombatantId === combatantId &&
-        t.lastTickedRoundCredited === round
-          ? { ...t, remaining: t.remaining + 1, lastTickedRoundCredited: null }
-          : t,
-      ),
+        t.lastTickedRoundCredited === round,
     );
+    if (toUncredit.length === 0) return;
+    const batch = writeBatch(firestore);
+    toUncredit.forEach((t) =>
+      batch.update(doc(firestore, 'timers', t.id), {
+        remaining: t.remaining + 1,
+        lastTickedRoundCredited: null,
+      }),
+    );
+    batch.commit().catch((err) => console.error('Failed to uncredit linked timer', err));
   }
 
   /** Unlinked timers tick once per round, at the round boundary itself — no guard needed, this only ever runs once per advanceTurn call. */
   private decrementUnlinkedTimers(encounterId: string): void {
-    this.timersSignal.update((timers) =>
-      timers.map((t) =>
-        t.encounterId === encounterId && t.linkedCombatantId === null
-          ? { ...t, remaining: Math.max(0, t.remaining - 1) }
-          : t,
-      ),
+    const unlinked = this.timersSignal().filter(
+      (t) => t.encounterId === encounterId && t.linkedCombatantId === null,
     );
+    if (unlinked.length === 0) return;
+    const batch = writeBatch(firestore);
+    unlinked.forEach((t) =>
+      batch.update(doc(firestore, 'timers', t.id), { remaining: Math.max(0, t.remaining - 1) }),
+    );
+    batch.commit().catch((err) => console.error('Failed to decrement timers', err));
   }
 
   createTimer(
@@ -1123,36 +1205,39 @@ export class EncounterStore {
     const timer: Timer = {
       id: crypto.randomUUID(),
       encounterId,
+      ownerId: this.requireUid(),
       name,
       remaining: initialValue,
       initialValue,
       linkedCombatantId,
       lastTickedRoundCredited: null,
     };
-    this.timersSignal.update((timers) => [...timers, timer]);
+    setDoc(doc(firestore, 'timers', timer.id), timer).catch((err) =>
+      console.error('Failed to create timer', err),
+    );
     return timer;
   }
 
   renameTimer(encounterId: string, timerId: string, name: string): void {
-    this.timersSignal.update((timers) =>
-      timers.map((t) => (t.encounterId === encounterId && t.id === timerId ? { ...t, name } : t)),
+    updateDoc(doc(firestore, 'timers', timerId), { name }).catch((err) =>
+      console.error('Failed to rename timer', err),
     );
   }
 
   dismissTimer(encounterId: string, timerId: string): void {
-    this.timersSignal.update((timers) =>
-      timers.filter((t) => !(t.encounterId === encounterId && t.id === timerId)),
+    deleteDoc(doc(firestore, 'timers', timerId)).catch((err) =>
+      console.error('Failed to dismiss timer', err),
     );
   }
 
   /** The GM's manual +/- nudge — unlike the automatic ticks above, deliberately unclamped, so a mistake can be corrected either direction. */
   adjustTimerValue(encounterId: string, timerId: string, delta: number): void {
-    this.timersSignal.update((timers) =>
-      timers.map((t) =>
-        t.encounterId === encounterId && t.id === timerId
-          ? { ...t, remaining: t.remaining + delta }
-          : t,
-      ),
+    const timer = this.timersSignal().find(
+      (t) => t.encounterId === encounterId && t.id === timerId,
+    );
+    if (!timer) return;
+    updateDoc(doc(firestore, 'timers', timerId), { remaining: timer.remaining + delta }).catch(
+      (err) => console.error('Failed to adjust timer', err),
     );
   }
 }

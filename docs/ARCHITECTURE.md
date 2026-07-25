@@ -11,7 +11,8 @@
   gesture — the one place in the app that needs real drag-and-drop; see
   docs/ROADMAP.md's "Planned, not yet built" note on why this was deferred
   elsewhere, and docs/PRODUCT.md's Hold Action section for the feature.
-- No backend yet — see "Persistence" below.
+- **Firebase** (Firestore + Firebase Auth) as of Phase 3 — see "Persistence"
+  below.
 
 ### Why Signals instead of NgRx for state management
 
@@ -25,46 +26,111 @@ from the raw combatants signal). This is also a more approachable way to
 learn Angular's current idioms, since Signals are the direction the
 framework itself is moving.
 
-## Persistence — current phase: local-only
+## Persistence — Firebase (Firestore + Firebase Auth), as of Phase 3
 
-**Decision:** for the current build phase, Roll4 has **no backend and no
-accounts**. All data (Players, NPCs, Parties, Troops, Encounters,
-in-progress round/turn state) is persisted to the browser via
-`localStorage` (or `IndexedDB` if we outgrow `localStorage`'s size/shape
-limits — unlikely at this scale).
+**Decision:** Roll4 now has real GM accounts and a real backend. Every GM
+signs in (email/password or Google, via Firebase Auth) and their Players,
+NPCs, Parties, Troops, and Encounters (including in-progress round/turn
+state) live in **Firestore**, scoped to their account. This replaced the
+Phase 1/2 local-only design once the real requirements (multi-device access,
+GM accounts) were actually being built, rather than guessed at in
+advance — see the superseded reasoning this section used to carry, now
+folded in below.
 
-**Why defer hosting instead of picking one now:** the real requirements for
-a backend (multi-device access, GM accounts, and _especially_ the future
-Player-notification feature) aren't being built yet, so picking
-Firebase/Supabase/a custom API now would mean designing around
-infrastructure the app doesn't need yet. Building local-only first lets us
-focus learning time on Angular itself, and means the eventual backend choice
-gets made against real, working requirements instead of guesses.
+**Why Firebase over Supabase/a custom API:** Firestore's realtime listeners
+map directly onto Angular signals with very little glue code, which matters
+for the eventual Player-notification feature (Phase 4 — pushing "it's your
+turn" to a connected Player), and Firebase Auth covers GM accounts without
+writing any auth server code. A custom API would have meant building and
+hosting that server ourselves for no benefit at this project's scale.
 
-**How we keep this swappable later:** all reads/writes to persisted data go
-through a small set of Angular **services** (e.g. `PartyStore`,
-`EncounterStore`) rather than components talking to `localStorage` directly.
-A service is just an injectable class — components ask for one via
-dependency injection and don't know or care how it gets its data. When we
-eventually add a real backend, we replace what's _inside_ those services
-(swap `localStorage.getItem` for an HTTP/Firestore call) without touching
-any component code. This is one of the more important patterns to learn in
-Angular: **push side effects (storage, HTTP, timers) into services; keep
-components focused on displaying signals and handling user events.**
+**Raw Firebase SDK, not `@angular/fire`:** every store imports directly from
+`firebase/app`/`firebase/firestore`/`firebase/auth` (see `src/app/firebase.ts`
+for the one shared `initializeApp`/`getFirestore`/`getAuth` call) rather than
+using the `@angular/fire` wrapper library. This keeps the underlying
+Firestore/Auth concepts visible — this repo's explicit learning goal — and
+fits the existing "push side effects into services" convention (below)
+without adding another abstraction layer on top.
 
-**The one exception, and why it's still "local-only":** `NameTableStore`,
-`MonsterStore` (Phase 2.5), and `WildMagicStore`/`TreasureStore` (Phase 2.6)
-read static JSON files (`public/data/name-tables.json`, `monsters-5e-srd.json`,
-`monsters-shadowdark.json`, `wild-magic.json`, `treasure.json`) via
-`HttpClient` instead of `localStorage` — the app's first HTTP calls. This isn't a backend: the
-JSON files are static, checked into the repo, and served by whatever's
-already hosting the app's own bundle, with no server-side logic or
-GM-specific data behind them ("read-only" describes how the _running app_
-treats them — via `HttpClient`, never written back to — not how they're
-maintained: all five JSON files are directly GM-editable at rest, the same
-category as a hardcoded constant that's too large to comfortably inline).
-`toSignal` bridges the resulting Observable into a signal, so every other
-component still just reads a signal, same as everywhere else.
+**The core inversion this brought:** before Phase 3, a mutation method
+(`PartyStore.createParty`, etc.) wrote straight into its own signal, and a
+single `effect()` mirrored that signal out to `localStorage`. Now, a
+mutation method writes to Firestore directly and never touches the signal
+itself; an `onSnapshot` **listener** (set up in each store's constructor,
+scoped to `where('ownerId', '==', <signed-in GM's uid>)`) is the *only* thing
+that ever calls `.set()` on the signal. State flows storage → app, not
+app → storage. Every `create*` method still returns its new object
+**synchronously** (the id, via `crypto.randomUUID()`, is known before the
+network write fires) — the write itself is fire-and-forget
+(`setDoc(...).catch(...)`), so every component call site that used to read a
+synchronous return value keeps working completely unchanged.
+
+**Collections and security:** seven top-level Firestore collections
+(`players`, `npcs`, `parties`, `troops`, `encounters`, `combatants`,
+`timers`), each document carrying an `ownerId` field (the owning GM's
+Firebase Auth uid). `firestore.rules` (repo root) enforces `ownerId ==
+request.auth.uid` on every read/write — there are no per-entity roles below
+the GM (see [DATA_MODEL.md](./DATA_MODEL.md)'s `User`/`ownerId` notes).
+`combatants`/`timers` are top-level with an `encounterId` field rather than
+subcollections of `encounters/{id}` — every store still loads its GM's
+*entire* owned collection into memory via one always-on listener, matching
+how `combatantsForEncounter`/`timersForEncounter` already worked as
+client-side filters before Firestore existed; there was no reason to change
+that shape along with the persistence swap.
+
+**Multi-document writes use `writeBatch`:** several `EncounterStore` methods
+touch more than one collection in what has to be one atomic operation — e.g.
+`commitOrder` (the shared "commit a new combatant order" helper behind
+rolling, advancing turns, Hold Action, and reordering) writes every changed
+`Combatant` doc *and* the `Encounter`'s `combatantIds`/`activeCombatantIndex`
+together, so a page reload never sees one half updated without the other.
+`PartyStore.deletePlayer`/`NpcStore.deleteNpc` (the reverse-cascade across
+every Party/Troop containing that member) use the same pattern.
+
+**`src/app/services/auth-service.ts`** wraps Firebase Auth the same way every
+`*Store` wraps its own persistence — a `user`/`uid` signal fed by
+`onAuthStateChanged`, and `signUpWithEmail`/`signInWithEmail`/
+`signInWithGoogle`/`signOutUser` methods. `src/app/guards/auth-guard.ts`'s
+`authGuard`/`redirectIfAuthedGuard` (`CanActivateFn`s) gate the whole route
+tree behind a signed-in GM via a pathless parent route in `app.routes.ts`,
+leaving every existing URL unchanged.
+
+**Testing:** `PartyStore`/`NpcStore`'s own specs no longer instantiate the
+real, Firestore-backed service — they test the small pure reconciliation
+functions extracted out of each (`addPlayerIdToParty`,
+`removePlayerIdFromAllParties`, etc.), the same "extract the real logic,
+leave the storage plumbing untested" split `EncounterStore`'s pure functions
+(`compareByInitiative`, `reRollRound`, ...) already used. `EncounterStore`'s
+own spec is the one exception: its business logic (rolling, advancing turns,
+Hold Action, Ready to Join, Timers) was valuable enough to keep testing
+against the *real* service, which is only possible because
+`src/app/services/testing/fake-firestore.ts` swaps the whole
+`'firebase/firestore'` module for a synchronous in-memory double via
+`vi.mock` — every write applies immediately and synchronously notifies any
+subscribed listener, so existing "call a mutation method, assert
+immediately" tests needed no `await`/tick changes. `FakePartyStore`/
+`FakeNpcStore`/`FakeAuthService` (`src/app/services/testing/`) are
+lightweight in-memory stand-ins used to satisfy `EncounterStore`'s
+dependencies (and any component test that needs a working Party/Troop
+fixture) without a real Firebase connection. No Firebase Emulator Suite is
+in use — this project has no CI to run it in yet; multi-account isolation
+and real end-to-end persistence are instead verified live (manually, or via
+the `run-roll4` skill), not by these unit tests.
+
+**The one exception, and why it's still not part of this migration:**
+`NameTableStore`, `MonsterStore` (Phase 2.5), and `WildMagicStore`/
+`TreasureStore`/`CombatThesaurusStore` (Phase 2.6/2.11) read static JSON
+files (`public/data/name-tables.json`, `monsters-5e-srd.json`,
+`monsters-shadowdark.json`, `wild-magic.json`, `treasure.json`,
+`combat-thesaurus.json`) via `HttpClient`, not Firestore. This isn't a
+backend: the JSON files are static, checked into the repo, and served by
+whatever's already hosting the app's own bundle, with no server-side logic
+or GM-specific data behind them ("read-only" describes how the _running
+app_ treats them — via `HttpClient`, never written back to — not how
+they're maintained: all six JSON files are directly GM-editable at rest,
+the same category as a hardcoded constant that's too large to comfortably
+inline). `toSignal` bridges the resulting Observable into a signal, so
+every other component still just reads a signal, same as everywhere else.
 
 **On the `scripts/import-*.cjs` files and their `.claude/` source
 inputs:** each JSON file started as a one-time conversion from an external
@@ -75,17 +141,6 @@ Once a JSON file has been hand-edited past what its script would produce,
 source input from scratch and would silently discard anything added
 directly since. The scripts/source files stay in the repo as a record of
 how the first batch was assembled, not as something to run again.
-
-## Future: choosing a real backend
-
-Deferred until Phase 2 (see [ROADMAP.md](./ROADMAP.md)). When we get there,
-the live requirements will likely include: GM accounts (auth), data
-accessible from more than one device, and — once the Player role exists —
-some way to push a "it's your turn" notification to a connected player. That
-last requirement pulls toward a backend with realtime/push support
-(Firebase, Supabase) rather than a plain REST API, but we should make that
-call once the Player-notification feature is actually being designed, not
-before.
 
 ## Nested routes and section "shells"
 

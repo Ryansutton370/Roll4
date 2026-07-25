@@ -1,0 +1,47 @@
+.login-intro {
+  max-width: 32rem;
+  color: var(--color-text-muted);
+}
+
+.login-form {
+  max-width: 24rem;
+}
+
+.login-form input {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.login-error {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.google-btn {
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.google-btn:hover {
+  background: var(--color-panel-bg);
+}
+
+.login-toggle {
+  color: var(--color-text-muted);
+}
+
+.link-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-focus);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}

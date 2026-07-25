@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
+import { PartyStore } from '../../services/party-store';
+import { FakePartyStore } from '../../services/testing/fake-party-store';
 import { PlayerRoster } from './player-roster';
 
 describe('PlayerRoster', () => {
@@ -11,7 +13,7 @@ describe('PlayerRoster', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [PlayerRoster],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), { provide: PartyStore, useValue: new FakePartyStore() }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PlayerRoster);

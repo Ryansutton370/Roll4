@@ -59,6 +59,29 @@ nav a.active {
   background: rgb(255 255 255 / 0.14);
 }
 
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 2.75rem;
+  padding: 0 0.9rem;
+  margin-left: auto;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-header-fg);
+  font-weight: 500;
+  opacity: 0.75;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.logout-btn:hover {
+  opacity: 1;
+  background: rgb(255 255 255 / 0.08);
+}
+
 main {
   flex: 1;
   width: 100%;
