@@ -3,7 +3,7 @@ import { CombatThesaurusPicker } from '../../shared/combat-thesaurus-picker/comb
 import { GeneratorDisclaimer } from '../../shared/generator-disclaimer/generator-disclaimer';
 
 /**
- * The Random Generators tab's fifth page — page chrome (`<h1>`, intro,
+ * The Content & Generators tab's fifth page — page chrome (`<h1>`, intro,
  * disclaimer) around the shared `CombatThesaurusPicker`, which does the
  * actual category-row/count/roll/copy-any-result work. The same picker is
  * also embedded in `CombatThesaurusDialog`, opened from the run-phase "+"

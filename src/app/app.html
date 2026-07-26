@@ -3,7 +3,10 @@
      template — not building the sidebar itself yet. -->
 <div class="app-shell">
   <header>
-    <h1>Roll4</h1>
+    <!-- routerLink on the h1's text, not the h1 itself — Roll4 in the header
+         always goes back to the landing page ('' route → Home), same as
+         clicking a site logo. -->
+    <h1><a routerLink="/">Roll4</a></h1>
     <!-- @if (authService.uid()) — the nav (and the Log Out button) only
          make sense once a GM is signed in; on /login itself uid() is
          null, so this whole block just doesn't render there. -->
@@ -15,11 +18,28 @@
         <a routerLink="/players" routerLinkActive="active">Players</a>
         <a routerLink="/npcs" routerLinkActive="active">NPCs</a>
         <a routerLink="/encounters" routerLinkActive="active">Encounters</a>
-        <a routerLink="/generators" routerLinkActive="active">Random Generators</a>
-        <button type="button" class="logout-btn" (click)="logout()">Log Out</button>
+        <a routerLink="/generators" routerLinkActive="active">Content &amp; Generators</a>
+        <a routerLink="/about" routerLinkActive="active">About &amp; Contact</a>
+        <!-- A guest has no account to log out of — signOutUser() would just
+             drop the anonymous session (and its Firestore data) with no way
+             back in, so the button doesn't make sense to offer here. -->
+        @if (!authService.isGuest()) {
+          <button type="button" class="logout-btn" (click)="logout()">Log Out</button>
+        }
       </nav>
     }
   </header>
+
+  <!-- authService.isGuest() — true only for a "Continue Without Signing In"
+       session (see AuthService.continueAsGuest). A real signed-in GM never
+       sees this; it's a standing reminder for guests specifically, not a
+       one-time warning shown only at the moment they chose it. -->
+  @if (authService.isGuest()) {
+    <div class="guest-banner">
+      Browsing as a guest — your data is only saved to this browser.
+      <a routerLink="/login">Sign up to save it permanently</a>.
+    </div>
+  }
 
   <main>
     <router-outlet />

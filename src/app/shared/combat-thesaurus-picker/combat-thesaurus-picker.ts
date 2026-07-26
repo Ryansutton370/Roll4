@@ -4,7 +4,7 @@ import { CombatThesaurusStore } from '../../services/combat-thesaurus-store';
 
 /**
  * The category-row/count/roll/copy-any-result UI shared by
- * `CombatThesaurusGenerator` (the full Random Generators page, with its own
+ * `CombatThesaurusGenerator` (the full Content & Generators page, with its own
  * `<h1>`/intro/disclaimer) and `CombatThesaurusDialog` (the compact popup
  * opened from the run-phase "+" menu, for rolling a verb mid-combat without
  * leaving the Encounter screen). Pulled out once a second host needed the
@@ -22,7 +22,7 @@ export class CombatThesaurusPicker {
   protected readonly selectedTableId = signal<string | null>(null);
   // Matches NameGeneratorButton's hardcoded 6 (the inline 🎲 popover on
   // every Player/NPC Name field) — same default roll count across every
-  // Random Generators page except Encounter Generator, just GM-adjustable
+  // Content & Generators page except Encounter Generator, just GM-adjustable
   // via the Count input below instead of fixed.
   protected readonly rollCount = signal(6);
   protected readonly rolledEntries = signal<string[]>([]);

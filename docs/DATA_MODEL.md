@@ -83,19 +83,19 @@ above). Renamed from Phase 1's `PlayerCharacter`, which was owned 1:1 by a
 single Party via a `partyId` field; that field is gone now that membership
 is many-to-many.
 
-| Field                | Type           | Notes                                                          |
-| -------------------- | -------------- | -------------------------------------------------------------- |
-| `id`                 | string         | Unique identifier                                              |
+| Field                | Type           | Notes                                                                                                                                            |
+| -------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                 | string         | Unique identifier                                                                                                                                |
 | `ownerId`            | string         | References `User.id` (the GM) — same meaning as every other entity's `ownerId`; see the note below on why this isn't the future Player-role link |
-| `name`               | string         | e.g. "Aria Windmere"                                           |
-| `initiativeModifier` | number         | Signed integer, e.g. `3`, `0`, `-1`                            |
-| `ac`                 | number \| null | Optional. `null` means "not set," not zero                     |
-| `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the Player |
-| `notes`              | string         | Optional. `''` means "not set"                                 |
+| `name`               | string         | e.g. "Aria Windmere"                                                                                                                             |
+| `initiativeModifier` | number         | Signed integer, e.g. `3`, `0`, `-1`                                                                                                              |
+| `ac`                 | number \| null | Optional. `null` means "not set," not zero                                                                                                       |
+| `maxHp`              | number \| null | Optional. Entered as "Max HP" when creating/editing the Player                                                                                   |
+| `notes`              | string         | Optional. `''` means "not set"                                                                                                                   |
 
 **On `ownerId` vs. the future Player-role link:** an earlier draft of this
 doc used `Player.ownerId` for a different, forward-looking idea — which
-*Player-role* `User` (Phase 4) controls this character. Once Phase 3 gave
+_Player-role_ `User` (Phase 4) controls this character. Once Phase 3 gave
 every entity a real GM-ownership `ownerId` (enforced by Firestore security
 rules — see [ARCHITECTURE.md](./ARCHITECTURE.md)), reusing the same field
 name for two different relationships on the same entity would only cause
@@ -168,7 +168,7 @@ a Player, ad-hoc or otherwise."
 | ------------------------ | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`                     | string            | Unique identifier                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `encounterId`            | string            | References `Encounter.id`                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `ownerId`                | string            | The owning GM's Firebase Auth uid, copied from the parent `Encounter` at creation — see the Phase 3 implementation note above                                                                                                                                                                                                                                                                                                                                                     |
+| `ownerId`                | string            | The owning GM's Firebase Auth uid, copied from the parent `Encounter` at creation — see the Phase 3 implementation note above                                                                                                                                                                                                                                                                                                                                                       |
 | `type`                   | `"pc"` \| `"npc"` | Drives the color shown in the initiative list                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `playerId`               | string \| null    | Set when this Combatant is linked to a library `Player` — pulled in from a Party, added individually, or saved to the roster after the fact. `null` for an ad-hoc, unsaved Player. Always `null` when `type === "npc"`                                                                                                                                                                                                                                                              |
 | `npcId`                  | string \| null    | Npc-side mirror of `playerId` above — set when linked to a library `Npc` (pulled from a Troop, added individually, or saved after the fact). `null` for an ad-hoc, unsaved NPC — Phase 1's only NPC behavior, still fully supported. Always `null` when `type === "pc"`                                                                                                                                                                                                             |
@@ -273,8 +273,12 @@ anything added directly to the JSON afterward:
   Third-Party License (requiring a specific disclaimer), and the
   compilation itself is CC BY-SA 4.0 (requiring attribution to Night Noon
   Games, and — per ShareAlike — that this derived JSON carry the same CC
-  BY-SA 4.0 license forward if the app is ever hosted/distributed publicly,
-  an open item to revisit before Phase 3).
+  BY-SA 4.0 license forward now that the app is hosted publicly via
+  Firebase Hosting as of Phase 3). Closed out by
+  `public/data/monsters-shadowdark.LICENSE.txt`, a notice file served
+  alongside the JSON itself (not just surfaced in the UI Credits section)
+  so the license travels with the data if it's ever fetched/redistributed
+  directly.
 
 **Encounter Generator algorithm** (`src/app/services/encounter-generator.ts`,
 pure functions, no store/DI — same standalone-testability precedent as
@@ -304,6 +308,87 @@ Both exclude pool monsters with a `null` difficulty (nothing to compare
 against a budget or range). The Encounter Generator page lets the GM edit
 the resulting candidate list (adjust counts, add/remove monsters) before
 applying names and saving — see [PRODUCT.md](./PRODUCT.md).
+
+### SpellTemplate
+
+Loaded read-only via `SpellStore` from `public/data/spells-5e-srd.json` /
+`spells-shadowdark.json`. Originally imported once from two open-license
+sources by `scripts/import-spells-5e-srd.cjs` /
+`import-spells-shadowdark.cjs` — like `MonsterTemplate`, those scripts are
+now historical, and both JSON files are the GM-editable source directly.
+The Spell Lists page (`/generators/spells`, see
+[PRODUCT.md](./PRODUCT.md) section 16) is the only current consumer.
+
+| Field         | Type                                 | Notes                                                                                                                                                                                                      |
+| ------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`          | string                               | e.g. `5e-srd-fireball`, `shadowdark-magic-missile`                                                                                                                                                         |
+| `source`      | `'5e-srd'` \| `'shadowdark'`         |                                                                                                                                                                                                            |
+| `homebrew`    | boolean                              | `true` for a GM-added spell, as opposed to one from the licensed import below. `false` for every originally-imported entry — same meaning as `MonsterTemplate.homebrew`                                    |
+| `name`        | string                               |                                                                                                                                                                                                            |
+| `level`       | number                               | 0 = Cantrip for `'5e-srd'` (levels run 0-9). Shadowdark's Tier runs 1-5, never 0 (no cantrip equivalent)                                                                                                   |
+| `school`      | string \| null                       | 5e school (Evocation, Conjuration, ...). `null` for Shadowdark — that system has no school concept at all, not just missing data                                                                           |
+| `classes`     | string[]                             | e.g. `['Sorcerer', 'Wizard']` or `['Priest']` or `['Priest', 'Wizard']` — a spell can belong to more than one class's list. 5e's list is built from Open5e's `dnd_class` field (see the import note below) |
+| `description` | string                               |                                                                                                                                                                                                            |
+| `details`     | `{ label: string; value: string }[]` | Deliberately loose, same rationale as `MonsterTemplate.statBlock` — 5e carries Casting Time/Range/Components/Duration/Ritual/At Higher Levels/Source; Shadowdark carries just Duration/Range               |
+
+**"Cantrip" / "Level 3" (5e) / a plain "2" (Shadowdark) labeling:**
+`spellLevelLabel(template)` (`src/app/models/spell-template.model.ts`) is
+the one place this label is built — same precedent as
+`monsterDifficultyLabel`. Deliberately no "Tier" word for Shadowdark (only
+5 tiers, unlike 5e's 0-9 levels) — the bare number reads fine on its own
+in the Browse table's Level column. The Level column header is directly
+clickable for an ascending/descending sort (`SpellPickerTable`'s
+`setLevelSort()`), sorting on the raw numeric `level` field rather than
+this label — a 5e Cantrip's `level` is already `0`, so it naturally sorts
+first ascending with no special-casing needed.
+
+**Import note — 5e classes use `dnd_class`, not `spell_lists`:** Open5e's
+API returns both a `spell_lists` array and a `dnd_class` comma string per
+spell; they don't agree. `spell_lists` omits Paladin entirely on some
+spells (e.g. Branding Smite, Find Steed have `spell_lists: []` but
+`dnd_class: "Paladin"`), while `dnd_class` also carries "Ritual Caster" for
+a couple of feat-granted spells. `scripts/import-spells-5e-srd.cjs` uses
+`dnd_class`, left as-is — that's what the source data actually says, not a
+bug worth papering over.
+
+**Why a separate store/component set from `MonsterStore`/`NameTableStore`:**
+same reasoning documented under `WildMagicTable`/`TreasureTable`/
+`CombatThesaurusTable` below — different consumers, and a spell is neither
+a name (`NameTableStore.setNames()` feeds the inline 🎲 Name-field popover)
+nor a monster (`MonsterStore` feeds the Encounter Generator). `SpellStore`,
+`SpellPickerTable`, `SpellDetailDialog`, and `SpellCredits` mirror
+`MonsterStore`/`MonsterPickerTable`/`MonsterStatBlockDialog`/
+`MonsterCredits`'s shapes directly (same `toSignal`-over-`HttpClient` load,
+same search/sort/eye-icon-dialog picker pattern, same Credits `<details>`
+structure) rather than introducing a new pattern.
+
+**Sources and required attribution** (surfaced in a Credits section on the
+Spell Lists page, `spell-lists-generator.html`) — these cover the
+originally-imported entries (`homebrew: false`) specifically:
+
+- **5e SRD**: [Open5e](https://open5e.com)'s System Reference Document 5.1
+  data, OGL-licensed — same source and same verbatim Section 15 notice
+  requirement as `MonsterTemplate`'s 5e SRD data.
+- **Shadowdark**: the "Unofficial Shadowdark Spell List" by Michael
+  Putlack (Night Noon Games) — **the same compiler** as `MonsterTemplate`'s
+  "Unofficial Shadowdark Monster List", confirmed via that spreadsheet's
+  own `CreditsLicense` sheet. Same two-license stack as the monster data:
+  the spell text itself (written by Kelsey Dionne, The Arcane Library) is
+  used under the Shadowdark RPG Third-Party License, and the compilation
+  is CC BY-SA 4.0 (requiring attribution to Night Noon Games, and — per
+  ShareAlike — that this derived JSON carry the same license forward).
+  Closed out by `public/data/spells-shadowdark.LICENSE.txt`, a notice file
+  served alongside the JSON itself, same as
+  `monsters-shadowdark.LICENSE.txt`.
+
+**Import mechanics — Shadowdark** (`scripts/import-spells-shadowdark.cjs`):
+reads the "Spells List" sheet of
+`.claude/Unofficial Shadowdark Spell List.xlsx` (header row 3, data rows
+4-88, 85 spells) — a flatter sheet than the Monster Database's (no
+formula/shared-formula ability-score cells to resolve): Source (always
+`"CR"`, not carried per-spell), Spell Name, Tier #, Spell Type (Wizard/
+Priest/"Priest, Wizard" — split on comma into `classes`), Duration, Range,
+Description (repeated across 3 merged columns; only the first is read).
 
 ### WildMagicTable
 
@@ -420,13 +505,13 @@ source directly from the start; there's no `scripts/import-combat-
 thesaurus.cjs` and none is needed. Edit `public/data/combat-thesaurus.json`
 directly to add/edit verbs.
 
-| Field       | Type                    | Notes                                                                                     |
-| ----------- | ----------------------- | ------------------------------------------------------------------------------------------- |
-| `id`        | string                  | e.g. `combat-thesaurus-blade`                                                             |
-| `setName`   | string                  | Currently always `"Combat Thesaurus"` — same parity-with-`NameTable` reasoning as `WildMagicTable.setName` |
-| `tableName` | string                  | `"Blade"`, `"Blunt"`, `"Defense"`, `"Impairment"`, `"Magic"`, or `"Range"` |
-| `icon`      | `CombatThesaurusIcon`   | One of `'blade' \| 'blunt' \| 'defense' \| 'impairment' \| 'magic' \| 'range'` — selects which hand-authored inline SVG the generator page's category-button row shows for that table; no icon library is used anywhere in this app (see `CombatThesaurusGenerator`'s template) |
-| `entries`   | string[]                | Flavor verbs for that category, e.g. Blade: "skewer", "slash"; 29 entries per category, all six provided |
+| Field       | Type                  | Notes                                                                                                                                                                                                                                                                           |
+| ----------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`        | string                | e.g. `combat-thesaurus-blade`                                                                                                                                                                                                                                                   |
+| `setName`   | string                | Currently always `"Combat Thesaurus"` — same parity-with-`NameTable` reasoning as `WildMagicTable.setName`                                                                                                                                                                      |
+| `tableName` | string                | `"Blade"`, `"Blunt"`, `"Defense"`, `"Impairment"`, `"Magic"`, or `"Range"`                                                                                                                                                                                                      |
+| `icon`      | `CombatThesaurusIcon` | One of `'blade' \| 'blunt' \| 'defense' \| 'impairment' \| 'magic' \| 'range'` — selects which hand-authored inline SVG the generator page's category-button row shows for that table; no icon library is used anywhere in this app (see `CombatThesaurusGenerator`'s template) |
+| `entries`   | string[]              | Flavor verbs for that category, e.g. Blade: "skewer", "slash"; 29 entries per category, all six provided                                                                                                                                                                        |
 
 **Why a separate model/store from `NameTable`, despite the similar
 shape:** same reasoning as `WildMagicTable`/`TreasureTable` —
@@ -446,7 +531,7 @@ see "Timers" below for the full behavior.
 | ------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`                      | string         | Unique identifier                                                                                                                                 |
 | `encounterId`             | string         | References `Encounter.id`                                                                                                                         |
-| `ownerId`                 | string         | The owning GM's Firebase Auth uid, copied from the parent `Encounter` at creation — see the Phase 3 implementation note above                    |
+| `ownerId`                 | string         | The owning GM's Firebase Auth uid, copied from the parent `Encounter` at creation — see the Phase 3 implementation note above                     |
 | `name`                    | string         | GM-entered label, e.g. "Room floods"                                                                                                              |
 | `remaining`               | number         | Current countdown value                                                                                                                           |
 | `initialValue`            | number         | The value set at creation; never changes afterward — used only to compute the card's light-grey-to-black background as `remaining / initialValue` |

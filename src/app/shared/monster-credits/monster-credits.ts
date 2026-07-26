@@ -4,7 +4,7 @@ import { GeneratorDisclaimer } from '../generator-disclaimer/generator-disclaime
 /**
  * Required attribution for the imported monster-template data (see
  * scripts/import-monsters-5e-srd.cjs / import-monsters-shadowdark.cjs),
- * plus the general Random Generators disclaimer — split out of
+ * plus the general Content & Generators disclaimer — split out of
  * MonsterGeneratorPanel so each host can place it at its own true page
  * bottom (below Combatants/Create-Encounter on EncounterList's builder
  * column, not sandwiched partway through the form the way it was when it

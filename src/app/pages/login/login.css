@@ -32,6 +32,51 @@
   background: var(--color-panel-bg);
 }
 
+.guest-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 24rem;
+  margin: 1rem 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.guest-divider::before,
+.guest-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.guest-btn {
+  padding: 0.6rem 1.1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.guest-btn:hover {
+  background: var(--color-panel-bg);
+}
+
+.guest-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.guest-warning {
+  max-width: 28rem;
+  margin-top: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
 .login-toggle {
   color: var(--color-text-muted);
 }

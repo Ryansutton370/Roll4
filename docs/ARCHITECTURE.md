@@ -118,19 +118,21 @@ and real end-to-end persistence are instead verified live (manually, or via
 the `run-roll4` skill), not by these unit tests.
 
 **The one exception, and why it's still not part of this migration:**
-`NameTableStore`, `MonsterStore` (Phase 2.5), and `WildMagicStore`/
-`TreasureStore`/`CombatThesaurusStore` (Phase 2.6/2.11) read static JSON
-files (`public/data/name-tables.json`, `monsters-5e-srd.json`,
-`monsters-shadowdark.json`, `wild-magic.json`, `treasure.json`,
-`combat-thesaurus.json`) via `HttpClient`, not Firestore. This isn't a
+`NameTableStore`, `MonsterStore` (Phase 2.5), `WildMagicStore`/
+`TreasureStore`/`CombatThesaurusStore` (Phase 2.6/2.11), and `SpellStore`
+(Phase 2.13) read static JSON files (`public/data/name-tables.json`,
+`monsters-5e-srd.json`, `monsters-shadowdark.json`, `wild-magic.json`,
+`treasure.json`, `combat-thesaurus.json`, `spells-5e-srd.json`,
+`spells-shadowdark.json`) via `HttpClient`, not Firestore. This isn't a
 backend: the JSON files are static, checked into the repo, and served by
 whatever's already hosting the app's own bundle, with no server-side logic
 or GM-specific data behind them ("read-only" describes how the _running
 app_ treats them — via `HttpClient`, never written back to — not how
-they're maintained: all six JSON files are directly GM-editable at rest,
-the same category as a hardcoded constant that's too large to comfortably
-inline). `toSignal` bridges the resulting Observable into a signal, so
-every other component still just reads a signal, same as everywhere else.
+they're maintained: every one of these JSON files is directly GM-editable
+at rest, the same category as a hardcoded constant that's too large to
+comfortably inline). `toSignal` bridges the resulting Observable into a
+signal, so every other component still just reads a signal, same as
+everywhere else.
 
 **On the `scripts/import-*.cjs` files and their `.claude/` source
 inputs:** each JSON file started as a one-time conversion from an external
@@ -490,7 +492,7 @@ copy-any-result UI that used to be `CombatThesaurusGenerator`'s entire
 template — pulled out once `CombatThesaurusDialog` (opened from
 `EncounterDetail`'s run-phase "+" menu, for rolling a verb mid-combat
 without leaving the Encounter screen) needed the identical picker a second
-time. `CombatThesaurusGenerator` (the full Random Generators page) kept only
+time. `CombatThesaurusGenerator` (the full Content & Generators page) kept only
 its own page chrome (`<h1>`, intro paragraph, `GeneratorDisclaimer`) around
 `<app-combat-thesaurus-picker>`; `CombatThesaurusDialog` wraps the same tag
 in a native `<dialog>` with a title/close-button header, following

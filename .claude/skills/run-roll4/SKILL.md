@@ -113,6 +113,27 @@ state-mutating step (creating something, toggling a checkbox) — see
 the single most common cause of a script "not working" when the app
 itself is fine.
 
+## Auth in test scripts
+
+Roll4 requires a signed-in session (a real GM account or an anonymous
+guest) to reach most routes — see the auth guards. Default to the
+"Continue Without Signing In" guest flow for that:
+
+```
+click button:has-text("Continue Without Signing In")
+```
+
+This signs into a real, fully-functional Firebase Auth session (every
+store/guard/rule treats it exactly like a signed-in GM) with no
+credentials and nothing that later needs manual deletion in the Firebase
+console. **Never sign up a brand-new email/password account as a testing
+shortcut** — every one becomes a row the user has to find and clean up by
+hand. Only sign into a *persistent* account when the test specifically
+depends on identity surviving across separate script invocations (e.g.
+verifying data persists across a sign-out/sign-in cycle, or testing
+email/password or Google sign-in itself) — and even then, reuse the
+existing standing QA account rather than creating a new one.
+
 ## Run (human path)
 
 ```bash

@@ -16,10 +16,17 @@ export const authGuard: CanActivateFn = async () => {
   return authService.uid() ? true : router.parseUrl('/login');
 };
 
-/** Keeps an already-signed-in GM from landing back on the login form (e.g. a bookmarked /login link). */
+/**
+ * Keeps an already-signed-in GM from landing back on the login form (e.g. a
+ * bookmarked /login link). A guest (continueAsGuest) session deliberately
+ * doesn't count as "already signed in" here — a guest still needs to reach
+ * this page to create a real account, unlike a GM who's already fully
+ * signed in.
+ */
 export const redirectIfAuthedGuard: CanActivateFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
   await authService.ready();
-  return authService.uid() ? router.parseUrl('/players') : true;
+  const user = authService.user();
+  return user && !user.isAnonymous ? router.parseUrl('/') : true;
 };

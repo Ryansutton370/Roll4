@@ -1256,15 +1256,22 @@ describe('EncounterStore', () => {
       expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(0);
     });
 
-    it('a linked timer ticks when the linked combatant\'s turn ends, and unticks on Back', () => {
+    it('a linked timer does not tick on the turn it was created on, but ticks at the end of a later turn, and unticks on Back', () => {
       const encounter = service.createEncounter('Goblin Ambush', []);
       service.addAdHocCombatant(encounter.id, 'npc', npcFields('High', 100));
       service.addAdHocCombatant(encounter.id, 'npc', npcFields('Low', -100));
       service.rollInitiative(encounter.id); // order: High (Active), Low
       const [high] = service.combatantsForEncounter(encounter.id);
-      const timer = service.createTimer(encounter.id, 'Illusion', 3, high.id);
+      const timer = service.createTimer(encounter.id, 'Illusion', 3, high.id); // created during High's own turn
 
-      service.advanceTurn(encounter.id, 'forward'); // High's turn ends
+      service.advanceTurn(encounter.id, 'forward'); // High's turn ends — the same turn the timer was created on, so no tick yet
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(3);
+
+      service.advanceTurn(encounter.id, 'forward'); // Low's turn ends -> round boundary; High Active again, round 2
+      expect(service.getEncounter(encounter.id)!.round).toBe(2);
+      expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(3);
+
+      service.advanceTurn(encounter.id, 'forward'); // High's turn ends for the first time since the timer existed -> ticks
       expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(2);
 
       service.advanceTurn(encounter.id, 'back'); // undo, back onto High
@@ -1281,14 +1288,18 @@ describe('EncounterStore', () => {
       service.addAdHocCombatant(encounter.id, 'npc', npcFields('Low', -100));
       service.rollInitiative(encounter.id); // order: High (Active), Low
       const [high] = service.combatantsForEncounter(encounter.id);
-      service.createTimer(encounter.id, 'Illusion', 5, high.id);
+      service.advanceTurn(encounter.id, 'forward'); // High's turn ends once; Low now Active
+      service.createTimer(encounter.id, 'Illusion', 5, high.id); // High isn't Active right now
+
+      service.advanceTurn(encounter.id, 'forward'); // Low's turn ends -> round boundary, round 2, High Active
+      expect(service.getEncounter(encounter.id)!.round).toBe(2);
 
       service.toggleHoldAction(encounter.id, high.id); // High holds -> auto-advances to Low, ticks once
       expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(4);
 
       service.advanceTurn(encounter.id, 'forward'); // Low's turn ends -> round boundary; High still on Hold
       expect(service.timersForEncounter(encounter.id)[0].remaining).toBe(4); // not double-ticked
-      expect(service.getEncounter(encounter.id)!.round).toBe(2);
+      expect(service.getEncounter(encounter.id)!.round).toBe(3);
     });
 
     it('a linked timer ticks at the round boundary for a combatant who was already on Hold the whole round and never acted', () => {
@@ -1310,9 +1321,9 @@ describe('EncounterStore', () => {
       const encounter = service.createEncounter('Goblin Ambush', []);
       service.addAdHocCombatant(encounter.id, 'npc', npcFields('High', 100));
       service.addAdHocCombatant(encounter.id, 'npc', npcFields('Low', -100));
-      service.rollInitiative(encounter.id);
       const [high, low] = service.combatantsForEncounter(encounter.id);
-      service.createTimer(encounter.id, 'Illusion', 3, high.id);
+      service.createTimer(encounter.id, 'Illusion', 3, high.id); // created before initiative starts, so nobody is Active yet
+      service.rollInitiative(encounter.id); // order: High (Active), Low
       service.toggleHoldAction(encounter.id, low.id); // Low holds, High still Active
 
       service.returnFromHold(encounter.id, low.id, 'above'); // interrupts High mid-turn

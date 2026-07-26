@@ -425,6 +425,21 @@ export class EncounterDetail {
     this.encounterStore.rollInitiative(this.encounterId());
   }
 
+  // Drives the Roll Initiative button's brief color-flip flash (its
+  // .emphasize class, encounter-detail.css) — see the effect() in the
+  // constructor for when it's triggered.
+  protected readonly rollButtonEmphasized = signal(false);
+  private rollButtonEmphasisTimeout?: ReturnType<typeof setTimeout>;
+  private static readonly ROLL_BUTTON_EMPHASIS_MS = 900;
+
+  private triggerRollButtonEmphasis(): void {
+    this.rollButtonEmphasized.set(true);
+    clearTimeout(this.rollButtonEmphasisTimeout);
+    this.rollButtonEmphasisTimeout = setTimeout(() => {
+      this.rollButtonEmphasized.set(false);
+    }, EncounterDetail.ROLL_BUTTON_EMPHASIS_MS);
+  }
+
   protected advance(direction: 'forward' | 'back'): void {
     this.encounterStore.advanceTurn(this.encounterId(), direction);
   }
@@ -745,6 +760,21 @@ export class EncounterDetail {
   // Constructor-scoped (not a field initializer) purely by convention, to
   // keep it next to the class's one other piece of non-DI setup logic.
   constructor() {
+    // Flashes the Roll Initiative button (this.rollButtonEmphasized, read by
+    // encounter-detail.html's [class.emphasize]) whenever the setup-phase
+    // combatant list changes to a non-empty state — landing on the page with
+    // combatants already in it counts too, since that's this effect's first
+    // run. Reads combatants() (not setupCombatants(), which just reorders
+    // the same array) so any add/remove/edit that produces a new array from
+    // the store re-triggers it. Gated on !hasStarted() (the button doesn't
+    // exist once Rolled) and a non-empty list (an empty one leaves the
+    // button disabled, so "ready to roll" isn't true yet).
+    effect(() => {
+      const ready = this.combatants().length > 0 && !this.hasStarted();
+      if (!ready) return;
+      this.triggerRollButtonEmphasis();
+    });
+
     effect(() => {
       const current = this.timers();
       for (const t of current) {

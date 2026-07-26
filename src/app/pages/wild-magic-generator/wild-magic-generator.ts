@@ -4,7 +4,7 @@ import { WildMagicStore } from '../../services/wild-magic-store';
 import { GeneratorDisclaimer } from '../../shared/generator-disclaimer/generator-disclaimer';
 
 /**
- * The Random Generators tab's third page — rolls on the imported Wild
+ * The Content & Generators tab's third page — rolls on the imported Wild
  * Magic tables (see WildMagicStore). Structured like NameGenerator (same
  * picker-row/results-list/copy-to-clipboard shape) but with only a Table
  * picker, not a Set-then-Table one: WildMagicStore currently holds exactly
@@ -24,7 +24,7 @@ export class WildMagicGenerator {
   protected readonly selectedTableId = signal<string | null>(null);
   // Matches NameGeneratorButton's hardcoded 6 (the inline 🎲 popover on
   // every Player/NPC Name field) — same default roll count across every
-  // Random Generators page except Encounter Generator, just GM-adjustable
+  // Content & Generators page except Encounter Generator, just GM-adjustable
   // via the Count input below instead of fixed.
   protected readonly rollCount = signal(6);
   protected readonly rolledEntries = signal<string[]>([]);

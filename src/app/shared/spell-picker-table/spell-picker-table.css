@@ -1,0 +1,212 @@
+/* This component's template has two top-level siblings (the .picker div and
+   the detail dialog) meant to sit inline with whatever the caller renders
+   around it, not be wrapped in one opaque host box — same
+   MonsterPickerTable/CombatantFields gotcha documented in ARCHITECTURE.md. */
+:host {
+  display: contents;
+}
+
+.picker {
+  margin-bottom: 0.75rem;
+}
+
+.picker-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.picker-toggle:hover {
+  background: var(--color-removed-tint);
+}
+
+.chevron {
+  display: inline-block;
+  transition: transform var(--transition-fast);
+}
+
+.chevron.open {
+  transform: rotate(90deg);
+}
+
+.picker-count {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.picker-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.picker-search {
+  flex: 1 1 12rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.picker-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 0.6rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.filter-label {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+/* Toggle chip — same "pressed" convention as .source-toggle button, but a
+   pill shape and smaller footprint since there can be a dozen-plus of
+   these (up to 9 classes, 8 schools) versus .source-toggle's fixed pair. */
+.filter-chip {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.filter-chip:hover {
+  background: var(--color-removed-tint);
+}
+
+.filter-chip.active {
+  background: var(--color-header-bg);
+  color: var(--color-header-fg);
+  border-color: var(--color-header-bg);
+}
+
+.clear-filters-btn {
+  padding: 0.3rem 0.7rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.clear-filters-btn:hover {
+  background: var(--color-removed-tint);
+  color: var(--color-text);
+}
+
+.picker-table-wrap {
+  max-height: 18rem;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+}
+
+.picker-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.picker-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--color-panel-bg);
+  text-align: left;
+}
+
+.picker-table td,
+.picker-table th {
+  padding: 0.4rem 0.6rem;
+}
+
+.sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sort-arrow {
+  font-size: 0.7rem;
+  opacity: 0.4;
+}
+
+.sort-arrow.active {
+  opacity: 1;
+}
+
+.picker-table tbody tr:not(:last-child) {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.col-level,
+.col-school {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.col-classes {
+  color: var(--color-text-muted);
+}
+
+td.col-actions {
+  display: flex;
+  gap: 0.15rem;
+  white-space: nowrap;
+}
+
+.picker-table .icon-btn {
+  width: 2.15rem;
+  height: 2.15rem;
+}
+
+.picker-table .icon-btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.picker-table .empty-state {
+  padding: 0.75rem;
+  text-align: center;
+}

@@ -1,0 +1,26 @@
+Roll4 — Shadowdark monster data (monsters-shadowdark.json)
+============================================================
+
+This file is Adapted Material under a Creative Commons
+Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0):
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Adapted from: the "Unofficial Shadowdark Monster List" by Michael Putlack
+of Night Noon Games (NightNoon.games), used under CC BY-SA 4.0:
+https://nightnoongames.itch.io/shadowdark-monster-list
+
+Changes made: monster stat blocks were restructured into this project's
+MonsterTemplate JSON shape (see src/app/models/monster-template.model.ts
+in the Roll4 repository); no rules text was otherwise altered.
+
+Per CC BY-SA 4.0 Section 3(b), this adapted file is licensed onward under
+the same CC BY-SA 4.0 terms as the material it was adapted from.
+
+---
+
+The underlying monster stat blocks are official Shadowdark RPG content.
+The Unofficial Shadowdark Monster List is an independent product
+published under the Shadowdark RPG Third-Party License and is not
+affiliated with The Arcane Library, LLC. Shadowdark RPG (c) 2023 The
+Arcane Library, LLC. Roll4 itself is not affiliated with, endorsed by,
+or sponsored by The Arcane Library, LLC.

@@ -1,0 +1,107 @@
+<h1>Spell Lists</h1>
+<p class="page-intro">
+  Browse the imported D&amp;D 5e SRD and Shadowdark spell lists, or roll a random batch within a
+  level range — optionally narrowed to one class.
+</p>
+
+<div class="source-toggle" role="group" aria-label="Sourcebook">
+  <button type="button" [class.active]="source() === '5e-srd'" (click)="selectSource('5e-srd')">
+    D&amp;D 5e SRD
+  </button>
+  <button
+    type="button"
+    [class.active]="source() === 'shadowdark'"
+    (click)="selectSource('shadowdark')"
+  >
+    Shadowdark
+  </button>
+</div>
+
+<div class="spells-layout">
+  <section class="browse-section">
+    <h2>Browse Spell List</h2>
+    <app-spell-picker-table
+      [source]="source()"
+      [templates]="templatesForSource()"
+      [initiallyExpanded]="true"
+    />
+  </section>
+
+  <section class="generate-section">
+    <h2>Generate Spells</h2>
+    <div class="generate-row">
+      <label>
+        Count
+        <input
+          type="number"
+          min="1"
+          max="50"
+          [ngModel]="count()"
+          (ngModelChange)="count.set($event)"
+        />
+      </label>
+      <label>
+        Min {{ levelInputLabel() }}
+        <input
+          type="number"
+          min="0"
+          max="9"
+          [ngModel]="minLevel()"
+          (ngModelChange)="minLevel.set($event)"
+        />
+      </label>
+      <label>
+        Max {{ levelInputLabel() }}
+        <input
+          type="number"
+          min="0"
+          max="9"
+          [ngModel]="maxLevel()"
+          (ngModelChange)="maxLevel.set($event)"
+        />
+      </label>
+      <label>
+        Class
+        <select [ngModel]="selectedClass()" (ngModelChange)="selectedClass.set($event)">
+          <option value="">Any Class</option>
+          @for (c of classesForSource(); track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </label>
+      <button type="button" (click)="generate()">Generate</button>
+    </div>
+
+    @if (results().length > 0) {
+      <ul class="results-list">
+        @for (r of results(); track $index) {
+          <li>
+            <span class="result-text">
+              <span class="result-name">{{ r.name }}</span>
+              <span class="result-meta">{{ levelLabel(r) }} · {{ r.classes.join(', ') }}</span>
+            </span>
+            <button
+              type="button"
+              class="icon-btn"
+              title="View {{ r.name }}'s details"
+              (click)="openResultDetail(r)"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M10 4.5c-4.2 0-7.75 2.9-9 5.5 1.25 2.6 4.8 5.5 9 5.5s7.75-2.9 9-5.5c-1.25-2.6-4.8-5.5-9-5.5Zm0 9.17A3.67 3.67 0 1 1 10 6.33a3.67 3.67 0 0 1 0 7.34Zm0-1.5a2.17 2.17 0 1 0 0-4.34 2.17 2.17 0 0 0 0 4.34Z"
+                />
+              </svg>
+              <span class="sr-only">View {{ r.name }}'s details</span>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty-state">No results yet — click Generate.</p>
+    }
+  </section>
+</div>
+
+<app-spell-detail-dialog #resultDetailDialog />
+
+<app-spell-credits />

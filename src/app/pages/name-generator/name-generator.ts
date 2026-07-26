@@ -4,7 +4,7 @@ import { NameTableStore } from '../../services/name-table-store';
 import { GeneratorDisclaimer } from '../../shared/generator-disclaimer/generator-disclaimer';
 
 /**
- * The Random Generators tab's own page — a dedicated, browsable version of
+ * The Content & Generators tab's own page — a dedicated, browsable version of
  * the same table-picking/rolling flow CombatantFields offers inline (see
  * that component). Kept as a separate, simpler implementation rather than
  * factoring out one shared "picker" component: this page's UI (bigger

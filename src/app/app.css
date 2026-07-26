@@ -28,6 +28,13 @@ header h1 {
   font-weight: 700;
 }
 
+/* Anchors default to blue+underline; without this the "Roll4" link would
+   look different from the plain heading it used to be. */
+header h1 a {
+  color: inherit;
+  text-decoration: none;
+}
+
 nav {
   display: flex;
   gap: 0.25rem;
@@ -80,6 +87,20 @@ nav a.active {
 .logout-btn:hover {
   opacity: 1;
   background: rgb(255 255 255 / 0.08);
+}
+
+.guest-banner {
+  padding: 0.6rem 1.25rem;
+  background: var(--color-hold-tint);
+  color: var(--color-hold);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.guest-banner a {
+  color: inherit;
+  text-decoration: underline;
 }
 
 main {

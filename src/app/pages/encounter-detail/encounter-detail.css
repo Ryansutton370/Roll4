@@ -491,10 +491,54 @@ input[type='text'].timer-name-input:focus {
   cursor: not-allowed;
 }
 
+/* Brief color-flip flash — see EncounterDetail's rollButtonEmphasized
+   effect() for when .emphasize gets applied (landing on the page with
+   combatants already in it, or any add/remove/edit afterward). Animating
+   background/color (rather than e.g. box-shadow) swaps the button's own
+   two existing tokens rather than introducing a new accent color, so it
+   reads as "this button" flashing rather than an unrelated glow. */
+@keyframes roll-btn-emphasize {
+  0%,
+  100% {
+    background: var(--color-header-bg);
+    color: var(--color-header-fg);
+  }
+  50% {
+    background: var(--color-header-fg);
+    color: var(--color-header-bg);
+  }
+}
+
+.roll-btn.emphasize {
+  animation: roll-btn-emphasize 900ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll-btn.emphasize {
+    animation: none;
+  }
+}
+
 .roll-icon {
   width: 1.6rem;
   height: 1.6rem;
   flex-shrink: 0;
+  transition: transform 0.5s ease;
+}
+
+/* Rotate the d20 in place on hover/focus, purely decorative flourish on the
+   page's single most-important button. Transitioning `transform` (rather
+   than a looping @keyframes animation) means it only spins once per
+   hover-in and reverses on hover-out, instead of spinning continuously. */
+.roll-btn:hover .roll-icon,
+.roll-btn:focus-visible .roll-icon {
+  transform: rotate(360deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll-icon {
+    transition: none;
+  }
 }
 
 .combatant-list {

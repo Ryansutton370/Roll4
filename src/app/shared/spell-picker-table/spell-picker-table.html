@@ -1,0 +1,142 @@
+<div class="picker">
+  <button
+    type="button"
+    class="picker-toggle"
+    [attr.aria-expanded]="expanded()"
+    (click)="toggleExpanded()"
+  >
+    <span class="chevron" [class.open]="expanded()">▸</span>
+    {{ expanded() ? 'Hide spell list' : 'Browse spell list' }}
+    <span class="picker-count">({{ totalCount() }})</span>
+  </button>
+
+  @if (expanded()) {
+    <div class="picker-controls">
+      <input
+        type="text"
+        class="picker-search"
+        placeholder="Search by name…"
+        [ngModel]="searchText()"
+        (ngModelChange)="searchText.set($event)"
+      />
+    </div>
+
+    <!-- Faceted filters — chip buttons rather than a native multi-select
+         (which needs ctrl/cmd-click to pick more than one, easy to miss):
+         click any number of Class chips to get spells in ANY of them (e.g.
+         Bard + Cleric), same for School, and the two facets combine with
+         AND (e.g. Bard/Cleric AND Evocation). See rows()'s filtering. -->
+    <div class="picker-filters">
+      <div class="filter-group">
+        <span class="filter-label">Class</span>
+        <div class="filter-chips">
+          @for (c of availableClasses(); track c) {
+            <button
+              type="button"
+              class="filter-chip"
+              [class.active]="selectedClasses().has(c)"
+              [attr.aria-pressed]="selectedClasses().has(c)"
+              (click)="toggleClassFilter(c)"
+            >
+              {{ c }}
+            </button>
+          }
+        </div>
+      </div>
+      @if (showSchool()) {
+        <div class="filter-group">
+          <span class="filter-label">School</span>
+          <div class="filter-chips">
+            @for (s of availableSchools(); track s) {
+              <button
+                type="button"
+                class="filter-chip"
+                [class.active]="selectedSchools().has(s)"
+                [attr.aria-pressed]="selectedSchools().has(s)"
+                (click)="toggleSchoolFilter(s)"
+              >
+                {{ s }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+      @if (hasActiveFilters()) {
+        <button type="button" class="clear-filters-btn" (click)="clearFilters()">
+          Clear filters
+        </button>
+      }
+    </div>
+
+    <div class="picker-table-wrap">
+      <table class="picker-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="sort-btn" (click)="setNameSort()">
+                Name
+                <span class="sort-arrow" [class.active]="sortColumn() === 'name'">{{
+                  sortColumn() === 'name' ? (sortDirection() === 'asc' ? '▲' : '▼') : '⇅'
+                }}</span>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-btn" (click)="setLevelSort()">
+                Level
+                <span class="sort-arrow" [class.active]="sortColumn() === 'level'">{{
+                  sortColumn() === 'level' ? (sortDirection() === 'asc' ? '▲' : '▼') : '⇅'
+                }}</span>
+              </button>
+            </th>
+            @if (showSchool()) {
+              <th>School</th>
+            }
+            <th>Classes</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of rows(); track t.id) {
+            <tr>
+              <td>{{ t.name }}</td>
+              <td class="col-level">{{ levelLabel(t) }}</td>
+              @if (showSchool()) {
+                <td class="col-school">{{ t.school ?? '—' }}</td>
+              }
+              <td class="col-classes">{{ t.classes.join(', ') }}</td>
+              <td class="col-actions">
+                <button
+                  type="button"
+                  class="icon-btn"
+                  title="View {{ t.name }}'s details"
+                  (click)="openDetail(t)"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 4.5c-4.2 0-7.75 2.9-9 5.5 1.25 2.6 4.8 5.5 9 5.5s7.75-2.9 9-5.5c-1.25-2.6-4.8-5.5-9-5.5Zm0 9.17A3.67 3.67 0 1 1 10 6.33a3.67 3.67 0 0 1 0 7.34Zm0-1.5a2.17 2.17 0 1 0 0-4.34 2.17 2.17 0 0 0 0 4.34Z"
+                    />
+                  </svg>
+                  <span class="sr-only">View {{ t.name }}'s details</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="columnCount()" class="empty-state">
+                @if (searchText().trim()) {
+                  No spells match "{{ searchText() }}".
+                } @else if (hasActiveFilters()) {
+                  No spells match the selected filters.
+                } @else {
+                  No spells available.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<app-spell-detail-dialog #detailDialog />

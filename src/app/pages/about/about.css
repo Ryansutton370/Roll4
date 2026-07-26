@@ -1,0 +1,14 @@
+.page-intro {
+  max-width: 40rem;
+  color: var(--color-text-muted);
+}
+
+.about-section,
+.contact-section {
+  margin-bottom: 1.5rem;
+}
+
+.contact-section a {
+  color: var(--color-focus);
+  font-weight: 600;
+}

@@ -37,6 +37,19 @@ needing a fast, clear way to track turn order across multiple rounds.
 
 ## Navigation
 
+`/` is a public landing page (Roll4 title, an About section, and an
+Upcoming Features list), reachable whether or not a GM is signed in —
+signed-out visitors get a Sign In prompt there instead of the tab nav
+below; the header's tab nav and this page's own quick-nav links both only
+appear once signed in. See [ROADMAP.md](./ROADMAP.md)'s 3.8 for how that
+route is wired up.
+
+Signed-out visitors can also **Continue Without Signing In** (`/` or
+`/login`) to use the full app as a guest, no account required — with a
+clear warning that a guest's data lives only in that browser (not backed up,
+not reachable from another device, and not carried over if they sign up for
+a real account afterward). See [ROADMAP.md](./ROADMAP.md)'s 3.9.
+
 Two top-level tabs organize the GM's reusable data, each with its own
 sub-nav:
 
@@ -48,11 +61,17 @@ sub-nav:
 
 **Encounters** remains its own top-level tab, unchanged.
 
-**Random Generators** is a fourth top-level tab, with its own Roster-style
-sub-nav (see "11. Random Generators", "12. Encounter Generator", "13. Wild
-Magic Generator", "14. Treasure Generator", and "15. Combat Thesaurus"
-below): **Names**, **Encounter**, **Wild Magic**, **Treasure**, and
-**Combat Thesaurus**.
+**Content & Generators** is a fourth top-level tab (renamed from "Random
+Generators" — see [ROADMAP.md](./ROADMAP.md)'s 3.10), with its own
+Roster-style sub-nav (see "11. Content & Generators", "12. Encounter
+Generator", "13. Wild Magic Generator", "14. Treasure Generator", and "15.
+Combat Thesaurus" below): **Names**, **Encounter**, **Wild Magic**,
+**Treasure**, and **Combat Thesaurus**.
+
+**About & Contact** is a fifth top-level tab (`/about`), always last, and
+has no sub-nav — a static page (an About section, a placeholder pending
+real biographical content, and a Contact section with a support/feedback
+email). See [ROADMAP.md](./ROADMAP.md)'s 3.11.
 
 ## GM workflows
 
@@ -220,7 +239,7 @@ is the first thing on the page, above the Combatants list — a large, bold
 button rather than just another item in a row of controls, since it's the
 one thing a GM opening an unstarted Encounter is ultimately here to do.
 
-The GM presses **Roll Initiative**. Every combatant gets a random value from
+The GM presses **Roll4 Initiative**. Every combatant gets a random value from
 1–20, plus their Initiative Modifier, producing their initiative total.
 Combatants are sorted descending by that total (highest acts first). Ties
 are broken by whichever combatant has the higher Initiative Modifier; if
@@ -517,7 +536,16 @@ card shows the name in bold white text on a red background (the count
 stays visible, now reading 0). An **×** button on every card dismisses it
 at any time.
 
-### 11. Random Generators
+### 11. Content & Generators
+
+Clicking the **Content & Generators** header tab (`/generators`) lands on a
+hub page, `GeneratorsHome` — a card per generator (Names, Encounter, Wild
+Magic, Treasure, Combat Thesaurus, Spell Lists), each with its own
+hand-drawn icon (no icon library is used anywhere in this app — see
+`CombatThesaurusPicker`'s per-category icons for the same convention) and
+linking to its own sub-page, same card-grid look as the app's main landing
+page's quick-nav. This replaced defaulting straight to the Names page once
+there were six generators to choose from instead of one.
 
 A GM's spreadsheet of d100 name tables (grouped into "sets" like
 "European", "Non-European", "Fantasy", "Titles & Bynames", "Potions &
@@ -525,9 +553,10 @@ Alchemy", "Places" — not every table is a _person_ name, e.g. Places holds
 settlement names) is imported once into the app (see
 [DATA_MODEL.md](./DATA_MODEL.md)'s `NameTable`). Two ways to use it:
 
-- **The Random Generators tab** (`/generators`): pick a set, then a table
-  within it, choose how many results to roll, and copy any result — a
-  standalone browsing/rolling tool, not tied to any particular Player/NPC.
+- **The Content & Generators tab's Names page** (`/generators/names`): pick a
+  set, then a table within it, choose how many results to roll, and copy
+  any result — a standalone browsing/rolling tool, not tied to any
+  particular Player/NPC.
 - **Inline, wherever a Name is entered**: every Player/NPC create/edit
   screen shares one form (`CombatantFields` — Player/NPC roster, ad-hoc NPC
   forms, the Edit pop-up, per section 4a above) with a 🎲 button next to the
@@ -535,16 +564,17 @@ settlement names) is imported once into the app (see
   popover; clicking a rolled name fills the Name field directly, without
   navigating away from whatever screen the GM was already on.
 
-Every page under the Random Generators tab (Names, Encounter, Wild Magic,
-Treasure, Combat Thesaurus) carries a short general disclaimer at the bottom — content is
+Every page under the Content & Generators tab (Names, Encounter, Wild Magic,
+Treasure, Combat Thesaurus, Spell Lists) carries a short general disclaimer at the bottom — content is
 sourced from a variety of places, credit is given wherever possible, no
 ownership is claimed — alongside (not instead of) any page-specific
 attribution a source requires (the Encounter Generator's OGL/CC BY-SA
-notices in section 12, the Wild Magic page's author credit in section 13).
+notices in section 12, the Wild Magic page's author credit in section 13,
+the Spell Lists page's own OGL/CC BY-SA notices in section 16).
 
 ### 12. Encounter Generator
 
-The Random Generators tab's second page (`/generators/encounter`) generates
+The Content & Generators tab's second page (`/generators/encounter`) generates
 a candidate monster list from the imported 5e SRD / Shadowdark monster data
 (see [DATA_MODEL.md](./DATA_MODEL.md)'s `MonsterTemplate`) instead of the
 GM building an Encounter's roster combatant-by-combatant. The whole
@@ -588,7 +618,7 @@ Preview.)
    "From Book" step (see section 2) — one picker, every place a GM chooses
    a single monster from either sourcebook.
 3. **Name a candidate** — each Candidates row has its own 🎲 button (the
-   same Random Generators picker from section 11), so the GM can roll a
+   same Content & Generators picker from section 11), so the GM can roll a
    name for that one specific monster from whichever set/table fits it —
    useful for mixing ancestries/categories across a roster instead of every
    monster coming from the same one. There's no bulk "name everything at
@@ -623,7 +653,7 @@ Preview.)
 
 ### 13. Wild Magic Generator
 
-The Random Generators tab's third page (`/generators/wild-magic`) rolls on
+The Content & Generators tab's third page (`/generators/wild-magic`) rolls on
 the imported Wild Magic tables (see [DATA_MODEL.md](./DATA_MODEL.md)'s
 `WildMagicTable`): a 10,000-entry **Chaos Burst** table of wild-magic mishap
 effects, and a companion 100-entry **Burst Duration Condition** table for
@@ -643,7 +673,7 @@ before that effect ends.
 
 ### 14. Treasure Generator
 
-The Random Generators tab's fourth page (`/generators/treasure`) rolls on
+The Content & Generators tab's fourth page (`/generators/treasure`) rolls on
 the imported Treasure tables (see [DATA_MODEL.md](./DATA_MODEL.md)'s
 `TreasureTable`) — GM-provided lists, unlike Names/Monsters/Wild Magic,
 which each come from one external source document. Same table-picker/
@@ -656,7 +686,7 @@ categories are done.
 
 ### 15. Combat Thesaurus
 
-The Random Generators tab's fifth page (`/generators/combat-thesaurus`)
+The Content & Generators tab's fifth page (`/generators/combat-thesaurus`)
 rolls a flavor verb for narrating a combat action — a quick alternative to
 saying "hit" every time — from the imported Combat Thesaurus categories (see
 [DATA_MODEL.md](./DATA_MODEL.md)'s `CombatThesaurusTable`): **Blade**,
@@ -670,6 +700,60 @@ populated (29 verbs each); a category with no verbs would show a plain "No
 verbs added yet" note in place of results and disable its Roll button, same
 as Treasure's incremental-category handling, if a new category were ever
 added empty.
+
+### 16. Spell Lists
+
+The Content & Generators tab's sixth page (`/generators/spells`) covers the
+imported D&D 5e SRD and Shadowdark spell lists (see
+[DATA_MODEL.md](./DATA_MODEL.md)'s `SpellTemplate`) — a **Browse** section
+stacked above a **Generate** section. Unlike the Encounter Generator
+(Generate is the visually primary section there), **Browse Spell List is
+the primary section here** — the richer of the two asks — with Generate
+Spells below it.
+
+1. **Choose a sourcebook** — D&D 5e SRD or Shadowdark, same source toggle
+   as the Encounter Generator. Switching sources resets the Generate
+   panel's level range/class/results, since a 5e cantrip-inclusive
+   Level 0–3 range doesn't carry over meaningfully to Shadowdark's 1–5
+   spells, or vice versa.
+2. **Browse Spell List** — an expandable, searchable table (same
+   `MonsterPickerTable`-style collapse-by-default/search-by-typing shape,
+   starting expanded here since it's the primary section), always a flat
+   list (no grouped sections). **Name** and **Level** are directly
+   sortable, ascending/descending, via their own clickable column headers
+   — same convention as `MonsterPickerTable`'s Name/CR headers; Shadowdark's
+   Level column shows a plain number rather than "Tier N" (see
+   [DATA_MODEL.md](./DATA_MODEL.md)'s `SpellTemplate` for why), and for 5e
+   a Cantrip sorts as level 0, before Level 1. Shadowdark has no school
+   concept at all, so the School column is hidden entirely for that
+   source rather than showing an empty/placeholder column. A **Filters**
+   row lets the GM check off any number of Class chips and (5e only)
+   School chips to narrow the table directly — e.g. checking just
+   "Priest" for Shadowdark, or "Bard" + "Cleric" plus "Evocation" for 5e
+   (any checked class matches, combined with the checked school(s) — a
+   spell needs to satisfy both facets, not just one), with a **Clear
+   filters** button once any chip is checked; switching sources clears
+   both filters, since a class/school checked for one system is
+   meaningless in the other. An eye icon per row opens a read-only spell
+   detail dialog (name, level/tier, school, classes, description, and
+   source-specific facts like Casting
+   Time/Components/Duration/Range/Ritual/At Higher Levels for 5e, or
+   Duration/Range for Shadowdark).
+3. **Generate Spells** — a Count, a Min/Max Level (labeled "Tier" for
+   Shadowdark) range, and a Class picker ("Any Class" or one specific
+   class drawn from whatever's actually present in that source's data),
+   then Generate rolls that many spells at random from the matching pool
+   — e.g. "six D&D spells between Level 1 and 3 for Bards" or "three
+   Shadowdark Priest spells that are Level 2". Each result shows its name,
+   level label, and classes, with its own eye icon opening the same spell
+   detail dialog as Browse.
+4. **Credits** — both sources' required attribution (5e SRD's OGL Section
+   15 notice; Shadowdark's CC BY-SA 4.0 + Shadowdark RPG Third-Party
+   License notices, crediting the Unofficial Shadowdark Spell List by
+   Michael Putlack of Night Noon Games — the same compiler as the
+   Encounter Generator's Shadowdark monster data), tucked behind a
+   `<details>` toggle same as the Encounter Generator page, plus the
+   general Content & Generators disclaimer.
 
 ## Persistence
 
