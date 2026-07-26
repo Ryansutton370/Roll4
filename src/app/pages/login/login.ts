@@ -36,8 +36,8 @@ export class Login {
   protected readonly submitting = signal(false);
   protected readonly guestSubmitting = signal(false);
 
-  protected toggleMode(): void {
-    this.mode.set(this.mode() === 'signin' ? 'signup' : 'signin');
+  protected setMode(mode: Mode): void {
+    this.mode.set(mode);
     this.error.set(null);
   }
 
