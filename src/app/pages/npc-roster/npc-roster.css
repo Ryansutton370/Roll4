@@ -79,6 +79,40 @@
   flex-shrink: 0;
 }
 
+/* See player-roster.css for the full explanation — same bug, same fix,
+   mirrored here per this file's own "mirrors player-roster.css exactly"
+   header comment. Below ~480px, Name/Notes (the only flex:1 columns)
+   were being squeezed down to unreadable widths by the row's fixed-width
+   columns; wrapping the row and giving them a full-width line each fixes
+   that without touching DOM/tab order. */
+@media (max-width: 480px) {
+  .player-row {
+    flex-wrap: wrap;
+  }
+
+  .pc-name,
+  .pc-notes {
+    flex-basis: 100%;
+  }
+
+  .player-row .icon-btn {
+    margin-left: auto;
+  }
+
+  .column-headings {
+    flex-wrap: wrap;
+  }
+
+  .pc-name-heading,
+  .pc-notes-heading {
+    flex-basis: 100%;
+  }
+
+  .heading-spacer {
+    margin-left: auto;
+  }
+}
+
 .player-parties {
   display: flex;
   flex-wrap: wrap;
