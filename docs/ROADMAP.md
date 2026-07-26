@@ -683,7 +683,7 @@ firebase` (the raw modular SDK, not `@angular/fire` — see
       `index.html` for the Angular router) so the app is reachable live, not
       just runnable locally — see [ARCHITECTURE.md](./ARCHITECTURE.md)'s new
       Hosting section. Deployed via `npx firebase-tools deploy --only
-hosting`; the Firebase CLI isn't a project dependency, just invoked ad
+      hosting`; the Firebase CLI isn't a project dependency, just invoked ad
       hoc. A second, friendlier-named Hosting site (`roll4`, alongside the
       project's auto-created `roll4-bddd2`) makes the real shareable URL
       **https://roll4.web.app** rather than the project-ID-derived default.
