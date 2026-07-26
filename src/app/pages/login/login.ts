@@ -34,6 +34,7 @@ export class Login {
   protected readonly password = signal('');
   protected readonly error = signal<string | null>(null);
   protected readonly submitting = signal(false);
+  protected readonly guestSubmitting = signal(false);
 
   protected toggleMode(): void {
     this.mode.set(this.mode() === 'signin' ? 'signup' : 'signin');
@@ -56,7 +57,7 @@ export class Login {
       // The auth guard only re-checks on navigation, not reactively — a
       // successful sign-in from *this* page still needs an explicit nav
       // to actually leave the login screen.
-      this.router.navigateByUrl('/players');
+      this.router.navigateByUrl('/');
     } catch (err) {
       this.error.set(this.describeError(err));
     } finally {
@@ -68,9 +69,22 @@ export class Login {
     this.error.set(null);
     try {
       await this.authService.signInWithGoogle();
-      this.router.navigateByUrl('/players');
+      this.router.navigateByUrl('/');
     } catch (err) {
       this.error.set(this.describeError(err));
+    }
+  }
+
+  protected async continueAsGuest(): Promise<void> {
+    this.guestSubmitting.set(true);
+    this.error.set(null);
+    try {
+      await this.authService.continueAsGuest();
+      this.router.navigateByUrl('/');
+    } catch (err) {
+      this.error.set(this.describeError(err));
+    } finally {
+      this.guestSubmitting.set(false);
     }
   }
 

@@ -1,0 +1,30 @@
+<!-- Native <dialog>, opened imperatively via showModal() (see openFor() in
+     spell-detail-dialog.ts) — same free ::backdrop/Escape-to-close as
+     MonsterStatBlockDialog. (click) here is the "click outside closes it"
+     handler — see onOverlayClick() for why it checks click coordinates
+     rather than event.target. -->
+<dialog #dialog class="spell-detail-dialog" (click)="onOverlayClick($event)">
+  @if (template(); as t) {
+    <div class="spell-detail-header">
+      <h2>{{ t.name }}</h2>
+      <button
+        type="button"
+        class="dialog-close-btn"
+        (click)="close()"
+        aria-label="Close spell details"
+      >
+        ×
+      </button>
+    </div>
+    <p class="spell-detail-meta">
+      {{ levelLabel(t) }}{{ t.school ? ' · ' + t.school : '' }} · {{ t.classes.join(', ') }}
+    </p>
+    <p class="spell-detail-description">{{ t.description }}</p>
+    <dl class="spell-detail-entries">
+      @for (entry of t.details; track $index) {
+        <dt>{{ entry.label }}</dt>
+        <dd>{{ entry.value }}</dd>
+      }
+    </dl>
+  }
+</dialog>

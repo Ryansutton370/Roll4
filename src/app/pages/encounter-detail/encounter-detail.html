@@ -74,6 +74,7 @@
       <button
         type="button"
         class="roll-btn"
+        [class.emphasize]="rollButtonEmphasized()"
         (click)="rollInitiative()"
         [disabled]="combatants().length === 0"
       >
@@ -96,7 +97,7 @@
             stroke-width="1"
           />
         </svg>
-        Roll Initiative
+        Roll4 Initiative
       </button>
 
       <h2>Combatants</h2>

@@ -1,10 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard, redirectIfAuthedGuard } from './guards/auth-guard';
+import { About } from './pages/about/about';
 import { CombatThesaurusGenerator } from './pages/combat-thesaurus-generator/combat-thesaurus-generator';
 import { EncounterDetail } from './pages/encounter-detail/encounter-detail';
 import { EncounterGenerator } from './pages/encounter-generator/encounter-generator';
 import { EncounterList } from './pages/encounter-list/encounter-list';
+import { GeneratorsHome } from './pages/generators-home/generators-home';
 import { GeneratorsShell } from './pages/generators-shell/generators-shell';
+import { Home } from './pages/home/home';
 import { Login } from './pages/login/login';
 import { NameGenerator } from './pages/name-generator/name-generator';
 import { NpcRoster } from './pages/npc-roster/npc-roster';
@@ -13,15 +16,22 @@ import { PartyDetail } from './pages/party-detail/party-detail';
 import { PartyList } from './pages/party-list/party-list';
 import { PlayerRoster } from './pages/player-roster/player-roster';
 import { PlayersShell } from './pages/players-shell/players-shell';
+import { SpellListsGenerator } from './pages/spell-lists-generator/spell-lists-generator';
 import { TreasureGenerator } from './pages/treasure-generator/treasure-generator';
 import { TroopDetail } from './pages/troop-detail/troop-detail';
 import { TroopList } from './pages/troop-list/troop-list';
 import { WildMagicGenerator } from './pages/wild-magic-generator/wild-magic-generator';
 
 export const routes: Routes = [
+  // The landing page — the one route reachable both signed-in and
+  // signed-out (Home branches on sign-in state itself instead of being
+  // guarded). pathMatch: 'full' so this only matches the bare '' URL, not
+  // every URL as a prefix (the default) — otherwise it would swallow every
+  // other route below before they got a chance to match.
+  { path: '', component: Home, pathMatch: 'full' },
   // /login sits outside the guarded parent below, and carries its own
   // guard the other direction — bouncing an already-signed-in GM straight
-  // back into the app instead of showing them a login form again.
+  // back to the landing page instead of showing them a login form again.
   { path: 'login', component: Login, canActivate: [redirectIfAuthedGuard] },
   // A pathless parent route ({ path: '' }) — it contributes no URL
   // segment of its own, just a canActivate check every child route below
@@ -31,7 +41,6 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'players', pathMatch: 'full' },
       // children: [...] — Angular's route nesting. PlayersShell owns the
       // "Roster / Parties" sub-nav and a <router-outlet> of its own (see
       // players-shell.html); these three routes render *into* that outlet
@@ -62,13 +71,21 @@ export const routes: Routes = [
         path: 'generators',
         component: GeneratorsShell,
         children: [
-          { path: '', component: NameGenerator },
+          // '' is this hub page, not any one generator — a GM picks a
+          // card below rather than landing on whichever page shipped
+          // first (Names, back when it was the only one).
+          { path: '', component: GeneratorsHome },
+          { path: 'names', component: NameGenerator },
           { path: 'encounter', component: EncounterGenerator },
           { path: 'wild-magic', component: WildMagicGenerator },
           { path: 'treasure', component: TreasureGenerator },
           { path: 'combat-thesaurus', component: CombatThesaurusGenerator },
+          { path: 'spells', component: SpellListsGenerator },
         ],
       },
+      // Always the last header nav tab (see app.html) — a static
+      // About/Contact page, no sub-nav of its own.
+      { path: 'about', component: About },
     ],
   },
 ];

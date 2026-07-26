@@ -225,7 +225,7 @@ via the 🎲 name generator, same as any ad-hoc entry — since a personal name
       initial 40rem threshold hid the icon under normal conditions —
       lowered to 37rem); and the button was originally nested inside
       `.combatant-name`, whose `overflow: hidden` / `text-overflow:
-  ellipsis` / `white-space: nowrap` makes a clickable child unreliable
+ellipsis` / `white-space: nowrap` makes a clickable child unreliable
       to hit-test (verified live: real clicks landed on the sibling
       `.monster-subtitle` text instead) — moved out to be a sibling within
       `.combatant-row`, same as every other interactive stat in the bubble.
@@ -264,7 +264,7 @@ sort by CR/Level, search, or preview a stat block before picking.
       directly inside the Encounter List's create/edit panel — see
       [ARCHITECTURE.md](./ARCHITECTURE.md)'s "Splitting shared UI into
       components" for the extraction rationale and the `display:
-  contents` gotcha it hit a second/third time.
+contents` gotcha it hit a second/third time.
 - [x] `EncounterList` rework: saved Encounters now render below an
       expand/collapse **+ Create Encounter** panel, the same panel
       Edit (pencil icon) opens too — one UI for both, not two. The panel
@@ -550,6 +550,72 @@ opened once the GM wanted it reachable from the run-phase "+" menu instead.
       vertical-ellipsis (⋮) icon, since a single "+" no longer described a
       menu with a non-"add" option in it.
 
+## Phase 2.13 — Spell Lists (complete)
+
+A sixth Content & Generators page, covering both D&D 5e SRD and Shadowdark
+spells the same way Monsters covers both systems' creatures — unlike
+Monsters (where the Shadowdark half followed the 5e half by a separate
+phase, once the GM supplied the spreadsheet), both sources shipped
+together here since the GM had the Shadowdark spell spreadsheet ready from
+the start.
+
+- [x] `SpellTemplate` (`src/app/models/spell-template.model.ts`) and
+      `SpellStore` (`src/app/services/spell-store.ts`) — same
+      `toSignal`-over-`HttpClient` shape as `MonsterStore`, reading
+      `public/data/spells-5e-srd.json` / `spells-shadowdark.json`. See
+      [DATA_MODEL.md](./DATA_MODEL.md)'s `SpellTemplate` entity.
+- [x] `scripts/import-spells-5e-srd.cjs` — pulled 319 spells from Open5e's
+      API (`document__slug=wotc-srd`), same shape as
+      `import-monsters-5e-srd.cjs`.
+- [x] `scripts/import-spells-shadowdark.cjs` — 85 spells from the GM's
+      `.claude/Unofficial Shadowdark Spell List.xlsx` (by the same
+      compiler as the Shadowdark Monster Database), same shape as
+      `import-monsters-shadowdark.cjs`. `public/data/spells-shadowdark.LICENSE.txt`
+      added alongside, same CC BY-SA ShareAlike sidecar as the monster data.
+- [x] `SpellPickerTable` (`src/app/shared/spell-picker-table/`) — a
+      search table like `MonsterPickerTable`, with Name and Level directly
+      sortable ascending/descending via clickable column headers (same
+      convention as `MonsterPickerTable`'s Name/CR headers; a 5e Cantrip's
+      `level` is `0`, so it sorts first ascending with no special-casing).
+      Also added **Class**/**School** filter chips (any number checked per
+      facet, OR'd together; the two facets AND with each other) so a GM
+      can jump straight to e.g. just Shadowdark's Priest spells, or 5e's
+      Bard+Cleric Evocation spells. An earlier **Arrange by** control that
+      additionally grouped the table into Class/School sections was tried
+      and then removed — once the Class/School filter chips covered the
+      same "just show me X" need more directly, a separate grouped-browse
+      view didn't earn its keep alongside them.
+- [x] `SpellDetailDialog` (`src/app/shared/spell-detail-dialog/`) — a
+      read-only reference popup, same native `<dialog>`/`openFor()` shape
+      as `MonsterStatBlockDialog`.
+- [x] `SpellCredits` (`src/app/shared/spell-credits/`) — 5e SRD OGL Section
+      15 notice plus real Shadowdark CC BY-SA/Third-Party License credit
+      text (not a placeholder), same structure as `MonsterCredits`.
+- [x] `SpellListsGenerator` page (`/generators/spells`) — Browse Spell
+      List is the primary section (an explicit layout choice, unlike the
+      Encounter Generator's Generate-primary layout), stacked above
+      Generate Spells (Count, Min/Max Level, Class).
+
+## Phase 2.14 — Content & Generators landing page (complete)
+
+Small UX follow-up: with six generator pages now, defaulting the whole
+Content & Generators tab straight to the Names page (a holdover from when
+Names was the only generator) no longer made sense.
+
+- [x] `GeneratorsHome` (`src/app/pages/generators-home/`) — a hub page at
+      `/generators`, a card per generator linking to its own sub-page,
+      reusing the `.quick-nav`/`.quick-nav-card` grid look Home's own
+      landing page introduced (promoted from `home.css` into `styles.css`
+      once a second page needed it).
+- [x] Names moved off the bare `/generators` path onto its own
+      `/generators/names`, freeing `''` for `GeneratorsHome`.
+- [x] Fixed the Generators sub-nav wrapping to two lines on its active tab
+      at some viewport widths (most visible on "Spell Lists", the newest/
+      widest addition) — `.section-nav`/`.section-nav a` (`styles.css`)
+      gained `overflow-x: auto`/`white-space: nowrap` so the row scrolls
+      horizontally instead of squeezing a tab's text narrower than it fits
+      on one line.
+
 ## Phase 3 — Firebase/Firestore Backend + GM Accounts (complete)
 
 Chose a backend (Firebase — Firestore + Firebase Auth, see
@@ -559,7 +625,7 @@ rationale and mechanics) and migrated every GM-owned entity off
 given the size.
 
 - [x] **3.1 — Firebase project + SDK + environment config.** `npm install
-      firebase` (the raw modular SDK, not `@angular/fire` — see
+firebase` (the raw modular SDK, not `@angular/fire` — see
       [ARCHITECTURE.md](./ARCHITECTURE.md) for why), `src/environments/`
       (the Firebase web config — safe to commit, not a secret),
       `src/app/firebase.ts` (the one shared `initializeApp`/`getFirestore`/
@@ -575,7 +641,10 @@ given the size.
       away (a real bug found and fixed — route guards only run on
       navigation, not reactively, so the nav bar disappearing on sign-out
       didn't used to also leave the page), and an already-signed-in GM
-      visiting `/login` bounces back to `/players`.
+      visiting `/login` bounces back to the landing page (originally
+      `/players` at this point in the phase — see 3.8 below, which moved
+      the root route to a real landing page instead of an immediate
+      redirect).
 - [x] **3.3 — `PartyStore` → Firestore** (the template every other store
       followed). `Party`/`Player` gained a real `ownerId` field; the store
       itself flipped from "mutate the signal, mirror it to `localStorage`
@@ -618,6 +687,96 @@ given the size.
       hoc. A second, friendlier-named Hosting site (`roll4`, alongside the
       project's auto-created `roll4-bddd2`) makes the real shareable URL
       **https://roll4.web.app** rather than the project-ID-derived default.
+- [x] **3.8 — Public landing page.** The root route (`/`) changed from an
+      immediate `redirectTo: 'players'` (guarded, so a signed-out visitor
+      just bounced straight to `/login`) to a real `Home` page
+      (`src/app/pages/home/`) reachable either signed-in or signed-out —
+      the one route in `app.routes.ts` with no `authGuard`. Content
+      branches on `AuthService.uid()` inside the one component rather than
+      splitting into two routes: a signed-out visitor gets a "Sign In"
+      prompt linking to `/login` in place of the quick-nav links (Players/
+      NPCs/Encounters/Content & Generators — renamed in 3.10 below) a
+      signed-in GM sees; a title, an
+      About section (why Roll4 exists, and Chaotic Initiative — the
+      re-roll-every-round house rule — as the concrete example), and a
+      scrollable Upcoming Features list are shown either way.
+      `redirectIfAuthedGuard` and both `Login` sign-in paths now send an
+      already-signed-in GM to `/` instead of straight to `/players`.
+- [x] **3.9 — "Continue Without Signing In" guest mode.** `AuthService`
+      gained `continueAsGuest()` (`signInAnonymously`, Firebase Auth's
+      built-in anonymous-user flow) and an `isGuest` computed signal
+      (`user()?.isAnonymous`). Deliberately _not_ a second, separate
+      local-storage code path: an anonymous Firebase user is still a real
+      `request.auth.uid`, so `firestore.rules`' `isOwner()` check, every
+      `*Store`'s `ownerId` scoping, and `authGuard` all treat a guest
+      exactly like a signed-in GM with zero changes of their own — see
+      [ARCHITECTURE.md](./ARCHITECTURE.md)'s Persistence section. What's
+      actually different is discoverability, not storage mechanics: an
+      anonymous uid has no email/password/Google identity behind it, so
+      it's only ever reachable again from whichever browser started the
+      session (Firebase's default `browserLocalPersistence` keeps it across
+      a reload, but clearing that browser's storage, or opening the app
+      elsewhere, has no way back in) — `Home`'s and `Login`'s sign-in
+      prompts both carry a "Continue Without Signing In" button next to
+      Sign In with an explicit warning to that effect, and a standing
+      `.guest-banner` in `app.html` (visible only while `isGuest()`) repeats
+      it with a "Sign up to save it permanently" link for the rest of the
+      session. `redirectIfAuthedGuard` treats a guest as _not_ already
+      signed in (`user && !user.isAnonymous`), so a guest can still reach
+      `/login` to create a real account — signing up there starts a
+      genuinely separate account rather than upgrading the guest session
+      (no `linkWithCredential` yet), which the warning copy calls out
+      rather than implying an upgrade path that doesn't exist.
+      Required one one-time Firebase Console setting alongside the code:
+      `signInAnonymously` fails with `ADMIN_ONLY_OPERATION` until the
+      Anonymous sign-in provider is turned on for the project (Firebase
+      Console → Authentication → Sign-in method → Anonymous → Enable) — not
+      something the app or its deploy config can flip on its own. Verified
+      live, after enabling it: `/` → Continue Without Signing In → quick-nav
+      swaps in and the guest banner appears; created a real Player as a
+      guest and confirmed it survives a full page reload (Firestore, not
+      just an in-memory signal); confirmed a guest can still reach `/login`
+      via the banner's "Sign up to save it permanently" link rather than
+      being bounced back by `redirectIfAuthedGuard`.
+  - [x] Follow-on: the header's **Log Out** button (`app.html`) is hidden
+        for a guest (`@if (!authService.isGuest())`) — there's no account to
+        log out _of_; `signOutUser()` would just drop the anonymous session
+        (and its Firestore data) with no way back in. Verified live: hidden
+        for a guest, still present for a real signed-in GM.
+- [x] **3.10 — "Random Generators" tab renamed to "Content & Generators."**
+      Cosmetic rename only, no route/data change — `/generators` and every
+      child path are unchanged. Updated everywhere the old name was
+      user-visible: the header nav link and `Home`'s quick-nav card
+      (`app.html`/`home.html`), the Names page's own `<h1>` (it's the
+      default child route under `/generators` and still carries the
+      top-level tab's name as its heading, a holdover from Milestone 1
+      shipping alone at that URL before the sub-nav shell existed — see
+      Phase 2.5), and `GeneratorDisclaimer`'s wording (reworded to "Content
+      & Generators material is sourced from..." rather than the
+      literal old text, which would have doubled up as "Content &
+      Generators content"). Doc-comment references to "the Random
+      Generators tab" across the five generator pages/shared pickers, and
+      the current-state descriptions in `PRODUCT.md`/`ARCHITECTURE.md`,
+      were updated to match for consistency. Historical entries elsewhere in
+      _this_ file (Phase 2.5/2.6's own titles, and their body text) were
+      deliberately left as-is — they're a record of what the tab was called
+      when that work happened, not a live description of today's UI.
+      `name-table.model.ts`'s "imported Random Generators spreadsheet" is a
+      distinct, unrelated reference (the GM's own source spreadsheet's
+      name, not the app's tab) and was left alone too.
+- [x] **3.11 — "About & Contact" tab.** A fifth, always-last header nav tab
+      (`src/app/pages/about/`, `/about`) — static, no store, no sub-nav.
+      Added as a normal guarded route/nav entry alongside Players/NPCs/
+      Encounters/Content & Generators (same `authGuard`-protected children
+      array, same `@if (authService.uid())` nav block in `app.html`) rather
+      than public like `/`/`/login`, so its behavior stays consistent with
+      its sibling tabs instead of being the one exception. `Home`'s
+      quick-nav grid gained a matching fifth card, keeping it in sync with
+      the header nav per that component's own "mirrors the header nav"
+      doc comment. Content: an **About** section that's a placeholder for
+      now (real biographical content to follow later) and a **Contact**
+      section with a `mailto:` link to `roll44yan@gmail.com` for
+      questions/concerns/suggestions.
 
 A side effect of the migration, not a separate line of work: data is now
 naturally **accessible from more than one device/browser** (any signed-in
@@ -644,7 +803,7 @@ actually being designed.
 - **Pre-Roll Combatants list: bubble columns didn't align.** ~~Reported as
   "generated NPCs specifically don't align," but the live repro (2026-07-22,
   `getBoundingClientRect()` on each `.stat` column comparing a Browsed NPC
-  against a Generated one) showed the real trigger is name *length*, not
+  against a Generated one) showed the real trigger is name _length_, not
   the source: the `<li>` wrapping each bubble in both `EncounterDetail`'s
   setup-phase Combatants list and `EncounterPreviewPanel` carried a stray
   `entry` class (`class="bubble entry preview-combatant"`) left over from
@@ -669,7 +828,7 @@ actually being designed.
   `getBoundingClientRect()` (columns now land at identical `left` offsets
   regardless of name length) and visually at desktop and 375px mobile
   widths. See [[feedback_combatant_bubble_never_deforms]] — same standing
-  "never deforms" rule, one layer up (the bubble's *container*, not the
+  "never deforms" rule, one layer up (the bubble's _container_, not the
   bubble's own CSS, was at fault this time).
 
 ## Backlog — future ideas (not yet phased)

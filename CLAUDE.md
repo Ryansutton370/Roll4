@@ -63,6 +63,22 @@ understanding, not just for shipping code fast.
   both visible, a fully-statted (AC/HP/Notes/View Stat Block/Initiative)
   combatant, at least one status icon (e.g. Incapacitated) — that
   combination is what has broken this twice before.
+- **Live-testing against Firebase must leave no trace by default.** Every
+  new email/password account created for a test is a row the user has to
+  find and delete by hand in the Firebase console — this has already
+  happened often enough to become real cleanup work. Default to the
+  "Continue Without Signing In" anonymous-guest flow for *any* live test
+  (via the `run-roll4` skill or otherwise) — it's a real, fully-functional
+  signed-in session as far as every store/guard/rule is concerned, needs no
+  credentials, and requires no separate deletion step to reason about
+  during a script. Only sign into (never *create*) a persistent
+  email/password account when the test specifically depends on identity
+  surviving across separate sessions/invocations — e.g. verifying data
+  persists across a sign-out/sign-in cycle, or testing email/password or
+  Google sign-in itself — and reuse the existing standing QA account for
+  that rather than signing up a new one. Signing up a brand-new
+  email/password account as a testing shortcut is not acceptable even
+  when it seems easier in the moment.
 
 ## Conventions already in place
 

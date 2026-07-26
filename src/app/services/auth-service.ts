@@ -5,6 +5,7 @@ import {
   UserCredential,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInAnonymously,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -31,6 +32,15 @@ export class AuthService {
   // signal.
   readonly uid = computed(() => this.userSignal()?.uid ?? null);
 
+  // True for a "Continue Without Signing In" guest (see continueAsGuest) —
+  // Firestore's security rules only check `request.auth != null`, so a
+  // guest's Player/NPC/Encounter data is scoped and stored exactly like a
+  // real GM's. What's different is discoverability: there's no email or
+  // password behind this uid, so it's only ever reachable from whichever
+  // browser started the session — components read this to show a "your
+  // data isn't backed up" warning.
+  readonly isGuest = computed(() => this.userSignal()?.isAnonymous ?? false);
+
   constructor() {
     // onAuthStateChanged is Firebase's own subscription API (not an
     // Angular one) — it fires once immediately with the current state,
@@ -55,6 +65,20 @@ export class AuthService {
 
   signInWithGoogle(): Promise<UserCredential> {
     return signInWithPopup(auth, new GoogleAuthProvider());
+  }
+
+  /**
+   * Lets a visitor use the full app with no account at all. Signs into a
+   * real (if anonymous) Firebase user, so every existing store/guard/rule
+   * treats a guest exactly like a signed-in GM with no code changes of its
+   * own — see isGuest's comment for what's actually different. Firebase
+   * persists this the same way as any other session (survives a reload of
+   * this browser), but signing up afterward creates an unrelated account
+   * rather than upgrading this one, so a guest's data doesn't carry over —
+   * callers should warn about that before calling this.
+   */
+  continueAsGuest(): Promise<UserCredential> {
+    return signInAnonymously(auth);
   }
 
   signOutUser(): Promise<void> {

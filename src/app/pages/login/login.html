@@ -2,7 +2,7 @@
 
 <p class="login-intro">
   @if (mode() === 'signin') {
-    Sign in to access your Players, NPCs, Parties, Troops, and Encounters.
+    Sign in to access the Roll4 Encounter Managemer, access persistent Players, NPCs, and more.
   } @else {
     Create an account to start building your GM library.
   }
@@ -36,7 +36,21 @@
   <p class="login-error">{{ error() }}</p>
 }
 
-<button type="button" class="google-btn" (click)="continueWithGoogle()">Continue with Google</button>
+<button type="button" class="google-btn" (click)="continueWithGoogle()">
+  Continue with Google
+</button>
+
+<div class="guest-divider"><span>or</span></div>
+
+<button type="button" class="guest-btn" [disabled]="guestSubmitting()" (click)="continueAsGuest()">
+  Continue Without Signing In
+</button>
+<p class="guest-warning">
+  Without an account, everything you create is saved only to this browser — not backed up anywhere,
+  and not visible from any other device. Clearing your browser data (or switching browsers/devices)
+  loses it for good, and creating an account later starts fresh rather than keeping what a guest
+  session made. Fine for trying Roll4 out; sign in above if you want to keep what you build.
+</p>
 
 <p class="login-toggle">
   @if (mode() === 'signin') {

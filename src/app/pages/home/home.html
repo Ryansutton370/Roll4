@@ -1,0 +1,104 @@
+<section class="hero">
+  <h1 class="app-title">Roll4</h1>
+
+  <!-- @if is Angular's built-in control-flow syntax (replaces the older
+       *ngIf structural directive) — authService.uid() is a signal read, so
+       this block re-renders automatically the moment sign-in state
+       changes, with no manual subscription. -->
+  @if (authService.uid()) {
+    <p class="hero-tagline">Pick up where you left off.</p>
+  } @else {
+    <p class="hero-tagline">
+      A GM's initiative tracker, built to run combat the way we do at our table.
+    </p>
+  }
+</section>
+
+@if (authService.uid()) {
+  <!-- Signed in: quick links into the app. Same five destinations as the
+       header nav (app.html) — this just puts them front-and-center on the
+       page a GM lands on too, instead of only in the header. -->
+  <nav class="quick-nav">
+    <a routerLink="/players" class="quick-nav-card">
+      <span class="quick-nav-title">Players</span>
+      <span class="quick-nav-desc">Player Characters and Parties</span>
+    </a>
+    <a routerLink="/npcs" class="quick-nav-card">
+      <span class="quick-nav-title">NPCs</span>
+      <span class="quick-nav-desc">Non-Player Characters and Troops</span>
+    </a>
+    <a routerLink="/encounters" class="quick-nav-card">
+      <span class="quick-nav-title">Encounters</span>
+      <span class="quick-nav-desc">Build and run combat</span>
+    </a>
+    <a routerLink="/generators" class="quick-nav-card">
+      <span class="quick-nav-title">Content &amp; Generators</span>
+      <span class="quick-nav-desc">Names, monsters, treasure, and more</span>
+    </a>
+    <a routerLink="/about" class="quick-nav-card">
+      <span class="quick-nav-title">About &amp; Contact</span>
+      <span class="quick-nav-desc">Questions, concerns, and suggestions</span>
+    </a>
+  </nav>
+} @else {
+  <section class="signin-prompt">
+    <p>Sign in to start tracking your own Players, NPCs, and Encounters.</p>
+    <div class="signin-actions">
+      <a routerLink="/login" class="signin-btn">Sign In</a>
+      <button
+        type="button"
+        class="guest-btn"
+        [disabled]="guestSubmitting()"
+        (click)="continueAsGuest()"
+      >
+        Continue Without Signing In
+      </button>
+    </div>
+    <p class="guest-warning">
+      Without an account, everything you create is saved only to this browser — not backed up
+      anywhere, and not visible from any other device. Clearing your browser data (or switching
+      browsers/devices) loses it for good, and creating an account later starts fresh rather than
+      keeping what a guest session made. Fine for trying Roll4 out; sign in above if you want to
+      keep what you build.
+    </p>
+    @if (guestError()) {
+      <p class="guest-error">{{ guestError() }}</p>
+    }
+  </section>
+}
+
+<section class="about">
+  <h2>About</h2>
+  <p>
+    There are plenty of good initiative trackers out there already. None of them quite worked the
+    way I actually run combat at the table, though, so Roll4 started as an attempt to recreate what
+    I was already doing in my notebook.
+  </p>
+  <p>
+    Roll4 is primarily meant to facilitate <strong>Chaotic Initiative</strong>: every combatant
+    re-rolls initiative at the start of each round instead of locking in one order for the whole
+    fight. Roll4 also supports standard "vanilla" initiative, but I hope you give Chaotic a try.
+    With Chaotic Initiative, nobody knows when their turn is coming next, so players stay locked in
+    instead of tuning out until their name comes back around.
+  </p>
+  <p>
+    Ties are settled first by whoever has the highest initiative modifier, and then by a dice roll
+    after that.
+  </p>
+</section>
+
+<section class="upcoming">
+  <h2>Upcoming Features</h2>
+  <!-- @for is Angular's control-flow syntax for lists (replaces *ngFor).
+       track by name since these are static entries with no id of their
+       own — Angular uses it to match items across re-renders instead of
+       re-creating every <li> from scratch. -->
+  <ul class="upcoming-list">
+    @for (feature of upcomingFeatures; track feature.title) {
+      <li class="upcoming-item">
+        <span class="upcoming-title">{{ feature.title }}</span>
+        <span class="upcoming-desc">{{ feature.description }}</span>
+      </li>
+    }
+  </ul>
+</section>

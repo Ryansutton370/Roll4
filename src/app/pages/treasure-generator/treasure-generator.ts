@@ -5,7 +5,7 @@ import { TreasureStore } from '../../services/treasure-store';
 import { GeneratorDisclaimer } from '../../shared/generator-disclaimer/generator-disclaimer';
 
 /**
- * The Random Generators tab's fourth page — rolls on the imported Treasure
+ * The Content & Generators tab's fourth page — rolls on the imported Treasure
  * tables (see TreasureStore). Same shape as WildMagicGenerator: a Table
  * picker across TreasureStore's one "Treasure" set (Trinkets, Wondrous
  * Items, Potions), not a Set-then-Table picker like the Names page.
@@ -22,7 +22,7 @@ export class TreasureGenerator {
   protected readonly selectedTableId = signal<string | null>(null);
   // Matches NameGeneratorButton's hardcoded 6 (the inline 🎲 popover on
   // every Player/NPC Name field) — same default roll count across every
-  // Random Generators page except Encounter Generator, just GM-adjustable
+  // Content & Generators page except Encounter Generator, just GM-adjustable
   // via the Count input below instead of fixed.
   protected readonly rollCount = signal(6);
   protected readonly rolledEntries = signal<TreasureEntry[]>([]);

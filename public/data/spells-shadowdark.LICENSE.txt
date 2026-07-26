@@ -1,0 +1,26 @@
+Roll4 — Shadowdark spell data (spells-shadowdark.json)
+============================================================
+
+This file is Adapted Material under a Creative Commons
+Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0):
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Adapted from: the "Unofficial Shadowdark Spell List" by Michael Putlack
+of Night Noon Games (NightNoon.games), used under CC BY-SA 4.0:
+https://nightnoongames.itch.io/shadowdark-spell-list
+
+Changes made: spell entries were restructured into this project's
+SpellTemplate JSON shape (see src/app/models/spell-template.model.ts
+in the Roll4 repository); no rules text was otherwise altered.
+
+Per CC BY-SA 4.0 Section 3(b), this adapted file is licensed onward under
+the same CC BY-SA 4.0 terms as the material it was adapted from.
+
+---
+
+The underlying spells are official Shadowdark RPG content, written by
+Kelsey Dionne of The Arcane Library. The Unofficial Shadowdark Spell List
+is an independent product published under the Shadowdark RPG Third-Party
+License and is not affiliated with The Arcane Library, LLC. Shadowdark RPG
+(c) 2023 The Arcane Library, LLC. Roll4 itself is not affiliated with,
+endorsed by, or sponsored by The Arcane Library, LLC.

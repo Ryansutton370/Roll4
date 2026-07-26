@@ -1202,6 +1202,15 @@ export class EncounterStore {
     initialValue: number,
     linkedCombatantId: string | null,
   ): Timer {
+    // If the timer is linked to whoever's turn it currently is, that turn is
+    // already "in progress" from the timer's point of view — the upcoming
+    // Next Turn ends it, but creditLinkedTimerDeparture would otherwise read
+    // that as this combatant's first departure and tick immediately. Stamp
+    // the current round as already credited so that departure is a no-op;
+    // the timer gets its first real tick when this combatant's turn ends in
+    // a later round instead.
+    const linkedToActive =
+      linkedCombatantId !== null && linkedCombatantId === this.activeCombatantId(encounterId);
     const timer: Timer = {
       id: crypto.randomUUID(),
       encounterId,
@@ -1210,7 +1219,9 @@ export class EncounterStore {
       remaining: initialValue,
       initialValue,
       linkedCombatantId,
-      lastTickedRoundCredited: null,
+      lastTickedRoundCredited: linkedToActive
+        ? (this.getEncounter(encounterId)?.round ?? null)
+        : null,
     };
     setDoc(doc(firestore, 'timers', timer.id), timer).catch((err) =>
       console.error('Failed to create timer', err),

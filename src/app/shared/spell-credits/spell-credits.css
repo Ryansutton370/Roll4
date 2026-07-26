@@ -1,0 +1,28 @@
+/* Pushed well below everything else with its own top border, so it reads
+   as a deliberately separate, low-priority zone a GM has to scroll on
+   purpose to reach, not something competing with the actual picker/
+   generator UI above it. */
+.generator-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.credits {
+  max-width: 40rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.credits summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.credits p {
+  margin: 0.6rem 0 0;
+}
+
+.license-notice {
+  font-size: 0.8rem;
+}
