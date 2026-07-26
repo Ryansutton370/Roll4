@@ -65,6 +65,17 @@ input[type='text'].field-name {
   color: var(--color-text-muted);
 }
 
+/* Groups the icon+input together, separate from .field-text-label, so the
+   label can stack above them on mobile (media query below) without
+   pulling the icon away from its own input. On desktop this nested row is
+   invisible: .field-icon is already a row itself and .field-icon-row just
+   rides along inside it. */
+.field-icon-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .field-icon svg {
   width: 1rem;
   height: 1rem;
@@ -73,6 +84,36 @@ input[type='text'].field-name {
 
 .field-icon input {
   width: 3.5rem;
+}
+
+/* Hidden except at phone width (media query below) — see the comment in
+   combatant-fields.html on why this label lives inside the field's own
+   <label> instead of a shared heading row above the form. This rule (and
+   the media query overriding it) must come after .field-icon-row above:
+   same selector specificity either way, so source order is what decides
+   the cascade, and a later plain rule would silently beat an earlier
+   media-query override even though the media query looks more specific. */
+.field-text-label {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  /* Only the <label>-wrapped Modifier/AC/Max HP fields — not the Notes
+     button below, which also carries class="field-icon" but already
+     shows its "Add Notes"/"See Notes" text permanently and keeps its
+     existing row layout. */
+  label.field-icon {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .field-text-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-align: center;
+  }
 }
 
 /* Dropping the native up/down spinner reclaims most of that 2.5rem for the
