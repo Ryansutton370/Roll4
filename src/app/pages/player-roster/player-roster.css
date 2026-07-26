@@ -85,6 +85,47 @@
   flex-shrink: 0;
 }
 
+/* Below ~480px the row's fixed-width columns (Modifier 5rem + AC/Max HP
+   4rem each + the delete icon-btn, ~13rem+ before Name/Notes even enter
+   the picture) already eat most of a phone's width. Since Name/Notes are
+   the only flexible (flex:1) columns, flexbox was cramming them into the
+   few px of space left over — legible on desktop where there's room to
+   spare, but on mobile it shrank them down to nothing: no width to render
+   either their existing value or anything typed in, even though the data
+   itself was always fine. Wrapping the row and giving Name/Notes their
+   own full-width line each (the same flex-basis:100% trick
+   combatant-fields.css uses for its Name field) fixes that without
+   touching DOM order, so tab order still matches what's on screen. */
+@media (max-width: 480px) {
+  .player-row {
+    flex-wrap: wrap;
+  }
+
+  .pc-name,
+  .pc-notes {
+    flex-basis: 100%;
+  }
+
+  .player-row .icon-btn {
+    margin-left: auto;
+  }
+
+  /* Mirrors the row's wrap above so each heading still sits over its
+     column once the row stacks onto multiple lines instead of one. */
+  .column-headings {
+    flex-wrap: wrap;
+  }
+
+  .pc-name-heading,
+  .pc-notes-heading {
+    flex-basis: 100%;
+  }
+
+  .heading-spacer {
+    margin-left: auto;
+  }
+}
+
 /* Party membership chips — .badge (global) gives the pill shape/tint; this
    just lays out however many a Player has and turns off the link
    underline until hovered, matching .entry-title's convention elsewhere. */
