@@ -62,33 +62,51 @@
             [ngModel]="player.name"
             (ngModelChange)="renamePlayer(player.id, $event)"
           />
-          <input
-            type="number"
-            class="pc-modifier"
-            [ngModel]="player.initiativeModifier"
-            (ngModelChange)="setPlayerModifier(player.id, $event)"
-          />
-          <input
-            type="number"
-            class="pc-ac"
-            placeholder="AC"
-            [ngModel]="player.ac"
-            (ngModelChange)="setPlayerAc(player.id, $event)"
-          />
-          <input
-            type="number"
-            class="pc-max-hp"
-            placeholder="Max HP"
-            [ngModel]="player.maxHp"
-            (ngModelChange)="setPlayerMaxHp(player.id, $event)"
-          />
-          <input
-            type="text"
-            class="pc-notes"
-            placeholder="Notes"
-            [ngModel]="player.notes"
-            (ngModelChange)="setPlayerNotes(player.id, $event)"
-          />
+          <!-- Each field is wrapped so it can carry its own label on
+               mobile (below ~480px, once the row wraps and this field
+               is no longer next to the shared .column-headings above the
+               whole list — see player-roster.css). The label stays
+               display:none on wider screens where .column-headings
+               already does the job, so desktop looks exactly as before. -->
+          <div class="pc-field pc-field-modifier">
+            <span class="pc-field-label" aria-hidden="true">Initiative Modifier</span>
+            <input
+              type="number"
+              class="pc-modifier"
+              [ngModel]="player.initiativeModifier"
+              (ngModelChange)="setPlayerModifier(player.id, $event)"
+            />
+          </div>
+          <div class="pc-field pc-field-ac">
+            <span class="pc-field-label" aria-hidden="true">AC</span>
+            <input
+              type="number"
+              class="pc-ac"
+              placeholder="AC"
+              [ngModel]="player.ac"
+              (ngModelChange)="setPlayerAc(player.id, $event)"
+            />
+          </div>
+          <div class="pc-field pc-field-max-hp">
+            <span class="pc-field-label" aria-hidden="true">Max HP</span>
+            <input
+              type="number"
+              class="pc-max-hp"
+              placeholder="Max HP"
+              [ngModel]="player.maxHp"
+              (ngModelChange)="setPlayerMaxHp(player.id, $event)"
+            />
+          </div>
+          <div class="pc-field pc-field-notes">
+            <span class="pc-field-label" aria-hidden="true">Notes</span>
+            <input
+              type="text"
+              class="pc-notes"
+              placeholder="Notes"
+              [ngModel]="player.notes"
+              (ngModelChange)="setPlayerNotes(player.id, $event)"
+            />
+          </div>
           <button type="button" class="icon-btn danger" (click)="deletePlayer(player.id, player.name)">
             <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path

@@ -26,20 +26,39 @@
   font-weight: 600;
 }
 
-.pc-modifier {
+/* See player-roster.css for the full explanation, mirrored here per this
+   file's "mirrors player-roster.css exactly" header comment. */
+.pc-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pc-modifier,
+.pc-ac,
+.pc-max-hp,
+.pc-notes {
+  width: 100%;
+}
+
+.pc-field-modifier {
   width: 5rem;
   flex-shrink: 0;
 }
 
-.pc-ac,
-.pc-max-hp {
+.pc-field-ac,
+.pc-field-max-hp {
   width: 4rem;
   flex-shrink: 0;
 }
 
-.pc-notes {
+.pc-field-notes {
   flex: 1;
   min-width: 0;
+}
+
+.pc-field-label {
+  display: none;
 }
 
 .column-headings {
@@ -84,14 +103,18 @@
    header comment. Below ~480px, Name/Notes (the only flex:1 columns)
    were being squeezed down to unreadable widths by the row's fixed-width
    columns; wrapping the row and giving them a full-width line each fixes
-   that without touching DOM/tab order. */
+   that. That first fix broke the column labels, though — .column-headings
+   sits once above the whole list, so it only still lines up with the
+   first NPC once every row wraps onto its own stacked lines. Hiding it
+   here and relying on each field's own .pc-field-label instead keeps the
+   label attached to its data in every row. */
 @media (max-width: 480px) {
   .player-row {
     flex-wrap: wrap;
   }
 
   .pc-name,
-  .pc-notes {
+  .pc-field-notes {
     flex-basis: 100%;
   }
 
@@ -99,17 +122,21 @@
     margin-left: auto;
   }
 
+  .pc-field-label {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .pc-field-notes .pc-field-label {
+    text-align: left;
+  }
+
   .column-headings {
-    flex-wrap: wrap;
-  }
-
-  .pc-name-heading,
-  .pc-notes-heading {
-    flex-basis: 100%;
-  }
-
-  .heading-spacer {
-    margin-left: auto;
+    display: none;
   }
 }
 

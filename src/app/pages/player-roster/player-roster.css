@@ -28,20 +28,47 @@
   font-weight: 600;
 }
 
-.pc-modifier {
+/* Each of Modifier/AC/Max HP/Notes is an input wrapped in a .pc-field
+   div (see player-roster.html) so it can carry its own .pc-field-label —
+   used only on mobile, see the media query below. The wrapper is what
+   carries the column's width/flex sizing now; the input inside just
+   fills it (width: 100%, below) so desktop's layout is pixel-identical
+   to before this wrapper existed. */
+.pc-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pc-modifier,
+.pc-ac,
+.pc-max-hp,
+.pc-notes {
+  width: 100%;
+}
+
+.pc-field-modifier {
   width: 5rem;
   flex-shrink: 0;
 }
 
-.pc-ac,
-.pc-max-hp {
+.pc-field-ac,
+.pc-field-max-hp {
   width: 4rem;
   flex-shrink: 0;
 }
 
-.pc-notes {
+.pc-field-notes {
   flex: 1;
   min-width: 0;
+}
+
+/* Hidden on desktop, where .column-headings above the whole list already
+   labels every column — shown per-row only on mobile once that shared
+   heading can no longer keep up with a stacked layout (see media query
+   below). */
+.pc-field-label {
+  display: none;
 }
 
 /* Labels the input columns in the roster list below. Mirrors .player-row's
@@ -95,14 +122,24 @@
    itself was always fine. Wrapping the row and giving Name/Notes their
    own full-width line each (the same flex-basis:100% trick
    combatant-fields.css uses for its Name field) fixes that without
-   touching DOM order, so tab order still matches what's on screen. */
+   touching DOM order, so tab order still matches what's on screen.
+
+   That first fix broke the column labels, though: .column-headings sits
+   once above the *entire* <ul>, which works on desktop because every
+   row is a single aligned line under it — but once each row wraps onto
+   its own stacked lines, that shared heading only still lines up with
+   the first Player/NPC in the list. Every row after it shows bare
+   numbers with no indication of which is the modifier vs. AC vs. Max
+   HP. Fixed by hiding the shared heading here and relying on each
+   field's own .pc-field-label instead (styled below), so the label
+   travels with its data in every row, not just the first one. */
 @media (max-width: 480px) {
   .player-row {
     flex-wrap: wrap;
   }
 
   .pc-name,
-  .pc-notes {
+  .pc-field-notes {
     flex-basis: 100%;
   }
 
@@ -110,19 +147,21 @@
     margin-left: auto;
   }
 
-  /* Mirrors the row's wrap above so each heading still sits over its
-     column once the row stacks onto multiple lines instead of one. */
+  .pc-field-label {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .pc-field-notes .pc-field-label {
+    text-align: left;
+  }
+
   .column-headings {
-    flex-wrap: wrap;
-  }
-
-  .pc-name-heading,
-  .pc-notes-heading {
-    flex-basis: 100%;
-  }
-
-  .heading-spacer {
-    margin-left: auto;
+    display: none;
   }
 }
 
