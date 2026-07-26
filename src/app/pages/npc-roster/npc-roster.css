@@ -28,6 +28,21 @@
 
 /* See player-roster.css for the full explanation, mirrored here per this
    file's "mirrors player-roster.css exactly" header comment. */
+.expand-toggle {
+  display: none;
+  flex-shrink: 0;
+}
+
+.expand-toggle svg {
+  transition: transform var(--transition-fast);
+}
+
+.player-entry.expanded .expand-toggle svg {
+  transform: rotate(180deg);
+}
+
+/* See player-roster.css for the full explanation, mirrored here per this
+   file's "mirrors player-roster.css exactly" header comment. */
 .pc-field {
   display: flex;
   flex-direction: column;
@@ -113,12 +128,30 @@
     flex-wrap: wrap;
   }
 
-  .pc-name,
-  .pc-field-notes {
+  .pc-name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .expand-toggle {
+    display: inline-flex;
+  }
+
+  .pc-field,
+  .player-row > .icon-btn:not(.expand-toggle) {
+    display: none;
+  }
+
+  .player-entry.expanded .pc-field,
+  .player-entry.expanded .player-row > .icon-btn:not(.expand-toggle) {
+    display: flex;
+  }
+
+  .player-entry.expanded .pc-field-notes {
     flex-basis: 100%;
   }
 
-  .player-row .icon-btn {
+  .player-entry.expanded .player-row > .icon-btn:not(.expand-toggle) {
     margin-left: auto;
   }
 
@@ -137,6 +170,16 @@
 
   .column-headings {
     display: none;
+  }
+
+  /* Party/Troop membership chips are part of "the rest of it" too —
+     collapsed along with the fields/delete button above. */
+  .player-parties {
+    display: none;
+  }
+
+  .player-entry.expanded .player-parties {
+    display: flex;
   }
 }
 
@@ -186,9 +229,17 @@
   width: 6.5rem;
 }
 
+/* See player-roster.css for the full explanation — same bug, same fix,
+   mirrored here per this file's own "mirrors player-roster.css exactly"
+   header comment. Hidden on mobile: this heading is a separate flex
+   container from the actual form, so once Name wraps to its own line
+   (combatant-fields.css) the two stop wrapping at the same point and
+   Initiative Modifier/AC/Max HP/Notes end up floating above the Name
+   input instead of above their own fields. Replaced by each field's own
+   inline .field-text-label inside CombatantFields. */
 @media (max-width: 480px) {
-  .player-form-headings .heading-name {
-    flex-basis: 100%;
+  .player-form-headings {
+    display: none;
   }
 }
 

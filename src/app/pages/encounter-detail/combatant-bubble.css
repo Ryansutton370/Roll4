@@ -482,8 +482,16 @@
   height: 1.25rem;
 }
 
+/* No min-width override — flex's own automatic (content-based) minimum
+   already protects this from shrinking smaller than its actual digits
+   need, which a fixed min-width smaller than that (a stale 3ch, sized for
+   1-2 digit HP) would silently override and defeat. Without that
+   protection, a triple-digit current/max pair ("145/145") could be
+   squeezed narrower than the text itself, and since nothing here clips
+   overflow, the extra glyphs rendered right on top of the Notes icon
+   next door instead of being contained. See the @container tier below
+   for the other half of this fix — the wrapper width it was overflowing. */
 .hp-numbers {
-  min-width: 3ch;
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
 }
@@ -656,8 +664,13 @@
     display: none;
   }
 
+  /* Wide enough for icon + a full "999/999" (7 characters, tabular-nums)
+     with a little breathing room before Notes — 4rem was sized for the
+     common 1-2 digit case and had no slack left once HP hit triple
+     digits, which is what let .hp-numbers overflow into the Notes badge
+     next to it (see that rule above). */
   .hp-stat-wrapper {
-    width: 4rem;
+    width: 5.75rem;
   }
 }
 

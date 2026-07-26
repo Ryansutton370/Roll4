@@ -25,6 +25,26 @@ export class PlayerRoster {
   protected readonly newPlayerMaxHp = signal<number | null>(null);
   protected readonly newPlayerNotes = signal('');
 
+  // Which Saved Players rows are expanded — mobile-only (see
+  // player-roster.css's .expand-toggle media query; desktop always shows
+  // every field, so this set only matters below ~480px). A Set of ids
+  // rather than one bool per row since the row count is dynamic.
+  protected readonly expandedPlayerIds = signal(new Set<string>());
+
+  protected isPlayerExpanded(id: string): boolean {
+    return this.expandedPlayerIds().has(id);
+  }
+
+  protected togglePlayerExpanded(id: string): void {
+    const next = new Set(this.expandedPlayerIds());
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    this.expandedPlayerIds.set(next);
+  }
+
   protected createPlayer(): void {
     const name = this.newPlayerName().trim();
     if (!name) return;

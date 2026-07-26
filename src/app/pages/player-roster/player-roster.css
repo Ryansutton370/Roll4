@@ -28,6 +28,27 @@
   font-weight: 600;
 }
 
+/* Hidden on desktop, where every field already shows unconditionally —
+   only appears at mobile widths (media query below) to collapse a row
+   down to Name-only. Gets .icon-btn's sizing/hover for free from the
+   global stylesheet (same class the delete button below uses); this
+   scoped rule wins the display:none vs. display:inline-flex tie against
+   that global class because Angular's emulated encapsulation adds a
+   hidden attribute selector to every rule here, bumping its specificity
+   above a plain global class selector. */
+.expand-toggle {
+  display: none;
+  flex-shrink: 0;
+}
+
+.expand-toggle svg {
+  transition: transform var(--transition-fast);
+}
+
+.player-entry.expanded .expand-toggle svg {
+  transform: rotate(180deg);
+}
+
 /* Each of Modifier/AC/Max HP/Notes is an input wrapped in a .pc-field
    div (see player-roster.html) so it can carry its own .pc-field-label —
    used only on mobile, see the media query below. The wrapper is what
@@ -133,17 +154,41 @@
    HP. Fixed by hiding the shared heading here and relying on each
    field's own .pc-field-label instead (styled below), so the label
    travels with its data in every row, not just the first one. */
+/* Below ~480px, a saved Player collapses to just its Name input plus the
+   .expand-toggle chevron on one line — stats/Notes/delete are hidden
+   until tapped open (.player-entry.expanded, toggled in player-roster.ts)
+   instead of always rendering 4 more inputs and a delete button per row,
+   which was a lot of vertical space for a roster of more than a couple of
+   Players on a phone screen. */
 @media (max-width: 480px) {
   .player-row {
     flex-wrap: wrap;
   }
 
-  .pc-name,
-  .pc-field-notes {
+  .pc-name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .expand-toggle {
+    display: inline-flex;
+  }
+
+  .pc-field,
+  .player-row > .icon-btn:not(.expand-toggle) {
+    display: none;
+  }
+
+  .player-entry.expanded .pc-field,
+  .player-entry.expanded .player-row > .icon-btn:not(.expand-toggle) {
+    display: flex;
+  }
+
+  .player-entry.expanded .pc-field-notes {
     flex-basis: 100%;
   }
 
-  .player-row .icon-btn {
+  .player-entry.expanded .player-row > .icon-btn:not(.expand-toggle) {
     margin-left: auto;
   }
 
@@ -162,6 +207,16 @@
 
   .column-headings {
     display: none;
+  }
+
+  /* Party membership chips are part of "the rest of it" too — collapsed
+     along with the fields/delete button above. */
+  .player-parties {
+    display: none;
+  }
+
+  .player-entry.expanded .player-parties {
+    display: flex;
   }
 }
 
@@ -223,12 +278,20 @@
   width: 6.5rem;
 }
 
-/* Matches the mobile Name field taking the full row (combatant-fields.css)
-   — its heading needs the same full-row treatment, or it'd sit above the
-   icon-field headings instead of above Name once Name wraps to its own
-   line. */
+/* Hidden on mobile — replaced by each field's own inline label inside
+   CombatantFields (.field-text-label, see combatant-fields.html/css) once
+   the form wraps. This heading worked on desktop, where the whole form
+   fits on one line and its hardcoded widths line up with the fields below
+   it, but broke once Name's mobile-only flex-basis:100% (combatant-
+   fields.css) split the form into multiple lines: this heading block and
+   the actual form are two separate flex containers that don't wrap at the
+   same point, so Initiative Modifier/AC/Max HP/Notes ended up floating
+   above the Name *input* instead of above their own fields two rows
+   below. Same failure mode already fixed once for .column-headings below
+   — a label detached from what it labels can't track it once wrapping
+   enters the picture. */
 @media (max-width: 480px) {
-  .player-form-headings .heading-name {
-    flex-basis: 100%;
+  .player-form-headings {
+    display: none;
   }
 }
