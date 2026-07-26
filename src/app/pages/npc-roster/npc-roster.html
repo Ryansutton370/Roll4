@@ -72,7 +72,7 @@
   </div>
   <ul class="bubble-list">
     @for (npc of npcStore.npcs(); track npc.id) {
-      <li class="bubble player-entry">
+      <li class="bubble player-entry" [class.expanded]="isNpcExpanded(npc.id)">
         <div class="player-row">
           <input
             type="text"
@@ -80,33 +80,70 @@
             [ngModel]="npc.name"
             (ngModelChange)="renameNpc(npc.id, $event)"
           />
-          <input
-            type="number"
-            class="pc-modifier"
-            [ngModel]="npc.initiativeModifier"
-            (ngModelChange)="setNpcModifier(npc.id, $event)"
-          />
-          <input
-            type="number"
-            class="pc-ac"
-            placeholder="AC"
-            [ngModel]="npc.ac"
-            (ngModelChange)="setNpcAc(npc.id, $event)"
-          />
-          <input
-            type="number"
-            class="pc-max-hp"
-            placeholder="Max HP"
-            [ngModel]="npc.maxHp"
-            (ngModelChange)="setNpcMaxHp(npc.id, $event)"
-          />
-          <input
-            type="text"
-            class="pc-notes"
-            placeholder="Notes"
-            [ngModel]="npc.notes"
-            (ngModelChange)="setNpcNotes(npc.id, $event)"
-          />
+          <!-- See player-roster.html for why this toggle exists — same
+               mobile collapse-to-Name-only behavior, mirrored here. -->
+          <button
+            type="button"
+            class="icon-btn expand-toggle"
+            (click)="toggleNpcExpanded(npc.id)"
+            [attr.aria-expanded]="isNpcExpanded(npc.id)"
+          >
+            <svg
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 7.5 10 12.5 15 7.5" />
+            </svg>
+            <span class="sr-only"
+              >{{ isNpcExpanded(npc.id) ? 'Hide' : 'Show' }} details for {{ npc.name }}</span
+            >
+          </button>
+          <!-- See player-roster.html for why each field is wrapped —
+               same per-row mobile label fix, mirrored here. -->
+          <div class="pc-field pc-field-modifier">
+            <span class="pc-field-label" aria-hidden="true">Initiative Modifier</span>
+            <input
+              type="number"
+              class="pc-modifier"
+              [ngModel]="npc.initiativeModifier"
+              (ngModelChange)="setNpcModifier(npc.id, $event)"
+            />
+          </div>
+          <div class="pc-field pc-field-ac">
+            <span class="pc-field-label" aria-hidden="true">AC</span>
+            <input
+              type="number"
+              class="pc-ac"
+              placeholder="AC"
+              [ngModel]="npc.ac"
+              (ngModelChange)="setNpcAc(npc.id, $event)"
+            />
+          </div>
+          <div class="pc-field pc-field-max-hp">
+            <span class="pc-field-label" aria-hidden="true">Max HP</span>
+            <input
+              type="number"
+              class="pc-max-hp"
+              placeholder="Max HP"
+              [ngModel]="npc.maxHp"
+              (ngModelChange)="setNpcMaxHp(npc.id, $event)"
+            />
+          </div>
+          <div class="pc-field pc-field-notes">
+            <span class="pc-field-label" aria-hidden="true">Notes</span>
+            <input
+              type="text"
+              class="pc-notes"
+              placeholder="Notes"
+              [ngModel]="npc.notes"
+              (ngModelChange)="setNpcNotes(npc.id, $event)"
+            />
+          </div>
           <button type="button" class="icon-btn danger" (click)="deleteNpc(npc.id, npc.name)">
             <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path

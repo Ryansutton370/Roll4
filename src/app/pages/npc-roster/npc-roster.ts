@@ -32,6 +32,26 @@ export class NpcRoster {
   protected readonly newNpcMaxHp = signal<number | null>(null);
   protected readonly newNpcNotes = signal('');
 
+  // Which Saved NPCs rows are expanded — mirrors PlayerRoster's
+  // expandedPlayerIds exactly (see that file / npc-roster.css's
+  // .expand-toggle media query); mobile-only, desktop always shows every
+  // field regardless of this set.
+  protected readonly expandedNpcIds = signal(new Set<string>());
+
+  protected isNpcExpanded(id: string): boolean {
+    return this.expandedNpcIds().has(id);
+  }
+
+  protected toggleNpcExpanded(id: string): void {
+    const next = new Set(this.expandedNpcIds());
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    this.expandedNpcIds.set(next);
+  }
+
   // Browse Monster List's own source toggle — independent of any other
   // page's (Encounter Generator, AddCombatantDialog), same reasoning as
   // those: no reason for this picker to share state with a different

@@ -79,6 +79,20 @@ understanding, not just for shipping code fast.
   that rather than signing up a new one. Signing up a brand-new
   email/password account as a testing shortcut is not acceptable even
   when it seems easier in the moment.
+- **Test repeated-row list UI (Saved Players/NPCs, encounter rosters,
+  etc.) with 2+ rows, not 1, before calling a layout change done.** A
+  mobile fix to the Saved Players/NPCs list wrapped each row so Name/
+  Notes got their own line instead of squeezing to nothing — correct for
+  that one bug, but it was only tested with a single saved Player, so it
+  missed that `.column-headings` (a shared label row sitting once above
+  the whole list, not per-row) had gone visibly out of sync: with one
+  row it still happened to sit right above it, but with two or more,
+  every row after the first showed unlabeled numbers with no indication
+  of which was AC vs. Max HP vs. modifier. **Anything that sits outside
+  a repeated row itself — a shared header, alignment against a sibling,
+  spacing between items — can only be checked by looking at more than
+  one item at once.** Create at least 2 entries (e.g. via the `run-roll4`
+  skill) before screenshotting/confirming a list-view change.
 
 ## Conventions already in place
 

@@ -434,6 +434,42 @@ export class EncounterStore {
     newCombatants.forEach((c) => batch.set(doc(firestore, 'combatants', c.id), c));
     batch.set(doc(firestore, 'encounters', encounterId), encounter);
     batch.commit().catch((err) => console.error('Failed to create encounter', err));
+
+    // Optimistic local update: encountersSignal/combatantsSignal are
+    // normally only ever set by the onSnapshot listeners in the
+    // constructor, which don't fire until this write round-trips through
+    // Firestore. But every real caller (see EncounterList's
+    // ensureEncounterCreated) turns around and immediately calls a second
+    // EncounterStore method — addPlayerCombatant, setEncounterParties,
+    // etc. — that reads getEncounter(encounterId) in that same
+    // synchronous tick, long before any round trip could possibly have
+    // completed. Without this, that read silently comes back undefined
+    // for an Encounter that very much exists, and any method gated on
+    // "if (encounter)" (addCombatantAndLinkToEncounter chief among them)
+    // quietly no-ops — which is how the first individual combatant added
+    // to a brand-new Encounter used to vanish without a trace.
+    //
+    // Guarded by an existence check (not an unconditional append) because
+    // the test double (fake-firestore.ts) notifies onSnapshot listeners
+    // *synchronously* inside batch.commit() above — by the time this line
+    // runs in a test, the "real" listener may already have set() this
+    // exact encounter into the signal, and appending again would
+    // duplicate it. Real Firestore's listener only ever catches up
+    // *after* this line (never before), so the guard is a no-op there;
+    // either way, the eventual onSnapshot echo fully replaces (not
+    // merges into) both signals, so there's no risk of this optimistic
+    // entry lingering once the authoritative copy arrives.
+    if (!this.encountersSignal().some((e) => e.id === encounter.id)) {
+      this.encountersSignal.update((list) => [...list, encounter]);
+    }
+    if (newCombatants.length > 0) {
+      const knownIds = new Set(this.combatantsSignal().map((c) => c.id));
+      const missing = newCombatants.filter((c) => !knownIds.has(c.id));
+      if (missing.length > 0) {
+        this.combatantsSignal.update((list) => [...list, ...missing]);
+      }
+    }
+
     return encounter;
   }
 
