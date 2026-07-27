@@ -755,6 +755,19 @@ Spells below it.
    `<details>` toggle same as the Encounter Generator page, plus the
    general Content & Generators disclaimer.
 
+### 17. Quests, Rumors and Gossip Generator
+
+The Content & Generators tab's seventh page (`/generators/quests-rumors-
+gossip`) rolls on the imported Quests, Rumors and Gossip tables (see
+[DATA_MODEL.md](./DATA_MODEL.md)'s `QuestsRumorsGossipTable`) — GM-provided
+lists like Treasure and Combat Thesaurus rather than drawn from one
+external source document. Same table-picker/roll-count/copy-any-result
+mechanic as the Treasure page. Currently one table, **Warmup Prompts** (100
+entries) — session-opener roleplay questions for a GM to put to a player
+("Describe your favorite childhood toy.", "Who do you revile?"), each one
+descriptive line same as Trinkets. More tables (rumors, quest hooks,
+gossip) are expected to follow.
+
 ## Persistence
 
 GM data (Players, NPCs, Parties, Troops, Encounters, and encounter-in-progress

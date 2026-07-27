@@ -119,11 +119,13 @@ the `run-roll4` skill), not by these unit tests.
 
 **The one exception, and why it's still not part of this migration:**
 `NameTableStore`, `MonsterStore` (Phase 2.5), `WildMagicStore`/
-`TreasureStore`/`CombatThesaurusStore` (Phase 2.6/2.11), and `SpellStore`
-(Phase 2.13) read static JSON files (`public/data/name-tables.json`,
+`TreasureStore`/`CombatThesaurusStore` (Phase 2.6/2.11), `SpellStore`
+(Phase 2.13), and `QuestsRumorsGossipStore` (Phase 3.13) read static JSON
+files (`public/data/name-tables.json`,
 `monsters-5e-srd.json`, `monsters-shadowdark.json`, `wild-magic.json`,
 `treasure.json`, `combat-thesaurus.json`, `spells-5e-srd.json`,
-`spells-shadowdark.json`) via `HttpClient`, not Firestore. This isn't a
+`spells-shadowdark.json`, `quests-rumors-gossip.json`) via `HttpClient`, not
+Firestore. This isn't a
 backend: the JSON files are static, checked into the repo, and served by
 whatever's already hosting the app's own bundle, with no server-side logic
 or GM-specific data behind them ("read-only" describes how the _running
@@ -322,6 +324,22 @@ either of the things inside it. Whenever a popover/menu is a sibling
 (rather than a child) of the control that opens it, double check what its
 actual containing block resolves to — don't assume a `position: relative`
 somewhere nearby is the right one.
+
+**Applied a second and third time, for AC (Bonus Armor) and Initiative
+(Advantage/Disadvantage):** both badges were plain, non-interactive
+`<span>`s before the "enhanced" combat-modifiers feature — turning them
+clickable meant the exact same wrapper+button+sibling-popover split as
+`.hp-stat-wrapper`/`.hp-stat` above (`.ac-stat-wrapper`/`.ac-stat`,
+`.init-stat-wrapper`/`.init-stat`), for the same reason. Also generalized
+the stacking-context fix the HP popover needed this gotcha's `.hp-adjusting`
+tier for in the first place: with three popovers now on one bubble hitting
+the identical "every bubble is its own stacking context, so a popover can't
+out-rank a sibling bubble" problem, `CombatantBubble` combines all three
+into one `anyPopoverOpen` computed and a single `popoverOpenChange` output,
+rather than tripling the output/signal/CSS-class plumbing — `EncounterDetail`
+and `EncounterPreviewPanel` (both embed `CombatantBubble`) each keep just
+one `popoverOpenIds` Set and one `.popover-open` z-index class, renamed from
+the HP-specific `hpAdjustingIds`/`.hp-adjusting` they were before.
 
 **A fourth precedent, extracted for a 4th call site rather than a 2nd:**
 `MonsterPickerTable` (`src/app/shared/monster-picker-table/`) replaced a
