@@ -32,11 +32,12 @@
   container-type: inline-size;
 }
 
-/* Raises a bubble's <li> above its siblings while its HP delta popover is
-   open — same fix/rationale as encounter-detail.css's .hp-adjusting (a
-   bubble's own stacking context otherwise traps the popover behind a
-   sibling bubble below it in the DOM). */
-.hp-adjusting {
+/* Raises a bubble's <li> above its siblings while any of its popovers
+   (HP delta, AC Bonus Armor, Initiative Advantage/Disadvantage) is open —
+   same fix/rationale as encounter-detail.css's .popover-open (a bubble's
+   own stacking context otherwise traps the popover behind a sibling
+   bubble below it in the DOM). */
+.popover-open {
   z-index: 10;
 }
 

@@ -19,7 +19,16 @@ const goblin: MonsterTemplate = {
 };
 
 const players: Player[] = [
-  { id: 'p1', ownerId: 'test-gm', name: 'Aria', initiativeModifier: 3, ac: null, maxHp: null, notes: '' },
+  {
+    id: 'p1',
+    ownerId: 'test-gm',
+    name: 'Aria',
+    initiativeModifier: 3,
+    ac: null,
+    maxHp: null,
+    notes: '',
+    initiativeAdvantage: 'none',
+  },
 ];
 const npcs: Npc[] = [
   {
@@ -32,6 +41,7 @@ const npcs: Npc[] = [
     notes: '',
     monsterTemplateId: null,
     monsterName: null,
+    initiativeAdvantage: 'none',
   },
 ];
 

@@ -59,5 +59,10 @@ export class GeneratorsHome {
       title: 'Spell Lists',
       description: 'Browse or roll D&D 5e SRD and Shadowdark spells.',
     },
+    {
+      path: 'quests-rumors-gossip',
+      title: 'Quests, Rumors and Gossip',
+      description: 'Roll a prompt to spark quests, rumors, or downtime roleplay.',
+    },
   ];
 }

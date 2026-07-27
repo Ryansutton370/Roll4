@@ -244,21 +244,77 @@
        centered inside it, rather than icon-then-text side by side — reads
        faster at a glance and costs less row width (see .badge-icon/
        .badge-value in combatant-bubble.css). -->
-  <span
-    class="stat ac-stat"
-    [title]="combatant().ac !== null ? 'Armor Class: ' + combatant().ac : null"
-  >
-    @if (combatant().ac !== null) {
-      <span class="badge-icon">
-        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path
-            d="M10 2.25 3.75 4.5v4.75c0 4.86 2.98 7.9 6.25 8.75 3.27-.85 6.25-3.89 6.25-8.75V4.5L10 2.25Z"
-          />
-        </svg>
-        <span class="badge-value">{{ combatant().ac }}</span>
-      </span>
-    }
-  </span>
+  @if (combatant().ac !== null) {
+    <!-- Same wrapper+button+sibling-popover shape as .hp-stat-wrapper below
+         — a popover that's a sibling (not a child) of the button opening it
+         needs position: relative on a shared wrapper, not the button itself
+         (see docs/ARCHITECTURE.md's "third gotcha," now applied a second
+         time here). -->
+    <span class="ac-stat-wrapper">
+      <button
+        type="button"
+        class="stat ac-stat"
+        [title]="acTitle()"
+        [disabled]="isPlacing()"
+        (click)="toggleAcAdjust()"
+      >
+        <span class="badge-icon" [class.enhanced]="combatant().bonusAc > 0">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path
+              d="M10 2.25 3.75 4.5v4.75c0 4.86 2.98 7.9 6.25 8.75 3.27-.85 6.25-3.89 6.25-8.75V4.5L10 2.25Z"
+            />
+          </svg>
+          <span class="badge-value">{{ totalAc() }}</span>
+        </span>
+      </button>
+      @if (acAdjustOpen()) {
+        @if (combatant().bonusAc === 0) {
+          <!-- Add-value step: type a positive amount, confirm to apply it
+               as Bonus Armor. Same digits-only input pattern as the HP
+               popover's magnitude input, just without a sign to strip. -->
+          <span class="ac-adjust-popover">
+            <input
+              #acBonusInputEl
+              type="text"
+              inputmode="numeric"
+              class="ac-bonus-input"
+              placeholder="+AC"
+              [ngModel]="acBonusMagnitude()"
+              (ngModelChange)="onAcBonusInput($event)"
+              (keydown.enter)="submitAcBonus()"
+            />
+            <button type="button" class="icon-btn" (click)="submitAcBonus()">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.58l7.3-7.28a1 1 0 0 1 1.4 0Z"
+                />
+              </svg>
+              <span class="sr-only">Add Bonus Armor</span>
+            </button>
+          </span>
+        } @else {
+          <!-- Confirm-to-remove step: Bonus Armor is already active, so a
+               second click here has to confirm rather than immediately
+               clearing it (unlike Temp HP's instant unclick) — per spec. -->
+          <span class="ac-adjust-popover ac-remove-confirm">
+            <span class="ac-remove-confirm-text"
+              >Remove Bonus Armor (+{{ combatant().bonusAc }})?</span
+            >
+            <span class="ac-remove-confirm-actions">
+              <button type="button" class="drawer-action-btn danger" (click)="confirmClearAcBonus()">
+                Remove
+              </button>
+              <button type="button" class="drawer-action-btn" (click)="acAdjustOpen.set(false)">
+                Cancel
+              </button>
+            </span>
+          </span>
+        }
+      }
+    </span>
+  } @else {
+    <span class="ac-stat-wrapper" aria-hidden="true"></span>
+  }
 
   @if (combatant().maxHp !== null) {
     <!-- The wrapper (not .hp-stat itself) is what needs position: relative
@@ -279,7 +335,8 @@
       <button
         type="button"
         class="stat hp-stat"
-        title="Current / Max HP — click to apply damage or healing"
+        [class.enhanced]="combatant().tempHp > 0"
+        [title]="hpTitle()"
         (click)="toggleHpAdjust()"
       >
         <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -287,7 +344,9 @@
             d="M10 17.35 8.55 16.03C4 11.9 1 9.19 1 5.86 1 3.17 3.12 1 5.75 1c1.47 0 2.89.68 3.8 1.76A5.07 5.07 0 0 1 13.35 1 4.7 4.7 0 0 1 18 5.86c0 3.33-3 6.04-7.55 10.17L10 17.35Z"
           />
         </svg>
-        <span class="hp-numbers">{{ combatant().currentHp }}/{{ combatant().maxHp }}</span>
+        <span class="hp-numbers" [class.enhanced]="combatant().tempHp > 0"
+          >{{ totalCurrentHp() }}/{{ combatant().maxHp }}</span
+        >
         <!-- Collapses away below a certain width (see combatant-bubble.css)
              — leaving just the icon + numbers is enough to stay readable
              when the bubble is genuinely tight on mobile. Color eases from
@@ -298,53 +357,124 @@
         ></span>
       </button>
       @if (hpAdjustOpen()) {
-        <!-- Damage/Healing switch sets the sign; the input only ever holds
-             the digits the GM typed (see onHpDeltaInput()) — the -/+ shown
-             in the box comes from hpDeltaDisplay(), which is recomputed
-             (and thus re-rendered into the input) on every change, so
-             there's no way to type over it. See EncounterStore.adjustCurrentHp
-             for how the resulting signed delta is applied. Input on the
-             left, switch stacked above the confirm button on the right
-             (see .hp-adjust-controls in combatant-bubble.css). -->
         <span class="hp-adjust-popover">
-          <input
-            #hpDeltaInputEl
-            type="text"
-            inputmode="numeric"
-            class="hp-delta-input"
-            [ngModel]="hpDeltaDisplay()"
-            (ngModelChange)="onHpDeltaInput($event)"
-            (keydown.enter)="submitHpAdjust()"
-          />
-          <span class="hp-adjust-controls">
-            <!-- A real toggle switch (checkbox styled as a track+thumb,
-                 see .hp-mode-switch in combatant-bubble.css) rather than a
-                 plain button — [class.healing] drives both the switch's
-                 slide position and its red/green color from hpAdjustMode(),
-                 the same "Angular class binding drives the visual state"
-                 pattern used everywhere else in this file (e.g. .rotated on
-                 the expand button) rather than relying on the checkbox's own
-                 :checked pseudo-class in CSS. -->
-            <label class="hp-mode-switch" [class.healing]="hpAdjustMode() === 'healing'">
-              <input
-                type="checkbox"
-                [checked]="hpAdjustMode() === 'healing'"
-                (change)="toggleHpAdjustMode()"
-              />
-              <span class="hp-mode-track"><span class="hp-mode-thumb"></span></span>
-              <span class="hp-mode-label">{{
-                hpAdjustMode() === 'damage' ? 'Damage' : 'Healing'
-              }}</span>
-            </label>
-            <button type="button" class="icon-btn" (click)="submitHpAdjust()">
-              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path
-                  d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.58l7.3-7.28a1 1 0 0 1 1.4 0Z"
+          @if (!tempHpEntryOpen()) {
+            <!-- Damage/Healing switch sets the sign; the input only ever
+                 holds the digits the GM typed (see onHpDeltaInput()) — the
+                 -/+ shown in the box comes from hpDeltaDisplay(), which is
+                 recomputed (and thus re-rendered into the input) on every
+                 change, so there's no way to type over it. See
+                 EncounterStore.adjustCurrentHp for how the resulting signed
+                 delta is applied. Input on the left, switch stacked above
+                 the confirm button on the right (see .hp-adjust-controls in
+                 combatant-bubble.css). -->
+            <input
+              #hpDeltaInputEl
+              type="text"
+              inputmode="numeric"
+              class="hp-delta-input"
+              [ngModel]="hpDeltaDisplay()"
+              (ngModelChange)="onHpDeltaInput($event)"
+              (keydown.enter)="submitHpAdjust()"
+            />
+            <span class="hp-adjust-controls">
+              <!-- A real toggle switch (checkbox styled as a track+thumb,
+                   see .hp-mode-switch in combatant-bubble.css) rather than a
+                   plain button — [class.healing] drives both the switch's
+                   slide position and its red/green color from hpAdjustMode(),
+                   the same "Angular class binding drives the visual state"
+                   pattern used everywhere else in this file (e.g. .rotated
+                   on the expand button) rather than relying on the
+                   checkbox's own :checked pseudo-class in CSS. -->
+              <label class="hp-mode-switch" [class.healing]="hpAdjustMode() === 'healing'">
+                <input
+                  type="checkbox"
+                  [checked]="hpAdjustMode() === 'healing'"
+                  (change)="toggleHpAdjustMode()"
                 />
-              </svg>
-              <span class="sr-only">Apply HP change</span>
-            </button>
-          </span>
+                <span class="hp-mode-track"><span class="hp-mode-thumb"></span></span>
+                <span class="hp-mode-label">{{
+                  hpAdjustMode() === 'damage' ? 'Damage' : 'Healing'
+                }}</span>
+              </label>
+              <!-- +Temp: while no pool is active and the entry prompt isn't
+                   open, opens it (see the @else branch below) rather than
+                   reading whatever's currently typed above — a GM could too
+                   easily click this before typing a number, or with a
+                   leftover damage amount still sitting in that input. While
+                   a pool IS active, clears it immediately instead (no
+                   confirmation, per spec) — [class.active] gives it the
+                   "clicked in" look for that state. -->
+              <button
+                type="button"
+                class="temp-hp-btn"
+                [class.active]="combatant().tempHp > 0"
+                [title]="combatant().tempHp > 0 ? 'Remove Temp HP' : 'Add Temp HP'"
+                (click)="onTempHpButtonClick()"
+              >
+                +Temp
+              </button>
+              <button type="button" class="icon-btn" (click)="submitHpAdjust()">
+                <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path
+                    d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.58l7.3-7.28a1 1 0 0 1 1.4 0Z"
+                  />
+                </svg>
+                <span class="sr-only">Apply HP change</span>
+              </button>
+            </span>
+          } @else {
+            <!-- Temp HP entry prompt — swapped in for the whole popover
+                 while onTempHpButtonClick() has opened it. Its own
+                 dedicated input (always a positive amount, no damage/heal
+                 sign) plus a green checkmark to save and a red X to
+                 cancel — same color language as .add-one-btn's checkmark
+                 (monster-generator-panel.css) for "save"/"add" actions
+                 elsewhere in this app. No +Temp button here (removed —
+                 the checkmark/X pair is the only way in or out of this
+                 view now). -->
+            <input
+              #tempHpInputEl
+              type="text"
+              inputmode="numeric"
+              class="hp-delta-input"
+              placeholder="Temp HP"
+              [ngModel]="tempHpAmount()"
+              (ngModelChange)="onTempHpAmountInput($event)"
+              (keydown.enter)="submitTempHpEntry()"
+            />
+            <span class="hp-adjust-controls">
+              <span class="temp-hp-entry-label">Add Temp HP</span>
+              <span class="temp-hp-entry-actions">
+                <button
+                  type="button"
+                  class="icon-btn temp-hp-save-btn"
+                  title="Save Temp HP"
+                  (click)="submitTempHpEntry()"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.58l7.3-7.28a1 1 0 0 1 1.4 0Z"
+                    />
+                  </svg>
+                  <span class="sr-only">Save Temp HP</span>
+                </button>
+                <button
+                  type="button"
+                  class="icon-btn temp-hp-cancel-btn"
+                  title="Cancel"
+                  (click)="cancelTempHpEntry()"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M5.3 5.3a1 1 0 0 1 1.4 0L10 8.6l3.3-3.3a1 1 0 1 1 1.4 1.4L11.4 10l3.3 3.3a1 1 0 0 1-1.4 1.4L10 11.4l-3.3 3.3a1 1 0 0 1-1.4-1.4L8.6 10 5.3 6.7a1 1 0 0 1 0-1.4Z"
+                    />
+                  </svg>
+                  <span class="sr-only">Cancel</span>
+                </button>
+              </span>
+            </span>
+          }
         </span>
       }
     </span>
@@ -427,22 +557,74 @@
     }
   </span>
 
-  <span class="stat init-stat" [title]="initiativeBadgeTitle()">
-    <!-- Same badge treatment as AC above — the d20's facet-line detail
-         (kept on the Roll Initiative button, encounter-detail.html) is
-         dropped here so the filled shape stays a solid, legible backdrop
-         for the reversed-white number. previewMode shows the signed
-         Initiative Modifier instead of "N/A" (no Roll has happened yet) —
-         see initiativeBadgeValue's doc comment. -->
-    <span class="badge-icon">
-      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-        <path d="M10 1.5 17.5 6v8L10 18.5 2.5 14V6Z" />
-      </svg>
+  <!-- Same wrapper+button+sibling-popover shape as .ac-stat-wrapper/
+       .hp-stat-wrapper above — see docs/ARCHITECTURE.md's "third gotcha,"
+       now applied a third time. -->
+  <span class="init-stat-wrapper">
+    <button
+      type="button"
+      class="stat init-stat"
+      [title]="initiativeBadgeTitle()"
+      [disabled]="isPlacing()"
+      (click)="toggleInitiativePopover()"
+    >
+      <!-- Same badge treatment as AC above — the d20's facet-line detail
+           (kept on the Roll Initiative button, encounter-detail.html) is
+           dropped here so the filled shape stays a solid, legible backdrop
+           for the reversed-white number. previewMode shows the signed
+           Initiative Modifier instead of "N/A" (no Roll has happened yet) —
+           see initiativeBadgeValue's doc comment. enhanced (Advantage) /
+           diminished (Disadvantage) recolor the icon the same way Bonus
+           Armor/Temp HP do above. -->
       <span
-        class="badge-value"
-        [class.na]="!previewMode() && combatant().initiativeTotal === null"
-        >{{ initiativeBadgeValue() }}</span
+        class="badge-icon"
+        [class.enhanced]="combatant().initiativeAdvantage === 'advantage'"
+        [class.diminished]="combatant().initiativeAdvantage === 'disadvantage'"
       >
-    </span>
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path d="M10 1.5 17.5 6v8L10 18.5 2.5 14V6Z" />
+        </svg>
+        <span
+          class="badge-value"
+          [class.na]="!previewMode() && combatant().initiativeTotal === null"
+          >{{ initiativeBadgeValue() }}</span
+        >
+      </span>
+    </button>
+    @if (initiativePopoverOpen()) {
+      <!-- Three explicit, mutually-exclusive radio options rather than a
+           toggle/click-cycle — picking one applies immediately (a radio
+           choice is itself the final answer) and closes the popover, no
+           separate confirm step needed. -->
+      <span class="init-popover">
+        <label class="init-option">
+          <input
+            type="radio"
+            name="init-advantage-{{ combatant().id }}"
+            [checked]="combatant().initiativeAdvantage === 'none'"
+            (change)="pickInitiativeAdvantage('none')"
+          />
+          None
+        </label>
+        <label class="init-option">
+          <input
+            type="radio"
+            name="init-advantage-{{ combatant().id }}"
+            [checked]="combatant().initiativeAdvantage === 'advantage'"
+            (change)="pickInitiativeAdvantage('advantage')"
+          />
+          Advantage
+        </label>
+        <label class="init-option">
+          <input
+            type="radio"
+            name="init-advantage-{{ combatant().id }}"
+            [checked]="combatant().initiativeAdvantage === 'disadvantage'"
+            (change)="pickInitiativeAdvantage('disadvantage')"
+          />
+          Disadvantage
+        </label>
+      </span>
+    }
   </span>
 </ng-template>

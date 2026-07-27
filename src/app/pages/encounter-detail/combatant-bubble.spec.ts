@@ -11,9 +11,12 @@ const combatant: Combatant = {
   npcId: null,
   name: 'Aria Windmere',
   initiativeModifier: 3,
+  initiativeAdvantage: 'none',
   ac: 16,
   maxHp: 30,
   currentHp: 22,
+  tempHp: 0,
+  bonusAc: 0,
   notes: 'Wields a longsword',
   monsterTemplateId: null,
   monsterName: null,
@@ -164,6 +167,73 @@ describe('CombatantBubble', () => {
     confirmBtn.click();
 
     expect(emitted).toBe(10);
+  });
+
+  it('+Temp opens a dedicated entry prompt instead of reading the damage/heal input, and the checkmark submits it', async () => {
+    let emitted: number | undefined;
+    component.tempHpSubmit.subscribe((amount) => (emitted = amount));
+
+    const hpStat: HTMLButtonElement = fixture.nativeElement.querySelector('.hp-stat');
+    hpStat.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Type a damage amount first — the entry prompt must NOT read this.
+    const damageInput: HTMLInputElement = fixture.nativeElement.querySelector('.hp-delta-input');
+    damageInput.value = '-99';
+    damageInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const tempBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.temp-hp-btn');
+    tempBtn.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Nothing emitted yet — opening the prompt isn't a submit.
+    expect(emitted).toBeUndefined();
+    // The damage/heal controls are gone; a fresh, empty entry input is shown instead.
+    expect(fixture.nativeElement.querySelector('.hp-mode-switch')).toBeNull();
+    const entryInput: HTMLInputElement = fixture.nativeElement.querySelector('.hp-delta-input');
+    expect(entryInput.value).toBe('');
+
+    entryInput.value = '5';
+    entryInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const saveBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.temp-hp-entry-actions .icon-btn',
+    );
+    saveBtn.click();
+
+    expect(emitted).toBe(5);
+  });
+
+  it('the entry prompt\'s X cancels without submitting and returns to the normal Damage/Healing view', async () => {
+    let emittedCount = 0;
+    component.tempHpSubmit.subscribe(() => emittedCount++);
+
+    const hpStat: HTMLButtonElement = fixture.nativeElement.querySelector('.hp-stat');
+    hpStat.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    fixture.nativeElement.querySelector('.temp-hp-btn').click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const entryInput: HTMLInputElement = fixture.nativeElement.querySelector('.hp-delta-input');
+    entryInput.value = '5';
+    entryInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const buttons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('.temp-hp-entry-actions .icon-btn'),
+    );
+    buttons[1].click(); // the X
+    fixture.detectChanges();
+
+    expect(emittedCount).toBe(0);
+    expect(fixture.nativeElement.querySelector('.hp-mode-switch')).not.toBeNull();
   });
 
   it('marks the Notes badge dark with a "See Notes" hint when the combatant has notes', () => {

@@ -11,6 +11,7 @@ import {
   firstActiveIndex,
   foldInReadyToJoin,
   reRollRound,
+  rollD20WithAdvantage,
 } from './encounter-store';
 import { NpcStore } from './npc-store';
 import { PartyStore } from './party-store';
@@ -47,9 +48,12 @@ function combatant(overrides: Partial<Combatant>): Combatant {
     npcId: null,
     name: 'Combatant',
     initiativeModifier: 0,
+    initiativeAdvantage: 'none',
     ac: null,
     maxHp: null,
     currentHp: null,
+    tempHp: 0,
+    bonusAc: 0,
     notes: '',
     monsterTemplateId: null,
     monsterName: null,
@@ -79,7 +83,13 @@ function pcFields(name: string, initiativeModifier: number) {
 function addPlayerToParty(
   partyStore: FakePartyStore,
   partyId: string,
-  fields: { name: string; initiativeModifier: number; ac: number | null; maxHp: number | null; notes: string },
+  fields: {
+    name: string;
+    initiativeModifier: number;
+    ac: number | null;
+    maxHp: number | null;
+    notes: string;
+  },
 ) {
   const player = partyStore.createPlayer(fields);
   partyStore.addPlayerToParty(partyId, player.id);
@@ -90,12 +100,43 @@ function addPlayerToParty(
 function addNpcToTroop(
   npcStore: FakeNpcStore,
   troopId: string,
-  fields: { name: string; initiativeModifier: number; ac: number | null; maxHp: number | null; notes: string },
+  fields: {
+    name: string;
+    initiativeModifier: number;
+    ac: number | null;
+    maxHp: number | null;
+    notes: string;
+  },
 ) {
   const npc = npcStore.createNpc(fields);
   npcStore.addNpcToTroop(troopId, npc.id);
   return npc;
 }
+
+describe('rollD20WithAdvantage (pure logic)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("'none' rolls a single d20", () => {
+    vi.spyOn(Math, 'random').mockReturnValueOnce(0.5); // -> 11
+    expect(rollD20WithAdvantage('none')).toBe(11);
+  });
+
+  it("'advantage' rolls twice and keeps the higher result", () => {
+    vi.spyOn(Math, 'random')
+      .mockReturnValueOnce(0) // -> 1
+      .mockReturnValueOnce(0.95); // -> 20
+    expect(rollD20WithAdvantage('advantage')).toBe(20);
+  });
+
+  it("'disadvantage' rolls twice and keeps the lower result", () => {
+    vi.spyOn(Math, 'random')
+      .mockReturnValueOnce(0.95) // -> 20
+      .mockReturnValueOnce(0); // -> 1
+    expect(rollD20WithAdvantage('disadvantage')).toBe(1);
+  });
+});
 
 describe('compareByInitiative (pure logic)', () => {
   it('sorts by initiative total descending', () => {
@@ -363,7 +404,13 @@ describe('EncounterStore', () => {
 
   it('copies AC/Max HP/Notes onto the Combatant and initializes Current HP to Max HP', () => {
     const party = partyStore.createParty('Party A');
-    addPlayerToParty(partyStore, party.id, { name: 'Aria', initiativeModifier: 3, ac: 16, maxHp: 30, notes: 'Longsword' });
+    addPlayerToParty(partyStore, party.id, {
+      name: 'Aria',
+      initiativeModifier: 3,
+      ac: 16,
+      maxHp: 30,
+      notes: 'Longsword',
+    });
 
     const encounter = service.createEncounter('Goblin Ambush', [party.id]);
 
@@ -998,6 +1045,167 @@ describe('EncounterStore', () => {
 
       expect(service.combatantsForEncounter(encounter.id)[0].currentHp).toBeNull();
     });
+
+    it('damage fully absorbed by Temp HP leaves real currentHp untouched', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', { name: 'Goblin', initiativeModifier: 2, ac: null, maxHp: 7, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+      service.setTempHp(encounter.id, npc.id, 5);
+
+      service.adjustCurrentHp(encounter.id, npc.id, -3);
+
+      const updated = service.combatantsForEncounter(encounter.id)[0];
+      expect(updated.tempHp).toBe(2);
+      expect(updated.currentHp).toBe(7);
+    });
+
+    it('damage exceeding Temp HP wipes the pool and spills the remainder into real currentHp', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', { name: 'Goblin', initiativeModifier: 2, ac: null, maxHp: 7, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+      service.setTempHp(encounter.id, npc.id, 5);
+
+      service.adjustCurrentHp(encounter.id, npc.id, -8);
+
+      const updated = service.combatantsForEncounter(encounter.id)[0];
+      expect(updated.tempHp).toBe(0);
+      expect(updated.currentHp).toBe(4); // 7 - (8 - 5 absorbed)
+    });
+
+    it('healing never restores Temp HP, only real currentHp', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', { name: 'Goblin', initiativeModifier: 2, ac: null, maxHp: 7, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+      service.adjustCurrentHp(encounter.id, npc.id, -5); // 7 -> 2
+      service.setTempHp(encounter.id, npc.id, 5);
+
+      service.adjustCurrentHp(encounter.id, npc.id, 3); // heal
+
+      const updated = service.combatantsForEncounter(encounter.id)[0];
+      expect(updated.currentHp).toBe(5); // 2 + 3, clamped at maxHp
+      expect(updated.tempHp).toBe(5); // untouched
+    });
+  });
+
+  describe('setTempHp / clearTempHp', () => {
+    it('is a no-op when maxHp is not set', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Goblin', 2));
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.setTempHp(encounter.id, npc.id, 5);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].tempHp).toBe(0);
+    });
+
+    it('is a no-op for a non-positive amount', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', { name: 'Goblin', initiativeModifier: 2, ac: null, maxHp: 7, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.setTempHp(encounter.id, npc.id, 0);
+      service.setTempHp(encounter.id, npc.id, -5);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].tempHp).toBe(0);
+    });
+
+    it('clearTempHp resets the pool to 0 immediately', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', { name: 'Goblin', initiativeModifier: 2, ac: null, maxHp: 7, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+      service.setTempHp(encounter.id, npc.id, 5);
+
+      service.clearTempHp(encounter.id, npc.id);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].tempHp).toBe(0);
+    });
+  });
+
+  describe('setBonusAc / clearBonusAc', () => {
+    it('is a no-op when base ac is not set', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Goblin', 2));
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.setBonusAc(encounter.id, npc.id, 2);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].bonusAc).toBe(0);
+    });
+
+    it('is a no-op for a non-positive amount', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', { name: 'Goblin', initiativeModifier: 2, ac: 13, maxHp: null, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.setBonusAc(encounter.id, npc.id, 0);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].bonusAc).toBe(0);
+    });
+
+    it('sets and clears a Bonus Armor amount', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', { name: 'Goblin', initiativeModifier: 2, ac: 13, maxHp: null, notes: '' });
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.setBonusAc(encounter.id, npc.id, 2);
+      expect(service.combatantsForEncounter(encounter.id)[0].bonusAc).toBe(2);
+
+      service.clearBonusAc(encounter.id, npc.id);
+      expect(service.combatantsForEncounter(encounter.id)[0].bonusAc).toBe(0);
+    });
+  });
+
+  describe('setInitiativeAdvantage', () => {
+    it('sets the Advantage/Disadvantage state unconditionally, even after the first Roll', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Goblin', 2));
+      const [npc] = service.combatantsForEncounter(encounter.id);
+      service.rollInitiative(encounter.id);
+
+      service.setInitiativeAdvantage(encounter.id, npc.id, 'advantage');
+      expect(service.combatantsForEncounter(encounter.id)[0].initiativeAdvantage).toBe('advantage');
+
+      service.setInitiativeAdvantage(encounter.id, npc.id, 'disadvantage');
+      expect(service.combatantsForEncounter(encounter.id)[0].initiativeAdvantage).toBe('disadvantage');
+
+      service.setInitiativeAdvantage(encounter.id, npc.id, 'none');
+      expect(service.combatantsForEncounter(encounter.id)[0].initiativeAdvantage).toBe('none');
+    });
+
+    it("writes through to the linked Player's library entry, so it becomes the default for that Player's next Combatant", () => {
+      const party = partyStore.createParty('Party A');
+      const player = addPlayerToParty(partyStore, party.id, pcFields('Aria', 3));
+      const encounter = service.createEncounter('Goblin Ambush', [party.id]);
+      const [pc] = service.combatantsForEncounter(encounter.id);
+
+      service.setInitiativeAdvantage(encounter.id, pc.id, 'advantage');
+      expect(partyStore.getPlayer(player.id)!.initiativeAdvantage).toBe('advantage');
+
+      service.setInitiativeAdvantage(encounter.id, pc.id, 'none');
+      expect(partyStore.getPlayer(player.id)!.initiativeAdvantage).toBe('none');
+    });
+
+    it("writes through to the linked Npc's library entry", () => {
+      const troop = npcStore.createTroop('Troop A');
+      const npcEntry = addNpcToTroop(npcStore, troop.id, npcFields('Goblin', 2));
+      const encounter = service.createEncounter('Goblin Ambush', [], [troop.id]);
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.setInitiativeAdvantage(encounter.id, npc.id, 'disadvantage');
+      expect(npcStore.getNpc(npcEntry.id)!.initiativeAdvantage).toBe('disadvantage');
+    });
+
+    it('does not write to any library entry for an ad-hoc (unlinked) combatant', () => {
+      const encounter = service.createEncounter('Goblin Ambush', []);
+      service.addAdHocCombatant(encounter.id, 'npc', npcFields('Goblin', 2));
+      const [npc] = service.combatantsForEncounter(encounter.id);
+
+      service.setInitiativeAdvantage(encounter.id, npc.id, 'advantage');
+
+      expect(service.combatantsForEncounter(encounter.id)[0].initiativeAdvantage).toBe('advantage');
+      expect(partyStore.players()).toHaveLength(0);
+      expect(npcStore.npcs()).toHaveLength(0);
+    });
   });
 
   describe('setEncounterTroops', () => {
@@ -1084,6 +1292,28 @@ describe('EncounterStore', () => {
       service.addPlayerCombatant(encounter.id, player.id);
 
       expect(service.combatantsForEncounter(encounter.id)).toHaveLength(1);
+    });
+
+    it("inherits a Player's persisted initiativeAdvantage onto the new Combatant", () => {
+      const party = partyStore.createParty('Party A');
+      const player = partyStore.createPlayer({ ...pcFields('Aria', 3), initiativeAdvantage: 'advantage' });
+      partyStore.addPlayerToParty(party.id, player.id);
+      const encounter = service.createEncounter('Goblin Ambush', []);
+
+      service.addPlayerCombatant(encounter.id, player.id);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].initiativeAdvantage).toBe('advantage');
+    });
+
+    it("inherits an Npc's persisted initiativeAdvantage onto the new Combatant", () => {
+      const troop = npcStore.createTroop('Troop A');
+      const npcEntry = npcStore.createNpc({ ...npcFields('Goblin', 2), initiativeAdvantage: 'disadvantage' });
+      npcStore.addNpcToTroop(troop.id, npcEntry.id);
+      const encounter = service.createEncounter('Goblin Ambush', []);
+
+      service.addNpcCombatant(encounter.id, npcEntry.id);
+
+      expect(service.combatantsForEncounter(encounter.id)[0].initiativeAdvantage).toBe('disadvantage');
     });
   });
 

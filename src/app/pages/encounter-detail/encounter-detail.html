@@ -121,7 +121,7 @@
               [attr.data-combatant-id]="c.id"
               [class.pc-entry]="c.type === 'pc'"
               [class.npc-entry]="c.type === 'npc'"
-              [class.hp-adjusting]="isHpAdjusting(c.id)"
+              [class.popover-open]="isPopoverOpen(c.id)"
             >
               <app-combatant-bubble
                 [combatant]="c"
@@ -135,7 +135,12 @@
                 (viewStatBlockRequested)="openStatBlockDialog(c)"
                 (notesRequested)="openNotesDialog(c)"
                 (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
-                (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+                (tempHpSubmit)="onTempHpSubmit(c.id, $event)"
+                (tempHpClear)="onTempHpClear(c.id)"
+                (acBonusSubmit)="onAcBonusSubmit(c.id, $event)"
+                (acBonusClear)="onAcBonusClear(c.id)"
+                (initiativeAdvantageChange)="onInitiativeAdvantageChange(c.id, $event)"
+                (popoverOpenChange)="setPopoverOpen(c.id, $event)"
                 (deleteRequested)="removeCombatant(c.id)"
               >
                 <!-- Only an ad-hoc combatant (no library link yet) has
@@ -424,7 +429,7 @@
                   [class.active]="c.id === activeCombatantId()"
                   [class.incapacitated]="c.incapacitated"
                   [class.handle-revealed]="isHandleRevealed(c.id)"
-                  [class.hp-adjusting]="isHpAdjusting(c.id)"
+                  [class.popover-open]="isPopoverOpen(c.id)"
                   (click)="toggleHandleRevealed(c.id)"
                   (mouseleave)="collapseHandleRevealed(c.id)"
                 >
@@ -444,7 +449,12 @@
                     (viewStatBlockRequested)="openStatBlockDialog(c)"
                     (notesRequested)="openNotesDialog(c)"
                     (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
-                    (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+                    (tempHpSubmit)="onTempHpSubmit(c.id, $event)"
+                    (tempHpClear)="onTempHpClear(c.id)"
+                    (acBonusSubmit)="onAcBonusSubmit(c.id, $event)"
+                    (acBonusClear)="onAcBonusClear(c.id)"
+                    (initiativeAdvantageChange)="onInitiativeAdvantageChange(c.id, $event)"
+                    (popoverOpenChange)="setPopoverOpen(c.id, $event)"
                   >
                     <!-- cdkDragHandle restricts the drag gesture to this icon
                        alone, so grabbing anywhere else on the bubble (the
@@ -521,7 +531,7 @@
                     [class.placing]="isPlacing(c.id)"
                     [class.popping-out]="isResolving(c.id)"
                     [class.incapacitated]="c.incapacitated"
-                    [class.hp-adjusting]="isHpAdjusting(c.id)"
+                    [class.popover-open]="isPopoverOpen(c.id)"
                   >
                     <app-combatant-bubble
                       [combatant]="c"
@@ -539,7 +549,12 @@
                       (viewStatBlockRequested)="openStatBlockDialog(c)"
                       (notesRequested)="openNotesDialog(c)"
                       (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
-                      (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+                      (tempHpSubmit)="onTempHpSubmit(c.id, $event)"
+                      (tempHpClear)="onTempHpClear(c.id)"
+                      (acBonusSubmit)="onAcBonusSubmit(c.id, $event)"
+                      (acBonusClear)="onAcBonusClear(c.id)"
+                      (initiativeAdvantageChange)="onInitiativeAdvantageChange(c.id, $event)"
+                      (popoverOpenChange)="setPopoverOpen(c.id, $event)"
                     >
                       <!-- Leftmost and pointing left (toward the main list): a
                          shortcut into placement mode without opening the
@@ -644,6 +659,7 @@
             type="button"
             (click)="advance('back')"
             [disabled]="isFirstActiveCombatant() || isPlacing()"
+            aria-keyshortcuts="ArrowLeft"
           >
             <!-- "Previous Turn" wrapped to two lines once the row got
                  shorter (see .turn-controls button above) — .full-label/
@@ -651,10 +667,14 @@
                  elsewhere in this file (e.g. the Hold Action panel
                  stacking), CSS-only rather than a component signal since
                  it's purely a viewport-width presentation choice. -->
-            ◀ <span class="full-label">Previous Turn</span
-            ><span class="short-label">Previous</span>
+            ◀ <span class="full-label">Previous Turn</span><span class="short-label">Previous</span>
           </button>
-          <button type="button" (click)="advance('forward')" [disabled]="isPlacing()">
+          <button
+            type="button"
+            (click)="advance('forward')"
+            [disabled]="isPlacing()"
+            aria-keyshortcuts="ArrowRight Space"
+          >
             @if (isFinalActiveCombatant()) {
               <strong>Next Round ▶</strong>
             } @else {

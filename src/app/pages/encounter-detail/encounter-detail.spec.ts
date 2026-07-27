@@ -186,3 +186,141 @@ describe('EncounterDetail roll button emphasis', () => {
     expect(fixture.nativeElement.querySelector('.roll-btn')).toBeNull();
   });
 });
+
+// Keyboard shortcuts for Previous/Next Turn — a separate describe block for
+// the same reason as "roll button emphasis" above: needs the real,
+// Firestore-backed EncounterStore actually populated and rolled (to drive
+// activeCombatantIndex/isFirstActiveCombatant/isPlacing), not just the
+// default 'nonexistent-encounter' fixture the top suite uses.
+describe('EncounterDetail turn shortcut keydown', () => {
+  let fixture: ComponentFixture<EncounterDetail>;
+  let encounterStore: EncounterStore;
+  let encounterId: string;
+
+  beforeEach(async () => {
+    localStorage.clear();
+    __resetFakeFirestore();
+    Element.prototype.scrollIntoView = vi.fn();
+    (globalThis as { ResizeObserver?: unknown }).ResizeObserver ??= class {
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    };
+    await TestBed.configureTestingModule({
+      imports: [EncounterDetail],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: new FakeAuthService() },
+        { provide: PartyStore, useValue: new FakePartyStore() },
+        { provide: NpcStore, useValue: new FakeNpcStore() },
+      ],
+    }).compileComponents();
+
+    encounterStore = TestBed.inject(EncounterStore);
+    TestBed.tick();
+
+    // 2+ combatants, per the standing repeated-row-list rule — a single
+    // combatant would never exercise isFirstActiveCombatant() meaningfully.
+    const encounter = encounterStore.createEncounter('Goblin Ambush', []);
+    encounterStore.addAdHocCombatant(encounter.id, 'npc', {
+      name: 'Goblin A',
+      initiativeModifier: 0,
+      ac: null,
+      maxHp: null,
+      notes: '',
+    });
+    encounterStore.addAdHocCombatant(encounter.id, 'npc', {
+      name: 'Goblin B',
+      initiativeModifier: 0,
+      ac: null,
+      maxHp: null,
+      notes: '',
+    });
+    encounterStore.rollInitiative(encounter.id);
+    encounterId = encounter.id;
+
+    fixture = TestBed.createComponent(EncounterDetail);
+    fixture.componentRef.setInput('encounterId', encounterId);
+    fixture.detectChanges();
+    TestBed.tick();
+  });
+
+  function activeCombatantId(): string | null {
+    const encounter = encounterStore.getEncounter(encounterId);
+    if (!encounter || encounter.activeCombatantIndex === null) return null;
+    return encounterStore.combatantsForEncounter(encounterId)[encounter.activeCombatantIndex]?.id ?? null;
+  }
+
+  // Dispatched on the target itself (not on `document`) and left to bubble
+  // naturally — event.target is set by the dispatch algorithm to whatever
+  // node dispatchEvent() was called on, so a target override has to be a
+  // real element in the tree, not a property poked onto the event object.
+  function press(key: string, target: Node = document.body): void {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    fixture.detectChanges();
+  }
+
+  it('advances the turn on ArrowRight', () => {
+    const before = activeCombatantId();
+    press('ArrowRight');
+    expect(activeCombatantId()).not.toBe(before);
+  });
+
+  it('advances the turn on Space', () => {
+    const before = activeCombatantId();
+    press(' ');
+    expect(activeCombatantId()).not.toBe(before);
+  });
+
+  it('moves back on ArrowLeft, then no-ops on the first combatant', () => {
+    press('ArrowRight');
+    const secondCombatant = activeCombatantId();
+
+    press('ArrowLeft');
+    const firstCombatant = activeCombatantId();
+    expect(firstCombatant).not.toBe(secondCombatant);
+
+    press('ArrowLeft');
+    expect(activeCombatantId()).toBe(firstCombatant);
+  });
+
+  it('ignores ArrowRight/Space when focus is on a typing surface', () => {
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    const before = activeCombatantId();
+
+    press('ArrowRight', input);
+    press(' ', input);
+
+    expect(activeCombatantId()).toBe(before);
+    input.remove();
+  });
+
+  it('ignores Space (but not ArrowRight) when focus is on a button, to avoid double-advancing', () => {
+    const button = document.createElement('button');
+    document.body.appendChild(button);
+    const before = activeCombatantId();
+
+    press(' ', button);
+    expect(activeCombatantId()).toBe(before);
+
+    press('ArrowRight', button);
+    expect(activeCombatantId()).not.toBe(before);
+
+    button.remove();
+  });
+
+  it('ignores shortcuts entirely while a native dialog is open', () => {
+    const dialog = document.createElement('dialog');
+    dialog.open = true;
+    document.body.appendChild(dialog);
+    const before = activeCombatantId();
+
+    press('ArrowRight');
+    press(' ');
+
+    expect(activeCombatantId()).toBe(before);
+    dialog.remove();
+  });
+});

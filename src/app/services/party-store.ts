@@ -14,6 +14,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { firestore } from '../firebase';
+import { InitiativeAdvantageState } from '../models/initiative-advantage.model';
 import { Party, Player } from '../models/party.model';
 import { AuthService } from './auth-service';
 
@@ -170,16 +171,30 @@ export class PartyStore {
     );
   }
 
-  /** Created directly into the roster, unattached to any Party — use addPlayerToParty to assign it to one. */
+  /**
+   * Created directly into the roster, unattached to any Party — use
+   * addPlayerToParty to assign it to one. initiativeAdvantage is optional
+   * and defaults to 'none' — the Players create form has no field for it
+   * (see Player.initiativeAdvantage's doc comment), so every normal call
+   * site omits it; only EncounterDetail's "Save to Roster" flow passes it,
+   * to carry an ad-hoc Combatant's already-set Advantage/Disadvantage into
+   * its new library entry instead of silently dropping it.
+   */
   createPlayer(fields: {
     name: string;
     initiativeModifier: number;
     ac: number | null;
     maxHp: number | null;
     notes: string;
+    initiativeAdvantage?: InitiativeAdvantageState;
   }): Player {
     const ownerId = this.requireUid();
-    const player: Player = { id: crypto.randomUUID(), ownerId, ...fields };
+    const player: Player = {
+      id: crypto.randomUUID(),
+      ownerId,
+      ...fields,
+      initiativeAdvantage: fields.initiativeAdvantage ?? 'none',
+    };
     setDoc(doc(firestore, 'players', player.id), player).catch((err) =>
       console.error('Failed to save player', err),
     );
@@ -188,7 +203,12 @@ export class PartyStore {
 
   updatePlayer(
     id: string,
-    changes: Partial<Pick<Player, 'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes'>>,
+    changes: Partial<
+      Pick<
+        Player,
+        'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes' | 'initiativeAdvantage'
+      >
+    >,
   ): void {
     updateDoc(doc(firestore, 'players', id), changes).catch((err) =>
       console.error('Failed to update player', err),

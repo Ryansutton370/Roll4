@@ -93,6 +93,26 @@ understanding, not just for shipping code fast.
   spacing between items — can only be checked by looking at more than
   one item at once.** Create at least 2 entries (e.g. via the `run-roll4`
   skill) before screenshotting/confirming a list-view change.
+- **Any form that has a shared heading row as a *separate* element from
+  the fields it labels (`.player-form-headings` above the Players/NPCs
+  create form is the current example — see its own doc comment in
+  `player-roster.css`/`npc-roster.css` for why it's fragile) needs its
+  fields checked against that heading row by pixel position, every time
+  the form's field set changes — not just glanced at in a screenshot.**
+  Adding a new field to `CombatantFields` (e.g. an Initiative
+  Advantage/Disadvantage control) once shifted where the form wrapped
+  onto a new line, which desynced AC/Max HP from their column headers —
+  a screenshot of the result was taken and looked fine at a glance, but
+  nobody checked that each field's `getBoundingClientRect()` still lined
+  up under its own heading. **This is the same underlying failure mode
+  as the repeated-row-list rule above** (a label detached from what it
+  labels can't track a wrap point it doesn't share), just triggered by a
+  single form's field set changing instead of a list's row count
+  changing — check both whenever either changes. Concretely: after any
+  change to `CombatantFields` or a page's own heading row above it, use
+  `run-roll4` + `eval` to compare each field's and its heading's actual
+  `left`/`top` via `getBoundingClientRect()` at the width being tested,
+  not just a visual scan of a screenshot.
 
 ## Conventions already in place
 

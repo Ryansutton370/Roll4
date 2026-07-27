@@ -789,6 +789,160 @@ wherever a source toggle appears: Encounter Generator, `AddCombatantDialog`'s
 From Book step, NPC roster's Browse Monster List). Revisit once it's
 actually being designed.
 
+## Phase 3.12 — Combatant Enhanced Stats: Temp HP, Bonus Armor, Initiative Advantage/Disadvantage
+
+Resolves the Backlog's "Temporary HP and Temporary Shield/AC bonuses"
+sketch below into real, shipped behavior (all three of its open design
+questions — overhealing interaction, flat-add-on-vs-folded display,
+Combatant-vs-library scope — are answered here), plus a new third
+mechanic, Initiative Advantage/Disadvantage, requested alongside it.
+
+- [x] **Temp HP** (`Combatant.tempHp`): the HP popover's "+Temp" button,
+      when no pool is active, opens a dedicated entry prompt (its own
+      input, a checkmark to save, an X to cancel — see the follow-on fix
+      below for why); while a pool is already active, +Temp instead
+      clears it immediately with no confirmation. Damage is deducted
+      from `tempHp` first, down to 0, before any remainder spills into
+      real `currentHp`; Healing never restores `tempHp` — only ever
+      `currentHp`, same as before Temp HP existed. See
+      [DATA_MODEL.md](./DATA_MODEL.md)'s "Bonus Armor and Temp HP" note.
+- [x] **Bonus Armor** (`Combatant.bonusAc`): clicking the AC badge opens
+      a popover to add a flat bonus on top of `ac` (only once `ac` is
+      set); clicking it again while a bonus is active opens a
+      confirm/cancel prompt to remove it instead of clearing instantly —
+      a deliberately different interaction from Temp HP's instant
+      unclick, since a miss-click on the small AC badge is easier to
+      make by accident.
+- [x] **Initiative Advantage/Disadvantage**
+      (`InitiativeAdvantageState`, `src/app/models/
+      initiative-advantage.model.ts`): a Combatant can roll initiative
+      with Advantage (2d20, keep the higher) or Disadvantage (2d20,
+      keep the lower) instead of a single roll — `EncounterStore.
+      rollD20WithAdvantage`, applied at every real roll (the first Roll
+      Initiative, and every round-boundary reroll). Settable only via
+      the Initiative badge's own popover on the Combatant (a three-way
+      None/Advantage/Disadvantage radio choice, live at any point, no
+      "before first Roll" gating unlike `initiativeModifier`) —
+      **Combatant-only**, deliberately not settable at Player/NPC
+      creation or copied from the library (see the follow-on fix below
+      for why); a new Combatant always starts at `'none'`.
+- [x] **"Enhanced"/"diminished" visual treatment**: all three get a
+      bright-blue glow on their icon and number when active (new
+      `--color-enhanced` design token, `styles.css`) — Initiative
+      Disadvantage instead gets the same treatment in red
+      (`--color-diminished`, reusing `--color-danger`), reading as
+      "diminished but still legible" rather than an error state.
+      Color/glow only (`filter: drop-shadow`/`text-shadow`), never
+      anything that touches box size, to hold CLAUDE.md's "the
+      combatant bubble must never deform" standing rule — no new column
+      was added to `.combatant-row`; AC and Initiative's existing
+      fixed-width badge columns were converted from plain `<span>`s into
+      buttons (mirroring the HP badge's existing wrapper+button+popover
+      shape, and `docs/ARCHITECTURE.md`'s "third gotcha" sibling-popover
+      positioning fix, now applied a second and third time).
+- [x] `CombatantBubble`'s three popovers (HP, AC, Initiative) share one
+      `anyPopoverOpen` computed and a single `popoverOpenChange` output
+      — the sibling-bubble stacking-context fix `hpAdjustOpenChange`/
+      `EncounterDetail.hpAdjustingIds` existed for originally applies
+      identically to all three, so it was generalized once rather than
+      tripled (renamed `popoverOpenChange`/`popoverOpenIds`/
+      `.popover-open` throughout `EncounterDetail` and
+      `EncounterPreviewPanel`, both of which embed `CombatantBubble`).
+- [x] **Follow-on fix, day-one regression:** the first pass added
+      Initiative Advantage/Disadvantage to `CombatantFields` (a new
+      3-radio fieldset next to Initiative Modifier), reachable from
+      Player/NPC creation and the already-saved roster. Live-verified
+      with a screenshot at the time, but only checked for gross
+      breakage — not that the shared `.player-form-headings` heading row
+      (a *separate* flex container from the form, per its own doc
+      comment) still lined up with each field once the new fieldset
+      changed where the form wrapped. It didn't: AC drifted onto the
+      Advantage row and Max HP onto the Notes row, visibly desyncing
+      from their column headers — caught by the user, not by testing.
+      Fixed by reverting `CombatantFields` to its original 5 fields and
+      making `initiativeAdvantage` **Combatant-only** (no Player/Npc
+      field at all, matching `tempHp`/`bonusAc`'s precedent) — settable
+      only via the bubble's own Initiative popover, available from
+      Encounter Preview onward, never during Player/NPC creation. See
+      CLAUDE.md's strengthened standing rule on verifying a create
+      form's shared heading row by actual pixel position, not a glance
+      at a screenshot.
+- [x] **Follow-on fix, Temp HP flow:** the original "+Temp" button read
+      whatever was already typed into the popover's normal damage/heal
+      magnitude input — easy to click before typing a number, or with a
+      stale damage amount still sitting there. Changed so clicking
+      +Temp (with no pool active) swaps the whole popover into a
+      dedicated entry prompt instead — own input, a green checkmark to
+      save, a red X to cancel, no +Temp button in this view (removed per
+      follow-up feedback — the checkmark/X pair alone is the way in or
+      out) — see [DATA_MODEL.md](./DATA_MODEL.md)'s "Bonus Armor and
+      Temp HP" note.
+
+## Phase 3.13 — Quests, Rumors and Gossip Generator (complete)
+
+A seventh Random Generators tab page — GM-provided lists like Treasure/
+Combat Thesaurus rather than one external source document, opened by a
+request for a place to roll session-opener roleplay prompts.
+
+- [x] **Quests, Rumors and Gossip Generator**
+      (`/generators/quests-rumors-gossip`): rolls a prompt from GM-provided
+      categories (see [DATA_MODEL.md](./DATA_MODEL.md)'s
+      `QuestsRumorsGossipTable`) — currently one table, **Warmup Prompts**
+      (100 entries). Same table-picker/count/roll/copy-any-result mechanic
+      as the Treasure page, and same "no external source document, hand-
+      edit the JSON directly" situation — no import script exists or is
+      needed for `quests-rumors-gossip.json`.
+- [x] Populate Warmup Prompts — 100 GM-provided session-opener roleplay
+      questions, one descriptive line each (`detail` unused, same as
+      Trinkets), e.g. "What is something you regret?", "Describe a
+      childhood rival."
+- [x] More tables under this same set (rumors, quest hooks, gossip) are
+      expected later, same incremental-category pattern Treasure/Combat
+      Thesaurus followed.
+
+## Phase 3.14 — Initiative Advantage/Disadvantage persists to the Player/NPC library
+
+Phase 3.12 made `Combatant.initiativeAdvantage` deliberately Combatant-only
+(see that phase's "Follow-on fix" entry above) after a create-form
+fieldset for it broke the shared Players/NPCs form's column alignment.
+That fix addressed the regression but left the original ask — this choice
+should carry into a combatant's *next* Encounter — unresolved. Requested
+again directly, this phase resolves it without reopening the create-form
+change that caused the regression.
+
+- [x] `Player`/`Npc` gain their own `initiativeAdvantage` field — the
+      sticky default a new Combatant built from that library entry
+      starts with. **Still no create-form field**: it's always `'none'`
+      at Player/NPC creation, exactly as before this phase; the only way
+      to set it remains the Combatant's own Initiative badge popover.
+- [x] `EncounterStore.setInitiativeAdvantage` now also writes the new
+      value through to the linked Player/Npc (if any) — so setting
+      Advantage/Disadvantage on one Combatant updates the library
+      default, and every subsequently-created Combatant for that
+      Player/Npc (`buildCombatant`, shared by `createEncounter`'s Party/
+      Troop pull-in, `addPlayerCombatant`, `addNpcCombatant`) inherits it
+      instead of starting at `'none'`. An ad-hoc/unlinked Combatant is
+      unaffected — nothing to write through to.
+- [x] **Dismiss mechanic, by design, not a new control:** picking "None"
+      on any linked Combatant's Initiative popover clears the persisted
+      value the same way setting it wrote it — no separate UI on the
+      Roster pages. Deliberately chosen over adding a visible
+      indicator/dismiss control to the Saved Players/NPCs list rows,
+      since that would touch the exact repeated-row list layout
+      CLAUDE.md already flags as fragile, for a want-not-need.
+- [x] Already-created Combatants never change retroactively when a
+      library default changes later — same "own copy, copied once at
+      creation" precedent as `name`/`ac`/`maxHp`/`notes`. Only a
+      Combatant created *after* the library entry was updated sees the
+      new default.
+- [x] `EncounterDetail`/`EncounterPreviewPanel`'s "Save to Roster" flow
+      (confirmSaveToRoster) also carries an ad-hoc combatant's already-set
+      Advantage/Disadvantage into the new library entry it creates,
+      rather than silently dropping it — the one place `initiativeAdvantage`
+      is accepted as an optional field by `PartyStore.createPlayer`/
+      `NpcStore.createNpc` (every other call site omits it and gets
+      `'none'`).
+
 ## Phase 4 — Player Role
 
 - [ ] Player accounts, distinct role from GM.
@@ -846,16 +1000,6 @@ design (data model, UI) before it becomes phase work.
   theme. Likely builds on the existing design tokens (see
   [ARCHITECTURE.md](./ARCHITECTURE.md)) by making them swappable per-theme
   rather than introducing a separate styling system.
-- **Temporary HP and Temporary Shield/AC bonuses on a combatant, mid-encounter**
-  — separate from the base HP/AC fields (see Phase 2's Combatant HP/AC/Notes
-  bullet), a GM-settable temp HP pool that absorbs damage before real HP
-  and a temp AC bonus (e.g. from a Shield spell) that stacks on top of base
-  AC, both scoped to the encounter/combatant and presumably clearable
-  on a status/duration trigger rather than persisting like base stats do.
-  Needs design: how temp HP interacts with healing/overhealing, whether
-  temp AC is a flat add-on shown separately or folds into the displayed AC
-  number, and whether either belongs on `Combatant` only or also on the
-  Player/NPC roster templates.
 
 ## Explicitly not planned yet
 
