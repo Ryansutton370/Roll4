@@ -1,0 +1,409 @@
+[
+  {
+    "id": "quests-rumors-gossip-warmup-prompts",
+    "setName": "Quests, Rumors and Gossip",
+    "tableName": "Warmup Prompts",
+    "entries": [
+      {
+        "text": "What is something the party doesn’t know about you?",
+        "detail": null
+      },
+      {
+        "text": "What is something you regret?",
+        "detail": null
+      },
+      {
+        "text": "Describe the last time you had a really good laugh.",
+        "detail": null
+      },
+      {
+        "text": "Describe your most recent nightmare.",
+        "detail": null
+      },
+      {
+        "text": "Everyone has a guilty pleasure, what’s yours?",
+        "detail": null
+      },
+      {
+        "text": "Describe your perfect afternoon.",
+        "detail": null
+      },
+      {
+        "text": "What is something you are trying to improve about yourself?",
+        "detail": null
+      },
+      {
+        "text": "Everyone has a nickname. What’s yours? Who calls you that? What do you think about it?",
+        "detail": null
+      },
+      {
+        "text": "Describe a childhood friend.",
+        "detail": null
+      },
+      {
+        "text": "Describe a childhood rival.",
+        "detail": null
+      },
+      {
+        "text": "When was the last time you felt like you lost control? What happened?",
+        "detail": null
+      },
+      {
+        "text": "Now you’ve encountered [BBEG] in the flesh. Are you afraid? Why or why not?",
+        "detail": null
+      },
+      {
+        "text": "The quest is over, and you have downtime. What do you do when apart from the party?",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment when you felt vulnerable.",
+        "detail": null
+      },
+      {
+        "text": "Have you ever told anyone ‘I love you.”? Why, or why not?",
+        "detail": null
+      },
+      {
+        "text": "Who do you look up to?",
+        "detail": null
+      },
+      {
+        "text": "Who do you revile?",
+        "detail": null
+      },
+      {
+        "text": "Describe an irrational fear you might have. Do you show it?",
+        "detail": null
+      },
+      {
+        "text": "What interests you outside of battle? Any hobbies? Do others know?",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment where you felt like a hero. What did you think about it?",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment where you felt like a villain. Do you regret it?",
+        "detail": null
+      },
+      {
+        "text": "What’s the most valuable thing you have lost? When did you lose it?",
+        "detail": null
+      },
+      {
+        "text": "What place would you not want to visit again? Why?",
+        "detail": null
+      },
+      {
+        "text": "What’s something you’re ashamed of?",
+        "detail": null
+      },
+      {
+        "text": "Describe your favorite place.",
+        "detail": null
+      },
+      {
+        "text": "Describe your favorite childhood toy.",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment when you felt humiliated.",
+        "detail": null
+      },
+      {
+        "text": "When did you feel like something was done to you unjustly?",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment you acted too hastily. Were there any consequences?",
+        "detail": null
+      },
+      {
+        "text": "What is/was your relationship with your parents like?",
+        "detail": null
+      },
+      {
+        "text": "What moment would you want to relive? Would you be willing to give something up for it?",
+        "detail": null
+      },
+      {
+        "text": "Where’s the finest bakery you’ve been at? What’s their best product?",
+        "detail": null
+      },
+      {
+        "text": "What’s the weirdest thing you have done while drunk?",
+        "detail": null
+      },
+      {
+        "text": "What memory keeps you awake at night?",
+        "detail": null
+      },
+      {
+        "text": "Do you sometimes long for a simpler life? At what kinds of moments?",
+        "detail": null
+      },
+      {
+        "text": "What’s your view on [Merchant NPC]?",
+        "detail": null
+      },
+      {
+        "text": "What place have you only heard of and would like to visit?",
+        "detail": null
+      },
+      {
+        "text": "What does truth mean to you? How important is it?",
+        "detail": null
+      },
+      {
+        "text": "Investigators must be able to control their emotions. Have you had to control your emotions to achieve a goal? What happened?",
+        "detail": null
+      },
+      {
+        "text": "How do you feel about [a faction from the game]?",
+        "detail": null
+      },
+      {
+        "text": "What’s something you like to do the old-fashioned way?",
+        "detail": null
+      },
+      {
+        "text": "If you were the emperor of a small island nation, what laws would you impose?",
+        "detail": null
+      },
+      {
+        "text": "What one thing do you really want but can’t afford?",
+        "detail": null
+      },
+      {
+        "text": "If you had a clock that would countdown to any one event of your choosing, what event would you want it to countdown to?",
+        "detail": null
+      },
+      {
+        "text": "Describe a recent “Teachable moment.” What did you take away from it?",
+        "detail": null
+      },
+      {
+        "text": "Mirrors are said to be reflections of the soul. What do you notice about their own reflection?",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment when you felt triumphant.",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment when you felt bewildered.",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment when you felt zealous.",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment when you felt insignificant",
+        "detail": null
+      },
+      {
+        "text": "What’s something that gets under your skin?",
+        "detail": null
+      },
+      {
+        "text": "What’s something that reminds you of home?",
+        "detail": null
+      },
+      {
+        "text": "When was a moment when you felt safe?",
+        "detail": null
+      },
+      {
+        "text": "When was a moment when you felt truly afraid?",
+        "detail": null
+      },
+      {
+        "text": "Do you fear death? Why or what not?",
+        "detail": null
+      },
+      {
+        "text": "What would you sacrifice for [family, another party member, an innocent, a stranger]?",
+        "detail": null
+      },
+      {
+        "text": "What makes you feel like a member of the team?",
+        "detail": null
+      },
+      {
+        "text": "Describe a time that someone did something altruistic for you.",
+        "detail": null
+      },
+      {
+        "text": "What is one food that you simply will not eat? And why is it meatloaf?",
+        "detail": null
+      },
+      {
+        "text": "Warriors come and go, but legends are forever. What’s a legend or hero that you admire?",
+        "detail": null
+      },
+      {
+        "text": "What’s something that makes you feel alive?",
+        "detail": null
+      },
+      {
+        "text": "Does you feel like the gods are watching? Or something more sinister?",
+        "detail": null
+      },
+      {
+        "text": "What are some of your short term/long term goals?",
+        "detail": null
+      },
+      {
+        "text": "Your camp was subject to a night-time ambush, and you only had time to grab either your sword, your shield, or your breeches. Which one was it?",
+        "detail": null
+      },
+      {
+        "text": "Describe a moment when you felt like the party had your back. When did you have theirs?",
+        "detail": null
+      },
+      {
+        "text": "Who like, totally gets you, man?",
+        "detail": null
+      },
+      {
+        "text": "What’s something that grosses you out? The undead? People chewing with their mouth open?",
+        "detail": null
+      },
+      {
+        "text": "Describe a recent encounter that you wish you could “do over”. What makes you regret your decision?",
+        "detail": null
+      },
+      {
+        "text": "What’s something that has sentimental value to you?",
+        "detail": null
+      },
+      {
+        "text": "Who’s’ somebody that looks up to you?",
+        "detail": null
+      },
+      {
+        "text": "What’s that perfect comeback that you thought of hours to late?",
+        "detail": null
+      },
+      {
+        "text": "Describe your favorite festival/holiday? Why?",
+        "detail": null
+      },
+      {
+        "text": "What’s something you do to unwind? Why does that relax you?",
+        "detail": null
+      },
+      {
+        "text": "What’s something you are prejudiced about? Why? Do you acknowledge it, and do you feel justified in your decision?",
+        "detail": null
+      },
+      {
+        "text": "Describe a vice you have. Is it a secret?",
+        "detail": null
+      },
+      {
+        "text": "If you could change anything about yourself, what would it be?",
+        "detail": null
+      },
+      {
+        "text": "If you were granted a wish, what would you ask for?",
+        "detail": null
+      },
+      {
+        "text": "Do you have a birthmark? What does it look like?",
+        "detail": null
+      },
+      {
+        "text": "How important is winning to you? Why?",
+        "detail": null
+      },
+      {
+        "text": "How important is the approval of others to you?",
+        "detail": null
+      },
+      {
+        "text": "Using only four words, how would you describe your outlook on life?",
+        "detail": null
+      },
+      {
+        "text": "When was the last time you cried? What happened?",
+        "detail": null
+      },
+      {
+        "text": "What do you consider to be an overrated virtue?",
+        "detail": null
+      },
+      {
+        "text": "What is your pet peeve? How does it come up?",
+        "detail": null
+      },
+      {
+        "text": "What is the most offensive thing you have ever said?",
+        "detail": null
+      },
+      {
+        "text": "What is the worst thing you have done to someone you loved?",
+        "detail": null
+      },
+      {
+        "text": "What have you done that you are the most proud of?",
+        "detail": null
+      },
+      {
+        "text": "What do you love to hate? How did this develop?",
+        "detail": null
+      },
+      {
+        "text": "How important is freedom to you? What would you be willing to give up for it?",
+        "detail": null
+      },
+      {
+        "text": "When did you last break a promise?",
+        "detail": null
+      },
+      {
+        "text": "If you could only save one person who would it be?",
+        "detail": null
+      },
+      {
+        "text": "What is your favorite vegetable?",
+        "detail": null
+      },
+      {
+        "text": "Who do you look down on?",
+        "detail": null
+      },
+      {
+        "text": "What event can you not forget?",
+        "detail": null
+      },
+      {
+        "text": "What do you not understand about society?",
+        "detail": null
+      },
+      {
+        "text": "What do you view as the ultimate sacrifice?",
+        "detail": null
+      },
+      {
+        "text": "What bores you?",
+        "detail": null
+      },
+      {
+        "text": "What would you want to be remembered for?",
+        "detail": null
+      },
+      {
+        "text": "What do you view as pitiful?",
+        "detail": null
+      },
+      {
+        "text": "What makes you respect others?",
+        "detail": null
+      }
+    ]
+  }
+]

@@ -29,6 +29,7 @@ describe('GeneratorsHome', () => {
       '/generators/treasure',
       '/generators/combat-thesaurus',
       '/generators/spells',
+      '/generators/quests-rumors-gossip',
     ]);
     expect(cards.map((c) => c.querySelector('.quick-nav-title')?.textContent)).toEqual([
       'Names',
@@ -37,6 +38,7 @@ describe('GeneratorsHome', () => {
       'Treasure',
       'Combat Thesaurus',
       'Spell Lists',
+      'Quests, Rumors and Gossip',
     ]);
   });
 });

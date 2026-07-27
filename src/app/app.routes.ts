@@ -16,6 +16,7 @@ import { PartyDetail } from './pages/party-detail/party-detail';
 import { PartyList } from './pages/party-list/party-list';
 import { PlayerRoster } from './pages/player-roster/player-roster';
 import { PlayersShell } from './pages/players-shell/players-shell';
+import { QuestsRumorsGossipGenerator } from './pages/quests-rumors-gossip-generator/quests-rumors-gossip-generator';
 import { SpellListsGenerator } from './pages/spell-lists-generator/spell-lists-generator';
 import { TreasureGenerator } from './pages/treasure-generator/treasure-generator';
 import { TroopDetail } from './pages/troop-detail/troop-detail';
@@ -81,6 +82,7 @@ export const routes: Routes = [
           { path: 'treasure', component: TreasureGenerator },
           { path: 'combat-thesaurus', component: CombatThesaurusGenerator },
           { path: 'spells', component: SpellListsGenerator },
+          { path: 'quests-rumors-gossip', component: QuestsRumorsGossipGenerator },
         ],
       },
       // Always the last header nav tab (see app.html) — a static
