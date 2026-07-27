@@ -54,6 +54,9 @@ export class Home {
   // advertise yet.
   protected readonly upcomingFeatures: UpcomingFeature[] = [
     {
+      title: 'Player View',
+      description: 'Roll4 is primarily a GM-facing tool, but soon GMs will be able to share the Encounter view with their players so they can track it on their own devices, with or withouot "fog of war". Players will have the option to manage their own characters.',
+    },{
       title: 'More Content',
       description: 'Quest hooks, dispositions, more magic items, treasure, and possibly support for other games altogether.',
     },
@@ -68,14 +71,14 @@ export class Home {
         'Pick an overall look — classic fantasy, retro, sci-fi — instead of the single built-in style.',
     },
     {
-      title: 'Temporary HP & AC',
-      description:
-        "Track a temporary HP pool and stacking AC bonuses (e.g. from a Shield spell) separately from a combatant's base stats.",
-    },
-    {
       title: 'Torch Timer',
       description:
         "Track torchlight in real time for Shadowdark, or by rounds.",
+    },
+    {
+      title: 'Spell List in Encounter View',
+      description:
+        "View the Spell List without leaving the Encounter by using the More Options button",
     },
   ];
 }

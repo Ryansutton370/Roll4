@@ -893,7 +893,7 @@
       },
       {
         "text": "Devil’s Pact Paper",
-        "detail": "When a contract is written on this paper and signed, the first party to break the terms of the contract is rewarded with treasures. Fine print outlining this clause is written in letter that appear when the paper is held over open flame."
+        "detail": "When a contract is written on this paper and signed, the first party to break the terms of the contract is rewarded with treasures. Fine print outlining this clause is written in letters that appear when the paper is held over open flame."
       },
       {
         "text": "Fairy Steed Whistle",
@@ -1142,6 +1142,102 @@
       {
         "text": "Dragonbladder Quiver",
         "detail": "Arrows drawn from this quiver can be instantly lit into flaming arrows."
+      },
+      {
+        "text": "Anti-ajarity Jar",
+        "detail": "A spell jar full of rusty nails pulled from a coffin under a half moon, and a bit of chalk. Hammer the nails into a door, then draw a sigil connecting them with the chalk. This acts as an arcane lock spell until the nails are removed."
+      },
+      {
+        "text": "Charged Object",
+        "detail": "Instructions for a spell that imbues objects you touch with a minor spark of static electricity. This is usually played for pranks among young apprentice mages, but can also be used to light fires under the right conditions. To charge an object, rub it against a black cat while whispering an incantation, and the charge will hold for one day. To increase the charge’s duration and strength, rub it against multiple black cats. Note that most cats are annoyed by this process."
+      },
+      {
+        "text": "Create Moss Golem",
+        "detail": "Instructions for a typical beginner exercise for those studying golemcraft. Gather mossy stones, place them in a bowl of fresh water, chant an incantation and add a single drop of your own blood. The moss will bind the rocks together into a very basic, unintelligent golem. It has no real faculty or use other than practice, but it makes for a nice companion pet rock."
+      },
+      {
+        "text": "Distillation of Dyslexia",
+        "detail": "A spell jar containing fragments of a map and a lodestone suspended in strong alcohol. Add in a drop of the target’s blood, their hair, or fingernails, and shake vigorously. For the next ten minutes the target perceives their surroundings as mirrored. They will insist that the path to the left leads right, the sun rises in the west and sets in the east, perceiving maps and writing in reverse, and mistakenly switching their weapons to their non-dominant hand. This is often played as a prank amongst mage fraternities, but has had disastrous results among military commanders."
+      },
+      {
+        "text": "Enchanted Farm Tool",
+        "detail": "This shovel, pitchfork, hoe, etc. has received offerings in praise for its hard work, awakening a crude, rustic intelligence. It feels lighter to use, yields better crops, and is more durable. When used as an improvised weapon, it scores a critical hit on a 19."
+      },
+      {
+        "text": "Jar of Extinguishment",
+        "detail": "This clay jar is filled with sea foam from the plane of water. When thrown, it bursts open and douses fires instantly. Those who have had relations with merpeople will find its smell familiar."
+      },
+      {
+        "text": "Hidey Hole",
+        "detail": "Instructions for a ritual often used by thieves. Find a secluded spot somewhere and dig a hole, reciting an incantation. Place whatever non-living objects you wish to retrieve later into the hole, bury them, and return to the same spot every day for three days, repeating the incantation. You may dig anywhere there is soil to retrieve your objects provided you are on the same plane and you use the same shovel or trowel. This ritual has occasionally been evoked after funerals to disastrous results."
+      },
+      {
+        "text": "See Me Knot",
+        "detail": "This necktie was woven under a moonless sky and infused with mundanity. Wearing the necktie makes you less noticeable to people, not invisible, observers are simply inclined to not take much notice of you, assuming you likely belong wherever you are. The tighter you tie it around your neck, the more powerful the enchantment is. The knot will eventually loosen on its own at a random time, revealing you and all your distinct, memorable features to the world wherever you are at the time."
+      },
+      {
+        "text": "Summon Lantern Spirit",
+        "detail": "Instructions for a ritual used by apprentices in conjuration. Write an incantation onto parchment with your own blood, and place it in a lantern. When burned, the lantern becomes an animated servitor for the caster. It can clumsily hop around and delights in lighting things on fire when not supervised. It has minimal intelligence and can communicate “yes” and “no” via smoke signals. More experienced mages are able to achieve similar, much more charismatic results in hearths and forges."
+      },
+      {
+        "text": "Umbral Light",
+        "detail": "Dark raven and snowy owl feathers tied together with silver thread and dipped in tar under the full moon. With a brief command, the feathers slowly burn, emitting silvery grey light as though it were a torch. The light is visible only to the user. It cannot light anything on fire, and cannot be extinguished, it goes out after one night."
+      },
+      {
+        "text": "Laundromancy",
+        "detail": "A jar containing a coil of clothesline that wound around a priest’s grave and a gold coin from a hanged man’s pocket. Boil the coin in water, and clothes washed in that water will return with fully restored color and free of all stains. Clothes hung on the clothesline will dry instantly and free of wrinkles. This kit is reusable and will last a full year. Washerwomen have developed a reputation for trying to get wealthy priests hanged and buried quickly for maximum efficiency."
+      },
+      {
+        "text": "Blow Kiss",
+        "detail": "With this bright red lipstick applied, a short, whispered incantation allows the caster to imprint a lipstick mark on a nearby target. The target feels nothing. This is used primarily as a means of flirting among young mages, but has also been a tool for political sabotage on the collars of rival nobles."
+      },
+      {
+        "text": "Edenic Fig",
+        "detail": "This fig was grown in the shade of a temple facing east, and sat in a priest’s pocket for a week, absorbing all of their prudish modesty. When consumed, the user is never nude for one week. Vines and leaves instantly grow around them whenever they are not wearing clothes."
+      },
+      {
+        "text": "Hidden Knailedge",
+        "detail": "Instructions for a ritual often used by thieves and spies. Take a nail from the coffin of an executed criminal and drive it into a house, let it sit for three days and nights. Remove the nail and sleep with it under your pillow. The next day, you will have intuitive knowledge of the house’s occupants - their schedule, their habits, and their hiding places (key under the doormat, questionable etchings in the attic, etc.)"
+      },
+      {
+        "text": "Pescamancy",
+        "detail": "A jar full of dirt and worms dug up from a noble’s grave. Nobles' corpses attract the best worms, everyone knows that. When used as bait for fishing, the worms will always attract the largest fish in the area. What counts as a “fish” may surprise you."
+      },
+      {
+        "text": "Salt of the Earth",
+        "detail": "A coin stolen from an honest man with runes carved into its face. Press the coin into soil and utter an incantation, a ring of salt will appear instantly, enough for most ritual or cooking purposes."
+      },
+      {
+        "text": "Compass-ionate",
+        "detail": "Instructions for a spell for those with poor sense of direction but strong sense of morality. Perform an act of genuine charity or service with a needle or nail in your shoe. Until the end of the season, it will now act as a compass always pointing north. If left in your shoe, it will point you north through pain compliance."
+      },
+      {
+        "text": "Rock Record",
+        "detail": "A waxy stone that a bard sang into under a new moon. When held, the user can hear the bard’s singing in their ears as though it was happening live. Some have suggested there are hidden messages when played backwards, which can be achieved by hanging upside down while holding the stone."
+      },
+      {
+        "text": "Chronomantic Chicken",
+        "detail": "A chicken egg with chronomancy runes etched into it. On the solstice at midnight, walk widdershins backward around the egg. The egg will hatch into a fully grown chicken, which will gradually age in reverse over the next six months back into a chick and then back into an egg. If cared for properly, the chicken exists forever in an infinite loop."
+      },
+      {
+        "text": "Treasure Trove Tree",
+        "detail": "A magical chest with written instructions inside. Put 100 gold pieces inside the chest and bury it, then plant a tree over it. When the tree matures, it will bear fruit containing coins where pits would be. Most of the coins will be copper, but some will be silver, gold, even platinum. Few have the patience to see this ritual through. It is rumored that there is a secret orchard owned by wise, ancient investors who made it big with this clever trick. It is also rumored that there is a group of wise, ancient investors who have spread this rumor and make their fortunes digging up “magical” chests buried with 100 gold pieces by fools with too much money."
+      },
+      {
+        "text": "Scryscape",
+        "detail": "A painting of a particular landscape made with expensive paints by a master artist, thrice blessed. The portrait reflects the landscape as it will appear the next day, including the weather, manmade or natural disasters, and sometimes notable visitors passing through."
+      },
+      {
+        "text": "Halfheavy Bag",
+        "detail": "Instructions for a ritual often used by merchant caravans and other travelers. Fill a sack with wood, bread, apples, very small rocks, cider, cherries, mud, bits of churches, ducks, witches, or anything else that floats. Let it float down a river for one day, and when you find it again anything held in the sack will feel half as heavy as it would normally. Alternatively, you can create a Heavy-and-a-Half bag by filling it with things that don’t float and dropping it down a chasm, which will increase weight to 150%."
+      },
+      {
+        "text": "Abacus Golem",
+        "detail": "Instructions for a forbidden ritual for students of numerology and arithmetic. Creates an animated abacus that will correct any computational errors made while using it. Schoolmasters prohibit this magic; students need to learn to do the math in their head, as they will surely never have an abacus in their pocket all the time."
+      },
+      {
+        "text": "Rapid Cosmetic Expansion Kit",
+        "detail": "A jar containing equal part foundation, lipstick, eyeliner, mascara, blush, etc. with potassium nitrate, charcoal, and sulfur. When opened, the user’s face is hit with a blast of makeup, rapidly glamorizing them as though done with a heavy and non-subtle hand. For best results and a guaranteed color match, have a priestess of the Sephoran order prepare the mixture."
       }
     ]
   },
