@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { InitiativeAdvantageState } from '../../models/initiative-advantage.model';
 import { Party, Player } from '../../models/party.model';
 import {
   addPlayerIdToParty,
@@ -61,14 +62,25 @@ export class FakePartyStore {
     ac: number | null;
     maxHp: number | null;
     notes: string;
+    initiativeAdvantage?: InitiativeAdvantageState;
   }): Player {
-    const player: Player = { id: crypto.randomUUID(), ownerId: 'test-gm', ...fields };
+    const player: Player = {
+      id: crypto.randomUUID(),
+      ownerId: 'test-gm',
+      ...fields,
+      initiativeAdvantage: fields.initiativeAdvantage ?? 'none',
+    };
     this.playersSignal.update((players) => [...players, player]);
     return player;
   }
   updatePlayer(
     id: string,
-    changes: Partial<Pick<Player, 'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes'>>,
+    changes: Partial<
+      Pick<
+        Player,
+        'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes' | 'initiativeAdvantage'
+      >
+    >,
   ): void {
     this.playersSignal.update((players) => players.map((p) => (p.id === id ? { ...p, ...changes } : p)));
   }

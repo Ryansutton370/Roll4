@@ -45,6 +45,14 @@
   --color-heal-tint: #e9f7ef;
   --color-focus: #1d4ed8;
 
+  /* "Enhanced"/"diminished" combat modifiers — Temp HP, Bonus Armor,
+     Initiative Advantage get a bright blue glow; Initiative Disadvantage
+     gets the same treatment in red instead (reusing --color-danger rather
+     than a second near-identical red token). Combatant-bubble-only today
+     (see combatant-bubble.css). */
+  --color-enhanced: #2563eb;
+  --color-diminished: var(--color-danger);
+
   /* Icon-only buttons (trash, chevron, etc.) — deliberately darker/bolder
      than --color-text-muted, which is used for lighter secondary text
      elsewhere (badges, round indicator). */

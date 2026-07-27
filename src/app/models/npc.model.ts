@@ -2,6 +2,8 @@
 // comments for the reasoning (reusable library entry + a many-to-many
 // grouping owned by the group's own id list) that applies equally here.
 
+import { InitiativeAdvantageState } from './initiative-advantage.model';
+
 export interface Npc {
   id: string;
   /** The owning GM's Firebase Auth uid — Firestore security rules key every read/write off this. */
@@ -14,6 +16,10 @@ export interface Npc {
   maxHp: number | null;
   /** '' means "not set" — a plain string is enough here (no null variant needed). */
   notes: string;
+  /** The sticky default a new Combatant built from this Npc starts with
+   *  — see Player.initiativeAdvantage in party.model.ts for the full
+   *  reasoning (write-through/dismiss mechanic is identical, Npc-side). */
+  initiativeAdvantage: InitiativeAdvantageState;
   /** Set when this Npc was generated from a MonsterTemplate (the Encounter
    *  Generator's "Save as Troop" step) — references MonsterTemplate.id, for
    *  the combatant bubble's Eye icon to look up the full stat block. `null`

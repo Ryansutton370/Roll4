@@ -341,12 +341,33 @@
    @if/@else split in combatant-bubble.html moving inside these spans
    instead of around them), so AC/HP/Notes/Initiative line up vertically
    across every bubble in the list, table-style. */
-.ac-stat {
+/* Wrapper (fixed-width column, same 2.4rem as before) + button (fills it,
+   chrome reset) — the same split .hp-stat-wrapper/.hp-stat below already
+   uses, needed here now that AC/Initiative are clickable too. See the
+   ac-adjust-popover/init-popover rules further down for why the wrapper
+   (not the button) is what needs position: relative. */
+.ac-stat-wrapper,
+.init-stat-wrapper {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
   width: 2.4rem;
 }
 
+.ac-stat,
 .init-stat {
-  width: 2.4rem;
+  width: 100%;
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ac-stat:disabled,
+.init-stat:disabled {
+  cursor: not-allowed;
 }
 
 .notes-stat {
@@ -397,6 +418,24 @@
    so it still fits inside the same badge instead of overflowing it. */
 .badge-value.na {
   font-size: 0.5rem;
+}
+
+/* "Enhanced" (Bonus Armor, Initiative Advantage) / "diminished" (Initiative
+   Disadvantage) — a color + glow swap on the icon itself, applied via
+   [class.enhanced]/[class.diminished] bindings driven by combatant state
+   (see combatant-bubble.ts/.html). Color/filter only, never anything that
+   touches box size — this bubble must never deform (see combatant-
+   bubble.css's own file-header rule), and a glow drawn with drop-shadow
+   sits outside the box entirely rather than growing it. */
+.badge-icon.enhanced svg {
+  color: var(--color-enhanced);
+  filter: drop-shadow(0 0 0.2rem var(--color-enhanced));
+}
+
+.badge-icon.diminished svg {
+  color: var(--color-diminished);
+  filter: drop-shadow(0 0 0.15rem var(--color-diminished));
+  opacity: 0.85;
 }
 
 /* Notes and View Stat Block: same footprint as .badge-icon above (AC/
@@ -496,6 +535,25 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* "Enhanced" while a Temp HP pool is active — same blue + glow language as
+   .badge-icon.enhanced above, applied to the heart icon (via .hp-stat,
+   color: inherit already reaches the svg) and the numbers text directly
+   (text-shadow instead of drop-shadow, since this is text not an icon).
+   Color/shadow only, no layout impact. */
+.hp-stat.enhanced {
+  color: var(--color-enhanced);
+  filter: drop-shadow(0 0 0.2rem var(--color-enhanced));
+}
+
+/* Plain blue, no text-shadow glow — the glow read as blur on small text
+   and made the number harder to read; the heart icon above still gets
+   the full glow treatment, which is enough to signal "enhanced" without
+   sacrificing legibility on the actual digits. */
+.hp-numbers.enhanced {
+  color: var(--color-enhanced);
+  font-weight: 700;
+}
+
 .hp-bar {
   display: inline-block;
   width: 4.5rem;
@@ -522,7 +580,7 @@
    lands right below the heart/bar regardless of what else is on the row.
    z-index here only has to win against the hp-stat button/health bar
    behind it — beating a SIBLING bubble's own content is handled by raising
-   this popover's whole <li> instead (see .hp-adjusting in
+   this popover's whole <li> instead (see .popover-open in
    encounter-detail.css), not by this z-index. Input on the left; the
    toggle switch + confirm button stack in a column on the right (see
    .hp-adjust-controls just below). */
@@ -547,6 +605,66 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.35rem;
+}
+
+/* +Temp — a small pill button stacked below the Damage/Healing switch (see
+   combatant-bubble.html). .active is the "clicked in" look while a Temp HP
+   pool exists (a filled, enhanced-blue background rather than an outline),
+   same visual language as .hp-mode-switch.healing above uses color to show
+   state. */
+.temp-hp-btn {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  padding: 0.15rem 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.temp-hp-btn.active {
+  border-color: var(--color-enhanced);
+  background: var(--color-enhanced);
+  color: #fff;
+}
+
+/* Temp HP entry prompt (see combatant-bubble.html's tempHpEntryOpen()
+   branch) — same .hp-adjust-controls column as the normal Damage/Healing
+   view it replaces, just a label + the +Temp button + a save/cancel pair
+   instead of the mode switch + single confirm button. */
+.temp-hp-entry-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.temp-hp-entry-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+/* Same color language as .add-one-btn's checkmark
+   (monster-generator-panel.css) for "save"/"add" actions elsewhere in
+   this app — permanently green, not just on hover, so the two icons read
+   as "confirm" vs. "cancel" at a glance. */
+.temp-hp-save-btn {
+  color: var(--color-heal);
+}
+
+.temp-hp-save-btn:hover {
+  background: var(--color-heal-tint);
+}
+
+.temp-hp-cancel-btn {
+  color: var(--color-danger);
+}
+
+.temp-hp-cancel-btn:hover {
+  background: var(--color-danger-tint);
 }
 
 /* A real toggle switch — a visually-hidden native checkbox (still focusable
@@ -625,6 +743,79 @@
 
 .hp-delta-input {
   width: 6rem;
+}
+
+/* AC popover (Bonus Armor) — same anchoring as .hp-adjust-popover above
+   (anchored to .ac-stat-wrapper's position: relative, not the button
+   itself — see that rule's own comment for why). */
+.ac-adjust-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+}
+
+.ac-bonus-input {
+  width: 4rem;
+}
+
+/* Confirm-to-remove step: text + a Remove/Cancel pair stacked instead of
+   the input+confirm row above. */
+.ac-remove-confirm {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.ac-remove-confirm-text {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  white-space: normal;
+}
+
+.ac-remove-confirm-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Initiative popover (Advantage/Disadvantage) — same anchoring as the AC/HP
+   popovers above, anchored to .init-stat-wrapper. Three stacked radio
+   options rather than an input+confirm row, since a pick applies
+   immediately. */
+.init-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.3rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+}
+
+.init-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  cursor: pointer;
 }
 
 /* ---------------------------------------------------------------------
@@ -716,8 +907,8 @@
     font-size: 0.65rem;
   }
 
-  .ac-stat,
-  .init-stat,
+  .ac-stat-wrapper,
+  .init-stat-wrapper,
   .notes-stat,
   .stat-block-stat {
     width: 1.9rem;

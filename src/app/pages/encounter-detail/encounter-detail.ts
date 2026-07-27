@@ -14,6 +14,7 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Combatant, Timer } from '../../models/encounter.model';
+import { InitiativeAdvantageState } from '../../models/initiative-advantage.model';
 import { EncounterStore, computeDisplayNames } from '../../services/encounter-store';
 import { MonsterStore } from '../../services/monster-store';
 import { NpcStore } from '../../services/npc-store';
@@ -341,6 +342,9 @@ export class EncounterDetail {
       ac: combatant.ac,
       maxHp: combatant.maxHp,
       notes: combatant.notes,
+      // Carries an ad-hoc combatant's already-set Advantage/Disadvantage
+      // into its new library entry instead of silently dropping it.
+      initiativeAdvantage: combatant.initiativeAdvantage,
     };
     // A monster-templated combatant (type 'npc' only — see AddCombatantDialog's
     // From Book flow) keeps its stat-block link when saved to the roster,
@@ -417,6 +421,29 @@ export class EncounterDetail {
     this.encounterStore.adjustCurrentHp(this.encounterId(), combatantId, delta);
   }
 
+  protected onTempHpSubmit(combatantId: string, amount: number): void {
+    this.encounterStore.setTempHp(this.encounterId(), combatantId, amount);
+  }
+
+  protected onTempHpClear(combatantId: string): void {
+    this.encounterStore.clearTempHp(this.encounterId(), combatantId);
+  }
+
+  protected onAcBonusSubmit(combatantId: string, amount: number): void {
+    this.encounterStore.setBonusAc(this.encounterId(), combatantId, amount);
+  }
+
+  protected onAcBonusClear(combatantId: string): void {
+    this.encounterStore.clearBonusAc(this.encounterId(), combatantId);
+  }
+
+  protected onInitiativeAdvantageChange(
+    combatantId: string,
+    state: InitiativeAdvantageState,
+  ): void {
+    this.encounterStore.setInitiativeAdvantage(this.encounterId(), combatantId, state);
+  }
+
   protected removeCombatant(combatantId: string): void {
     this.encounterStore.removeCombatant(this.encounterId(), combatantId);
   }
@@ -442,6 +469,68 @@ export class EncounterDetail {
 
   protected advance(direction: 'forward' | 'back'): void {
     this.encounterStore.advanceTurn(this.encounterId(), direction);
+  }
+
+  // @HostListener('document:keydown', ...): fires for a keydown ANYWHERE on
+  // the page, same document-scoped pattern as collapseHandleOnClickAway
+  // above — Angular wires this up and tears it down automatically with the
+  // component's lifecycle, no manual addEventListener/cleanup needed.
+  // Left/Right arrow step Previous/Next Turn, Space matches the "advance"
+  // convention from slideshows/video players. Three guards keep this from
+  // ever hijacking a key somewhere it already means something else: (1) any
+  // open native <dialog> (Edit/Add/StatBlock/Notes/CombatThesaurus all call
+  // .showModal() imperatively and don't expose an isOpen signal here, but
+  // their keydown events still bubble to document since they're nested
+  // inside this component's own template) — bail entirely and let the
+  // dialog own its keys; (2) typing surfaces (inputs/textarea/select/
+  // contenteditable, e.g. the timer fields here and the AC/HP/Temp HP
+  // inputs inside CombatantBubble) — Space needs to type a space, arrows
+  // need to move a caret or a number spinner; (3) Space only, activatable
+  // controls (button/link/summary/role=button) — Space already natively
+  // activates whatever's focused there, so without this guard pressing
+  // Space right after clicking Next Turn (leaving focus on that button)
+  // would double-advance. Arrow keys skip guard (3): arrows have no native
+  // activation semantics on a button/link, so ArrowRight keeps working for
+  // repeated presses even while focus rests on the Next Turn button.
+  @HostListener('document:keydown', ['$event'])
+  protected handleTurnShortcutKeydown(event: KeyboardEvent): void {
+    if (this.isPlacing()) return;
+    if (document.querySelector('dialog[open]')) return;
+    const target = event.target as HTMLElement | null;
+    if (this.isTypingTarget(target)) return;
+
+    switch (event.key) {
+      case 'ArrowLeft':
+        if (this.isFirstActiveCombatant()) return;
+        event.preventDefault();
+        this.advance('back');
+        return;
+      case 'ArrowRight':
+        event.preventDefault();
+        this.advance('forward');
+        return;
+      case ' ':
+        if (this.isActivatableTarget(target)) return;
+        event.preventDefault();
+        this.advance('forward');
+        return;
+    }
+  }
+
+  private isTypingTarget(target: HTMLElement | null): boolean {
+    if (!target) return false;
+    if (target.isContentEditable) return true;
+    return (
+      target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT'
+    );
+  }
+
+  private isActivatableTarget(target: HTMLElement | null): boolean {
+    if (!target) return false;
+    if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.tagName === 'SUMMARY') {
+      return true;
+    }
+    return target.getAttribute('role') === 'button';
   }
 
   protected toggleRemoved(combatantId: string): void {
@@ -518,28 +607,31 @@ export class EncounterDetail {
     }
   }
 
-  // Which combatant's HP delta popover is currently open — needed here (not
-  // just as local state inside CombatantBubble) purely for z-index: every
-  // bubble's <li> has a permanent CSS `animation` on it (.main-combatant's
-  // pop-in), and per spec that gives every bubble its own stacking context
-  // for as long as the animation rule applies, not just while it's actually
-  // playing. That means a popover's own z-index (set in
-  // combatant-bubble.css) can never reach past its own <li> to outrank a
-  // sibling bubble's content — the <li> itself has to be raised instead
-  // (see .hp-adjusting in encounter-detail.css), and the <li> lives in this
-  // component's template, so this component needs to know. Fed by
-  // CombatantBubble's hpAdjustOpenChange output. Same Set-of-ids pattern as
-  // expandedCombatantIds above, even though in practice only one popover is
-  // ever open at a time — a Set costs nothing extra and needs no "what if
-  // two GMs open two at once" caveat.
-  protected readonly hpAdjustingIds = signal<ReadonlySet<string>>(new Set());
+  // Which combatant has a popover currently open (HP delta, AC Bonus Armor,
+  // or Initiative Advantage/Disadvantage — all three now share this) —
+  // needed here (not just as local state inside CombatantBubble) purely
+  // for z-index: every bubble's <li> has a permanent CSS `animation` on it
+  // (.main-combatant's pop-in), and per spec that gives every bubble its
+  // own stacking context for as long as the animation rule applies, not
+  // just while it's actually playing. That means a popover's own z-index
+  // (set in combatant-bubble.css) can never reach past its own <li> to
+  // outrank a sibling bubble's content — the <li> itself has to be raised
+  // instead (see .popover-open in encounter-detail.css), and the <li>
+  // lives in this component's template, so this component needs to know.
+  // Fed by CombatantBubble's single popoverOpenChange output (see that
+  // component's anyPopoverOpen computed — one shared signal for all three
+  // popovers rather than tripling this plumbing). Same Set-of-ids pattern
+  // as expandedCombatantIds above, even though in practice only one
+  // popover is ever open at a time — a Set costs nothing extra and needs
+  // no "what if two GMs open two at once" caveat.
+  protected readonly popoverOpenIds = signal<ReadonlySet<string>>(new Set());
 
-  protected isHpAdjusting(combatantId: string): boolean {
-    return this.hpAdjustingIds().has(combatantId);
+  protected isPopoverOpen(combatantId: string): boolean {
+    return this.popoverOpenIds().has(combatantId);
   }
 
-  protected setHpAdjusting(combatantId: string, open: boolean): void {
-    this.hpAdjustingIds.update((ids) => {
+  protected setPopoverOpen(combatantId: string, open: boolean): void {
+    this.popoverOpenIds.update((ids) => {
       const alreadyHas = ids.has(combatantId);
       if (open === alreadyHas) return ids;
       const next = new Set(ids);

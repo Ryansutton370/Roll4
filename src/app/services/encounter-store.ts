@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { firestore } from '../firebase';
 import { Combatant, CombatantType, Encounter, Timer } from '../models/encounter.model';
+import { InitiativeAdvantageState } from '../models/initiative-advantage.model';
 import { AuthService } from './auth-service';
 import { NpcStore } from './npc-store';
 import { PartyStore } from './party-store';
@@ -27,8 +28,20 @@ function rollD20(): number {
   return Math.floor(Math.random() * 20) + 1;
 }
 
+/**
+ * Advantage/Disadvantage: roll twice and keep the higher/lower result
+ * instead of a single roll. Exported alongside compareByInitiative/
+ * reRollRound below for direct unit testing.
+ */
+export function rollD20WithAdvantage(state: InitiativeAdvantageState): number {
+  if (state === 'none') return rollD20();
+  const a = rollD20();
+  const b = rollD20();
+  return state === 'advantage' ? Math.max(a, b) : Math.min(a, b);
+}
+
 function rollInitiativeFor(combatant: Combatant): Combatant {
-  const lastRoll = rollD20();
+  const lastRoll = rollD20WithAdvantage(combatant.initiativeAdvantage);
   return { ...combatant, lastRoll, initiativeTotal: lastRoll + combatant.initiativeModifier };
 }
 
@@ -365,6 +378,7 @@ export class EncounterStore {
     fields: {
       name: string;
       initiativeModifier: number;
+      initiativeAdvantage?: InitiativeAdvantageState;
       ac: number | null;
       maxHp: number | null;
       notes: string;
@@ -382,9 +396,12 @@ export class EncounterStore {
       npcId: linkIds.npcId,
       name: fields.name,
       initiativeModifier: fields.initiativeModifier,
+      initiativeAdvantage: fields.initiativeAdvantage ?? 'none',
       ac: fields.ac,
       maxHp: fields.maxHp,
       currentHp: fields.maxHp,
+      tempHp: 0,
+      bonusAc: 0,
       notes: fields.notes,
       monsterTemplateId: fields.monsterTemplateId ?? null,
       monsterName: fields.monsterName ?? null,
@@ -664,6 +681,33 @@ export class EncounterStore {
       });
     }
     batch.commit().catch((err) => console.error('Failed to add combatant', err));
+
+    // Optimistic local update — same reasoning as createEncounter's (see
+    // its comment): encountersSignal/combatantsSignal only change once
+    // Firestore's onSnapshot echo round-trips, which is too late for a
+    // caller that adds several combatants in the same synchronous tick
+    // (e.g. "Add All to Encounter" looping over every generated monster —
+    // see EncounterList.onAddAllToEncounter). Without this, every
+    // iteration's `getEncounter(encounterId)` above reads the SAME stale
+    // combatantIds, so each one's batch.update computes
+    // `[...originalIds, itsOwnId]` — the batches race, the last one to
+    // commit on the server wins, and every combatant but one silently
+    // fails to link (the combatant *document* still gets written, so it's
+    // orphaned rather than visibly missing). Guarded against duplicates
+    // the same way as createEncounter, for the same fake-firestore
+    // synchronous-notify reason.
+    if (!this.combatantsSignal().some((c) => c.id === combatant.id)) {
+      this.combatantsSignal.update((list) => [...list, combatant]);
+    }
+    if (encounter) {
+      this.encountersSignal.update((list) =>
+        list.map((e) =>
+          e.id === encounterId && !e.combatantIds.includes(combatant.id)
+            ? { ...e, combatantIds: [...e.combatantIds, combatant.id] }
+            : e,
+        ),
+      );
+    }
   }
 
   /**
@@ -681,6 +725,7 @@ export class EncounterStore {
     fields: {
       name: string;
       initiativeModifier: number;
+      initiativeAdvantage?: InitiativeAdvantageState;
       ac: number | null;
       maxHp: number | null;
       notes: string;
@@ -767,15 +812,87 @@ export class EncounterStore {
     this.updateCombatant(combatantId, applied);
   }
 
-  /** Applies a signed HP delta (damage is negative, healing is positive), clamped to [0, maxHp]. No-op if maxHp isn't set — nothing to track. */
+  /**
+   * Applies a signed HP delta (damage is negative, healing is positive),
+   * clamped to [0, maxHp]. No-op if maxHp isn't set — nothing to track.
+   * Damage is deducted from Temp HP first, down to 0, before any
+   * remainder spills over into real currentHp — Healing never restores
+   * Temp HP, only ever real HP, same as before Temp HP existed.
+   */
   adjustCurrentHp(encounterId: string, combatantId: string, delta: number): void {
     const combatant = this.combatantsForEncounter(encounterId).find((c) => c.id === combatantId);
     if (!combatant || combatant.maxHp === null) return;
+    if (delta >= 0) {
+      const currentHp = clampCurrentHp(
+        (combatant.currentHp ?? combatant.maxHp) + delta,
+        combatant.maxHp,
+      );
+      this.updateCombatant(combatantId, { currentHp });
+      return;
+    }
+    const damage = -delta;
+    const tempHpAbsorbed = Math.min(combatant.tempHp, damage);
+    const spillover = damage - tempHpAbsorbed;
     const currentHp = clampCurrentHp(
-      (combatant.currentHp ?? combatant.maxHp) + delta,
+      (combatant.currentHp ?? combatant.maxHp) - spillover,
       combatant.maxHp,
     );
-    this.updateCombatant(combatantId, { currentHp });
+    this.updateCombatant(combatantId, { currentHp, tempHp: combatant.tempHp - tempHpAbsorbed });
+  }
+
+  /** The HP popover's "+Temp" button, when no pool is currently active — sets a fresh Temp HP pool. No-op if maxHp isn't set (nothing to track) or amount isn't a positive number. */
+  setTempHp(encounterId: string, combatantId: string, amount: number): void {
+    const combatant = this.combatantsForEncounter(encounterId).find((c) => c.id === combatantId);
+    if (!combatant || combatant.maxHp === null) return;
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    this.updateCombatant(combatantId, { tempHp: amount });
+  }
+
+  /** The HP popover's "+Temp" button, when a pool is already active — clears it immediately, no confirmation. */
+  clearTempHp(encounterId: string, combatantId: string): void {
+    this.updateCombatant(combatantId, { tempHp: 0 });
+  }
+
+  /** The AC popover's add-value step, when no Bonus Armor is currently active. No-op if base AC isn't set (Bonus Armor stacks on a base AC, matching the AC badge's own "only shown when ac !== null" rule) or amount isn't a positive number. */
+  setBonusAc(encounterId: string, combatantId: string, amount: number): void {
+    const combatant = this.combatantsForEncounter(encounterId).find((c) => c.id === combatantId);
+    if (!combatant || combatant.ac === null) return;
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    this.updateCombatant(combatantId, { bonusAc: amount });
+  }
+
+  /** The AC popover's confirm-to-remove step, when Bonus Armor is already active. */
+  clearBonusAc(encounterId: string, combatantId: string): void {
+    this.updateCombatant(combatantId, { bonusAc: 0 });
+  }
+
+  /**
+   * The Initiative popover's None/Advantage/Disadvantage radio choice.
+   * Applies unconditionally, with none of setInitiativeModifier's "before
+   * first Roll" gating — unlike the modifier, changing this can't leave an
+   * already-computed initiativeTotal inconsistent, since it only affects
+   * how the *next* roll is made (the initial Roll or a round-boundary
+   * reroll), not an offset applied after the fact.
+   *
+   * Also writes through to the linked Player/Npc (if any), so this choice
+   * becomes the sticky default the *next* Combatant built from that
+   * library entry starts with (see buildCombatant and Player.
+   * initiativeAdvantage's doc comment) — picking "None" here is what
+   * dismisses it. An ad-hoc combatant (no playerId/npcId) only ever
+   * updates its own Combatant, same as before this existed.
+   */
+  setInitiativeAdvantage(
+    encounterId: string,
+    combatantId: string,
+    initiativeAdvantage: InitiativeAdvantageState,
+  ): void {
+    const combatant = this.combatantsSignal().find((c) => c.id === combatantId);
+    this.updateCombatant(combatantId, { initiativeAdvantage });
+    if (combatant?.playerId) {
+      this.partyStore.updatePlayer(combatant.playerId, { initiativeAdvantage });
+    } else if (combatant?.npcId) {
+      this.npcStore.updateNpc(combatant.npcId, { initiativeAdvantage });
+    }
   }
 
   /** Only allowed before the first Roll — corrects a setup mistake. */
@@ -823,7 +940,7 @@ export class EncounterStore {
     const activeId = this.activeCombatantId(encounterId);
     const order = this.combatantsForEncounter(encounterId);
     const activeTotal = activeId ? (order.find((c) => c.id === activeId)?.initiativeTotal ?? 0) : 0;
-    const roll = rollD20();
+    const roll = rollD20WithAdvantage(combatant.initiativeAdvantage);
     const total = Math.min(roll + combatant.initiativeModifier, activeTotal - 1);
     return { ...combatant, lastRoll: roll, initiativeTotal: total };
   }

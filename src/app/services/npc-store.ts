@@ -14,6 +14,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { firestore } from '../firebase';
+import { InitiativeAdvantageState } from '../models/initiative-advantage.model';
 import { Npc, Troop } from '../models/npc.model';
 import { AuthService } from './auth-service';
 
@@ -134,7 +135,15 @@ export class NpcStore {
     );
   }
 
-  /** Created directly into the roster, unattached to any Troop — use addNpcToTroop to assign it to one. monsterTemplateId/monsterName are optional so every existing hand-entered-NPc call site is unaffected; only the Encounter Generator's "Save as Troop" step sets them. */
+  /**
+   * Created directly into the roster, unattached to any Troop — use
+   * addNpcToTroop to assign it to one. monsterTemplateId/monsterName are
+   * optional so every existing hand-entered-NPC call site is unaffected;
+   * only the Encounter Generator's "Save as Troop" step sets them.
+   * initiativeAdvantage is optional too, same reasoning as
+   * PartyStore.createPlayer — defaults to 'none', only overridden by
+   * EncounterDetail's "Save to Roster" flow.
+   */
   createNpc(fields: {
     name: string;
     initiativeModifier: number;
@@ -143,6 +152,7 @@ export class NpcStore {
     notes: string;
     monsterTemplateId?: string | null;
     monsterName?: string | null;
+    initiativeAdvantage?: InitiativeAdvantageState;
   }): Npc {
     const ownerId = this.requireUid();
     const npc: Npc = {
@@ -151,6 +161,7 @@ export class NpcStore {
       ...fields,
       monsterTemplateId: fields.monsterTemplateId ?? null,
       monsterName: fields.monsterName ?? null,
+      initiativeAdvantage: fields.initiativeAdvantage ?? 'none',
     };
     setDoc(doc(firestore, 'npcs', npc.id), npc).catch((err) =>
       console.error('Failed to save npc', err),
@@ -160,7 +171,9 @@ export class NpcStore {
 
   updateNpc(
     id: string,
-    changes: Partial<Pick<Npc, 'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes'>>,
+    changes: Partial<
+      Pick<Npc, 'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes' | 'initiativeAdvantage'>
+    >,
   ): void {
     updateDoc(doc(firestore, 'npcs', id), changes).catch((err) =>
       console.error('Failed to update npc', err),

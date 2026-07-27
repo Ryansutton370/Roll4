@@ -9,7 +9,7 @@
         class="bubble preview-combatant"
         [class.pc-entry]="c.type === 'pc'"
         [class.npc-entry]="c.type === 'npc'"
-        [class.hp-adjusting]="isHpAdjusting(c.id)"
+        [class.popover-open]="isPopoverOpen(c.id)"
       >
         <app-combatant-bubble
           [combatant]="c"
@@ -23,7 +23,12 @@
           (viewStatBlockRequested)="openStatBlockDialog(c)"
           (notesRequested)="openNotesDialog(c)"
           (hpAdjustSubmit)="onHpAdjustSubmit(c.id, $event)"
-          (hpAdjustOpenChange)="setHpAdjusting(c.id, $event)"
+          (tempHpSubmit)="onTempHpSubmit(c.id, $event)"
+          (tempHpClear)="onTempHpClear(c.id)"
+          (acBonusSubmit)="onAcBonusSubmit(c.id, $event)"
+          (acBonusClear)="onAcBonusClear(c.id)"
+          (initiativeAdvantageChange)="onInitiativeAdvantageChange(c.id, $event)"
+          (popoverOpenChange)="setPopoverOpen(c.id, $event)"
           (deleteRequested)="deleteCombatant(c.id)"
         >
           <!-- Only an ad-hoc combatant (no library link) has anything to

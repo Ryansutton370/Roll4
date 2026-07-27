@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, signal, viewChild } from '@angular/core';
 import { Combatant } from '../../models/encounter.model';
+import { InitiativeAdvantageState } from '../../models/initiative-advantage.model';
 import { EncounterStore, computeDisplayNames } from '../../services/encounter-store';
 import { NpcStore } from '../../services/npc-store';
 import { PartyStore } from '../../services/party-store';
@@ -75,17 +76,19 @@ export class EncounterPreviewPanel {
   }
 
   // Raises a bubble's <li> above its siblings while its HP delta popover is
-  // open — same fix/rationale as EncounterDetail.hpAdjustingIds (a bubble's
+  // open — same fix/rationale as EncounterDetail.popoverOpenIds (a bubble's
   // own permanent pop-in animation creates a stacking context that
   // otherwise traps the popover's z-index inside just that one bubble).
-  protected readonly hpAdjustingIds = signal<ReadonlySet<string>>(new Set());
+  // Shared by all three of CombatantBubble's popovers (HP/AC/Initiative)
+  // via its single popoverOpenChange output.
+  protected readonly popoverOpenIds = signal<ReadonlySet<string>>(new Set());
 
-  protected isHpAdjusting(combatantId: string): boolean {
-    return this.hpAdjustingIds().has(combatantId);
+  protected isPopoverOpen(combatantId: string): boolean {
+    return this.popoverOpenIds().has(combatantId);
   }
 
-  protected setHpAdjusting(combatantId: string, open: boolean): void {
-    this.hpAdjustingIds.update((ids) => {
+  protected setPopoverOpen(combatantId: string, open: boolean): void {
+    this.popoverOpenIds.update((ids) => {
       const next = new Set(ids);
       open ? next.add(combatantId) : next.delete(combatantId);
       return next;
@@ -128,6 +131,39 @@ export class EncounterPreviewPanel {
     const id = this.encounterId();
     if (!id) return;
     this.encounterStore.adjustCurrentHp(id, combatantId, delta);
+  }
+
+  protected onTempHpSubmit(combatantId: string, amount: number): void {
+    const id = this.encounterId();
+    if (!id) return;
+    this.encounterStore.setTempHp(id, combatantId, amount);
+  }
+
+  protected onTempHpClear(combatantId: string): void {
+    const id = this.encounterId();
+    if (!id) return;
+    this.encounterStore.clearTempHp(id, combatantId);
+  }
+
+  protected onAcBonusSubmit(combatantId: string, amount: number): void {
+    const id = this.encounterId();
+    if (!id) return;
+    this.encounterStore.setBonusAc(id, combatantId, amount);
+  }
+
+  protected onAcBonusClear(combatantId: string): void {
+    const id = this.encounterId();
+    if (!id) return;
+    this.encounterStore.clearBonusAc(id, combatantId);
+  }
+
+  protected onInitiativeAdvantageChange(
+    combatantId: string,
+    state: InitiativeAdvantageState,
+  ): void {
+    const id = this.encounterId();
+    if (!id) return;
+    this.encounterStore.setInitiativeAdvantage(id, combatantId, state);
   }
 
   // The drawer's relabeled "Mark Absent" (Player) — same underlying flag/
@@ -204,6 +240,7 @@ export class EncounterPreviewPanel {
       ac: combatant.ac,
       maxHp: combatant.maxHp,
       notes: combatant.notes,
+      initiativeAdvantage: combatant.initiativeAdvantage,
     };
     // A monster-templated combatant (type 'npc' only) keeps its stat-block
     // link when saved to the roster, rather than that being silently

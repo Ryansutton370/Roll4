@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { InitiativeAdvantageState } from '../../models/initiative-advantage.model';
 import { Npc, Troop } from '../../models/npc.model';
 import { addNpcIdToTroop, removeNpcIdFromAllTroops, removeNpcIdFromTroop } from '../npc-store';
 
@@ -54,6 +55,7 @@ export class FakeNpcStore {
     notes: string;
     monsterTemplateId?: string | null;
     monsterName?: string | null;
+    initiativeAdvantage?: InitiativeAdvantageState;
   }): Npc {
     const npc: Npc = {
       id: crypto.randomUUID(),
@@ -61,13 +63,16 @@ export class FakeNpcStore {
       ...fields,
       monsterTemplateId: fields.monsterTemplateId ?? null,
       monsterName: fields.monsterName ?? null,
+      initiativeAdvantage: fields.initiativeAdvantage ?? 'none',
     };
     this.npcsSignal.update((npcs) => [...npcs, npc]);
     return npc;
   }
   updateNpc(
     id: string,
-    changes: Partial<Pick<Npc, 'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes'>>,
+    changes: Partial<
+      Pick<Npc, 'name' | 'initiativeModifier' | 'ac' | 'maxHp' | 'notes' | 'initiativeAdvantage'>
+    >,
   ): void {
     this.npcsSignal.update((npcs) => npcs.map((n) => (n.id === id ? { ...n, ...changes } : n)));
   }

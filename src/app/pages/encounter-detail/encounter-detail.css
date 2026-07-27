@@ -682,14 +682,20 @@ input[type='text'].timer-name-input:focus {
    applicable animation targeting `transform` gets its own stacking context
    for as long as that rule matches it, not just while the animation is
    actually running. That means every bubble is already a separate stacking
-   context, so a popover opened inside one (e.g. the HP delta popup in
-   CombatantBubble) can never out-rank a SIBLING bubble via its own z-index
-   alone — the sibling's stacking context, not the popover's z-index, is
-   what wins that comparison. Raising the OPEN bubble's own <li> above that
-   z-index:auto tier (driven by CombatantBubble's hpAdjustOpenChange output,
-   see EncounterDetail's setHpAdjusting()) is what actually fixes it. */
-.hp-adjusting {
-  z-index: 10;
+   context, so a popover opened inside one (the HP delta, AC Bonus Armor, or
+   Initiative Advantage/Disadvantage popups in CombatantBubble) can never
+   out-rank a SIBLING bubble via its own z-index alone — the sibling's
+   stacking context, not the popover's z-index, is what wins that
+   comparison. Raising the OPEN bubble's own <li> above that z-index:auto
+   tier (driven by CombatantBubble's single popoverOpenChange output, which
+   covers all three popovers — see EncounterDetail's setPopoverOpen()) is
+   what actually fixes it. Has to clear .turn-controls' own z-index (15,
+   below) too, not just sibling bubbles — a popover opened on the last
+   combatant in the list overlaps the sticky turn-controls bar, and a GM
+   actively interacting with an open popover should see it in front of
+   that bar, not behind it. */
+.popover-open {
+  z-index: 20;
 }
 
 /* container-type: inline-size — establishes these <li>s as query containers
@@ -984,8 +990,10 @@ input[type='text'].timer-name-input:focus {
    sticky elements don't clip what scrolls underneath them — same
    --color-page-bg the page itself uses (styles.css), so it blends into the
    page rather than reading as a separate panel. z-index above ordinary
-   combatant bubbles (.hp-adjusting tops out at 10) so the list never paints
-   over it mid-scroll. */
+   (no popover open) combatant bubbles so the list never paints over it
+   mid-scroll — but deliberately below .popover-open's 20, so an actively
+   open popover on the last combatant in the list still renders in front
+   of this bar instead of behind it (see .popover-open's own comment). */
 .turn-controls {
   position: sticky;
   bottom: 0;
